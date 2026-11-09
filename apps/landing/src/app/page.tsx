@@ -2,6 +2,7 @@ import { Navbar } from "./components/layout/Navbar";
 import { Hero } from "./components/sections/Hero";
 import { Challenge } from "./components/sections/Challenge";
 import { Solution } from "./components/sections/Solution";
+import { HowItWorks } from "./components/sections/HowItWorks";
 
 export default function Home() {
   return (
@@ -17,6 +18,10 @@ export default function Home() {
       <div className="section-divider" />
 
       <Solution />
+
+      <div className="section-divider" />
+
+      <HowItWorks />
     </main>
   );
 }
