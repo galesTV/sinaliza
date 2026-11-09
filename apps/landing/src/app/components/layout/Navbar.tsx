@@ -2,7 +2,7 @@ const navigation = [
   { label: "O projeto", href: "#projeto" },
   { label: "Como funciona", href: "#como-funciona" },
   { label: "Tecnologia", href: "#tecnologia" },
-  { label: "Demonstração", href: "#demo" },
+  { label: "Demonstração", href: "#demonstracao" },
 ];
 
 export function Navbar() {
@@ -24,7 +24,7 @@ export function Navbar() {
           ))}
         </nav>
 
-        <a href="#demo" className="nav-cta">
+        <a href="#demonstracao" className="nav-cta">
           Conheça o projeto
           <span aria-hidden="true">↗</span>
         </a>
@@ -43,7 +43,7 @@ export function Navbar() {
               </a>
             ))}
 
-            <a href="#demo" className="mobile-nav-cta">
+            <a href="#demonstracao" className="mobile-nav-cta">
               Conheça o projeto ↗
             </a>
           </nav>

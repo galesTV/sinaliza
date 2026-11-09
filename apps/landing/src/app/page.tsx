@@ -3,6 +3,7 @@ import { Hero } from "./components/sections/Hero";
 import { Challenge } from "./components/sections/Challenge";
 import { Solution } from "./components/sections/Solution";
 import { HowItWorks } from "./components/sections/HowItWorks";
+import { Technology } from "./components/sections/Technology";
 
 export default function Home() {
   return (
@@ -22,6 +23,10 @@ export default function Home() {
       <div className="section-divider" />
 
       <HowItWorks />
+
+      <div className="section-divider" />
+
+      <Technology />
     </main>
   );
 }
