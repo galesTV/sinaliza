@@ -1,0 +1,91 @@
+const milestones = [
+  {
+    number: "01",
+    eyebrow: "O ponto de partida",
+    title: "Fundamentos",
+    description:
+      "Construir uma base acessível para quem está começando a aprender Libras, com alfabeto e vocabulário básico.",
+    status: "Escopo inicial",
+    statusType: "planned",
+  },
+  {
+    number: "02",
+    eyebrow: "Uma jornada de aprendizagem",
+    title: "Aprendizagem",
+    description:
+      "Desenvolver aulas estruturadas, exercícios contextualizados e atividades que conectem conhecimento e prática.",
+    status: "Planejado",
+    statusType: "planned",
+  },
+  {
+    number: "03",
+    eyebrow: "Experimentação tecnológica",
+    title: "Prática interativa",
+    description:
+      "Evoluir a experiência com câmera, análise de landmarks e feedback visual para apoiar a prática dos estudantes.",
+    status: "PoC técnica existente",
+    statusType: "prototype",
+  },
+  {
+    number: "04",
+    eyebrow: "O que vem depois",
+    title: "Expansão",
+    description:
+      "Ampliar o conteúdo, acompanhar a evolução dos estudantes e explorar novas possibilidades de aprendizagem.",
+    status: "Visão futura",
+    statusType: "future",
+  },
+];
+
+export function Roadmap() {
+  return (
+    <section id="futuro" className="roadmap-section">
+      <div className="roadmap-container">
+        <div className="roadmap-heading">
+          <span className="section-eyebrow">O futuro do Sinaliza</span>
+
+          <h2 className="roadmap-title">
+            Estamos construindo <span>novas formas de aprender.</span>
+          </h2>
+
+          <p className="roadmap-description">
+            O Sinaliza começa com o essencial, mas nasce com uma visão maior:
+            tornar o aprendizado de Libras cada vez mais acessível, interativo e
+            conectado à experiência de quem aprende.
+          </p>
+        </div>
+
+        <ol className="roadmap-list">
+          {milestones.map((milestone) => (
+            <li className="roadmap-item" key={milestone.number}>
+              <div className="roadmap-marker" aria-hidden="true">
+                <span>{milestone.number}</span>
+              </div>
+
+              <article className="roadmap-card">
+                <span className="roadmap-eyebrow">{milestone.eyebrow}</span>
+
+                <h3>{milestone.title}</h3>
+
+                <p>{milestone.description}</p>
+
+                <span
+                  className={`roadmap-status roadmap-status--${milestone.statusType}`}
+                >
+                  <span className="roadmap-status-dot" />
+                  {milestone.status}
+                </span>
+              </article>
+            </li>
+          ))}
+        </ol>
+
+        <p className="roadmap-note">
+          O roadmap representa a direção de desenvolvimento do projeto. As
+          etapas e funcionalidades poderão evoluir conforme a validação da
+          experiência de aprendizagem.
+        </p>
+      </div>
+    </section>
+  );
+}

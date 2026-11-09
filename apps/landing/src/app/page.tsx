@@ -4,29 +4,44 @@ import { Challenge } from "./components/sections/Challenge";
 import { Solution } from "./components/sections/Solution";
 import { HowItWorks } from "./components/sections/HowItWorks";
 import { Technology } from "./components/sections/Technology";
+import { Roadmap } from "./components/sections/Roadmap";
+import { FinalCTA } from "./components/sections/FinalCTA";
+import { Footer } from "./components/layout/Footer";
 
 export default function Home() {
   return (
-    <main className="page-shell">
-      <Navbar />
+    <>
+      <main className="page-shell">
+        <Navbar />
 
-      <Hero />
+        <Hero />
 
-      <div className="section-divider" />
+        <div className="section-divider" />
 
-      <Challenge />
+        <Challenge />
 
-      <div className="section-divider" />
+        <div className="section-divider" />
 
-      <Solution />
+        <Solution />
 
-      <div className="section-divider" />
+        <div className="section-divider" />
 
-      <HowItWorks />
+        <HowItWorks />
 
-      <div className="section-divider" />
+        <div className="section-divider" />
 
-      <Technology />
-    </main>
+        <Technology />
+
+        <div className="section-divider" />
+
+        <Roadmap />
+
+        <div className="section-divider" />
+
+        <FinalCTA />
+      </main>
+
+      <Footer />
+    </>
   );
 }

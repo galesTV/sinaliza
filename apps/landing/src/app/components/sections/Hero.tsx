@@ -24,7 +24,7 @@ export function Hero() {
             <span aria-hidden="true">↗</span>
           </a>
 
-          <a href="#demo" className="hero-secondary-button">
+          <a href="#demonstracao" className="hero-secondary-button">
             Conheça a demonstração
             <span aria-hidden="true">→</span>
           </a>
