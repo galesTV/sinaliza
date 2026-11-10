@@ -1,3 +1,6 @@
+import { Reveal } from "../ui/Reveal";
+import { StaggerGroup, StaggerItem } from "../ui/StaggerGroup";
+
 const milestones = [
   {
     number: "01",
@@ -41,7 +44,7 @@ export function Roadmap() {
   return (
     <section id="futuro" className="roadmap-section">
       <div className="roadmap-container">
-        <div className="roadmap-heading">
+        <Reveal className="roadmap-heading">
           <span className="eyebrow">06 — O futuro do Sinaliza</span>
 
           <h2 className="roadmap-title">
@@ -54,11 +57,16 @@ export function Roadmap() {
             tornar o aprendizado de Libras cada vez mais acessível, interativo e
             conectado à experiência de quem aprende.
           </p>
-        </div>
+        </Reveal>
 
-        <ol className="roadmap-list">
+        <StaggerGroup className="roadmap-list" as="ol" staggerDelay={0.14}>
           {milestones.map((milestone) => (
-            <li className="roadmap-item" key={milestone.number}>
+            <StaggerItem
+              className="roadmap-item"
+              key={milestone.number}
+              as="li"
+              duration={0.55}
+            >
               <div className="roadmap-marker" aria-hidden="true">
                 <span>{milestone.number}</span>
               </div>
@@ -77,19 +85,21 @@ export function Roadmap() {
                   {milestone.status}
                 </span>
               </article>
-            </li>
+            </StaggerItem>
           ))}
-        </ol>
+        </StaggerGroup>
 
-        <p className="roadmap-note">
-          O roadmap representa a direção de desenvolvimento do projeto. As
-          etapas e funcionalidades poderão evoluir conforme a validação da
-          experiência de aprendizagem. Já existe uma prova de conceito
-          independente que experimenta a detecção de mãos, a identificação de
-          landmarks e a extração de características geométricas. A integração
-          desses recursos à experiência de aprendizagem ainda está em
-          desenvolvimento.
-        </p>
+        <Reveal>
+          <p className="roadmap-note">
+            O roadmap representa a direção de desenvolvimento do projeto. As
+            etapas e funcionalidades poderão evoluir conforme a validação da
+            experiência de aprendizagem. Já existe uma prova de conceito
+            independente que experimenta a detecção de mãos, a identificação de
+            landmarks e a extração de características geométricas. A integração
+            desses recursos à experiência de aprendizagem ainda está em
+            desenvolvimento.
+          </p>
+        </Reveal>
       </div>
     </section>
   );

@@ -1,3 +1,5 @@
+import { Reveal } from "../ui/Reveal";
+
 export function FinalCTA() {
   return (
     <section
@@ -8,16 +10,19 @@ export function FinalCTA() {
       <div className="final-cta-container">
         <div className="final-cta-glow" aria-hidden="true" />
 
-        <div className="final-cta-content">
+        <Reveal className="final-cta-content" duration={0.65} distance={16}>
           <span className="eyebrow">07 — O próximo passo</span>
+
           <h2 id="final-cta-title" className="final-cta-title">
             Aprender Libras é ampliar{" "}
             <span className="gradient-text">possibilidades de conexão.</span>
           </h2>
+
           <p className="final-cta-description">
             Estamos construindo uma nova experiência de aprendizagem,
             aproximando educação, tecnologia e comunicação.
           </p>
+
           <div className="final-cta-actions">
             <a
               href="https://github.com/galesTV/sinaliza"
@@ -36,10 +41,11 @@ export function FinalCTA() {
               </span>
             </a>
           </div>
+
           <span className="final-cta-note">
             Sinaliza — um projeto em construção.
           </span>
-        </div>
+        </Reveal>
       </div>
     </section>
   );

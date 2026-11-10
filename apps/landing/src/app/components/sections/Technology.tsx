@@ -1,4 +1,6 @@
 import { LazyHandVisualization } from "../ui/LazyHandVisualization";
+import { Reveal } from "../ui/Reveal";
+import { StaggerGroup, StaggerItem } from "../ui/StaggerGroup";
 
 const stages = [
   {
@@ -28,7 +30,7 @@ export function Technology() {
   return (
     <section id="tecnologia" className="technology-section">
       <div className="technology-intro">
-        <div className="technology-copy">
+        <Reveal className="technology-copy">
           <span className="eyebrow">04 — Tecnologia aplicada</span>
 
           <h2 className="technology-title">
@@ -51,37 +53,37 @@ export function Technology() {
             <span className="technology-status-dot" />
             Pesquisa e desenvolvimento em andamento
           </span>
-        </div>
+        </Reveal>
 
-        <div className="technology-visual">
+        <Reveal className="technology-visual" delay={0.12}>
           <div className="technology-visual-glow" aria-hidden="true" />
           <LazyHandVisualization />
           <span className="technology-visual-caption">
             REPRESENTAÇÃO VISUAL CONCEITUAL
           </span>
-        </div>
+        </Reveal>
       </div>
 
       <div className="technology-process">
-        <div className="technology-process-heading">
+        <Reveal className="technology-process-heading">
           <span className="eyebrow">DA IMAGEM À INFORMAÇÃO</span>
           <h3>O que acontece por trás da câmera?</h3>
-        </div>
+        </Reveal>
 
-        <div className="technology-stages">
+        <StaggerGroup className="technology-stages">
           {stages.map((stage) => (
-            <article className="technology-stage" key={stage.number}>
+            <StaggerItem className="technology-stage" key={stage.number}>
               <span className="technology-stage-number">{stage.number}</span>
               <span className="technology-stage-tag">{stage.tag}</span>
               <h4>{stage.title}</h4>
               <p>{stage.description}</p>
-            </article>
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerGroup>
       </div>
 
       <div id="demonstracao" className="technology-demo">
-        <div className="technology-demo-heading">
+        <Reveal className="technology-demo-heading">
           <div>
             <span className="eyebrow">05 — Demonstração técnica</span>
             <h3>Da teoria para a prática.</h3>
@@ -91,9 +93,9 @@ export function Technology() {
             <span className="technology-status-dot" />
             Registro real em preparação
           </span>
-        </div>
+        </Reveal>
 
-        <div className="technology-video-placeholder">
+        <Reveal className="technology-video-placeholder">
           <div className="technology-video-content">
             <div className="technology-video-icon" aria-hidden="true">
               <span>▶</span>
@@ -109,17 +111,19 @@ export function Technology() {
           </div>
 
           <span className="technology-video-ratio">16:9</span>
-        </div>
+        </Reveal>
 
-        <p className="technology-disclaimer">
-          A visualização 3D é ilustrativa. Atualmente, a prova de conceito
-          funciona como um experimento técnico independente, desenvolvido em
-          Python com MediaPipe e OpenCV. Ela permite detectar mãos, identificar
-          landmarks e extrair características geométricas. Esses recursos ainda
-          não estão integrados à plataforma e servem como base para investigar
-          futuras aplicações na aprendizagem de Libras. O reconhecimento
-          completo de sinais ainda não está implementado.
-        </p>
+        <Reveal>
+          <p className="technology-disclaimer">
+            A visualização 3D é ilustrativa. Atualmente, a prova de conceito
+            funciona como um experimento técnico independente, desenvolvido em
+            Python com MediaPipe e OpenCV. Ela permite detectar mãos,
+            identificar landmarks e extrair características geométricas. Esses
+            recursos ainda não estão integrados à plataforma e servem como base
+            para investigar futuras aplicações na aprendizagem de Libras. O
+            reconhecimento completo de sinais ainda não está implementado.
+          </p>
+        </Reveal>
       </div>
     </section>
   );

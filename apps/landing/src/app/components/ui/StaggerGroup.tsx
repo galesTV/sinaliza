@@ -7,17 +7,20 @@ type StaggerGroupProps = {
   children: ReactNode;
   className?: string;
   staggerDelay?: number;
+  as?: "div" | "ol";
 };
 
 export function StaggerGroup({
   children,
   className,
   staggerDelay = 0.12,
+  as = "div",
 }: StaggerGroupProps) {
   const shouldReduceMotion = useReducedMotion();
+  const MotionContainer = as === "ol" ? motion.ol : motion.div;
 
   return (
-    <motion.div
+    <MotionContainer
       className={className}
       initial="hidden"
       whileInView="visible"
@@ -35,7 +38,7 @@ export function StaggerGroup({
       }}
     >
       {children}
-    </motion.div>
+    </MotionContainer>
   );
 }
 
@@ -43,17 +46,20 @@ type StaggerItemProps = {
   children: ReactNode;
   className?: string;
   duration?: number;
+  as?: "article" | "li";
 };
 
 export function StaggerItem({
   children,
   className,
   duration = 0.5,
+  as = "article",
 }: StaggerItemProps) {
   const shouldReduceMotion = useReducedMotion();
+  const MotionItem = as === "li" ? motion.li : motion.article;
 
   return (
-    <motion.article
+    <MotionItem
       className={className}
       variants={{
         hidden: shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 18 },
@@ -68,6 +74,6 @@ export function StaggerItem({
       }}
     >
       {children}
-    </motion.article>
+    </MotionItem>
   );
 }

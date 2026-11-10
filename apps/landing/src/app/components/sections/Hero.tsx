@@ -1,7 +1,9 @@
+import { Reveal } from "../ui/Reveal";
+
 export function Hero() {
   return (
     <section id="inicio" className="landing-hero">
-      <div className="hero-content">
+      <Reveal className="hero-content" duration={0.65} distance={14}>
         <div className="hero-badge">
           <span className="hero-badge-indicator" />
           Projeto participante do HackBrasil 2026
@@ -35,12 +37,15 @@ export function Hero() {
           <span className="hero-supporting-line" />
           Aprender. Praticar. Conectar.
         </div>
-      </div>
+      </Reveal>
 
-      <div
+      <Reveal
         className="hero-visual"
         role="img"
-        aria-label="Ilustração conceitual da jornada de aprendizagem do Sinaliza"
+        ariaLabel="Ilustração conceitual da jornada de aprendizagem do Sinaliza"
+        delay={0.12}
+        duration={0.7}
+        distance={12}
       >
         <div className="hero-visual-glow" />
 
@@ -80,7 +85,7 @@ export function Hero() {
         </div>
 
         <span className="hero-visual-caption">Uma jornada de aprendizagem</span>
-      </div>
+      </Reveal>
     </section>
   );
 }

@@ -9,6 +9,8 @@ type RevealProps = {
   delay?: number;
   duration?: number;
   distance?: number;
+  role?: string;
+  ariaLabel?: string;
 };
 
 export function Reveal({
@@ -17,12 +19,16 @@ export function Reveal({
   delay = 0,
   duration = 0.55,
   distance = 20,
+  role,
+  ariaLabel,
 }: RevealProps) {
   const shouldReduceMotion = useReducedMotion();
 
   return (
     <motion.div
       className={className}
+      role={role}
+      aria-label={ariaLabel}
       initial={shouldReduceMotion ? false : { opacity: 0, y: distance }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{

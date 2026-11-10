@@ -1,3 +1,6 @@
+import { Reveal } from "../ui/Reveal";
+import { StaggerGroup, StaggerItem } from "../ui/StaggerGroup";
+
 const challenges = [
   {
     number: "01",
@@ -22,7 +25,7 @@ const challenges = [
 export function Challenge() {
   return (
     <section id="projeto" className="challenge-section">
-      <div className="challenge-intro">
+      <Reveal className="challenge-intro">
         <span className="eyebrow">01 — O desafio</span>
 
         <h2 className="challenge-title">
@@ -35,10 +38,10 @@ export function Challenge() {
           compartilhar experiências. Isso exige mais do que conhecer sinais:
           exige contexto, contato e prática.
         </p>
-      </div>
+      </Reveal>
 
       <div className="challenge-content">
-        <div className="challenge-statement">
+        <Reveal className="challenge-statement">
           <span className="challenge-statement-mark" aria-hidden="true">
             “
           </span>
@@ -51,20 +54,20 @@ export function Challenge() {
           <span className="challenge-statement-caption">
             O aprendizado precisa ir além da memorização.
           </span>
-        </div>
+        </Reveal>
 
-        <div className="challenge-points">
+        <StaggerGroup className="challenge-points">
           {challenges.map((challenge) => (
-            <article className="challenge-point" key={challenge.number}>
+            <StaggerItem className="challenge-point" key={challenge.number}>
               <span className="challenge-number">{challenge.number}</span>
 
               <div>
                 <h3>{challenge.title}</h3>
                 <p>{challenge.description}</p>
               </div>
-            </article>
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerGroup>
       </div>
     </section>
   );
