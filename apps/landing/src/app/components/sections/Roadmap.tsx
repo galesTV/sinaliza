@@ -83,7 +83,11 @@ export function Roadmap() {
         <p className="roadmap-note">
           O roadmap representa a direção de desenvolvimento do projeto. As
           etapas e funcionalidades poderão evoluir conforme a validação da
-          experiência de aprendizagem.
+          experiência de aprendizagem. Já existe uma prova de conceito
+          independente que experimenta a detecção de mãos, a identificação de
+          landmarks e a extração de características geométricas. A integração
+          desses recursos à experiência de aprendizagem ainda está em
+          desenvolvimento.
         </p>
       </div>
     </section>

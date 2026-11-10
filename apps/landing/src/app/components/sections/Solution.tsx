@@ -4,7 +4,7 @@ const pillars = [
     label: "CONHECIMENTO",
     title: "Aprender com significado.",
     description:
-      "Conteúdos visuais organizados para construir repertório, compreender sinais e avançar gradualmente no aprendizado de Libras.",
+      "A ideia é organizar o aprendizado de Libras em conteúdos visuais e acessíveis, começando pelo alfabeto e pelo vocabulário básico.",
     symbol: "A",
     className: "solution-card-learning",
   },
@@ -13,7 +13,7 @@ const pillars = [
     label: "EXPERIÊNCIA",
     title: "Praticar faz parte do caminho.",
     description:
-      "Exercícios e atividades contextualizadas para aproximar o conhecimento da experiência prática de aprendizagem.",
+      "A proposta é oferecer exercícios e atividades contextualizadas para aproximar o estudante da prática, tornando o aprendizado mais participativo.",
     symbol: "P",
     className: "solution-card-practice",
   },
@@ -22,7 +22,7 @@ const pillars = [
     label: "TECNOLOGIA",
     title: "Tecnologia como aliada.",
     description:
-      "Visão computacional e análise de características das mãos como recursos experimentais para apoiar atividades de prática.",
+      "A pesquisa explora visão computacional e análise de características das mãos como recursos experimentais para apoiar futuras experiências de aprendizagem.",
     symbol: "T",
     className: "solution-card-technology",
   },

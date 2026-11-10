@@ -13,9 +13,10 @@ export function Hero() {
         </h1>
 
         <p className="landing-hero-description">
-          O Sinaliza é uma plataforma de aprendizagem de Língua Brasileira de
-          Sinais que combina conteúdos visuais, prática interativa e tecnologia
-          para tornar o aprendizado mais acessível.
+          Estamos desenvolvendo uma plataforma de aprendizagem de Língua
+          Brasileira de Sinais que busca combinar conteúdos visuais,
+          experiências práticas e tecnologia para tornar o aprendizado mais
+          acessível.
         </p>
 
         <div className="hero-actions">

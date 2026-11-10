@@ -12,20 +12,38 @@ const sora = Sora({
   variable: "--font-sora",
 });
 
+const siteTitle = "Sinaliza — Aprenda Libras, pratique e evolua";
+
+const siteDescription =
+  "Descubra uma nova forma de aprender Língua Brasileira de Sinais. Estude o alfabeto, explore vocabulário e desenvolva sua prática com uma experiência visual e interativa.";
+
 export const metadata: Metadata = {
   title: {
-    default: "Sinaliza — Aprender Libras transforma conexões",
+    default: siteTitle,
     template: "%s | Sinaliza",
   },
-  description:
-    "Uma nova experiência para aprender Língua Brasileira de Sinais. Aprenda, pratique e evolua com uma jornada visual e interativa.",
+  description: siteDescription,
   applicationName: "Sinaliza",
+  creator: "Sinaliza",
   openGraph: {
-    title: "Sinaliza — Aprender Libras transforma conexões",
-    description:
-      "Uma experiência visual e interativa para aprender Língua Brasileira de Sinais.",
+    title: siteTitle,
+    description: siteDescription,
+    siteName: "Sinaliza",
     locale: "pt_BR",
     type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: siteTitle,
+    description: siteDescription,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
   },
 };
 

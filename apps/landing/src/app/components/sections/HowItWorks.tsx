@@ -4,7 +4,7 @@ const steps = [
     label: "PRIMEIRO CONTATO",
     title: "Aprender",
     description:
-      "Comece pelo alfabeto manual e amplie seu vocabulário com conteúdos visuais organizados para facilitar a compreensão de Libras.",
+      "Explore os fundamentos da Libras por meio de conteúdos visuais organizados, começando pelo alfabeto e avançando para o vocabulário básico.",
     detail: "Conhecimento e descoberta",
     symbol: "A",
     className: "journey-step-learning",
@@ -14,7 +14,7 @@ const steps = [
     label: "MÃO NA MASSA",
     title: "Praticar",
     description:
-      "Leve o conhecimento além da observação. Exercícios e atividades contextualizadas ajudam a transformar o conteúdo em experiência.",
+      "Desenvolva seu conhecimento com exercícios e atividades contextualizadas, pensados para aproximar o aprendizado da prática cotidiana.",
     detail: "Experimentação e prática",
     symbol: "P",
     className: "journey-step-practice",
@@ -24,7 +24,7 @@ const steps = [
     label: "SEGUIR EM FRENTE",
     title: "Evoluir",
     description:
-      "Reconheça seus avanços, retome o que aprendeu e construa uma jornada contínua de aproximação com a Língua Brasileira de Sinais.",
+      "Acompanhe sua jornada de aprendizagem e descubra novas possibilidades para ampliar seu conhecimento e sua confiança na comunicação.",
     detail: "Continuidade e desenvolvimento",
     symbol: "E",
     className: "journey-step-evolution",

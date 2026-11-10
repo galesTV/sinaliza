@@ -502,48 +502,112 @@ export function HandVisualization() {
     });
     resizeObserver.observe(container);
 
-    const prefersReducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
+    const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-    let animationFrame = 0;
+    let prefersReducedMotion = motionQuery.matches;
+    let isInViewport = false;
+    let isPageVisible = document.visibilityState === "visible";
+
+    let animationFrame: number | null = null;
     let elapsed = 0;
 
     handGroup.rotation.set(-0.15, 0.45, 0);
     updatePose(0, false);
 
-    const animate = () => {
-      animationFrame = requestAnimationFrame(animate);
-
-      if (!prefersReducedMotion) {
-        elapsed += 0.008;
-
-        pointer.lerp(pointerTarget, 0.06);
-
-        handGroup.rotation.y = 0.45 + Math.sin(elapsed) * 0.2 + pointer.x * 0.7;
-        handGroup.rotation.x =
-          -0.15 + Math.sin(elapsed * 0.7) * 0.04 + pointer.y * 0.4;
-        handGroup.position.y = Math.sin(elapsed * 0.8) * 0.07;
-
-        updatePose(elapsed, true);
-
-        particles.rotation.z = elapsed * 0.03;
-        particles.rotation.y = elapsed * 0.015;
-      }
-
+    const renderScene = () => {
       renderer.render(scene, camera);
     };
 
-    animate();
+    const stopAnimation = () => {
+      if (animationFrame !== null) {
+        cancelAnimationFrame(animationFrame);
+        animationFrame = null;
+      }
+    };
+
+    const animate = () => {
+      if (prefersReducedMotion || !isInViewport || !isPageVisible) {
+        return;
+      }
+
+      animationFrame = requestAnimationFrame(animate);
+
+      elapsed += 0.008;
+
+      pointer.lerp(pointerTarget, 0.06);
+
+      handGroup.rotation.y = 0.45 + Math.sin(elapsed) * 0.2 + pointer.x * 0.7;
+
+      handGroup.rotation.x =
+        -0.15 + Math.sin(elapsed * 0.7) * 0.04 + pointer.y * 0.4;
+
+      handGroup.position.y = Math.sin(elapsed * 0.8) * 0.07;
+
+      updatePose(elapsed, true);
+
+      particles.rotation.z = elapsed * 0.03;
+      particles.rotation.y = elapsed * 0.015;
+
+      renderScene();
+    };
+
+    const syncAnimation = () => {
+      stopAnimation();
+
+      if (prefersReducedMotion) {
+        updatePose(0, false);
+        renderScene();
+        return;
+      }
+
+      if (isInViewport && isPageVisible) {
+        animate();
+      } else {
+        renderScene();
+      }
+    };
+
+    const intersectionObserver = new IntersectionObserver(
+      ([entry]) => {
+        isInViewport = entry.isIntersecting;
+        syncAnimation();
+      },
+      { threshold: 0.1 },
+    );
+
+    const onVisibilityChange = () => {
+      isPageVisible = document.visibilityState === "visible";
+      syncAnimation();
+    };
+
+    const onMotionPreferenceChange = (event: MediaQueryListEvent) => {
+      prefersReducedMotion = event.matches;
+      syncAnimation();
+    };
+
+    intersectionObserver.observe(container);
+
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    motionQuery.addEventListener("change", onMotionPreferenceChange);
+
+    syncAnimation();
 
     return () => {
-      cancelAnimationFrame(animationFrame);
+      stopAnimation();
+      intersectionObserver.disconnect();
+
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      motionQuery.removeEventListener("change", onMotionPreferenceChange);
+
       resizeObserver.disconnect();
       container.removeEventListener("pointermove", onPointerMove);
       container.removeEventListener("pointerleave", onPointerLeave);
+
       geometries.forEach((g) => g.dispose());
       materials.forEach((m) => m.dispose());
+
       renderer.dispose();
+
       if (container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);
       }

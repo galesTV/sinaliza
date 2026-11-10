@@ -11,35 +11,37 @@ import { Footer } from "./components/layout/Footer";
 export default function Home() {
   return (
     <>
-      <main className="page-shell">
+      <div className="page-shell">
         <Navbar />
 
-        <Hero />
+        <main id="conteudo">
+          <Hero />
 
-        <div className="section-divider" />
+          <div className="section-divider" />
 
-        <Challenge />
+          <Challenge />
 
-        <div className="section-divider" />
+          <div className="section-divider" />
 
-        <Solution />
+          <Solution />
 
-        <div className="section-divider" />
+          <div className="section-divider" />
 
-        <HowItWorks />
+          <HowItWorks />
 
-        <div className="section-divider" />
+          <div className="section-divider" />
 
-        <Technology />
+          <Technology />
 
-        <div className="section-divider" />
+          <div className="section-divider" />
 
-        <Roadmap />
+          <Roadmap />
 
-        <div className="section-divider" />
+          <div className="section-divider" />
 
-        <FinalCTA />
-      </main>
+          <FinalCTA />
+        </main>
+      </div>
 
       <Footer />
     </>

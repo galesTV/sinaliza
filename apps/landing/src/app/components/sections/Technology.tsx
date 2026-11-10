@@ -1,4 +1,4 @@
-import { HandVisualization } from "../ui/HandVisualization";
+import { LazyHandVisualization } from "../ui/LazyHandVisualization";
 
 const stages = [
   {
@@ -55,7 +55,7 @@ export function Technology() {
 
         <div className="technology-visual">
           <div className="technology-visual-glow" aria-hidden="true" />
-          <HandVisualization />
+          <LazyHandVisualization />
           <span className="technology-visual-caption">
             REPRESENTAÇÃO VISUAL CONCEITUAL
           </span>
@@ -112,10 +112,13 @@ export function Technology() {
         </div>
 
         <p className="technology-disclaimer">
-          A visualização 3D é ilustrativa. A prova de conceito atual utiliza
-          Python, MediaPipe e OpenCV para detectar mãos e extrair landmarks e
-          características geométricas. O reconhecimento completo de sinais ainda
-          não está implementado.
+          A visualização 3D é ilustrativa. Atualmente, a prova de conceito
+          funciona como um experimento técnico independente, desenvolvido em
+          Python com MediaPipe e OpenCV. Ela permite detectar mãos, identificar
+          landmarks e extrair características geométricas. Esses recursos ainda
+          não estão integrados à plataforma e servem como base para investigar
+          futuras aplicações na aprendizagem de Libras. O reconhecimento
+          completo de sinais ainda não está implementado.
         </p>
       </div>
     </section>
