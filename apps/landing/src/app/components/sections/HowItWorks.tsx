@@ -1,3 +1,6 @@
+import { Reveal } from "../ui/Reveal";
+import { StaggerGroup, StaggerItem } from "../ui/StaggerGroup";
+
 const steps = [
   {
     number: "01",
@@ -34,7 +37,7 @@ const steps = [
 export function HowItWorks() {
   return (
     <section id="jornada" className="journey-section">
-      <div className="journey-heading">
+      <Reveal className="journey-heading">
         <span className="eyebrow">03 — A jornada</span>
 
         <h2 className="journey-title">
@@ -47,12 +50,11 @@ export function HowItWorks() {
           aprendizado: do primeiro contato com os sinais à prática e à
           construção de novos conhecimentos.
         </p>
-      </div>
+      </Reveal>
 
-      <div className="journey-track">
-
+      <StaggerGroup className="journey-track">
         {steps.map((step) => (
-          <article
+          <StaggerItem
             className={`journey-step ${step.className}`}
             key={step.number}
           >
@@ -76,11 +78,11 @@ export function HowItWorks() {
                 {step.detail}
               </span>
             </div>
-          </article>
+          </StaggerItem>
         ))}
-      </div>
+      </StaggerGroup>
 
-      <div className="journey-note">
+      <Reveal className="journey-note">
         <span className="journey-note-icon" aria-hidden="true">
           ✳
         </span>
@@ -90,12 +92,14 @@ export function HowItWorks() {
           apoiar essa jornada, mas a experiência humana e o contato com a
           comunidade surda são indispensáveis.
         </p>
-      </div>
+      </Reveal>
 
-      <p className="journey-disclaimer">
-        Esta é a jornada de aprendizagem proposta pelo Sinaliza. Os recursos
-        serão apresentados conforme seu desenvolvimento.
-      </p>
+      <Reveal>
+        <p className="journey-disclaimer">
+          Esta é a jornada de aprendizagem proposta pelo Sinaliza. Os recursos
+          serão apresentados conforme seu desenvolvimento.
+        </p>
+      </Reveal>
     </section>
   );
 }

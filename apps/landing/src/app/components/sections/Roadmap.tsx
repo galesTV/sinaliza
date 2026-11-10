@@ -42,10 +42,11 @@ export function Roadmap() {
     <section id="futuro" className="roadmap-section">
       <div className="roadmap-container">
         <div className="roadmap-heading">
-          <span className="section-eyebrow">O futuro do Sinaliza</span>
+          <span className="eyebrow">06 — O futuro do Sinaliza</span>
 
           <h2 className="roadmap-title">
-            Estamos construindo <span>novas formas de aprender.</span>
+            Estamos construindo{" "}
+            <span className="gradient-text">novas formas de aprender.</span>
           </h2>
 
           <p className="roadmap-description">

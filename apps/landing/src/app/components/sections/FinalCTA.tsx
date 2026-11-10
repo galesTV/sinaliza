@@ -9,17 +9,15 @@ export function FinalCTA() {
         <div className="final-cta-glow" aria-hidden="true" />
 
         <div className="final-cta-content">
-          <span className="section-eyebrow">O próximo passo começa aqui</span>
-
+          <span className="eyebrow">07 — O próximo passo</span>
           <h2 id="final-cta-title" className="final-cta-title">
-            Aprender Libras é ampliar <span>possibilidades de conexão.</span>
+            Aprender Libras é ampliar{" "}
+            <span className="gradient-text">possibilidades de conexão.</span>
           </h2>
-
           <p className="final-cta-description">
             Estamos construindo uma nova experiência de aprendizagem,
             aproximando educação, tecnologia e comunicação.
           </p>
-
           <div className="final-cta-actions">
             <a
               href="https://github.com/galesTV/sinaliza"
@@ -33,10 +31,11 @@ export function FinalCTA() {
 
             <a href="#tecnologia" className="final-cta-secondary">
               Explore a tecnologia
-              <span aria-hidden="true" className="final-cta-arrow">↓</span>
+              <span aria-hidden="true" className="final-cta-arrow">
+                ↓
+              </span>
             </a>
           </div>
-
           <span className="final-cta-note">
             Sinaliza — um projeto em construção.
           </span>

@@ -1,3 +1,6 @@
+import { Reveal } from "../ui/Reveal";
+import { StaggerGroup, StaggerItem } from "../ui/StaggerGroup";
+
 const pillars = [
   {
     number: "01",
@@ -31,7 +34,7 @@ const pillars = [
 export function Solution() {
   return (
     <section id="como-funciona" className="solution-section">
-      <div className="solution-heading">
+      <Reveal className="solution-heading">
         <div>
           <span className="eyebrow">02 — A proposta</span>
 
@@ -45,11 +48,11 @@ export function Solution() {
           O Sinaliza propõe uma jornada que conecta conteúdo, experiência e
           tecnologia para aproximar mais pessoas da Língua Brasileira de Sinais.
         </p>
-      </div>
+      </Reveal>
 
-      <div className="solution-grid">
+      <StaggerGroup className="solution-grid">
         {pillars.map((pillar) => (
-          <article
+          <StaggerItem
             className={`solution-card ${pillar.className}`}
             key={pillar.number}
           >
@@ -70,14 +73,16 @@ export function Solution() {
             </div>
 
             <div className="solution-card-line" />
-          </article>
+          </StaggerItem>
         ))}
-      </div>
+      </StaggerGroup>
 
-      <p className="solution-note">
-        A tecnologia complementa a experiência de aprendizagem. O contato com a
-        língua e com a comunidade surda continua sendo essencial.
-      </p>
+      <Reveal>
+        <p className="solution-note">
+          A tecnologia complementa a experiência de aprendizagem. O contato com
+          a língua e com a comunidade surda continua sendo essencial.
+        </p>
+      </Reveal>
     </section>
   );
 }

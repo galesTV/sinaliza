@@ -2349,10 +2349,6 @@ a {
   letter-spacing: -0.055em;
 }
 
-.roadmap-title span {
-  color: var(--accent);
-}
-
 .roadmap-description {
   max-width: 650px;
   margin-top: 24px;
@@ -2645,10 +2641,6 @@ a {
   font-weight: 700;
   line-height: 1.12;
   letter-spacing: -0.055em;
-}
-
-.final-cta-title span {
-  color: var(--accent);
 }
 
 .final-cta-description {
