@@ -2958,6 +2958,12 @@ a {
   height: auto;
 }
 
+@media (max-width: 900px) {
+  .site-brand-image {
+    width: 164px;
+  }
+}
+
 .footer-logo {
   display: inline-flex;
   align-items: center;
