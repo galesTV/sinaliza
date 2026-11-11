@@ -8,7 +8,7 @@ const milestones = [
     title: "Fundamentos",
     description:
       "Construir uma base acessível para quem está começando a aprender Libras, com alfabeto e vocabulário básico.",
-    status: "Escopo inicial",
+    status: "Escopo definido",
     statusType: "planned",
   },
   {
@@ -23,10 +23,10 @@ const milestones = [
   {
     number: "03",
     eyebrow: "Experimentação tecnológica",
-    title: "Prática interativa",
+    title: "Pesquisa em visão computacional",
     description:
-      "Evoluir a experiência com câmera, análise de landmarks e feedback visual para apoiar a prática dos estudantes.",
-    status: "PoC técnica existente",
+      "Investigação de captura por câmera, detecção de mãos, landmarks e características geométricas como base para futuras experiências de prática.",
+    status: "PoC independente existente",
     statusType: "prototype",
   },
   {

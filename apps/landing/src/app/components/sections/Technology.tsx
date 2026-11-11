@@ -91,26 +91,21 @@ export function Technology() {
 
           <span className="technology-demo-badge">
             <span className="technology-status-dot" />
-            Registro real em preparação
+            Demonstração disponível
           </span>
         </Reveal>
 
         <Reveal className="technology-video-placeholder">
-          <div className="technology-video-content">
-            <div className="technology-video-icon" aria-hidden="true">
-              <span>▶</span>
-            </div>
-
-            <h4>Uma demonstração real está a caminho.</h4>
-
-            <p>
-              Este espaço será preenchido com uma gravação da prova de conceito,
-              mostrando a captura da mão e a identificação dos landmarks em
-              tempo real.
-            </p>
-          </div>
-
-          <span className="technology-video-ratio">16:9</span>
+          <video
+            className="technology-video-player"
+            controls
+            playsInline
+            preload="metadata"
+            aria-label="Demonstração da prova de conceito do Sinaliza"
+          >
+            <source src="/videos/sinaliza-poc.mp4" type="video/mp4" />
+            Seu navegador não suporta a reprodução de vídeos.
+          </video>
         </Reveal>
 
         <Reveal>

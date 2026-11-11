@@ -1,6 +1,6 @@
 const footerLinks = [
   { label: "O projeto", href: "#projeto" },
-  { label: "Como funciona", href: "#como-funciona" },
+  { label: "Como funciona", href: "#jornada" },
   { label: "Tecnologia", href: "#tecnologia" },
   { label: "Demonstração", href: "#demonstracao" },
   { label: "O futuro", href: "#futuro" },
