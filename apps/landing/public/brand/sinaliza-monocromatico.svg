@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+<title id="title">Símbolo Sinaliza monocromático</title>
+<path d="M390 126 C350 82 270 76 205 105 C145 132 111 181 130 225 C151 273 231 279 302 253 C370 228 410 253 390 302 C371 348 306 384 239 387 C191 389 151 372 126 343" fill="none" stroke="currentColor" stroke-width="48" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="414" cy="112" r="24" fill="currentColor"/><circle cx="105" cy="365" r="24" fill="currentColor"/>
+</svg>

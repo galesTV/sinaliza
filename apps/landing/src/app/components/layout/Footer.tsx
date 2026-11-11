@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 const footerLinks = [
   { label: "O projeto", href: "#projeto" },
   { label: "Como funciona", href: "#jornada" },
@@ -13,7 +15,13 @@ export function Footer() {
         <div className="footer-main">
           <div className="footer-brand">
             <a href="#inicio" className="footer-logo" aria-label="Sinaliza — início">
-              sinaliza<span>.</span>
+              <Image
+                src="/brand/sinaliza-horizontal.svg"
+                alt=""
+                width={260}
+                height={78}
+                className="footer-logo-image"
+              />
             </a>
 
             <p>

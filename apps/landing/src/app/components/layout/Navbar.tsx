@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 const navigation = [
   { label: "O projeto", href: "#projeto" },
   { label: "Como funciona", href: "#jornada" },
@@ -19,10 +21,14 @@ export function Navbar() {
             className="site-brand"
             aria-label="Sinaliza — início"
           >
-            <span className="site-brand-symbol" aria-hidden="true">
-              S
-            </span>
-            <span className="site-brand-name">sinaliza</span>
+            <Image
+              src="/brand/sinaliza-horizontal.svg"
+              alt=""
+              width={240}
+              height={72}
+              priority
+              className="site-brand-image"
+            />
           </a>
 
           <nav className="desktop-nav" aria-label="Navegação principal">
