@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Reveal } from "../ui/Reveal";
 
 export function Hero() {
@@ -53,7 +54,14 @@ export function Hero() {
         <div className="hero-orbit hero-orbit-inner" />
 
         <div className="hero-visual-center">
-          <span className="hero-center-symbol">S</span>
+          <Image
+            src="/brand/sinaliza-simbolo.svg"
+            alt=""
+            width={112}
+            height={112}
+            priority
+            className="hero-center-symbol"
+          />
           <span className="hero-center-label">SINALIZA</span>
         </div>
 
