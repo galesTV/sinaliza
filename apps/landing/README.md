@@ -1,36 +1,77 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Sinaliza — Landing Page
 
-## Getting Started
+Aplicação web responsável pela apresentação do projeto Sinaliza, uma plataforma de aprendizagem de Língua Brasileira de Sinais (Libras).
 
-First, run the development server:
+🌐 **[Acesse a versão publicada](https://sinaliza-eta.vercel.app/)**
+
+## 🛠️ Tecnologias
+
+- [Next.js](https://nextjs.org/) — framework React.
+- [React](https://react.dev/) — biblioteca de interface.
+- [TypeScript](https://www.typescriptlang.org/) — tipagem estática.
+- [Tailwind CSS](https://tailwindcss.com/) — estilização.
+- [Motion](https://motion.dev/) — animações e transições.
+- [Three.js](https://threejs.org/) — experiências e elementos visuais 3D.
+
+## 📋 Pré-requisitos
+
+- Node.js
+- npm
+
+## 🚀 Executando localmente
+
+A partir deste diretório (`apps/landing`), instale as dependências:
+
+```bash
+npm install
+```
+
+Inicie o servidor de desenvolvimento:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abra [http://localhost:3000](http://localhost:3000) no navegador.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+A aplicação atualiza automaticamente conforme os arquivos são modificados.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🧰 Scripts disponíveis
 
-## Learn More
+| Comando         | Descrição                                   |
+| --------------- | ------------------------------------------- |
+| `npm run dev`   | Inicia o servidor de desenvolvimento.       |
+| `npm run lint`  | Executa a análise estática do código.       |
+| `npm run build` | Gera a versão otimizada para produção.      |
+| `npm run start` | Inicia o servidor de produção após o build. |
 
-To learn more about Next.js, take a look at the following resources:
+## 📂 Estrutura
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```text
+landing/
+├── public/
+│   └── videos/
+├── src/
+│   └── app/
+├── package.json
+├── package-lock.json
+└── README.md
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🌐 Deploy
 
-## Deploy on Vercel
+A aplicação está publicada na [Vercel](https://vercel.com/).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+O projeto utiliza `apps/landing` como diretório raiz (_Root Directory_) da implantação.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+A versão de produção é disponibilizada em:
+
+**https://sinaliza-eta.vercel.app/**
+
+## 📖 Documentação
+
+Para conhecer a proposta, o estado atual e os próximos passos do projeto, consulte o [README principal](../../README.md).
+
+---
+
+Desenvolvido como parte do projeto **Sinaliza**.
