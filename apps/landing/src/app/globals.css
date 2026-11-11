@@ -889,11 +889,11 @@ a {
 }
 
 .hero-center-symbol {
-  color: #c7c0ff;
-  font-family: var(--font-display), sans-serif;
-  font-size: 76px;
-  font-weight: 700;
-  line-height: 1;
+  width: 112px;
+  height: 112px;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 0 24px rgba(53, 201, 232, 0.2));
 }
 
 .hero-center-label {
@@ -2946,7 +2946,6 @@ a {
   width: 100%;
   height: 430px;
 }
-
 
 /* ========================================
    BRAND IDENTITY — OFFICIAL LOGOS
