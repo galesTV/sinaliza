@@ -18,6 +18,7 @@ const siteDescription =
   "Descubra uma nova forma de aprender Língua Brasileira de Sinais. Estude o alfabeto, explore vocabulário e desenvolva sua prática com uma experiência visual e interativa.";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://sinaliza-eta.vercel.app"),
   title: {
     default: siteTitle,
     template: "%s | Sinaliza",
