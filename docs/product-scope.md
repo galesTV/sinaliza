@@ -14,7 +14,7 @@ Documento de escopo para o MVP da plataforma de aprendizagem, com prazo final em
 | Exercícios interativos | Alta | Múltipla escolha, associação imagem→resposta, reconhecimento de vocabulário e alfabeto, perguntas e respostas. Avaliação confiável com feedback significativo. |
 | Progresso persistente | Alta | Lições/exercícios concluídos, resultados, XP, conquistas, streak. Progresso não pode se perder ao recarregar. |
 | Gamificação | Média | XP, streak, conquistas, indicadores de progresso. Evitar leaderboards complexos salvo benefício claro. |
-| PWA (manifest, ícones, service worker, offline básico) | Alta | Shell cacheado, conteúdo de aprendizagem previamente cacheado, progresso local offline com sincronização ao reconectar. |
+| PWA (manifest, ícones, service worker, offline básico) | Alta | Prioridade: instalabilidade, shell cacheado e acesso a conteúdo previamente armazenado. Sincronização de progresso offline somente se couber no prazo e puder ser testada com segurança. |
 | Prática com câmera (experimental) | Média/Baixa | Diferencial experimental; nunca bloquear a plataforma central. |
 
 ## 2. Conteúdo educacional inicial

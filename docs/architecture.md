@@ -158,7 +158,7 @@ Responsável pela persistência das informações da plataforma (ver [ADR 0002](
 
 - **PostgreSQL** para usuários/perfis, conteúdos educacionais, lições, exercícios, histórico de atividades e progresso.
 - **Migrações versionadas** em `supabase/migrations/` — nenhuma alteração de schema fora de migração.
-- **RLS habilitado** em todas as tabelas com dados de usuário; políticas escopadas por `auth.uid()`.
+- **RLS habilitado** em todas as tabelas, com políticas diferenciadas por tipo de dado: tabelas de dados pessoais/progresso (perfil, lições concluídas, resultados, XP, streak, conquistas) isoladas por usuário via `auth.uid()`; tabelas de conteúdo educacional (trilhas, módulos, lições, exercícios, sinais, vocabulário) com leitura pública ou restrita a autenticados, e escrita limitada a contextos administrativos. Não aplicar política genérica de propriedade a todas as tabelas.
 - **Chaves de API:** seguir a nomenclatura atual do Supabase — chave *publishable* (`sb_publishable_...`, sucessora da `anon`) apenas em variáveis `NEXT_PUBLIC_*`, e chaves *secret* (`sb_secret_...`, sucessoras da `service_role`) somente no servidor. Nenhuma chave secreta pode ser exposta ao navegador ou contornar RLS no código da aplicação.
 - **Storage** somente quando houver necessidade real de mídia.
 
@@ -174,8 +174,9 @@ Responsabilidades bem delimitadas, evitando acoplamento com a interface e com as
 
 ### 5.5. Capacidades de PWA
 
-- Web app manifest, ícones, cores de tema e instalabilidade.
-- Service worker com cache do shell e de conteúdo previamente carregado, fallback offline e sincronização básica de progresso pendente.
+- Web app manifest, ícones, cores de tema e instalabilidade — **prioridade** junto ao acesso a conteúdo previamente armazenado em cache.
+- Service worker com cache do shell e de conteúdo já carregado, e fallback offline.
+- Sincronização de progresso feito offline: **somente se couber no prazo e puder ser testada com segurança**, sem comprometer o núcleo educacional — cuidado com submissões duplicadas e atualizações conflitantes.
 - A experiência educacional permanece utilizável sem câmera e com funcionalidade offline básica — sem promessas de sincronização completa não implementada.
 
 ### 5.6. Hierarquia educacional

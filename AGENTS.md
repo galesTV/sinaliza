@@ -115,7 +115,7 @@ Reuse the framework and versions already installed. Do not upgrade major depende
 - PostgreSQL via Supabase. Schema changes only through versioned migrations under `supabase/migrations/` — never ad-hoc dashboard edits that are not captured as migrations.
 - Seed/development data under `supabase/seed/`.
 - Keep business logic in modules/services, not scattered across route handlers.
-- Data ownership: every user-scoped table enforces authorization — users can only read/write their own data.
+- Table authorization differs by data kind (see §12): personal/progress data is isolated per user; educational content may allow public or authenticated read.
 
 **API keys (current Supabase naming):** Supabase replaced the legacy `anon`/`service_role` JWT keys with a **publishable key** (`sb_publishable_...`) and **secret keys** (`sb_secret_...`). The legacy keys are being deprecated through the end of 2026 — prefer the new naming in all new code and docs. The publishable key carries the same low privileges as the legacy `anon` key (RLS still applies); secret keys replace `service_role` and bypass RLS entirely.
 
@@ -129,8 +129,11 @@ Reuse the framework and versions already installed. Do not upgrade major depende
 
 ## 12. Row Level Security requirements
 
-- Enable RLS on every table containing user data. Never bypass RLS with a secret key in application code.
-- Write policies that scope rows to `auth.uid()` ownership. Test that a user cannot read or write another user's data.
+Differentiate policies by table kind — do not apply a generic ownership policy to every table:
+
+- **Personal/progress data** (profiles, lesson completion, exercise results, XP, streak, achievements): RLS with policies scoped to `auth.uid()` — each user can only read and write their own rows. Test that a user cannot read or write another user's data.
+- **Educational content** (learning paths, modules, lessons, exercises, signs, vocabulary): read access as the product requires — public read or authenticated-only read; writes restricted to admin/service contexts. Keep RLS enabled here too.
+- Never bypass RLS with a secret key in application code.
 
 ## 13. Environment variable rules
 
@@ -162,15 +165,16 @@ The `apps/pwa` application must be a Progressive Web App:
 
 - Web app manifest, icons (reuse `sinaliza-icone-pwa.svg` / derived PNGs), installability, theme colors matching the palette.
 - Service worker and a caching strategy with an offline fallback.
-- For MVP: cache the app shell, allow access to previously cached learning content, preserve local progress offline, and sync pending progress on reconnect.
-- Do not promise complete offline functionality that is not implemented and tested. Avoid complex sync systems; be careful with duplicate progress submissions and conflicting updates.
+- **Priority:** PWA installability, app-shell caching, and access to previously cached learning content are the required offline baseline.
+- **Conditional:** offline progress sync (preserve local progress, sync pending submissions on reconnect) is implemented only if it fits the deadline and can be tested safely — never at the expense of the core educational experience. Watch for duplicate progress submissions and conflicting updates.
+- Do not promise offline functionality that is not implemented and tested.
 
 ## 17. Computer vision limitations
 
 - Use MediaPipe in the browser; process camera input locally — do not upload camera footage to a backend.
 - Scope: camera permission handling, preview, hand detection, 21-landmark extraction, coordinate normalization, geometric feature extraction, experimental comparison against validated reference examples, honest visual feedback.
 - Handle: denied permissions, unsupported browsers, no hand detected, multiple hands, camera init failures, low-quality input, device performance limits.
-- The Python PoC (`sinaliza-poc` repo: `main.py`, `classifier.py`, `feature_extractor.py`, exemplar-based Euclidean matching over normalized landmarks) is the reference for which features to extract — do not assume the Python code itself can be reused in the browser.
+- The Python PoC (`sinaliza-poc` repo) is the reference for which features to extract — do not assume the Python code itself can be reused in the browser. Verified files: `main.py` (real-time webcam loop), `feature_extractor.py` (seven geometric features over 21 normalized landmarks), `classifier.py` (exemplar-based Euclidean matching over `dataset.json`), dataset tooling (`analyze_dataset.py`, `convert_dataset.py`, `visualize_dataset.py`), tests (`test_environment.py`, `test_features.py`, `test_normalization.py`) and the `hand_landmarker.task` model. It classifies three static hand configurations (`aberta`, `punho`, `pinca`).
 
 ## 18. Educational content requirements
 
