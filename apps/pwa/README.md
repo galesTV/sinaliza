@@ -14,7 +14,7 @@ Aplicação educacional do Sinaliza: alfabeto manual, vocabulário básico, liç
 
 ## 📋 Pré-requisitos
 
-- Node.js `>=20.9.0`
+- Node.js `>=22.12.0` — `20.9` é o mínimo do Next.js, mas a suíte de testes (Vitest 5) exige `^22.12.0 || ^24.0.0 || >=26.0.0`; verificado com `v24.22.2`
 - npm
 
 ## 🚀 Executando localmente
