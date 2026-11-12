@@ -17,8 +17,18 @@ O projeto utiliza uma estrutura de monorepositório:
 ```text
 sinaliza/
 ├── apps/
-│   └── landing/
+│   ├── landing/          # Landing page institucional (publicada)
+│   └── pwa/              # Plataforma de aprendizagem (planejada)
+├── supabase/
+│   ├── migrations/       # Migrações versionadas do banco (planejado)
+│   └── seed/             # Dados iniciais de desenvolvimento (planejado)
 ├── docs/
+│   ├── product-overview.md
+│   ├── product-scope.md
+│   ├── architecture.md
+│   ├── computer-vision-poc.md
+│   └── decisions/        # Registros de decisões arquiteturais (ADRs)
+├── AGENTS.md
 ├── .gitignore
 └── README.md
 ```
@@ -28,10 +38,14 @@ sinaliza/
 | Diretório | Responsabilidade |
 |---|---|
 | `apps/landing/` | Aplicação web de apresentação do Sinaliza. |
-| `docs/` | Documentação de produto, arquitetura e experimentos técnicos. |
+| `apps/pwa/` | Aplicação educacional (PWA) da plataforma de aprendizagem. |
+| `supabase/` | Migrações e seed do banco de dados da plataforma. |
+| `docs/` | Documentação de produto, arquitetura, decisões e experimentos técnicos. |
 | Raiz do repositório | Configurações compartilhadas e documentação geral. |
 
-A organização poderá ser expandida para acomodar novas aplicações, serviços ou módulos quando houver necessidade concreta.
+O monorepositório é organizado **apenas por diretórios**: não há `package.json` raiz nem ferramenta de workspaces (npm workspaces, Turborepo). Cada aplicação em `apps/` é um pacote npm independente, com `package.json` e lockfile próprios, implantável de forma isolada. Essa decisão está registrada em [ADR 0001](decisions/0001-monorepo-layout-sem-workspaces.md).
+
+Um diretório `packages/shared/` poderá ser criado futuramente caso exista código realmente compartilhado entre as aplicações; não será criado de forma especulativa.
 
 ## 3. Arquitetura atual
 
@@ -214,22 +228,38 @@ As decisões abaixo registram o estado atual do projeto.
 
 | Tema | Situação |
 |---|---|
-| Organização em monorepositório | Definida |
-| Framework da landing page | Next.js |
+| Organização em monorepositório | Definida (apenas diretórios, sem workspaces — ADR 0001) |
+| Framework da landing page | Next.js 16 (App Router, Turbopack, Cache Components) |
 | Linguagem principal da landing page | TypeScript |
-| Hospedagem da landing page | Vercel |
+| Hospedagem da landing page | Vercel (projeto próprio, Root Directory `apps/landing`) |
 | Separação da PoC Python | Definida |
-| Framework da futura plataforma | Em aberto |
-| Backend e API | Em aberto |
-| Banco de dados | Em aberto |
-| Autenticação | Em aberto |
-| Integração da visão computacional | Em investigação |
-| Estratégia de armazenamento de imagens e vídeos | Em aberto |
-| Infraestrutura dos futuros serviços | Em aberto |
+| Framework da plataforma de aprendizagem | Next.js 16 + React 19 em `apps/pwa` (mesmas versões da landing) |
+| Backend e API | Supabase + funcionalidade server-side do Next.js — ADR 0002 |
+| Banco de dados | PostgreSQL via Supabase, migrações em `supabase/migrations` — ADR 0002 |
+| Autenticação | Supabase Auth — ADR 0002 |
+| Deploy do PWA | Projeto Vercel separado, Root Directory `apps/pwa` — ADR 0003 |
+| Integração da visão computacional | Em investigação (MediaPipe no navegador, processamento local) |
+| Estratégia de armazenamento de imagens e vídeos | Em aberto (Supabase Storage quando necessário) |
+| Infraestrutura dos futuros serviços | Definida para o MVP: sem serviço dedicado |
 
 Novas decisões deverão ser registradas e atualizadas conforme o projeto evoluir.
 
-## 9. Próximas evoluções arquiteturais
+## 9. Arquitetura planejada da plataforma (PWA)
+
+A plataforma de aprendizagem será implementada em `apps/pwa/` como uma aplicação Next.js independente, reutilizando as mesmas versões principais da landing page.
+
+### 9.1. Componentes planejados
+
+- **Interface (App Router):** páginas de autenticação, dashboard educacional, trilhas/módulos/lições, exercícios e prática experimental com câmera.
+- **Supabase:** Auth para contas, PostgreSQL para perfil, conteúdo, progresso e gamificação; RLS em todas as tabelas com dados de usuário; Storage apenas se houver necessidade real de mídia.
+- **Visão computacional no navegador:** MediaPipe executado localmente no cliente para detecção de mãos e extração de landmarks — sem envio de imagens para o backend.
+- **PWA:** manifest, ícones, service worker com cache do shell e de conteúdo já carregado, fallback offline e sincronização básica de progresso pendente.
+
+### 9.2. Hierarquia educacional
+
+Trilha de aprendizagem → módulos → lições → exercícios. Conteúdo inicial: alfabeto manual e vocabulário básico de Libras (ver [product-scope.md](product-scope.md)).
+
+## 10. Próximas evoluções arquiteturais
 
 As próximas etapas técnicas deverão contemplar:
 
