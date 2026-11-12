@@ -88,6 +88,8 @@ Reuse the framework and versions already installed. Do not upgrade major depende
 - Do not create `packages/shared/` or any shared package until code is *effectively* shared between applications. Do not create abstractions speculatively.
 - Keep changes small and reviewable. Inspect existing code before changing it.
 
+These conventions reflect the working direction recorded in `docs/decisions/` (ADRs 0001–0003), whose formal status is `Proposta — aguardando aprovação`. Treat them as binding unless the owner revises them; if an ADR changes on approval, update this file and the ADR together.
+
 ## 7. Coding conventions
 
 - Match the surrounding style. Prefer minimal, focused edits.
