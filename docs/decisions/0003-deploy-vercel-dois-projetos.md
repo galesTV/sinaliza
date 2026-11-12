@@ -1,7 +1,7 @@
 # ADR 0003 — Deploy: dois projetos Vercel (landing e PWA)
 
 - **Data:** 2026-11-12
-- **Status:** Aceita (proposta — aguardando confirmação do owner)
+- **Status:** Proposta — aguardando aprovação
 
 ## Contexto
 

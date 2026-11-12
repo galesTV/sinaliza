@@ -45,7 +45,7 @@ sinaliza/
 
 O monorepositório é organizado **apenas por diretórios**: não há `package.json` raiz nem ferramenta de workspaces (npm workspaces, Turborepo). Cada aplicação em `apps/` é um pacote npm independente, com `package.json` e lockfile próprios, implantável de forma isolada. Essa decisão está registrada em [ADR 0001](decisions/0001-monorepo-layout-sem-workspaces.md).
 
-Um diretório `packages/shared/` poderá ser criado futuramente caso exista código realmente compartilhado entre as aplicações; não será criado de forma especulativa.
+Um diretório `packages/shared/` somente será criado quando existir código efetivamente compartilhado entre as aplicações; não será criado de forma especulativa.
 
 ## 3. Arquitetura atual
 
@@ -61,12 +61,14 @@ Sua responsabilidade é apresentar a proposta do Sinaliza, explicar a experiênc
 
 | Tecnologia | Responsabilidade |
 |---|---|
-| Next.js 16 | Framework da aplicação web. |
-| React 19 | Construção da interface. |
-| TypeScript | Tipagem estática e segurança durante o desenvolvimento. |
-| Tailwind CSS 4 | Estilização e sistema visual. |
+| Next.js 16.4.5 | Framework da aplicação web (App Router, Turbopack, Cache Components). |
+| React 19.3 | Construção da interface. |
+| TypeScript | Tipagem estática e segurança durante o desenvolvimento (modo `strict`). |
+| Tailwind CSS 4 | Estilização e sistema visual, via `@tailwindcss/turbopack`. |
 | Motion | Animações e transições. |
 | Three.js | Elementos e experiências visuais tridimensionais. |
+| npm | Gerenciador de pacotes (lockfile versionado). |
+| Node.js | Runtime de desenvolvimento/build. Requisito do Next.js 16: `>=20.9.0`; verificado na VM do Devin com `v24.22.2` via nvm. |
 | Vercel | Hospedagem e publicação da landing page. |
 
 ### 3.3. Organização da aplicação
@@ -124,55 +126,61 @@ O experimento atual não realiza reconhecimento completo de sinais, tradução a
 
 Uma eventual integração deverá ser precedida por validações técnicas e educacionais, além da definição de uma interface clara de comunicação entre os componentes.
 
-## 5. Arquitetura evolutiva da plataforma
+## 5. Arquitetura planejada da plataforma (PWA)
 
-A arquitetura futura deverá contemplar responsabilidades distintas para as principais áreas do produto.
+A plataforma de aprendizagem será implementada em `apps/pwa/` como uma aplicação Next.js independente, reutilizando as mesmas versões principais da landing page (ver [ADR 0002](decisions/0002-backend-supabase.md)).
 
 ### 5.1. Camada de apresentação
 
-Responsável pela experiência do estudante:
+Responsável pela experiência do estudante, implementada com App Router (Server Components por padrão, Client Components apenas onde a interatividade exige):
 
-- Navegação e interface.
-- Exibição de conteúdos educacionais.
-- Apresentação de exercícios.
-- Visualização do progresso.
-- Interação com recursos de prática.
-
-A tecnologia definitiva dessa camada deverá ser avaliada conforme a evolução da plataforma.
+- Autenticação e páginas públicas.
+- Dashboard educacional.
+- Trilhas, módulos, lições e exercícios.
+- Visualização de progresso e gamificação.
+- Prática experimental com câmera.
 
 ### 5.2. Camada de aplicação e regras de negócio
 
-Responsável por coordenar as operações do produto:
+Responsável por coordenar as operações do produto, implementada em módulos dentro da própria aplicação Next.js (route handlers e server actions) — sem serviço de backend dedicado:
 
 - Gerenciamento de usuários e perfis.
-- Organização de cursos, módulos e lições.
+- Organização de trilhas, módulos e lições.
 - Controle de atividades e exercícios.
 - Registro de tentativas e resultados.
 - Acompanhamento da evolução do estudante.
 
-A implementação deverá manter as regras de negócio separadas das particularidades da interface e da persistência de dados.
+As regras de negócio ficam separadas das particularidades da interface e da persistência.
 
-### 5.3. Camada de dados
+### 5.3. Camada de dados (Supabase)
 
-Responsável pela persistência das informações necessárias à plataforma, como:
+Responsável pela persistência das informações da plataforma (ver [ADR 0002](decisions/0002-backend-supabase.md)):
 
-- Usuários e perfis.
-- Conteúdos educacionais.
-- Lições e exercícios.
-- Histórico de atividades.
-- Progresso dos estudantes.
+- **PostgreSQL** para usuários/perfis, conteúdos educacionais, lições, exercícios, histórico de atividades e progresso.
+- **Migrações versionadas** em `supabase/migrations/` — nenhuma alteração de schema fora de migração.
+- **RLS habilitado** em todas as tabelas com dados de usuário; políticas escopadas por `auth.uid()`.
+- **Chaves de API:** seguir a nomenclatura atual do Supabase — chave *publishable* (`sb_publishable_...`, sucessora da `anon`) apenas em variáveis `NEXT_PUBLIC_*`, e chaves *secret* (`sb_secret_...`, sucessoras da `service_role`) somente no servidor. Nenhuma chave secreta pode ser exposta ao navegador ou contornar RLS no código da aplicação.
+- **Storage** somente quando houver necessidade real de mídia.
 
-O banco de dados e a estratégia de persistência ainda serão definidos.
+### 5.4. Camada de visão computacional (navegador)
 
-### 5.4. Camada de visão computacional
+Responsável pela experimentação com prática assistida por câmera:
 
-Responsável pela experimentação e eventual processamento de informações visuais relacionadas à prática dos sinais.
+- MediaPipe executado **localmente no navegador** para detecção de mãos e extração dos 21 landmarks — sem envio de imagens ao backend.
+- Normalização de coordenadas, extração de características geométricas e comparação experimental contra exemplos de referência validados.
+- Feedback visual honesto sobre limitações: a comparação geométrica não equivale a compreensão linguística de Libras.
 
-Essa camada deverá possuir responsabilidades bem delimitadas, evitando acoplamento desnecessário com a interface e com as regras de negócio.
+Responsabilidades bem delimitadas, evitando acoplamento com a interface e com as regras de negócio.
 
-Uma futura integração poderá ocorrer por meio de uma API ou serviço especializado, caso a complexidade técnica justifique essa separação.
+### 5.5. Capacidades de PWA
 
-A escolha da abordagem dependerá de requisitos de desempenho, privacidade, latência, custo e capacidade de processamento.
+- Web app manifest, ícones, cores de tema e instalabilidade.
+- Service worker com cache do shell e de conteúdo previamente carregado, fallback offline e sincronização básica de progresso pendente.
+- A experiência educacional permanece utilizável sem câmera e com funcionalidade offline básica — sem promessas de sincronização completa não implementada.
+
+### 5.6. Hierarquia educacional
+
+Trilha de aprendizagem → módulos → lições → exercícios. Conteúdo inicial: alfabeto manual e vocabulário básico de Libras (ver [product-scope.md](product-scope.md)).
 
 ## 6. Diretrizes arquiteturais
 
@@ -204,73 +212,48 @@ As regras de negócio e os componentes críticos deverão ser desenvolvidos de f
 
 ## 7. Publicação e ambientes
 
-### Ambiente atual
+### Ambientes atuais
 
-A landing page está publicada na Vercel.
+A landing page está publicada na Vercel, em projeto próprio com Root Directory `apps/landing`.
 
-O diretório configurado como raiz da aplicação na implantação é:
+### Ambientes planejados
 
-`apps/landing`
-
-### Ambientes futuros
-
-Com a evolução da plataforma, poderão ser definidos ambientes separados para:
-
-- Desenvolvimento local.
-- Testes e validação.
-- Produção.
-
-A estratégia de implantação dos futuros serviços ainda será definida conforme a arquitetura da plataforma.
+- O PWA será implantado como um **segundo projeto na Vercel**, com Root Directory `apps/pwa`, preservando integralmente a configuração e o deploy da landing (ver [ADR 0003](decisions/0003-deploy-vercel-dois-projetos.md)).
+- Ambientes locais, de validação e de produção serão detalhados conforme a evolução da plataforma.
 
 ## 8. Decisões técnicas e pontos em aberto
 
-As decisões abaixo registram o estado atual do projeto.
+As decisões abaixo registram o estado atual do projeto. Decisões marcadas como "proposta" aguardam aprovação do owner.
 
 | Tema | Situação |
 |---|---|
 | Organização em monorepositório | Definida (apenas diretórios, sem workspaces — ADR 0001) |
 | Framework da landing page | Next.js 16 (App Router, Turbopack, Cache Components) |
-| Linguagem principal da landing page | TypeScript |
+| Linguagem principal | TypeScript |
 | Hospedagem da landing page | Vercel (projeto próprio, Root Directory `apps/landing`) |
 | Separação da PoC Python | Definida |
-| Framework da plataforma de aprendizagem | Next.js 16 + React 19 em `apps/pwa` (mesmas versões da landing) |
-| Backend e API | Supabase + funcionalidade server-side do Next.js — ADR 0002 |
-| Banco de dados | PostgreSQL via Supabase, migrações em `supabase/migrations` — ADR 0002 |
-| Autenticação | Supabase Auth — ADR 0002 |
-| Deploy do PWA | Projeto Vercel separado, Root Directory `apps/pwa` — ADR 0003 |
+| Framework da plataforma de aprendizagem | Proposta: Next.js 16 + React 19 em `apps/pwa` (mesmas versões da landing) |
+| Backend e API | Proposta: Supabase + funcionalidade server-side do Next.js — ADR 0002 |
+| Banco de dados | Proposta: PostgreSQL via Supabase, migrações em `supabase/migrations` — ADR 0002 |
+| Autenticação | Proposta: Supabase Auth — ADR 0002 |
+| Deploy do PWA | Proposta: projeto Vercel separado, Root Directory `apps/pwa` — ADR 0003 |
 | Integração da visão computacional | Em investigação (MediaPipe no navegador, processamento local) |
 | Estratégia de armazenamento de imagens e vídeos | Em aberto (Supabase Storage quando necessário) |
-| Infraestrutura dos futuros serviços | Definida para o MVP: sem serviço dedicado |
+| Infraestrutura dos futuros serviços | Proposta: sem serviço dedicado no MVP |
 
-Novas decisões deverão ser registradas e atualizadas conforme o projeto evoluir.
+Novas decisões deverão ser registradas em `docs/decisions/` e atualizadas conforme o projeto evoluir.
 
-## 9. Arquitetura planejada da plataforma (PWA)
-
-A plataforma de aprendizagem será implementada em `apps/pwa/` como uma aplicação Next.js independente, reutilizando as mesmas versões principais da landing page.
-
-### 9.1. Componentes planejados
-
-- **Interface (App Router):** páginas de autenticação, dashboard educacional, trilhas/módulos/lições, exercícios e prática experimental com câmera.
-- **Supabase:** Auth para contas, PostgreSQL para perfil, conteúdo, progresso e gamificação; RLS em todas as tabelas com dados de usuário; Storage apenas se houver necessidade real de mídia.
-- **Visão computacional no navegador:** MediaPipe executado localmente no cliente para detecção de mãos e extração de landmarks — sem envio de imagens para o backend.
-- **PWA:** manifest, ícones, service worker com cache do shell e de conteúdo já carregado, fallback offline e sincronização básica de progresso pendente.
-
-### 9.2. Hierarquia educacional
-
-Trilha de aprendizagem → módulos → lições → exercícios. Conteúdo inicial: alfabeto manual e vocabulário básico de Libras (ver [product-scope.md](product-scope.md)).
-
-## 10. Próximas evoluções arquiteturais
+## 9. Próximas evoluções arquiteturais
 
 As próximas etapas técnicas deverão contemplar:
 
-1. Definição da arquitetura da plataforma de aprendizagem.
-2. Modelagem das entidades e relações necessárias ao produto.
-3. Definição das responsabilidades do backend e das APIs.
-4. Planejamento da autenticação e do gerenciamento de usuários.
-5. Estruturação dos conteúdos educacionais.
-6. Implementação dos exercícios e do acompanhamento de progresso.
-7. Avaliação de alternativas para integrar a visão computacional.
-8. Definição de estratégias de testes, observabilidade e implantação.
+1. Criação do scaffold de `apps/pwa` e provisionamento do projeto Supabase.
+2. Modelagem das entidades e relações (perfis, trilhas, lições, exercícios, progresso).
+3. Implementação da autenticação e do gerenciamento de usuários.
+4. Estruturação dos conteúdos educacionais.
+5. Implementação dos exercícios e do acompanhamento de progresso.
+6. Avaliação das alternativas para integrar a visão computacional.
+7. Definição de estratégias de testes, observabilidade e implantação.
 
 Essas etapas não representam funcionalidades já implementadas. São diretrizes para orientar o planejamento técnico.
 

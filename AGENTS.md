@@ -44,8 +44,6 @@ sinaliza/
 ├── apps/
 │   ├── landing/          # Institutional landing page (deployed — DO NOT redesign)
 │   └── pwa/              # Educational application (planned)
-├── packages/
-│   └── shared/           # Genuinely reusable types/schemas/utilities (planned — only when real sharing exists)
 ├── supabase/
 │   ├── migrations/       # Versioned database migrations (planned)
 │   └── seed/             # Initial development data (planned)
@@ -75,7 +73,7 @@ Verified against `apps/landing/package.json` (November 2026):
 | 3D | Three.js | ^0.187.0 |
 | Lint | ESLint + eslint-config-next | ^9 |
 | Package manager | npm (package-lock.json committed) | — |
-| Runtime | Node.js (verified on v24 via nvm) | ≥ 20 |
+| Runtime | Node.js — Next.js 16 requires `>=20.9.0`; verified on this VM with `v24.22.2` via nvm | ≥ 20.9.0 |
 | Backend/DB (planned) | Supabase (PostgreSQL, Auth, Storage, RLS) | — |
 | Hosting | Vercel | — |
 
@@ -87,7 +85,7 @@ Reuse the framework and versions already installed. Do not upgrade major depende
 - Next.js App Router: Server Components by default; Client Components only where interactivity requires them.
 - Business logic lives in dedicated modules/services, separated from UI and persistence details.
 - No separate backend service (no NestJS etc.): use Next.js server-side functionality + Supabase.
-- `packages/shared/` is for *genuinely* reusable code only. Do not create abstractions speculatively.
+- Do not create `packages/shared/` or any shared package until code is *effectively* shared between applications. Do not create abstractions speculatively.
 - Keep changes small and reviewable. Inspect existing code before changing it.
 
 ## 7. Coding conventions
@@ -119,17 +117,19 @@ Reuse the framework and versions already installed. Do not upgrade major depende
 - Keep business logic in modules/services, not scattered across route handlers.
 - Data ownership: every user-scoped table enforces authorization — users can only read/write their own data.
 
+**API keys (current Supabase naming):** Supabase replaced the legacy `anon`/`service_role` JWT keys with a **publishable key** (`sb_publishable_...`) and **secret keys** (`sb_secret_...`). The legacy keys are being deprecated through the end of 2026 — prefer the new naming in all new code and docs. The publishable key carries the same low privileges as the legacy `anon` key (RLS still applies); secret keys replace `service_role` and bypass RLS entirely.
+
 ## 11. Authentication and security requirements
 
 - Use Supabase Auth for registration, login, logout, and session persistence. Do not build custom auth.
 - Protected routes must actually enforce authentication server-side, not only hide UI.
-- Never expose the Supabase service-role key in browser/client code. Only the anon key belongs in `NEXT_PUBLIC_*` variables.
+- Only the Supabase **publishable** key (`sb_publishable_...`) belongs in `NEXT_PUBLIC_*` variables. **Secret** keys (`sb_secret_...`, legacy `service_role`) must never reach browser/client code — no secret key may ever be exposed to the browser.
 - Validate all user input; provide useful error messages.
 - Never commit secrets, API keys, or credentials.
 
 ## 12. Row Level Security requirements
 
-- Enable RLS on every table containing user data. Never bypass RLS with the service-role key in app code.
+- Enable RLS on every table containing user data. Never bypass RLS with a secret key in application code.
 - Write policies that scope rows to `auth.uid()` ownership. Test that a user cannot read or write another user's data.
 
 ## 13. Environment variable rules

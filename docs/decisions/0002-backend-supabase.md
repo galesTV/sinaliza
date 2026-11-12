@@ -1,7 +1,7 @@
 # ADR 0002 — Backend com Supabase (sem serviço dedicado)
 
 - **Data:** 2026-11-12
-- **Status:** Aceita (proposta — aguardando confirmação do owner)
+- **Status:** Proposta — aguardando aprovação
 
 ## Contexto
 
@@ -24,6 +24,6 @@ Usar **Supabase** como backend do PWA:
 
 ## Consequências
 
-- Chave `service_role` **nunca** em código de navegador; apenas `anon` key em `NEXT_PUBLIC_*`.
+- Nomenclatura atual de chaves do Supabase: a chave **publishable** (`sb_publishable_...`, sucessora da legada `anon`) é a única que pode aparecer em variáveis `NEXT_PUBLIC_*`; chaves **secret** (`sb_secret_...`, sucessoras da `service_role`) ficam restritas ao servidor e **nunca** podem ser expostas ao navegador. As chaves legadas estão sendo descontinuadas até o fim de 2026 — código novo deve preferir a nomenclatura nova.
 - Provisionamento do projeto Supabase e das variáveis de ambiente é configuração manual do owner (ver relatório de fundação).
 - `.env.example` no app documentará todas as variáveis exigidas.

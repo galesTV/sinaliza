@@ -1,7 +1,7 @@
 # ADR 0001 — Monorepo por diretórios, sem ferramenta de workspaces
 
 - **Data:** 2026-11-12
-- **Status:** Aceita (proposta — aguardando confirmação do owner)
+- **Status:** Proposta — aguardando aprovação
 
 ## Contexto
 
@@ -20,5 +20,5 @@ Manter o monorepo **apenas como organização de diretórios**: cada app em `app
 
 - `apps/pwa` será criado como app Next.js standalone com as mesmas versões da landing (Next 16.4.5, React 19.3, Tailwind 4).
 - Deploys independentes na Vercel: um projeto por app, cada um com seu Root Directory.
-- Design tokens/componentes serão duplicados inicialmente; extração para `packages/shared` será reavaliada quando o compartilhamento real existir (ver ADR 0003).
+- Design tokens/componentes serão duplicados inicialmente; `packages/shared` somente será criado quando houver código efetivamente compartilhado (não faz parte da estrutura planejada).
 - Se workspaces forem adicionados no futuro, registrar novo ADR e validar o deploy da landing antes de aplicar.
