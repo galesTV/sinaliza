@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+<title id="title">Símbolo Sinaliza</title>
+<defs>
+  <linearGradient id="brand" x1="110" y1="120" x2="410" y2="400" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#35C9E8"/>
+    <stop offset="0.52" stop-color="#287DEB"/>
+    <stop offset="1" stop-color="#6957E8"/>
+  </linearGradient>
+</defs>
+<path d="M390 126 C350 82 270 76 205 105 C145 132 111 181 130 225 C151 273 231 279 302 253 C370 228 410 253 390 302 C371 348 306 384 239 387 C191 389 151 372 126 343"
+ fill="none" stroke="url(#brand)" stroke-width="48" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="414" cy="112" r="24" fill="#35C9E8"/>
+<circle cx="105" cy="365" r="24" fill="#35C9E8"/>
+</svg>
