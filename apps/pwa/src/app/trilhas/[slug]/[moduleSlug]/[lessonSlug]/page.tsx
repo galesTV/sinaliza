@@ -9,11 +9,13 @@ import {
   LessonContentArea,
   LessonStatusBadge,
 } from "@/components/lesson-availability";
+import { LessonCompletionBadge } from "@/components/lesson-completion-badge";
 import { LessonPager } from "@/components/lesson-pager";
 import {
   getLearningPaths,
   getLessonContext,
 } from "@/data/learning-paths";
+import { lessonKey } from "@/lib/progress";
 
 interface LessonPageProps {
   params: Promise<{
@@ -85,6 +87,9 @@ async function LessonContent({ params }: LessonPageProps) {
         </h1>
         <div className="flex flex-wrap items-center gap-2.5">
           <LessonStatusBadge status={lesson.status} />
+          <LessonCompletionBadge
+            lessonKey={lessonKey(path.slug, module.slug, lesson.slug)}
+          />
           <Badge>
             Lição {position} de {lessonCount}
           </Badge>
@@ -120,7 +125,10 @@ async function LessonContent({ params }: LessonPageProps) {
         >
           Conteúdo da lição
         </h2>
-        <LessonContentArea status={lesson.status} />
+        <LessonContentArea
+          status={lesson.status}
+          lessonKey={lessonKey(path.slug, module.slug, lesson.slug)}
+        />
       </section>
 
       <LessonPager context={context} />

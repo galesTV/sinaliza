@@ -93,6 +93,32 @@ export function IconClock(props: IconProps) {
   );
 }
 
+export function IconCheck(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="m5 12.5 4.5 4.5L19 7.5" />
+    </Svg>
+  );
+}
+
+export function IconX(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M6 6l12 12" />
+      <path d="M18 6 6 18" />
+    </Svg>
+  );
+}
+
+export function IconRefresh(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M20 11a8 8 0 1 0-2.3 6.3" />
+      <path d="M20 5v6h-6" />
+    </Svg>
+  );
+}
+
 export function IconGraduationCap(props: IconProps) {
   return (
     <Svg {...props}>

@@ -1,11 +1,8 @@
 import Link from "next/link";
 
+import { ActivitySummary } from "@/components/activity-panel";
 import { Eyebrow } from "@/components/eyebrow";
-import {
-  IconActivity,
-  IconArrowRight,
-  IconGraduationCap,
-} from "@/components/icons";
+import { IconArrowRight } from "@/components/icons";
 import { PathCard } from "@/components/path-card";
 import { getLearningPaths } from "@/data/learning-paths";
 
@@ -88,30 +85,7 @@ export default function Home() {
         >
           Sua atividade
         </h2>
-        <div className="flex flex-col items-start gap-4 rounded-2xl border border-dashed border-border bg-surface/50 p-7">
-          <span
-            aria-hidden="true"
-            className="grid h-11 w-11 place-items-center rounded-xl border border-border bg-surface-elevated text-muted"
-          >
-            <IconActivity className="h-5 w-5" />
-          </span>
-          <div className="flex flex-col gap-1.5">
-            <p className="text-sm font-semibold text-foreground">
-              Nenhuma atividade ainda
-            </p>
-            <p className="max-w-lg text-sm leading-relaxed text-muted">
-              Quando as primeiras lições forem liberadas e você concluir uma
-              delas, lições concluídas, sequência de estudo e XP aparecem aqui.
-            </p>
-          </div>
-          <Link
-            href="/trilhas"
-            className="inline-flex min-h-10 items-center gap-2 rounded-[10px] border border-primary/35 bg-primary/10 px-4 text-xs font-semibold text-primary-soft transition-colors duration-200 hover:border-primary/60"
-          >
-            <IconGraduationCap className="h-4 w-4" />
-            Ver o que vem por aí
-          </Link>
-        </div>
+        <ActivitySummary />
       </section>
     </div>
   );
