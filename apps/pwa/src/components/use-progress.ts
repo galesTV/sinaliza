@@ -20,7 +20,13 @@ let store: ProgressStore | null = null;
 function getStore(): ProgressStore | null {
   if (typeof window === "undefined") return null;
   if (!store) {
-    store = createProgressStore({ storage: window.localStorage });
+    try {
+      store = createProgressStore({ storage: window.localStorage });
+    } catch {
+      // Browsers can throw SecurityError on the `localStorage` getter itself
+      // (blocked storage): fall back to in-memory progress for the session.
+      store = createProgressStore();
+    }
   }
   return store;
 }
