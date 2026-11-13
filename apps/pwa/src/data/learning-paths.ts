@@ -13,7 +13,10 @@ export interface Lesson {
   slug: string;
   title: string;
   status: LessonStatus;
-  /** What the lesson aims to teach — an objective, not the instructional content itself. */
+  /**
+   * Proposed learning objective — preliminary wording agreed before the
+   * pedagogical/linguistic consultation; not yet validated methodology.
+   */
   objective: string;
 }
 

@@ -34,8 +34,8 @@ export function LessonContentArea({ status }: { status: LessonStatus }) {
         </p>
         <p className="text-sm leading-relaxed text-muted">
           O material desta lição — demonstração visual do sinal, explicações e
-          atividades — está sendo produzido e passará por validação pedagógica
-          antes de ser publicado.
+          atividades — será desenvolvido e passará por validação pedagógica e
+          linguística antes de ser publicado.
         </p>
       </div>
     </div>

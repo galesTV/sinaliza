@@ -99,10 +99,14 @@ async function LessonContent({ params }: LessonPageProps) {
           id="objective-title"
           className="font-display text-lg font-semibold tracking-tight text-foreground"
         >
-          O que você vai aprender
+          Objetivo proposto
         </h2>
         <p className="max-w-xl text-sm leading-relaxed text-muted">
           {lesson.objective}
+        </p>
+        <p className="text-xs leading-relaxed text-muted/80">
+          Objetivo preliminar — será revisado na validação pedagógica e
+          linguística antes da publicação.
         </p>
       </section>
 
