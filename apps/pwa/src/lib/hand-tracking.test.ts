@@ -29,7 +29,19 @@ function makeVideo() {
 }
 
 function makeStream() {
-  const track = { stop: vi.fn() };
+  const track = {
+    stop: vi.fn(),
+    listeners: new Map<string, () => void>(),
+    addEventListener(type: string, cb: () => void) {
+      this.listeners.set(type, cb);
+    },
+    removeEventListener(type: string) {
+      this.listeners.delete(type);
+    },
+    emitEnded() {
+      this.listeners.get("ended")?.();
+    },
+  };
   return {
     stream: { getTracks: () => [track] } as unknown as MediaStream,
     track,
@@ -183,6 +195,59 @@ describe("createHandTracker", () => {
     await tracker.start();
     expect(deps.getUserMedia).toHaveBeenCalledTimes(1);
     expect(listener).not.toHaveBeenCalled();
+  });
+
+  it("aborts an in-flight start when stop is called mid-load", async () => {
+    let resolveLandmarker!: () => void;
+    const { deps, track } = makeDeps({
+      createLandmarker: vi.fn(
+        () =>
+          new Promise<never>((resolve) => {
+            resolveLandmarker = () =>
+              resolve({
+                detectForVideo: () => RESULT_TWO_HANDS,
+                close: vi.fn(),
+              } as never);
+          }),
+      ),
+    });
+    const tracker = createHandTracker(deps);
+
+    const pending = tracker.start();
+    // Camera granted, detector still loading — the user hits stop.
+    await vi.waitFor(() => expect(deps.createLandmarker).toHaveBeenCalled());
+    tracker.stop();
+    resolveLandmarker();
+    await pending;
+
+    const snap = tracker.getSnapshot();
+    expect(snap.cameraStatus).toBe("idle");
+    expect(track.stop).toHaveBeenCalled();
+  });
+
+  it("fails gracefully when the camera track ends externally", async () => {
+    const { deps, track, runFrame } = makeDeps();
+    const tracker = createHandTracker(deps);
+
+    await tracker.start();
+    runFrame();
+    expect(tracker.getSnapshot().cameraStatus).toBe("active");
+
+    track.emitEnded();
+    const snap = tracker.getSnapshot();
+    expect(snap.cameraStatus).toBe("unavailable");
+    expect(snap.error).toContain("desconectada");
+    expect(snap.handsDetected).toBe(0);
+  });
+
+  it("does not fail when the user stops the track themselves", async () => {
+    const { deps, track } = makeDeps();
+    const tracker = createHandTracker(deps);
+
+    await tracker.start();
+    tracker.stop();
+    track.emitEnded();
+    expect(tracker.getSnapshot().cameraStatus).toBe("idle");
   });
 
   it("ignores a second start while one is already running", async () => {

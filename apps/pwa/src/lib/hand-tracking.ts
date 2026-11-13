@@ -133,6 +133,17 @@ export function createHandTracker(deps: HandTrackerDeps) {
   let running = false;
   let starting = false;
   let disposed = false;
+  // Bumped by stop()/dispose() so an in-flight start() aborts after its
+  // next await instead of re-activating a session the user just ended.
+  let generation = 0;
+
+  function onTrackEnded() {
+    // Fired when the camera source ends externally (e.g. unplugged).
+    // track.stop() does not fire it, so this only runs on real loss.
+    if (running || starting) {
+      fail("unavailable", "A câmera foi desconectada.");
+    }
+  }
 
   function emit(patch: Partial<HandTrackingSnapshot>) {
     snapshot = { ...snapshot, ...patch };
@@ -142,7 +153,10 @@ export function createHandTracker(deps: HandTrackerDeps) {
 
   function stopTracks() {
     if (stream) {
-      for (const track of stream.getTracks()) track.stop();
+      for (const track of stream.getTracks()) {
+        track.removeEventListener("ended", onTrackEnded);
+        track.stop();
+      }
       stream = null;
     }
     const video = deps.getVideo();
@@ -168,6 +182,7 @@ export function createHandTracker(deps: HandTrackerDeps) {
   }
 
   function fail(cameraStatus: CameraStatus, message: string) {
+    generation += 1;
     releaseResources();
     emit({
       cameraStatus,
@@ -210,6 +225,8 @@ export function createHandTracker(deps: HandTrackerDeps) {
     starting = true;
     emit({ cameraStatus: "requesting", error: null });
 
+    const myGeneration = ++generation;
+
     try {
       stream = await deps.getUserMedia({
         video: { facingMode: "user" },
@@ -219,6 +236,15 @@ export function createHandTracker(deps: HandTrackerDeps) {
       starting = false;
       const classified = classifyGetUserMediaError(error);
       fail(classified.cameraStatus, classified.message);
+      return;
+    }
+    for (const track of stream.getTracks()) {
+      track.addEventListener("ended", onTrackEnded);
+    }
+
+    if (myGeneration !== generation) {
+      starting = false;
+      releaseResources();
       return;
     }
 
@@ -249,7 +275,7 @@ export function createHandTracker(deps: HandTrackerDeps) {
     }
 
     starting = false;
-    if (disposed) {
+    if (disposed || myGeneration !== generation) {
       releaseResources();
       return;
     }
@@ -261,6 +287,7 @@ export function createHandTracker(deps: HandTrackerDeps) {
   }
 
   function stop() {
+    generation += 1;
     releaseResources();
     emit({ ...IDLE_SNAPSHOT });
     deps.onResult?.(null);
