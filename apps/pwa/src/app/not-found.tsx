@@ -1,6 +1,11 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { Eyebrow } from "@/components/eyebrow";
+
+export const metadata: Metadata = {
+  title: "Página não encontrada",
+};
 
 export default function NotFound() {
   return (
