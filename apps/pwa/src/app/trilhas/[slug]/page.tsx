@@ -93,7 +93,12 @@ async function PathContent({ params }: PathPageProps) {
         </h2>
         <ol className="flex flex-col gap-4">
           {path.modules.map((module, index) => (
-            <ModuleCard key={module.slug} module={module} index={index} />
+            <ModuleCard
+              key={module.slug}
+              module={module}
+              index={index}
+              pathSlug={path.slug}
+            />
           ))}
         </ol>
       </section>

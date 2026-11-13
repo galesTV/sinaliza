@@ -13,6 +13,11 @@ export interface Lesson {
   slug: string;
   title: string;
   status: LessonStatus;
+  /**
+   * Proposed learning objective — preliminary wording agreed before the
+   * pedagogical/linguistic consultation; not yet validated methodology.
+   */
+  objective: string;
 }
 
 export interface CourseModule {
@@ -35,10 +40,11 @@ export interface LearningPath {
   contentNote: string;
 }
 
-const plannedLesson = (slug: string, title: string): Lesson => ({
+const plannedLesson = (slug: string, title: string, objective: string): Lesson => ({
   slug,
   title,
   status: "planned",
+  objective,
 });
 
 const alphabetLetters = [
@@ -59,7 +65,11 @@ const letterGroup = (
   title,
   description,
   lessons: letters.map((letter) =>
-    plannedLesson(`letra-${letter.toLowerCase()}`, `Letra ${letter}`),
+    plannedLesson(
+      `letra-${letter.toLowerCase()}`,
+      `Letra ${letter}`,
+      `Reconhecer e praticar a configuração de mão da letra ${letter} do alfabeto manual.`,
+    ),
   ),
 });
 
@@ -80,8 +90,16 @@ export const learningPaths: LearningPath[] = [
         description:
           "O que é o alfabeto manual, quando ele é usado em Libras e como aproveitar melhor a trilha.",
         lessons: [
-          plannedLesson("o-que-e", "O que é a datilologia"),
-          plannedLesson("quando-usar", "Quando a soletração manual é usada"),
+          plannedLesson(
+            "o-que-e",
+            "O que é a datilologia",
+            "Entender o que é a datilologia e o papel dela dentro da Libras.",
+          ),
+          plannedLesson(
+            "quando-usar",
+            "Quando a soletração manual é usada",
+            "Reconhecer situações do cotidiano em que a soletração manual aparece.",
+          ),
         ],
       },
       letterGroup(
@@ -131,13 +149,13 @@ export const learningPaths: LearningPath[] = [
         title: "Saudações",
         description: "Cumprimentos e cortesias para iniciar e encerrar conversas.",
         lessons: [
-          plannedLesson("ola", "Olá"),
-          plannedLesson("bom-dia", "Bom dia"),
-          plannedLesson("boa-tarde", "Boa tarde"),
-          plannedLesson("boa-noite", "Boa noite"),
-          plannedLesson("tudo-bem", "Tudo bem?"),
-          plannedLesson("obrigado", "Obrigado(a)"),
-          plannedLesson("por-favor", "Por favor"),
+          plannedLesson("ola", "Olá", "Aprender o sinal de “Olá” para iniciar uma conversa."),
+          plannedLesson("bom-dia", "Bom dia", "Aprender a saudação “Bom dia”."),
+          plannedLesson("boa-tarde", "Boa tarde", "Aprender a saudação “Boa tarde”."),
+          plannedLesson("boa-noite", "Boa noite", "Aprender a saudação “Boa noite”."),
+          plannedLesson("tudo-bem", "Tudo bem?", "Aprender a perguntar “Tudo bem?”."),
+          plannedLesson("obrigado", "Obrigado(a)", "Aprender a agradecer em Libras."),
+          plannedLesson("por-favor", "Por favor", "Aprender a pedir algo com “Por favor”."),
         ],
       },
       {
@@ -145,10 +163,10 @@ export const learningPaths: LearningPath[] = [
         title: "Apresentações",
         description: "Se apresentar e conhecer outras pessoas.",
         lessons: [
-          plannedLesson("meu-nome", "Meu nome é…"),
-          plannedLesson("prazer", "Prazer em conhecer você"),
-          plannedLesson("como-voce-esta", "Como você está?"),
-          plannedLesson("de-onde-voce-e", "De onde você é?"),
+          plannedLesson("meu-nome", "Meu nome é…", "Aprender a se apresentar dizendo o próprio nome."),
+          plannedLesson("prazer", "Prazer em conhecer você", "Aprender a sinalizar “Prazer em conhecer você”."),
+          plannedLesson("como-voce-esta", "Como você está?", "Aprender a perguntar “Como você está?”."),
+          plannedLesson("de-onde-voce-e", "De onde você é?", "Aprender a perguntar “De onde você é?”."),
         ],
       },
       {
@@ -156,11 +174,11 @@ export const learningPaths: LearningPath[] = [
         title: "Família e pessoas",
         description: "Sinais para falar de familiares e pessoas próximas.",
         lessons: [
-          plannedLesson("mae", "Mãe"),
-          plannedLesson("pai", "Pai"),
-          plannedLesson("irmao-irma", "Irmão e irmã"),
-          plannedLesson("familia", "Família"),
-          plannedLesson("amigo", "Amigo(a)"),
+          plannedLesson("mae", "Mãe", "Aprender o sinal de “Mãe”."),
+          plannedLesson("pai", "Pai", "Aprender o sinal de “Pai”."),
+          plannedLesson("irmao-irma", "Irmão e irmã", "Aprender os sinais de “Irmão” e “Irmã”."),
+          plannedLesson("familia", "Família", "Aprender o sinal de “Família”."),
+          plannedLesson("amigo", "Amigo(a)", "Aprender os sinais de “Amigo” e “Amiga”."),
         ],
       },
       {
@@ -168,8 +186,8 @@ export const learningPaths: LearningPath[] = [
         title: "Números",
         description: "Contar e expressar quantidades do dia a dia.",
         lessons: [
-          plannedLesson("um-a-cinco", "Números de 1 a 5"),
-          plannedLesson("seis-a-dez", "Números de 6 a 10"),
+          plannedLesson("um-a-cinco", "Números de 1 a 5", "Aprender a sinalizar os números de 1 a 5."),
+          plannedLesson("seis-a-dez", "Números de 6 a 10", "Aprender a sinalizar os números de 6 a 10."),
         ],
       },
       {
@@ -177,11 +195,11 @@ export const learningPaths: LearningPath[] = [
         title: "Expressões cotidianas",
         description: "Respostas e pedidos frequentes no cotidiano.",
         lessons: [
-          plannedLesson("sim", "Sim"),
-          plannedLesson("nao", "Não"),
-          plannedLesson("ajuda", "Ajuda"),
-          plannedLesson("agua", "Água"),
-          plannedLesson("comer", "Comer"),
+          plannedLesson("sim", "Sim", "Aprender o sinal de “Sim”."),
+          plannedLesson("nao", "Não", "Aprender o sinal de “Não”."),
+          plannedLesson("ajuda", "Ajuda", "Aprender a pedir ajuda."),
+          plannedLesson("agua", "Água", "Aprender o sinal de “Água”."),
+          plannedLesson("comer", "Comer", "Aprender o sinal de “Comer”."),
         ],
       },
       {
@@ -189,11 +207,11 @@ export const learningPaths: LearningPath[] = [
         title: "Perguntas básicas",
         description: "Palavras interrogativas para fazer perguntas simples.",
         lessons: [
-          plannedLesson("o-que", "O quê?"),
-          plannedLesson("onde", "Onde?"),
-          plannedLesson("quando", "Quando?"),
-          plannedLesson("quem", "Quem?"),
-          plannedLesson("por-que", "Por quê?"),
+          plannedLesson("o-que", "O quê?", "Aprender a palavra interrogativa “O quê?”."),
+          plannedLesson("onde", "Onde?", "Aprender a palavra interrogativa “Onde?”."),
+          plannedLesson("quando", "Quando?", "Aprender a palavra interrogativa “Quando?”."),
+          plannedLesson("quem", "Quem?", "Aprender a palavra interrogativa “Quem?”."),
+          plannedLesson("por-que", "Por quê?", "Aprender a palavra interrogativa “Por quê?”."),
         ],
       },
     ],
@@ -220,5 +238,50 @@ export function getPathStats(path: LearningPath): PathStats {
       (total, module) => total + module.lessons.length,
       0,
     ),
+  };
+}
+
+/** Stable lesson URL — single source for the nested route shape. */
+export function getLessonUrl(
+  pathSlug: string,
+  moduleSlug: string,
+  lessonSlug: string,
+): string {
+  return `/trilhas/${pathSlug}/${moduleSlug}/${lessonSlug}`;
+}
+
+export interface LessonContext {
+  path: LearningPath;
+  module: CourseModule;
+  lesson: Lesson;
+  /** 1-based position of the lesson inside its module. */
+  position: number;
+  lessonCount: number;
+  previous: Lesson | undefined;
+  next: Lesson | undefined;
+}
+
+export function getLessonContext(
+  pathSlug: string,
+  moduleSlug: string,
+  lessonSlug: string,
+): LessonContext | undefined {
+  const path = getLearningPath(pathSlug);
+  const courseModule = path?.modules.find((item) => item.slug === moduleSlug);
+  const index =
+    courseModule?.lessons.findIndex((item) => item.slug === lessonSlug) ?? -1;
+  if (!path || !courseModule || index < 0) return undefined;
+
+  return {
+    path,
+    module: courseModule,
+    lesson: courseModule.lessons[index],
+    position: index + 1,
+    lessonCount: courseModule.lessons.length,
+    previous: index > 0 ? courseModule.lessons[index - 1] : undefined,
+    next:
+      index < courseModule.lessons.length - 1
+        ? courseModule.lessons[index + 1]
+        : undefined,
   };
 }

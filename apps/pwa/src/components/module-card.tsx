@@ -1,16 +1,23 @@
-import type { CourseModule } from "@/data/learning-paths";
+import Link from "next/link";
+
+import { getLessonUrl, type CourseModule } from "@/data/learning-paths";
 
 import { PlannedBadge } from "./badge";
 
 export function ModuleCard({
   module,
   index,
+  pathSlug,
 }: {
   module: CourseModule;
   index: number;
+  pathSlug: string;
 }) {
   return (
-    <li className="flex gap-5 rounded-2xl border border-border bg-surface p-6">
+    <li
+      id={module.slug}
+      className="flex scroll-mt-24 gap-5 rounded-2xl border border-border bg-surface p-6"
+    >
       <span
         aria-hidden="true"
         className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-border bg-surface-elevated font-display text-sm font-semibold tabular-nums text-primary-soft"
@@ -36,11 +43,13 @@ export function ModuleCard({
           aria-label={`Lições do módulo ${module.title}`}
         >
           {module.lessons.map((lesson) => (
-            <li
-              key={lesson.slug}
-              className="rounded-lg border border-border bg-surface-elevated/60 px-3 py-1.5 text-xs font-medium text-muted"
-            >
-              {lesson.title}
+            <li key={lesson.slug}>
+              <Link
+                href={getLessonUrl(pathSlug, module.slug, lesson.slug)}
+                className="inline-flex items-center rounded-lg border border-border bg-surface-elevated/60 px-3 py-1.5 text-xs font-medium text-muted transition-colors duration-200 hover:border-primary/45 hover:text-foreground"
+              >
+                {lesson.title}
+              </Link>
             </li>
           ))}
         </ul>
