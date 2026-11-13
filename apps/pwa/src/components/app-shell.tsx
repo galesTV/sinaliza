@@ -20,7 +20,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <Image
               src="/brand/sinaliza-horizontal.svg"
               alt="Sinaliza"
-              width={132}
+              width={120}
               height={36}
               priority
             />

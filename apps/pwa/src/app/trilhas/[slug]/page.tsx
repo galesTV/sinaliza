@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 
 import { Badge } from "@/components/badge";
 import { Eyebrow } from "@/components/eyebrow";
@@ -32,13 +33,7 @@ export async function generateMetadata({
   };
 }
 
-export default async function PathPage({ params }: PathPageProps) {
-  const { slug } = await params;
-  const path = getLearningPath(slug);
-  if (!path) notFound();
-
-  const stats = getPathStats(path);
-
+export default function PathPage({ params }: PathPageProps) {
   return (
     <div className="flex flex-col gap-10">
       <nav aria-label="Voltar">
@@ -51,6 +46,22 @@ export default async function PathPage({ params }: PathPageProps) {
         </Link>
       </nav>
 
+      <Suspense fallback={null}>
+        <PathContent params={params} />
+      </Suspense>
+    </div>
+  );
+}
+
+async function PathContent({ params }: PathPageProps) {
+  const { slug } = await params;
+  const path = getLearningPath(slug);
+  if (!path) notFound();
+
+  const stats = getPathStats(path);
+
+  return (
+    <>
       <div className="flex flex-col gap-5">
         <Eyebrow>Trilha</Eyebrow>
         <h1 className="max-w-2xl font-display text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
@@ -94,6 +105,6 @@ export default async function PathPage({ params }: PathPageProps) {
         />
         <p className="text-sm leading-relaxed text-muted">{path.contentNote}</p>
       </div>
-    </div>
+    </>
   );
 }
