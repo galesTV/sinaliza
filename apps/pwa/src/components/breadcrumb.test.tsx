@@ -7,7 +7,7 @@ const ITEMS = [
   { label: "Trilhas", href: "/trilhas" },
   { label: "Alfabeto manual", href: "/trilhas/alfabeto" },
   { label: "Letras A–E", href: "/trilhas/alfabeto#letras-a-e" },
-  { label: "Letra A" },
+  { label: "Letra A", href: "/trilhas/alfabeto/letra-a" },
 ];
 
 describe("Breadcrumb", () => {
@@ -21,8 +21,10 @@ describe("Breadcrumb", () => {
     const html = renderToStaticMarkup(<Breadcrumb items={ITEMS} />);
     expect(html).toContain('href="/trilhas"');
     expect(html).toContain('href="/trilhas/alfabeto#letras-a-e"');
-    // Current page must not be a link to itself.
-    expect(html).not.toContain('href="">Letra A');
+    // The last item's own href is ignored: it renders as a span, not a link.
+    expect(html).toContain('<span aria-current="page"');
+    expect(html).not.toContain("/trilhas/alfabeto/letra-a");
+    expect(html).not.toContain("Letra A</a>");
   });
 
   it("uses an accessible breadcrumb landmark", () => {
