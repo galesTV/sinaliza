@@ -104,7 +104,10 @@ export function createProgressStore(deps: ProgressDeps = {}) {
     /** Returns false when the lesson was already recorded. */
     markCompleted(key: string): boolean {
       if (completed.has(key)) return false;
-      completed = new Set(completed).add(key);
+      // Merge with a fresh read first: another tab/instance sharing the same
+      // storage may have recorded lessons we never saw — writing only our
+      // own set would erase them.
+      completed = new Set(load()).add(key);
       persist(completed);
       emit();
       return true;

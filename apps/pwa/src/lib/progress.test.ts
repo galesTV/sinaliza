@@ -136,6 +136,21 @@ describe("createProgressStore", () => {
     expect(store.isCompleted(KEY)).toBe(true);
   });
 
+  it("merges completions across instances sharing the same storage", () => {
+    const storage = makeStorage();
+    const tabA = createProgressStore({ storage });
+    const tabB = createProgressStore({ storage });
+    const other = lessonKey("alfabeto", "letras-a-e", "letra-b");
+
+    tabA.markCompleted(KEY);
+    tabB.markCompleted(other);
+
+    expect(tabB.isCompleted(KEY)).toBe(true);
+    expect(tabB.isCompleted(other)).toBe(true);
+    const parsed = JSON.parse(storage.map.get(PROGRESS_STORAGE_KEY)!);
+    expect(parsed.completed).toEqual(expect.arrayContaining([KEY, other]));
+  });
+
   it("notifies subscribers when progress changes", () => {
     const store = createProgressStore({ storage: makeStorage() });
     const listener = vi.fn();
