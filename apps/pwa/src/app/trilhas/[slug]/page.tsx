@@ -75,7 +75,7 @@ async function PathContent({ params }: PathPageProps) {
           {path.goal}
         </p>
         <div className="flex flex-wrap items-center gap-2.5">
-          <Badge tone="accent">Disponível</Badge>
+          <Badge tone="accent">Aberta</Badge>
           <Badge>{stats.moduleCount} módulos</Badge>
           <Badge>{stats.lessonCount} lições</Badge>
         </div>

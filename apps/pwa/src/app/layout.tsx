@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Sora } from "next/font/google";
 
 import { AppShell } from "@/components/app-shell";
@@ -23,6 +23,10 @@ export const metadata: Metadata = {
   description:
     "Plataforma de aprendizagem de Língua Brasileira de Sinais: alfabeto, vocabulário, exercícios e progresso.",
   applicationName: "Sinaliza",
+};
+
+export const viewport: Viewport = {
+  themeColor: "#10172b",
 };
 
 export default function RootLayout({

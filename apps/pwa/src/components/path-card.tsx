@@ -26,7 +26,7 @@ export function PathCard({ path }: { path: LearningPath }) {
         >
           <Icon className="h-5 w-5" />
         </span>
-        <Badge tone="accent">Disponível</Badge>
+        <Badge tone="accent">Aberta</Badge>
       </div>
 
       <div className="flex flex-col gap-2">
