@@ -1,0 +1,196 @@
+import { describe, expect, it, vi } from "vitest";
+
+import {
+  HAND_CONNECTIONS,
+  HAND_LANDMARK_COUNT,
+  createHandTracker,
+  type HandLandmarkerResultLike,
+} from "./hand-tracking";
+
+const RESULT_TWO_HANDS: HandLandmarkerResultLike = {
+  landmarks: [
+    Array.from({ length: HAND_LANDMARK_COUNT }, () => ({ x: 0, y: 0, z: 0 })),
+    Array.from({ length: HAND_LANDMARK_COUNT }, () => ({ x: 1, y: 1, z: 1 })),
+  ],
+  handedness: [[{ categoryName: "Left" }], [{ categoryName: "Right" }]],
+};
+
+function domException(name: string) {
+  return new DOMException("mock", name);
+}
+
+function makeVideo() {
+  return {
+    currentTime: 0,
+    readyState: 4,
+    srcObject: null as unknown,
+    play: vi.fn(async () => undefined),
+  } as unknown as HTMLVideoElement;
+}
+
+function makeStream() {
+  const track = { stop: vi.fn() };
+  return {
+    stream: { getTracks: () => [track] } as unknown as MediaStream,
+    track,
+  };
+}
+
+function makeDeps(overrides: Partial<Parameters<typeof createHandTracker>[0]> = {}) {
+  const { stream, track } = makeStream();
+  const video = makeVideo();
+  const frames: FrameRequestCallback[] = [];
+  const landmarker = {
+    detectForVideo: vi.fn(() => RESULT_TWO_HANDS),
+    close: vi.fn(),
+  };
+  let clock = 0;
+
+  const deps = {
+    getUserMedia: vi.fn(async () => stream),
+    createLandmarker: vi.fn(async () => landmarker),
+    getVideo: () => video,
+    onResult: vi.fn(),
+    requestFrame: vi.fn((cb: FrameRequestCallback) => {
+      frames.push(cb);
+      return frames.length;
+    }),
+    cancelFrame: vi.fn(),
+    now: () => (clock += 5),
+    ...overrides,
+  };
+
+  const runFrame = () => {
+    const cb = frames.shift();
+    cb?.(clock);
+  };
+
+  return { deps, video, stream, track, landmarker, runFrame, frames };
+}
+
+describe("hand landmark topology", () => {
+  it("references only the 21 landmarks", () => {
+    const indices = HAND_CONNECTIONS.flat();
+    expect(Math.min(...indices)).toBe(0);
+    expect(Math.max(...indices)).toBe(HAND_LANDMARK_COUNT - 1);
+    expect(new Set(indices).size).toBe(HAND_LANDMARK_COUNT);
+  });
+});
+
+describe("createHandTracker", () => {
+  it("activates the camera and reports detected hands", async () => {
+    const { deps, landmarker, runFrame } = makeDeps();
+    const tracker = createHandTracker(deps);
+
+    await tracker.start();
+    expect(tracker.getSnapshot().cameraStatus).toBe("active");
+
+    runFrame();
+    const snap = tracker.getSnapshot();
+    expect(landmarker.detectForVideo).toHaveBeenCalledTimes(1);
+    expect(snap.handsDetected).toBe(2);
+    expect(snap.landmarksVisible).toBe(true);
+    expect(snap.inferenceMs).toBe(5);
+    expect(deps.onResult).toHaveBeenCalledWith(RESULT_TWO_HANDS);
+  });
+
+  it("skips inference while the video frame has not changed", async () => {
+    const { deps, video, landmarker, runFrame } = makeDeps();
+    const tracker = createHandTracker(deps);
+
+    await tracker.start();
+    runFrame();
+    runFrame();
+    expect(landmarker.detectForVideo).toHaveBeenCalledTimes(1);
+
+    video.currentTime = 0.5;
+    runFrame();
+    expect(landmarker.detectForVideo).toHaveBeenCalledTimes(2);
+  });
+
+  it("maps denied permission to the denied status", async () => {
+    const { deps } = makeDeps({
+      getUserMedia: vi.fn(async () => {
+        throw domException("NotAllowedError");
+      }),
+    });
+    const tracker = createHandTracker(deps);
+
+    await tracker.start();
+    const snap = tracker.getSnapshot();
+    expect(snap.cameraStatus).toBe("denied");
+    expect(snap.error).toContain("negada");
+  });
+
+  it("maps a missing camera to the unavailable status", async () => {
+    const { deps } = makeDeps({
+      getUserMedia: vi.fn(async () => {
+        throw domException("NotFoundError");
+      }),
+    });
+    const tracker = createHandTracker(deps);
+
+    await tracker.start();
+    expect(tracker.getSnapshot().cameraStatus).toBe("unavailable");
+  });
+
+  it("stops tracks and reports an error when landmarker init fails", async () => {
+    const { deps, track } = makeDeps({
+      createLandmarker: vi.fn(async () => {
+        throw new Error("wasm failed");
+      }),
+    });
+    const tracker = createHandTracker(deps);
+
+    await tracker.start();
+    const snap = tracker.getSnapshot();
+    expect(snap.cameraStatus).toBe("error");
+    expect(track.stop).toHaveBeenCalled();
+  });
+
+  it("stops tracks, closes the landmarker and clears the view on stop", async () => {
+    const { deps, video, track, landmarker, runFrame } = makeDeps();
+    const tracker = createHandTracker(deps);
+
+    await tracker.start();
+    runFrame();
+    tracker.stop();
+
+    const snap = tracker.getSnapshot();
+    expect(snap.cameraStatus).toBe("idle");
+    expect(snap.handsDetected).toBe(0);
+    expect(track.stop).toHaveBeenCalledTimes(1);
+    expect(landmarker.close).toHaveBeenCalledTimes(1);
+    expect(deps.cancelFrame).toHaveBeenCalled();
+    expect(video.srcObject).toBeNull();
+    expect(deps.onResult).toHaveBeenLastCalledWith(null);
+  });
+
+  it("cleans up on dispose and stops notifying listeners", async () => {
+    const { deps, track, landmarker } = makeDeps();
+    const tracker = createHandTracker(deps);
+    const listener = vi.fn();
+    tracker.subscribe(listener);
+
+    await tracker.start();
+    listener.mockClear();
+    tracker.dispose();
+
+    expect(track.stop).toHaveBeenCalled();
+    expect(landmarker.close).toHaveBeenCalled();
+
+    // Disposed tracker ignores further starts and emits nothing.
+    await tracker.start();
+    expect(deps.getUserMedia).toHaveBeenCalledTimes(1);
+    expect(listener).not.toHaveBeenCalled();
+  });
+
+  it("ignores a second start while one is already running", async () => {
+    const { deps } = makeDeps();
+    const tracker = createHandTracker(deps);
+
+    await tracker.start();
+    await tracker.start();
+    expect(deps.getUserMedia).toHaveBeenCalledTimes(1);
+  });
+});
