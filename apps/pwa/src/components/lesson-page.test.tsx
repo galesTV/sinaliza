@@ -33,7 +33,7 @@ describe("LessonContentArea", () => {
         status="available"
         lessonKey="trilha/modulo/licao"
         content={{
-          intro: "intro",
+          intro: "Introdução da lição.",
           blocks: [{ kind: "text", heading: "Passo único", body: "texto" }],
         }}
       />,
@@ -42,10 +42,25 @@ describe("LessonContentArea", () => {
     expect(html).toContain("Passo 1 de 1");
   });
 
-  it("renders nothing for an available lesson without content", () => {
-    expect(
-      renderToStaticMarkup(<LessonContentArea status="available" />),
-    ).toBe("");
+  it("renders the lesson introduction before the first block", () => {
+    const html = renderToStaticMarkup(
+      <LessonContentArea
+        status="available"
+        content={{
+          intro: "Introdução da lição.",
+          blocks: [{ kind: "text", heading: "Passo único", body: "texto" }],
+        }}
+      />,
+    );
+    expect(html).toContain("Introdução da lição.");
+    // The intro is a lead-in, not a step: one block still means step 1 of 1.
+    expect(html).toContain("Passo 1 de 1");
+  });
+
+  it("shows an honest fallback for an available lesson without content", () => {
+    const html = renderToStaticMarkup(<LessonContentArea status="available" />);
+    expect(html).toContain("Conteúdo indisponível no momento");
+    expect(html).not.toContain("Passo 1 de");
   });
 });
 

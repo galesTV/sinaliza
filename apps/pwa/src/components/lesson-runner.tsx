@@ -195,6 +195,12 @@ export function LessonRunner({
         </Badge>
       </div>
 
+      {stepIndex === 0 && (
+        <p className="max-w-2xl text-sm leading-relaxed text-muted">
+          {content.intro}
+        </p>
+      )}
+
       {block?.kind === "text" && (
         <div className="flex flex-col gap-5">
           <div className="flex flex-col gap-2.5">
