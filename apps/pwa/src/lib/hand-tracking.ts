@@ -183,6 +183,7 @@ export function createHandTracker(deps: HandTrackerDeps) {
 
   function fail(cameraStatus: CameraStatus, message: string) {
     generation += 1;
+    starting = false;
     releaseResources();
     emit({
       cameraStatus,
@@ -226,31 +227,37 @@ export function createHandTracker(deps: HandTrackerDeps) {
     emit({ cameraStatus: "requesting", error: null });
 
     const myGeneration = ++generation;
+    // A start() cancelled mid-flight must never publish state, touch shared
+    // fields (stream/landmarker) or schedule work after its next await.
+    const stale = () => disposed || myGeneration !== generation;
 
+    let acquired: MediaStream;
     try {
-      stream = await deps.getUserMedia({
+      acquired = await deps.getUserMedia({
         video: { facingMode: "user" },
         audio: false,
       });
     } catch (error) {
-      starting = false;
+      if (stale()) return;
       const classified = classifyGetUserMediaError(error);
       fail(classified.cameraStatus, classified.message);
       return;
     }
+
+    if (stale()) {
+      // The stream resolved after stop(): release it directly since
+      // releaseResources() no longer knows about it.
+      for (const track of acquired.getTracks()) track.stop();
+      return;
+    }
+
+    stream = acquired;
     for (const track of stream.getTracks()) {
       track.addEventListener("ended", onTrackEnded);
     }
 
-    if (myGeneration !== generation) {
-      starting = false;
-      releaseResources();
-      return;
-    }
-
     const video = deps.getVideo();
     if (!video) {
-      starting = false;
       fail("error", "Elemento de vídeo indisponível na página.");
       return;
     }
@@ -258,28 +265,34 @@ export function createHandTracker(deps: HandTrackerDeps) {
     try {
       await video.play();
     } catch {
-      starting = false;
-      fail("error", "Não foi possível iniciar a prévia da câmera.");
+      if (!stale()) {
+        fail("error", "Não foi possível iniciar a prévia da câmera.");
+      }
       return;
     }
+    // Cancelled while play() was pending: stop() already released the
+    // stream; do not start landmarker initialization.
+    if (stale()) return;
 
+    let created: HandLandmarkerLike;
     try {
-      landmarker = await deps.createLandmarker();
+      created = await deps.createLandmarker();
     } catch {
-      starting = false;
-      fail(
-        "error",
-        "Falha ao inicializar o detector de mãos. Verifique sua conexão e tente novamente.",
-      );
+      if (!stale()) {
+        fail(
+          "error",
+          "Falha ao inicializar o detector de mãos. Verifique sua conexão e tente novamente.",
+        );
+      }
+      return;
+    }
+    if (stale()) {
+      created.close();
       return;
     }
 
+    landmarker = created;
     starting = false;
-    if (disposed || myGeneration !== generation) {
-      releaseResources();
-      return;
-    }
-
     running = true;
     lastVideoTime = -1;
     emit({ cameraStatus: "active", error: null });
@@ -288,6 +301,7 @@ export function createHandTracker(deps: HandTrackerDeps) {
 
   function stop() {
     generation += 1;
+    starting = false;
     releaseResources();
     emit({ ...IDLE_SNAPSHOT });
     deps.onResult?.(null);

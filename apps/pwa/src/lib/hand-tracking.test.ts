@@ -258,4 +258,177 @@ describe("createHandTracker", () => {
     await tracker.start();
     expect(deps.getUserMedia).toHaveBeenCalledTimes(1);
   });
+
+  it("stays idle when getUserMedia rejects after stop()", async () => {
+    let rejectGum!: (error: unknown) => void;
+    const { deps } = makeDeps({
+      getUserMedia: vi.fn(
+        () =>
+          new Promise<MediaStream>((_, reject) => {
+            rejectGum = reject;
+          }),
+      ),
+    });
+    const tracker = createHandTracker(deps);
+
+    const pending = tracker.start();
+    await vi.waitFor(() => expect(deps.getUserMedia).toHaveBeenCalled());
+    tracker.stop();
+    rejectGum(domException("NotAllowedError"));
+    await pending;
+
+    const snap = tracker.getSnapshot();
+    expect(snap.cameraStatus).toBe("idle");
+    expect(snap.error).toBeNull();
+  });
+
+  it("releases a stream that resolves after stop()", async () => {
+    let resolveGum!: (stream: MediaStream) => void;
+    const { deps, stream, track } = makeDeps({
+      getUserMedia: vi.fn(
+        () =>
+          new Promise<MediaStream>((resolve) => {
+            resolveGum = resolve;
+          }),
+      ),
+    });
+    const tracker = createHandTracker(deps);
+
+    const pending = tracker.start();
+    await vi.waitFor(() => expect(deps.getUserMedia).toHaveBeenCalled());
+    tracker.stop();
+    resolveGum(stream);
+    await pending;
+
+    expect(track.stop).toHaveBeenCalled();
+    const snap = tracker.getSnapshot();
+    expect(snap.cameraStatus).toBe("idle");
+    expect(snap.error).toBeNull();
+  });
+
+  it("stays idle when video.play() rejects after stop()", async () => {
+    let rejectPlay!: (error?: unknown) => void;
+    const { deps, video, track } = makeDeps();
+    video.play = vi.fn(
+      () =>
+        new Promise<void>((_, reject) => {
+          rejectPlay = reject;
+        }),
+    );
+    const tracker = createHandTracker(deps);
+
+    const pending = tracker.start();
+    await vi.waitFor(() => expect(video.play).toHaveBeenCalled());
+    tracker.stop();
+    rejectPlay(new Error("play aborted"));
+    await pending;
+
+    const snap = tracker.getSnapshot();
+    expect(snap.cameraStatus).toBe("idle");
+    expect(snap.error).toBeNull();
+    expect(track.stop).toHaveBeenCalled();
+    expect(deps.createLandmarker).not.toHaveBeenCalled();
+    expect(deps.requestFrame).not.toHaveBeenCalled();
+  });
+
+  it("does not start detection when video.play() resolves after stop()", async () => {
+    let resolvePlay!: () => void;
+    const { deps, video } = makeDeps();
+    video.play = vi.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          resolvePlay = resolve;
+        }),
+    );
+    const tracker = createHandTracker(deps);
+
+    const pending = tracker.start();
+    await vi.waitFor(() => expect(video.play).toHaveBeenCalled());
+    tracker.stop();
+    resolvePlay();
+    await pending;
+
+    expect(tracker.getSnapshot().cameraStatus).toBe("idle");
+    expect(deps.createLandmarker).not.toHaveBeenCalled();
+    expect(deps.requestFrame).not.toHaveBeenCalled();
+  });
+
+  it("closes a landmarker that finishes initializing after stop()", async () => {
+    const created = { detectForVideo: vi.fn(), close: vi.fn() };
+    let resolveLandmarker!: (landmarker: typeof created) => void;
+    const { deps, track } = makeDeps({
+      createLandmarker: vi.fn(
+        () =>
+          new Promise<typeof created>((resolve) => {
+            resolveLandmarker = resolve;
+          }),
+      ),
+    });
+    const tracker = createHandTracker(deps);
+
+    const pending = tracker.start();
+    await vi.waitFor(() => expect(deps.createLandmarker).toHaveBeenCalled());
+    tracker.stop();
+    resolveLandmarker(created);
+    await pending;
+
+    expect(created.close).toHaveBeenCalledTimes(1);
+    expect(track.stop).toHaveBeenCalled();
+    expect(tracker.getSnapshot().cameraStatus).toBe("idle");
+    expect(deps.requestFrame).not.toHaveBeenCalled();
+  });
+
+  it("ignores a landmarker init failure after stop()", async () => {
+    let rejectLandmarker!: (error: unknown) => void;
+    const { deps, track } = makeDeps({
+      createLandmarker: vi.fn(
+        () =>
+          new Promise<never>((_, reject) => {
+            rejectLandmarker = reject;
+          }),
+      ),
+    });
+    const tracker = createHandTracker(deps);
+
+    const pending = tracker.start();
+    await vi.waitFor(() => expect(deps.createLandmarker).toHaveBeenCalled());
+    tracker.stop();
+    rejectLandmarker(new Error("wasm failed"));
+    await pending;
+
+    const snap = tracker.getSnapshot();
+    expect(snap.cameraStatus).toBe("idle");
+    expect(snap.error).toBeNull();
+    expect(track.stop).toHaveBeenCalled();
+  });
+
+  it("allows restarting after stopping mid-load", async () => {
+    const second = makeStream();
+    let resolveGum!: (stream: MediaStream) => void;
+    const { deps, stream, track } = makeDeps({
+      getUserMedia: vi
+        .fn()
+        .mockImplementationOnce(
+          () =>
+            new Promise<MediaStream>((resolve) => {
+              resolveGum = resolve;
+            }),
+        )
+        .mockImplementation(async () => second.stream),
+    });
+    const tracker = createHandTracker(deps);
+
+    const first = tracker.start();
+    await vi.waitFor(() => expect(deps.getUserMedia).toHaveBeenCalledTimes(1));
+    tracker.stop();
+    const restarted = tracker.start();
+    resolveGum(stream);
+    await Promise.all([first, restarted]);
+
+    expect(tracker.getSnapshot().cameraStatus).toBe("active");
+    // The cancelled attempt released its own stream without touching the
+    // live one.
+    expect(track.stop).toHaveBeenCalled();
+    expect(second.track.stop).not.toHaveBeenCalled();
+  });
 });
