@@ -26,6 +26,27 @@ describe("LessonContentArea", () => {
     expect(html).toContain("Conteúdo em preparação");
     expect(html).toContain("validação pedagógica");
   });
+
+  it("renders the lesson runner when an available lesson has content", () => {
+    const html = renderToStaticMarkup(
+      <LessonContentArea
+        status="available"
+        lessonKey="trilha/modulo/licao"
+        content={{
+          intro: "intro",
+          blocks: [{ kind: "text", heading: "Passo único", body: "texto" }],
+        }}
+      />,
+    );
+    expect(html).toContain("Passo único");
+    expect(html).toContain("Passo 1 de 1");
+  });
+
+  it("renders nothing for an available lesson without content", () => {
+    expect(
+      renderToStaticMarkup(<LessonContentArea status="available" />),
+    ).toBe("");
+  });
 });
 
 describe("LessonPager", () => {

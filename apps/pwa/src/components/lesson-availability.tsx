@@ -1,7 +1,9 @@
+import type { LessonContent } from "@/data/lesson-content";
 import type { LessonStatus } from "@/data/learning-paths";
 
 import { Badge, PlannedBadge } from "./badge";
 import { IconClock } from "./icons";
+import { LessonRunner } from "./lesson-runner";
 
 export function LessonStatusBadge({ status }: { status: LessonStatus }) {
   return status === "available" ? (
@@ -14,10 +16,22 @@ export function LessonStatusBadge({ status }: { status: LessonStatus }) {
 /**
  * The main instructional-content slot of a lesson page. Until validated
  * material exists (status "planned"), it renders an honest pending panel.
- * Real blocks (video, images, explanations, activities) slot in here once the
- * lesson content model lands.
+ * When a lesson becomes "available" with validated `content`, the runner
+ * takes over here and `lessonKey` records real completion in the progress
+ * store.
  */
-export function LessonContentArea({ status }: { status: LessonStatus }) {
+export function LessonContentArea({
+  status,
+  content,
+  lessonKey,
+}: {
+  status: LessonStatus;
+  content?: LessonContent;
+  lessonKey?: string;
+}) {
+  if (status === "available" && content) {
+    return <LessonRunner content={content} lessonKey={lessonKey} />;
+  }
   if (status === "available") return null;
 
   return (
