@@ -3,7 +3,9 @@
 /* ========================================
    DESIGN TOKENS — Sinaliza
    (duplicated from apps/landing until
-   packages/shared exists; see ADR 0001)
+   packages/shared exists; see ADR 0001;
+   roles documented in
+   design-system/sinaliza/MASTER.md)
    ======================================== */
 
 :root {
@@ -19,7 +21,13 @@
   --border: rgba(190, 204, 235, 0.12);
 
   --primary: #6957e8;
+  --primary-soft: #c7c0ff;
+  --on-primary: #ffffff;
   --accent: #35c9e8;
+
+  --success: #83dfb8;
+  --destructive: #dc2626;
+  --ring: var(--accent);
 
   --font-display: var(--font-sora);
   --font-body: var(--font-inter);
@@ -36,7 +44,13 @@
   --color-border: var(--border);
 
   --color-primary: var(--primary);
+  --color-primary-soft: var(--primary-soft);
+  --color-on-primary: var(--on-primary);
   --color-accent: var(--accent);
+
+  --color-success: var(--success);
+  --color-destructive: var(--destructive);
+  --color-ring: var(--ring);
 
   --font-sans: var(--font-inter);
   --font-display: var(--font-sora);
@@ -81,8 +95,58 @@ a {
   text-decoration: none;
 }
 
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  color: var(--foreground);
+  background: rgba(105, 87, 232, 0.65);
+}
+
+/* ========================================
+   ACCESSIBILITY
+   ======================================== */
+
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.skip-link {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 60;
+
+  padding: 10px 16px;
+  border-radius: 10px;
+
+  background: var(--surface-elevated);
+  color: var(--foreground);
+  font-size: 13px;
+  font-weight: 600;
+
+  transform: translateY(-200%);
+  transition: transform 160ms ease;
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
   }
 }

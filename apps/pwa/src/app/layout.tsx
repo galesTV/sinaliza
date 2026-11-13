@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, Sora } from "next/font/google";
+
+import { AppShell } from "@/components/app-shell";
+
 import "./globals.css";
 
 const inter = Inter({
@@ -30,9 +33,12 @@ export default function RootLayout({
   return (
     <html
       lang="pt-BR"
+      data-scroll-behavior="smooth"
       className={`${inter.variable} ${sora.variable} h-full antialiased`}
     >
-      <body className="min-h-full">{children}</body>
+      <body className="min-h-full">
+        <AppShell>{children}</AppShell>
+      </body>
     </html>
   );
 }

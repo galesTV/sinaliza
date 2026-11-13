@@ -33,3 +33,6 @@ next-env.d.ts
 
 # Deployment
 .vercel/
+# Python
+__pycache__/
+*.py[cod]
