@@ -151,6 +151,25 @@ describe("createProgressStore", () => {
     expect(parsed.completed).toEqual(expect.arrayContaining([KEY, other]));
   });
 
+  it("keeps in-memory completions when storage writes fail", () => {
+    const store = createProgressStore({
+      storage: {
+        getItem: () => null,
+        setItem: () => {
+          throw new Error("quota");
+        },
+      },
+    });
+    const other = lessonKey("alfabeto", "letras-a-e", "letra-b");
+
+    store.markCompleted(KEY);
+    store.markCompleted(other);
+
+    expect(store.isCompleted(KEY)).toBe(true);
+    expect(store.isCompleted(other)).toBe(true);
+    expect(store.getSnapshot().completed.size).toBe(2);
+  });
+
   it("notifies subscribers when progress changes", () => {
     const store = createProgressStore({ storage: makeStorage() });
     const listener = vi.fn();
