@@ -46,30 +46,37 @@ function ExerciseBlock({
 
   return (
     <div className="flex flex-col gap-5">
-      <fieldset className="flex flex-col gap-3">
+      <fieldset className="flex flex-col gap-2.5">
         <legend className="sr-only">{exercise.prompt}</legend>
-        <div role="radiogroup" aria-label={exercise.prompt} className="flex flex-col gap-2.5">
-          {exercise.options.map((option, index) => {
-            const isSelected = selectedOption === index;
-            const isCorrect = index === exercise.correctIndex;
-            const tone = solved
-              ? isCorrect
-                ? OPTION_TONES.correct
-                : OPTION_TONES.disabled
-              : result === "incorrect" && isSelected
-                ? OPTION_TONES.incorrect
-                : isSelected
-                  ? OPTION_TONES.selected
-                  : OPTION_TONES.idle;
-            return (
-              <button
-                key={option.label}
-                type="button"
-                role="radio"
-                aria-checked={isSelected}
+        {exercise.options.map((option, index) => {
+          const isSelected = selectedOption === index;
+          const isCorrect = index === exercise.correctIndex;
+          const tone = solved
+            ? isCorrect
+              ? OPTION_TONES.correct
+              : OPTION_TONES.disabled
+            : result === "incorrect" && isSelected
+              ? OPTION_TONES.incorrect
+              : isSelected
+                ? OPTION_TONES.selected
+                : OPTION_TONES.idle;
+          return (
+            <label key={option.label} className="block">
+              <input
+                type="radio"
+                name={exercise.prompt}
+                className="peer sr-only"
+                checked={isSelected}
                 disabled={solved}
-                onClick={() => onSelect(index)}
-                className={cn(OPTION_BUTTON_BASE, tone)}
+                onChange={() => onSelect(index)}
+              />
+              <span
+                className={cn(
+                  OPTION_BUTTON_BASE,
+                  "peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-primary",
+                  solved ? "cursor-default" : "cursor-pointer",
+                  tone,
+                )}
               >
                 <span
                   aria-hidden="true"
@@ -85,10 +92,10 @@ function ExerciseBlock({
                   )}
                 </span>
                 {option.label}
-              </button>
-            );
-          })}
-        </div>
+              </span>
+            </label>
+          );
+        })}
       </fieldset>
 
       {result && selectedOption !== null && (
