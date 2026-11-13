@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 import {
   HAND_CONNECTIONS,
@@ -29,16 +29,19 @@ function drawLandmarks(
   const context = canvas.getContext("2d");
   if (!context) return;
 
+  // Always clear first: a null result or a detached stream must leave no
+  // residual skeleton on screen.
+  context.clearRect(0, 0, canvas.width, canvas.height);
+
   const width = video.videoWidth;
   const height = video.videoHeight;
-  if (width === 0 || height === 0) return;
+  if (!result || width === 0 || height === 0) return;
 
   if (canvas.width !== width || canvas.height !== height) {
     canvas.width = width;
     canvas.height = height;
+    context.clearRect(0, 0, width, height);
   }
-  context.clearRect(0, 0, width, height);
-  if (!result) return;
 
   result.landmarks.forEach((landmarks, index) => {
     const category = result.handedness[index]?.[0]?.categoryName;
@@ -110,12 +113,26 @@ export function HandLab() {
     return tracker;
   }
 
-  useEffect(() => () => trackerRef.current?.dispose(), []);
+  // Hydration-safe: getServerSnapshot keeps SSR and first client render
+  // identical; the real value is read after hydration settles.
+  const secureContext = useSyncExternalStore(
+    () => () => {},
+    () => window.isSecureContext,
+    () => true,
+  );
+
+  useEffect(() => {
+    return () => {
+      // Dispose at cleanup time — the tracker may only exist by then —
+      // and null the ref so a preserved (remounted) component can rebuild
+      // a fresh tracker instead of reusing a disposed one.
+      trackerRef.current?.dispose();
+      trackerRef.current = null;
+    };
+  }, []);
 
   const cameraOn = snapshot.cameraStatus === "active";
   const busy = snapshot.cameraStatus === "requesting";
-  const secureContext =
-    typeof window !== "undefined" && window.isSecureContext;
 
   return (
     <div className="flex flex-col gap-8">
@@ -182,7 +199,7 @@ export function HandLab() {
           <button
             type="button"
             onClick={() => ensureTracker().stop()}
-            disabled={!cameraOn}
+            disabled={!cameraOn && !busy}
             className="inline-flex min-h-11 items-center justify-center gap-2.5 rounded-[11px] border border-border bg-white/[0.025] px-5 text-sm font-semibold text-foreground transition-colors duration-200 hover:bg-white/[0.07] disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:bg-white/[0.025]"
           >
             Parar câmera
@@ -209,11 +226,12 @@ export function HandLab() {
         >
           Status
         </h2>
-        <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-live="polite">
+        <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {[
             {
               label: "Câmera",
               value: STATUS_LABEL[snapshot.cameraStatus],
+              live: true,
             },
             {
               label: "Mãos detectadas",
@@ -238,7 +256,10 @@ export function HandLab() {
               <dt className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">
                 {item.label}
               </dt>
-              <dd className="mt-1 text-sm font-semibold text-foreground">
+              <dd
+                aria-live={item.live ? "polite" : undefined}
+                className="mt-1 text-sm font-semibold text-foreground"
+              >
                 {item.value}
               </dd>
             </div>
