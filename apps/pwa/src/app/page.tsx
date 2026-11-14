@@ -17,7 +17,7 @@ export default function Home() {
         aria-labelledby="home-title"
         className="relative flex flex-col gap-6"
       >
-        <ConstellationFigure className="pointer-events-none mt-2 w-48 opacity-80 sm:absolute sm:-top-10 sm:right-0 sm:mt-0 sm:w-64 lg:w-80" />
+        <ConstellationFigure className="pointer-events-none hidden opacity-80 sm:absolute sm:-top-10 sm:right-0 sm:block sm:w-64 lg:w-80" />
         <Eyebrow>Aprender Libras. Praticar. Evoluir.</Eyebrow>
         <h1
           id="home-title"
