@@ -70,7 +70,7 @@ Dark theme only. Existing identity preserved; one restrained warm accent added.
 | On Primary | `#ffffff` | `--color-on-primary` | 5.1:1 on primary (AA for buttons) |
 | Accent (cyan) | `#35c9e8` | `--color-accent` | 9.1:1 on background — highlights, eyebrows, focus ring |
 | Soft violet text | `#c7c0ff` | `--color-primary-soft` | 8.8:1 on elevated surfaces (nav CTA, badges) |
-| **Highlight (amber)** | `#F0A848` | `--color-highlight` | **8.8:1 on background** — see rules below |
+| **Highlight (amber)** | `#F0A848` | `--color-highlight` *(planned — not yet defined in `globals.css`)* | **8.8:1 on background** — see rules below |
 | Ring / focus | `#35c9e8` | `--color-ring` | visible focus, 2px outline + offset |
 | Destructive | `#dc2626` | `--color-destructive` | use with icon + text, never color alone |
 | On Destructive | `#ffffff` | `--color-on-destructive` | — |
@@ -80,6 +80,7 @@ Dark theme only. Existing identity preserved; one restrained warm accent added.
 
 Amber is a **restrained highlight**: the glint on a selected catalog specimen, the emphasized landmark node, a milestone/achievement moment, a rare badge. Small doses — points, rings, short labels, tiny fills — never large surfaces.
 
+- **Implementation status:** `--color-highlight` is a planned token — the first change that uses it must add the variable and its `@theme` mapping to `apps/pwa/src/app/globals.css` before use.
 - Amber is **not** a semantic color. Success stays `#83dfb8`, destructive `#dc2626`, warning/feedback stay paired with icon + text. Never use amber to mean success, error, or warning.
 - Amber text on `--color-background`/`--color-surface*` passes AA (≈8.8:1) — allowed for short labels only.
 - On amber fills, use navy (`#10172b`) text/icons (≈8.8:1). **Never white text on amber (≈1.8:1 — fails).**
@@ -218,13 +219,14 @@ The Libras alphabet is presented as a **visual catalog of specimens** — consis
 
 ## 6. Motion
 
-**Default implementation:** the installed `motion` library (Motion for React) and CSS transitions. Motion tier: **Subtle (2/10)** — choreography with intent, never scroll spectacle.
+**Default implementation:** CSS transitions for routine UI feedback; the `motion` package (Motion for React — the stack's animation library, already used in `apps/landing`) is the sanctioned choice for JS-driven animation and is added to `apps/pwa` when a component first needs it — it is not yet a PWA dependency. Motion tier: **Subtle (2/10)** — choreography with intent, never scroll spectacle.
 
 - **Purposeful transitions:** 150–300ms, `ease-out` on entry; animate `transform`/`opacity` only.
 - **Feedback motion:** success = brief settle (scale 1→1.0 or a single node pulse); error = short attention nudge; loading = skeleton or one restrained ambient loop — never spinners-on-spinners.
 - **Ambient movement** is allowed only where it teaches the metaphor (a slowly drawn constellation on a hero/empty state) and must pause when off-screen and under `prefers-reduced-motion`.
 - **`prefers-reduced-motion: reduce`** removes transitions/animations globally (already in `globals.css`); any JS-driven motion must check `matchMedia('(prefers-reduced-motion: reduce)')`.
 - **Constellation motion** (node-by-node draw, trajectory trails) follows the `motion-design` skill's timing/easing tables; keep total sequences under ~600ms for UI feedback.
+- **Precedence:** installed skills (`motion-design`, `ui-ux-pro-max`, `web-design-guidelines`) are advisory references — where their generic recommendations conflict with this document or AGENTS.md, the project rules win. Example: the skill's "always three motion layers" does not override the ambient-motion restriction above; simple feedback does not require ambient movement.
 - **No GSAP** without a specific future requirement (and no GSAP skill installed); if ever added, register `ScrollTrigger` once and gate on reduced-motion.
 
 ---
