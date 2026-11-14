@@ -24,6 +24,7 @@
   --primary-soft: #c7c0ff;
   --on-primary: #ffffff;
   --accent: #35c9e8;
+  --highlight: #f0a848;
 
   --success: #83dfb8;
   --destructive: #dc2626;
@@ -47,6 +48,7 @@
   --color-primary-soft: var(--primary-soft);
   --color-on-primary: var(--on-primary);
   --color-accent: var(--accent);
+  --color-highlight: var(--highlight);
 
   --color-success: var(--success);
   --color-destructive: var(--destructive);
@@ -98,6 +100,71 @@ a {
 button,
 a {
   -webkit-tap-highlight-color: transparent;
+}
+
+/* ========================================
+   SHARED CONTROLS (design-system MASTER.md §4)
+   Declared in @layer components so Tailwind
+   utilities (padding, min-height, font-size)
+   can override these defaults per instance.
+   ======================================== */
+
+@layer components {
+.btn-primary {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  padding: 12px 20px;
+  border-radius: 11px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+
+  background: linear-gradient(110deg, #6957e8, #8272f2);
+  box-shadow: 0 10px 30px rgba(105, 87, 232, 0.25);
+
+  color: var(--on-primary);
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 36px rgba(105, 87, 232, 0.35);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  padding: 12px 20px;
+  border-radius: 11px;
+  border: 1px solid var(--border);
+
+  background: rgba(255, 255, 255, 0.025);
+
+  color: var(--foreground);
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
 }
 
 ::selection {

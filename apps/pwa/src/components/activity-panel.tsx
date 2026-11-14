@@ -32,10 +32,7 @@ function EmptyActivity() {
           suas lições concluídas aparecem aqui.
         </p>
       </div>
-      <Link
-        href="/trilhas"
-        className="inline-flex min-h-10 items-center gap-2 rounded-[10px] border border-primary/35 bg-primary/10 px-4 text-xs font-semibold text-primary-soft transition-colors duration-200 hover:border-primary/60"
-      >
+      <Link href="/trilhas" className="btn-secondary min-h-11 px-4 text-xs">
         <IconGraduationCap className="h-4 w-4" />
         Ver o que vem por aí
       </Link>

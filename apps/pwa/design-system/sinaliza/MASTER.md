@@ -72,7 +72,7 @@ Dark theme only. Existing identity preserved; one restrained warm accent added.
 | On Primary | `#ffffff` | `--color-on-primary` | 5.1:1 on primary (AA for buttons) |
 | Accent (cyan) | `#35c9e8` | `--color-accent` | 9.1:1 on background — highlights, eyebrows, focus ring |
 | Soft violet text | `#c7c0ff` | `--color-primary-soft` | 8.8:1 on elevated surfaces (nav CTA, badges) |
-| **Highlight (amber)** | `#F0A848` | `--color-highlight` *(planned — not yet defined in `globals.css`)* | **8.8:1 on background** — see rules below |
+| **Highlight (amber)** | `#F0A848` | `--color-highlight` | **8.8:1 on background** — see rules below |
 | Ring / focus | `#35c9e8` | `--color-ring` | visible focus, 2px outline + offset |
 | Destructive | `#dc2626` | `--color-destructive` | use with icon + text, never color alone |
 | On Destructive | `#ffffff` | `--color-on-destructive` | — |

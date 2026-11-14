@@ -73,6 +73,13 @@ const letterGroup = (
   ),
 });
 
+/**
+ * Convention: the array order is the intended learning sequence, and the
+ * first entry is the designated starting path. The dashboard links
+ * "Começar pelo alfabeto" to `learningPaths[0]` and the trilhas page marks
+ * it as the "Ponto de partida" — keep `alfabeto` first unless the
+ * pedagogical order changes.
+ */
 export const learningPaths: LearningPath[] = [
   {
     slug: "alfabeto",

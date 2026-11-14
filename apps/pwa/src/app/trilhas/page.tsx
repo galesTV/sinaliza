@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { ConstellationFigure } from "@/components/constellation";
 import { Eyebrow } from "@/components/eyebrow";
 import { IconClock } from "@/components/icons";
 import { PathCard } from "@/components/path-card";
@@ -16,21 +17,25 @@ export default function PathsPage() {
 
   return (
     <div className="flex flex-col gap-10">
-      <div className="flex flex-col gap-5">
+      <header className="relative flex flex-col gap-5">
+        <ConstellationFigure className="pointer-events-none absolute -top-8 right-0 hidden w-52 opacity-70 sm:block lg:w-64" />
         <Eyebrow>Aprendizagem</Eyebrow>
         <h1 className="max-w-2xl font-display text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
           Trilhas de aprendizagem
         </h1>
-        <p className="max-w-xl text-base leading-relaxed text-muted">
+        <p className="max-w-xl text-base leading-relaxed text-muted sm:text-lg">
           Cada trilha organiza um bloco do seu aprendizado em módulos curtos —
           escolha por onde começar.
         </p>
-      </div>
+      </header>
 
-      <ul className="grid gap-5 sm:grid-cols-2">
-        {paths.map((path) => (
+      <ul
+        className="grid gap-5 sm:grid-cols-2"
+        aria-label="Trilhas disponíveis"
+      >
+        {paths.map((path, index) => (
           <li key={path.slug} className="h-full">
-            <PathCard path={path} />
+            <PathCard path={path} startMarker={index === 0} />
           </li>
         ))}
       </ul>

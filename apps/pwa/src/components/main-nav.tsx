@@ -44,21 +44,23 @@ export function DesktopNav() {
                 href={item.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "inline-flex min-h-11 items-center gap-2 rounded-[10px] px-4 text-sm transition-colors duration-200",
+                  "inline-flex min-h-11 items-center gap-2.5 rounded-[10px] px-4 text-sm transition-colors duration-200",
                   active
                     ? "bg-surface-elevated font-semibold text-accent"
                     : "font-medium text-muted hover:bg-surface hover:text-foreground",
                 )}
               >
-                <Icon className="h-4 w-4" />
-                {item.label}
                 <span
                   aria-hidden="true"
                   className={cn(
-                    "h-1.5 w-1.5 rounded-full",
-                    active ? "bg-accent" : "bg-transparent",
+                    "h-1.5 w-1.5 rounded-full transition-colors duration-200",
+                    active
+                      ? "bg-accent shadow-[0_0_8px_rgba(53,201,232,0.7)]"
+                      : "bg-border",
                   )}
                 />
+                <Icon className="h-4 w-4" />
+                {item.label}
               </Link>
             </li>
           );

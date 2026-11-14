@@ -10,7 +10,14 @@ const PATH_ICONS = {
   vocabulary: IconChat,
 } as const;
 
-export function PathCard({ path }: { path: LearningPath }) {
+export function PathCard({
+  path,
+  startMarker = false,
+}: {
+  path: LearningPath;
+  /** Marks the pedagogical entry point of the journey (first path). */
+  startMarker?: boolean;
+}) {
   const stats = getPathStats(path);
   const Icon = PATH_ICONS[path.icon];
 
@@ -30,16 +37,35 @@ export function PathCard({ path }: { path: LearningPath }) {
       </div>
 
       <div className="flex flex-col gap-2">
+        {startMarker && (
+          <span className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-highlight">
+            <span
+              aria-hidden="true"
+              className="h-1.5 w-1.5 rounded-full bg-highlight shadow-[0_0_10px_rgba(240,168,72,0.6)]"
+            />
+            Ponto de partida
+          </span>
+        )}
         <h3 className="font-display text-xl font-semibold tracking-tight text-foreground">
           {path.title}
         </h3>
         <p className="text-sm leading-relaxed text-muted">{path.summary}</p>
       </div>
 
-      <div className="mt-auto flex items-center justify-between gap-3 pt-1">
-        <span className="text-xs tabular-nums text-muted">
-          {stats.moduleCount} módulos · {stats.lessonCount} lições
-        </span>
+      <div className="mt-auto flex flex-col gap-3 border-t border-border/60 pt-4">
+        <div className="flex items-center justify-between gap-3">
+          <span className="flex items-center gap-1.5" aria-hidden="true">
+            {path.modules.map((module) => (
+              <span
+                key={module.slug}
+                className="h-1.5 w-1.5 rounded-full bg-primary-soft/60"
+              />
+            ))}
+          </span>
+          <span className="text-xs tabular-nums text-muted">
+            {stats.moduleCount} módulos · {stats.lessonCount} lições
+          </span>
+        </div>
         <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary-soft transition-colors duration-200 group-hover:text-accent">
           Ver trilha
           <IconArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />

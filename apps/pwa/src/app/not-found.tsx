@@ -17,10 +17,7 @@ export default function NotFound() {
       <p className="max-w-md text-base leading-relaxed text-muted">
         O endereço que você tentou acessar não existe ou foi movido.
       </p>
-      <Link
-        href="/"
-        className="inline-flex min-h-11 items-center rounded-[11px] border border-primary/35 bg-primary/10 px-5 text-sm font-semibold text-primary-soft transition-colors duration-200 hover:border-primary/60"
-      >
+      <Link href="/" className="btn-primary">
         Voltar para o início
       </Link>
     </div>
