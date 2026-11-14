@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
 import { Badge } from "@/components/badge";
+import { Breadcrumb } from "@/components/breadcrumb";
+import { ConstellationFigure } from "@/components/constellation";
 import { Eyebrow } from "@/components/eyebrow";
-import { IconArrowLeft, IconClock } from "@/components/icons";
+import { IconClock } from "@/components/icons";
 import { ModuleCard } from "@/components/module-card";
 import {
   getLearningPath,
@@ -36,16 +37,6 @@ export async function generateMetadata({
 export default function PathPage({ params }: PathPageProps) {
   return (
     <div className="flex flex-col gap-10">
-      <nav aria-label="Voltar">
-        <Link
-          href="/trilhas"
-          className="inline-flex min-h-10 items-center gap-2 rounded-[10px] text-sm font-medium text-muted transition-colors duration-200 hover:text-foreground"
-        >
-          <IconArrowLeft className="h-4 w-4" />
-          Todas as trilhas
-        </Link>
-      </nav>
-
       <Suspense fallback={null}>
         <PathContent params={params} />
       </Suspense>
@@ -62,7 +53,15 @@ async function PathContent({ params }: PathPageProps) {
 
   return (
     <>
-      <div className="flex flex-col gap-5">
+      <Breadcrumb
+        items={[
+          { label: "Trilhas", href: "/trilhas" },
+          { label: path.title },
+        ]}
+      />
+
+      <header className="relative flex flex-col gap-5">
+        <ConstellationFigure className="pointer-events-none absolute -top-8 right-0 hidden w-52 opacity-70 sm:block lg:w-64" />
         <Eyebrow>Trilha</Eyebrow>
         <h1 className="max-w-2xl font-display text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
           {path.title}
@@ -79,24 +78,34 @@ async function PathContent({ params }: PathPageProps) {
           <Badge>{stats.moduleCount} módulos</Badge>
           <Badge>{stats.lessonCount} lições</Badge>
         </div>
-      </div>
+      </header>
 
       <section
         aria-labelledby="modules-title"
         className="flex flex-col gap-6"
       >
-        <h2
-          id="modules-title"
-          className="font-display text-2xl font-semibold tracking-tight text-foreground"
+        <div className="flex flex-col gap-2">
+          <h2
+            id="modules-title"
+            className="font-display text-2xl font-semibold tracking-tight text-foreground"
+          >
+            Módulos
+          </h2>
+          <p className="max-w-xl text-sm leading-relaxed text-muted">
+            Os módulos abaixo seguem a sequência definida da trilha.
+          </p>
+        </div>
+        <ol
+          className="flex flex-col gap-4"
+          aria-label="Módulos na sequência da trilha"
         >
-          Módulos
-        </h2>
-        <ol className="flex flex-col gap-4">
           {path.modules.map((module, index) => (
             <ModuleCard
               key={module.slug}
               module={module}
               index={index}
+              total={path.modules.length}
+              isLast={index === path.modules.length - 1}
               pathSlug={path.slug}
             />
           ))}

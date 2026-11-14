@@ -1,34 +1,58 @@
 import Link from "next/link";
 
 import { getLessonUrl, type CourseModule } from "@/data/learning-paths";
+import { cn } from "@/lib/utils";
 
 import { PlannedBadge } from "./badge";
 
+/**
+ * One module in the path's learning trajectory: a numbered node on the
+ * journey rail plus the module card. Nodes encode sequence only — never
+ * progress or availability (MASTER.md §1; content states stay text-honest).
+ * The rail is decorative; the surrounding `<ol>` carries the real order.
+ */
 export function ModuleCard({
   module,
   index,
+  total,
   pathSlug,
+  isLast = false,
 }: {
   module: CourseModule;
   index: number;
+  total: number;
   pathSlug: string;
+  isLast?: boolean;
 }) {
   return (
-    <li
-      id={module.slug}
-      className="flex scroll-mt-24 gap-5 rounded-2xl border border-border bg-surface p-6"
-    >
-      <span
+    <li id={module.slug} className="flex scroll-mt-24 gap-4 sm:gap-5">
+      <div
         aria-hidden="true"
-        className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-border bg-surface-elevated font-display text-sm font-semibold tabular-nums text-primary-soft"
+        className="flex w-11 shrink-0 flex-col items-center"
       >
-        {index + 1}
-      </span>
+        {/* Stub edge from the previous node; the first node starts the path. */}
+        <span
+          className={cn(
+            "h-7 w-px shrink-0",
+            index === 0 ? "bg-transparent" : "bg-primary-soft/35",
+          )}
+        />
+        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-primary-soft/45 bg-surface-elevated font-display text-sm font-semibold tabular-nums text-primary-soft shadow-[0_0_18px_rgba(105,87,232,0.28)]">
+          {index + 1}
+        </span>
+        {/* Fading trail to the next node; -mb-4 bridges the list gap. */}
+        {!isLast && (
+          <span className="-mb-4 w-px flex-1 bg-gradient-to-b from-primary-soft/40 to-primary-soft/15" />
+        )}
+      </div>
 
-      <div className="flex min-w-0 flex-1 flex-col gap-4">
+      <div className="flex min-w-0 flex-1 flex-col gap-4 rounded-2xl border border-border bg-surface p-6">
         <div className="flex flex-col gap-1.5">
           <div className="flex flex-wrap items-center gap-3">
             <h3 className="font-display text-base font-semibold text-foreground">
+              <span className="sr-only">
+                Módulo {index + 1} de {total}:{" "}
+              </span>
               {module.title}
             </h3>
             <PlannedBadge />
@@ -46,7 +70,7 @@ export function ModuleCard({
             <li key={lesson.slug}>
               <Link
                 href={getLessonUrl(pathSlug, module.slug, lesson.slug)}
-                className="inline-flex items-center rounded-lg border border-border bg-surface-elevated/60 px-3 py-1.5 text-xs font-medium text-muted transition-colors duration-200 hover:border-primary/45 hover:text-foreground"
+                className="inline-flex min-h-11 items-center rounded-lg border border-border bg-surface-elevated/60 px-3.5 text-xs font-medium text-muted transition-colors duration-200 hover:border-primary/45 hover:text-foreground"
               >
                 {lesson.title}
               </Link>
