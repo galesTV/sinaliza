@@ -16,14 +16,16 @@
 
 ## 1. Visual concept — Constellation
 
-**Constellation is the central visual metaphor.** A hand tracked by MediaPipe is a set of 21 landmarks joined by bone connections — literally a constellation. Sinaliza adopts this as its visual language: **nodes** (landmarks), **edges** (connections), **trajectories** (movement over time), and **spatial relationships** (the geometry that distinguishes one configuration from another).
+**Constellation is the central visual metaphor.** A hand tracked by MediaPipe is a set of 21 landmarks joined by bone connections — literally a constellation. Sinaliza adopts this as its visual language: **nodes** (landmarks), **edges** (connections), **trajectories** (movement over time), and **spatial relationships** (the geometry that distinguishes one hand configuration from another).
 
 This language communicates what the product is:
 
 - **Learning through observation and practice** — you see the hand as structured geometry, then reproduce it.
-- **Hand configuration, movement, and space as information** — the constellation makes the invisible structure of a sign visible.
+- **Hand configuration, movement, and space as information** — the constellation makes the structure of a tracked hand visible.
 - **A structured journey** — progress maps onto a constellation that fills in as the learner advances.
-- **Technology as a foundation, not a costume** — the same geometry that powers recognition powers the visuals. The product never looks like a generic AI dashboard because its ornament is literally its data.
+- **Technology as a foundation, not a costume** — the same landmark geometry that powers the experimental hand-tracking also powers the visuals. The product never looks like a generic AI dashboard because its ornament is literally its data.
+
+**Scope boundary — motif vs. language.** The 21 landmarks are Sinaliza's visual/technological identity — a recognizable motif, above all for the experimental hand-tracking laboratory. They are **not** a representation of a Libras sign or of Libras as a language: a sign involves hand configuration plus movement, orientation, location, and non-manual elements, which landmark geometry alone does not capture. Whenever a Libras sign must be *represented* educationally, the validated visual reference leads (§5) — constellation graphics complement it, never stand in for it.
 
 ### Visual vocabulary
 
@@ -39,9 +41,9 @@ This language communicates what the product is:
 Constellation elements are **meaningful** when they encode real geometry or real state:
 
 - Hand-tracking overlays (the laboratory already draws landmarks as cyan/violet nodes and edges — that rendering is the canonical reference).
-- Alphabet/catalog diagrams derived from the real 21-landmark topology.
+- Geometric overlays derived from the real 21-landmark topology, used to complement — never replace or fabricate — validated catalog references (§5).
 - Progress constellations where filled nodes map to completed steps.
-- Feedback that compares the learner's geometry to a reference.
+- Experimental feedback that compares the learner's hand geometry to a reference configuration.
 
 They are **decorative** — allowed only in restrained doses — on heroes, section backgrounds, empty states, and loading surfaces, at low opacity behind nothing text-heavy.
 
@@ -207,13 +209,14 @@ Journey-first hierarchy: greeting/context → next action (single primary CTA) �
 
 The Libras alphabet is presented as a **visual catalog of specimens** — consistent framing that invites comparison, extensible to future visual material.
 
-- **Uniform specimen frame:** every letter/configuration in the same frame, same scale, same node/edge rendering — comparison happens by looking across cells, not by re-reading style.
+- **Uniform specimen frame:** every letter/configuration in the same frame, same scale, same consistent rendering style — comparison happens by looking across cells, not by re-reading style.
+- **Validated references are primary:** a specimen's content is always a validated educational visual reference. Landmark overlays or geometric diagrams may complement a reference when they clarify hand configuration, but must not replace or fabricate it — geometry alone is not a depiction of the sign (§1).
 - **Grid organization:** scannable grid ordered by the pedagogical sequence the team defines; grouping labels (vogais, consoantes…) are captions, not hard rules — the ordering is a content decision, not a design one.
 - **Comparison states:** selecting one specimen may pin it side-by-side with another; the emphasized specimen gets the amber node/edge highlight.
 - **Extensible cells:** a catalog cell must accommodate any future visual reference — static diagram, image, video, or frame sequence — without redesigning the grid.
 - **Empty/planned states:** letters without validated content show an honest placeholder ("em breve" style), never a fabricated illustration.
 
-**Boundary:** the system defines *presentation* only. No hand illustrations, sign descriptions, mnemonics, or pedagogical claims are invented here — content awaits validated references (AGENTS.md §18).
+**Boundary:** the system defines *presentation* only. No hand illustrations, sign descriptions, mnemonics, or pedagogical claims are invented here — content awaits validated references (AGENTS.md §18), and a landmark diagram is not itself a validated sign reference.
 
 ---
 
