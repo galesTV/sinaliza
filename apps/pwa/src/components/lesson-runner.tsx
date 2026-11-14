@@ -17,7 +17,7 @@ import {
 import { markLessonCompleted } from "./use-progress";
 
 const OPTION_BUTTON_BASE =
-  "flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm font-medium transition-colors duration-200 focus-visible:outline-none";
+  "flex min-h-11 w-full items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm font-medium transition-colors duration-200 focus-visible:outline-none";
 
 const OPTION_TONES = {
   idle: "border-border bg-white/[0.025] text-foreground hover:bg-white/[0.07]",
@@ -73,7 +73,7 @@ function ExerciseBlock({
               <span
                 className={cn(
                   OPTION_BUTTON_BASE,
-                  "peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-primary",
+                  "peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-ring",
                   solved ? "cursor-default" : "cursor-pointer",
                   tone,
                 )}
@@ -132,11 +132,7 @@ function ExerciseBlock({
 
       {solved && (
         <div>
-          <button
-            type="button"
-            onClick={onAdvance}
-            className="inline-flex min-h-11 items-center justify-center gap-2.5 rounded-[11px] border border-white/15 bg-gradient-to-r from-primary to-[#8272f2] px-5 text-sm font-semibold text-on-primary shadow-[0_10px_30px_rgba(105,87,232,0.25)] transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_36px_rgba(105,87,232,0.35)]"
-          >
+          <button type="button" onClick={onAdvance} className="btn-primary">
             {isLastBlock ? "Finalizar lição" : "Continuar"}
             <IconArrowRight className="h-4 w-4" />
           </button>
@@ -183,9 +179,9 @@ export function LessonRunner({
   return (
     <section
       aria-labelledby="lesson-runner-title"
-      className="flex flex-col gap-6 rounded-3xl border border-border bg-surface p-6 shadow-[0_20px_60px_rgba(0,0,0,0.2)] sm:p-8"
+      className="flex flex-col gap-6 rounded-3xl border border-border bg-surface-elevated p-6 shadow-[0_20px_60px_rgba(0,0,0,0.2)] sm:p-8"
     >
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-5">
         <Badge tone="accent">
           Passo {Math.min(stepIndex + 1, stepCount)} de {stepCount}
         </Badge>
@@ -193,10 +189,10 @@ export function LessonRunner({
           {snapshot.solvedExercises} de {snapshot.totalExercises} exercícios
           resolvidos
         </Badge>
-      </div>
+      </header>
 
       {stepIndex === 0 && (
-        <p className="max-w-2xl text-sm leading-relaxed text-muted">
+        <p className="max-w-2xl text-base leading-relaxed text-muted">
           {content.intro}
         </p>
       )}
@@ -204,6 +200,9 @@ export function LessonRunner({
       {block?.kind === "text" && (
         <div className="flex flex-col gap-5">
           <div className="flex flex-col gap-2.5">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">
+              Explicação
+            </p>
             <h2
               ref={headingRef}
               tabIndex={-1}
@@ -212,7 +211,7 @@ export function LessonRunner({
             >
               {block.heading}
             </h2>
-            <p className="max-w-2xl text-sm leading-relaxed text-muted">
+            <p className="max-w-2xl text-base leading-relaxed text-muted">
               {block.body}
             </p>
           </div>
@@ -220,7 +219,7 @@ export function LessonRunner({
             <button
               type="button"
               onClick={runner.advance}
-              className="inline-flex min-h-11 items-center justify-center gap-2.5 rounded-[11px] border border-white/15 bg-gradient-to-r from-primary to-[#8272f2] px-5 text-sm font-semibold text-on-primary shadow-[0_10px_30px_rgba(105,87,232,0.25)] transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_36px_rgba(105,87,232,0.35)]"
+              className="btn-primary"
             >
               {stepIndex === stepCount - 1 ? "Finalizar lição" : "Continuar"}
               <IconArrowRight className="h-4 w-4" />
@@ -231,6 +230,9 @@ export function LessonRunner({
 
       {block?.kind === "exercise" && (
         <div className="flex flex-col gap-4">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">
+            Exercício
+          </p>
           <h2
             ref={headingRef}
             tabIndex={-1}
@@ -281,7 +283,7 @@ export function LessonRunner({
                 type="button"
                 onClick={runner.complete}
                 disabled={!snapshot.canComplete}
-                className="inline-flex min-h-11 items-center justify-center gap-2.5 rounded-[11px] border border-white/15 bg-gradient-to-r from-primary to-[#8272f2] px-5 text-sm font-semibold text-on-primary shadow-[0_10px_30px_rgba(105,87,232,0.25)] transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_36px_rgba(105,87,232,0.35)] disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0"
+                className="btn-primary"
               >
                 <IconCheck className="h-4 w-4" />
                 Concluir lição
@@ -290,7 +292,7 @@ export function LessonRunner({
               <button
                 type="button"
                 onClick={runner.restart}
-                className="inline-flex min-h-11 items-center justify-center gap-2.5 rounded-[11px] border border-border bg-white/[0.025] px-5 text-sm font-semibold text-foreground transition-colors duration-200 hover:bg-white/[0.07]"
+                className="btn-secondary"
               >
                 <IconRefresh className="h-4 w-4" />
                 Recomeçar
