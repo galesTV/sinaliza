@@ -10,7 +10,7 @@
  * Pure SVG, deterministic and `aria-hidden` — decoration only.
  */
 
-type NodeTone = "soft" | "accent" | "highlight";
+type NodeTone = "soft" | "accent";
 
 interface ConstellationNode {
   readonly x: number;
@@ -26,7 +26,7 @@ const NODES: readonly ConstellationNode[] = [
   { x: 142, y: 118, r: 3, tone: "accent" },
   { x: 186, y: 126, r: 3, tone: "soft" },
   { x: 224, y: 92, r: 3, tone: "soft" },
-  { x: 268, y: 66, r: 4, tone: "highlight" },
+  { x: 268, y: 66, r: 4, tone: "accent" },
   { x: 78, y: 72, r: 2.5, tone: "soft" },
   { x: 120, y: 44, r: 2.5, tone: "accent" },
   { x: 170, y: 40, r: 2.5, tone: "soft" },
@@ -35,7 +35,7 @@ const NODES: readonly ConstellationNode[] = [
 ];
 
 const EDGES: readonly (readonly [number, number])[] = [
-  // Main trajectory — the journey ascending to the highlighted node.
+  // Main trajectory — the journey ascending to the terminal node.
   [0, 1],
   [1, 2],
   [2, 3],
@@ -52,9 +52,8 @@ const EDGES: readonly (readonly [number, number])[] = [
 ];
 
 const TONE_FILL: Record<NodeTone, string> = {
-  soft: "#c7c0ff",
-  accent: "#35c9e8",
-  highlight: "#f0a848",
+  soft: "var(--color-primary-soft)",
+  accent: "var(--color-accent)",
 };
 
 export function ConstellationFigure({ className }: { className?: string }) {
@@ -75,7 +74,7 @@ export function ConstellationFigure({ className }: { className?: string }) {
           y1={NODES[from].y}
           x2={NODES[to].x}
           y2={NODES[to].y}
-          stroke="#c7c0ff"
+          stroke="var(--color-primary-soft)"
           strokeOpacity={0.32}
           strokeWidth={1.2}
         />
@@ -84,7 +83,7 @@ export function ConstellationFigure({ className }: { className?: string }) {
         cx={terminal.x}
         cy={terminal.y}
         r={9}
-        stroke="#f0a848"
+        stroke="var(--color-accent)"
         strokeOpacity={0.35}
         strokeWidth={1.2}
       />

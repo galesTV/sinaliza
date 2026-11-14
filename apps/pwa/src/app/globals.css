@@ -104,8 +104,12 @@ a {
 
 /* ========================================
    SHARED CONTROLS (design-system MASTER.md §4)
+   Declared in @layer components so Tailwind
+   utilities (padding, min-height, font-size)
+   can override these defaults per instance.
    ======================================== */
 
+@layer components {
 .btn-primary {
   display: inline-flex;
   min-height: 44px;
@@ -160,6 +164,7 @@ a {
 
 .btn-secondary:hover {
   background: rgba(255, 255, 255, 0.07);
+}
 }
 
 ::selection {
