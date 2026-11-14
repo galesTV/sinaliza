@@ -192,7 +192,7 @@ export function HandLab() {
             type="button"
             onClick={() => ensureTracker().start()}
             disabled={busy || cameraOn || !secureContext}
-            className="inline-flex min-h-11 items-center justify-center gap-2.5 rounded-[11px] border border-white/15 bg-gradient-to-r from-primary to-[#8272f2] px-5 text-sm font-semibold text-on-primary shadow-[0_10px_30px_rgba(105,87,232,0.25)] transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_36px_rgba(105,87,232,0.35)] disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0 disabled:hover:shadow-[0_10px_30px_rgba(105,87,232,0.25)]"
+            className="btn-primary"
           >
             Ativar câmera
           </button>
@@ -200,7 +200,7 @@ export function HandLab() {
             type="button"
             onClick={() => ensureTracker().stop()}
             disabled={!cameraOn && !busy}
-            className="inline-flex min-h-11 items-center justify-center gap-2.5 rounded-[11px] border border-border bg-white/[0.025] px-5 text-sm font-semibold text-foreground transition-colors duration-200 hover:bg-white/[0.07] disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:bg-white/[0.025]"
+            className="btn-secondary"
           >
             Parar câmera
           </button>

@@ -6,7 +6,7 @@ import { Badge } from "@/components/badge";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { ConstellationFigure } from "@/components/constellation";
 import { Eyebrow } from "@/components/eyebrow";
-import { IconClock } from "@/components/icons";
+import { HonestNote } from "@/components/honest-note";
 import { ModuleCard } from "@/components/module-card";
 import {
   getLearningPath,
@@ -112,13 +112,7 @@ async function PathContent({ params }: PathPageProps) {
         </ol>
       </section>
 
-      <div className="flex items-start gap-3.5 rounded-2xl border border-dashed border-border bg-surface/50 p-5">
-        <IconClock
-          className="mt-0.5 h-4 w-4 shrink-0 text-muted"
-          aria-hidden="true"
-        />
-        <p className="text-sm leading-relaxed text-muted">{path.contentNote}</p>
-      </div>
+      <HonestNote>{path.contentNote}</HonestNote>
     </>
   );
 }
