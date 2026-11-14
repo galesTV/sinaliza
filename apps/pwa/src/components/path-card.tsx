@@ -33,21 +33,19 @@ export function PathCard({
         >
           <Icon className="h-5 w-5" />
         </span>
-        <div className="flex flex-wrap items-center justify-end gap-2">
-          {startMarker && (
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-highlight/35 bg-highlight/10 px-2.5 py-1 text-[11px] font-semibold text-highlight">
-              <span
-                aria-hidden="true"
-                className="h-1.5 w-1.5 rounded-full bg-highlight"
-              />
-              Ponto de partida
-            </span>
-          )}
-          <Badge tone="accent">Aberta</Badge>
-        </div>
+        <Badge tone="accent">Aberta</Badge>
       </div>
 
       <div className="flex flex-col gap-2">
+        {startMarker && (
+          <span className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-highlight">
+            <span
+              aria-hidden="true"
+              className="h-1.5 w-1.5 rounded-full bg-highlight shadow-[0_0_10px_rgba(240,168,72,0.6)]"
+            />
+            Ponto de partida
+          </span>
+        )}
         <h3 className="font-display text-xl font-semibold tracking-tight text-foreground">
           {path.title}
         </h3>
