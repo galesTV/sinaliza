@@ -10,7 +10,14 @@ const PATH_ICONS = {
   vocabulary: IconChat,
 } as const;
 
-export function PathCard({ path }: { path: LearningPath }) {
+export function PathCard({
+  path,
+  startMarker = false,
+}: {
+  path: LearningPath;
+  /** Marks the pedagogical entry point of the journey (first path). */
+  startMarker?: boolean;
+}) {
   const stats = getPathStats(path);
   const Icon = PATH_ICONS[path.icon];
 
@@ -26,7 +33,18 @@ export function PathCard({ path }: { path: LearningPath }) {
         >
           <Icon className="h-5 w-5" />
         </span>
-        <Badge tone="accent">Aberta</Badge>
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          {startMarker && (
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-highlight/35 bg-highlight/10 px-2.5 py-1 text-[11px] font-semibold text-highlight">
+              <span
+                aria-hidden="true"
+                className="h-1.5 w-1.5 rounded-full bg-highlight"
+              />
+              Ponto de partida
+            </span>
+          )}
+          <Badge tone="accent">Aberta</Badge>
+        </div>
       </div>
 
       <div className="flex flex-col gap-2">
@@ -36,10 +54,20 @@ export function PathCard({ path }: { path: LearningPath }) {
         <p className="text-sm leading-relaxed text-muted">{path.summary}</p>
       </div>
 
-      <div className="mt-auto flex items-center justify-between gap-3 pt-1">
-        <span className="text-xs tabular-nums text-muted">
-          {stats.moduleCount} módulos · {stats.lessonCount} lições
-        </span>
+      <div className="mt-auto flex flex-col gap-3 border-t border-border/60 pt-4">
+        <div className="flex items-center justify-between gap-3">
+          <span className="flex items-center gap-1.5" aria-hidden="true">
+            {path.modules.map((module) => (
+              <span
+                key={module.slug}
+                className="h-1.5 w-1.5 rounded-full bg-primary-soft/60"
+              />
+            ))}
+          </span>
+          <span className="text-xs tabular-nums text-muted">
+            {stats.moduleCount} módulos · {stats.lessonCount} lições
+          </span>
+        </div>
         <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary-soft transition-colors duration-200 group-hover:text-accent">
           Ver trilha
           <IconArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />

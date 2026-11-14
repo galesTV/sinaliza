@@ -10,8 +10,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         Pular para o conteúdo
       </a>
 
-      <header className="border-b border-border/60">
-        <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-6 px-5 py-4 sm:px-8">
+      <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur-md">
+        <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-6 px-5 py-3.5 sm:px-8">
           <Link
             href="/"
             className="inline-flex shrink-0 items-center rounded-[10px]"
@@ -38,7 +38,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <main
         id="main-content"
         tabIndex={-1}
-        className="mx-auto w-full max-w-5xl flex-1 px-5 pb-28 pt-10 sm:px-8 md:pb-16"
+        className="mx-auto w-full max-w-6xl flex-1 px-5 pb-28 pt-10 sm:px-8 md:pb-16"
       >
         {children}
       </main>
