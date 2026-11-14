@@ -119,6 +119,16 @@ export function IconRefresh(props: IconProps) {
   );
 }
 
+export function IconFlask(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M8.5 2h7" />
+      <path d="M10 2v7.5a2 2 0 0 1-.2.9L4.7 20.55a1 1 0 0 0 .9 1.45h12.8a1 1 0 0 0 .9-1.45L14.2 10.4a2 2 0 0 1-.2-.9V2" />
+      <path d="M7 16.5h10" />
+    </Svg>
+  );
+}
+
 export function IconGraduationCap(props: IconProps) {
   return (
     <Svg {...props}>

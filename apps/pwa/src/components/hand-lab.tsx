@@ -11,6 +11,7 @@ import {
   type HandLandmarkerResultLike,
   type HandTracker,
 } from "@/lib/hand-tracking";
+import { cn } from "@/lib/utils";
 
 const STATUS_LABEL: Record<string, string> = {
   idle: "Câmera desligada",
@@ -19,6 +20,17 @@ const STATUS_LABEL: Record<string, string> = {
   denied: "Permissão negada",
   unavailable: "Câmera indisponível",
   error: "Erro",
+};
+
+// Decorative state dot — the text label always carries the status; the node
+// is additive (MASTER.md §8: never status through color alone).
+const STATUS_DOT: Record<string, string> = {
+  idle: "bg-muted",
+  requesting: "bg-accent",
+  active: "bg-success",
+  denied: "bg-destructive",
+  unavailable: "bg-destructive",
+  error: "bg-destructive",
 };
 
 function drawLandmarks(
@@ -138,7 +150,7 @@ export function HandLab() {
     <div className="flex flex-col gap-8">
       <section
         aria-labelledby="lab-camera-title"
-        className="flex flex-col gap-5 rounded-3xl border border-border bg-surface p-6 shadow-[0_20px_60px_rgba(0,0,0,0.2)] sm:p-8"
+        className="flex flex-col gap-5 rounded-3xl border border-border bg-surface-elevated p-6 shadow-[0_20px_60px_rgba(0,0,0,0.2)] sm:p-8"
       >
         <div className="flex flex-col gap-1.5">
           <h2
@@ -232,6 +244,7 @@ export function HandLab() {
               label: "Câmera",
               value: STATUS_LABEL[snapshot.cameraStatus],
               live: true,
+              dot: STATUS_DOT[snapshot.cameraStatus],
             },
             {
               label: "Mãos detectadas",
@@ -258,8 +271,14 @@ export function HandLab() {
               </dt>
               <dd
                 aria-live={item.live ? "polite" : undefined}
-                className="mt-1 text-sm font-semibold text-foreground"
+                className="mt-1 flex items-center gap-2 text-sm font-semibold text-foreground"
               >
+                {"dot" in item && item.dot && (
+                  <span
+                    aria-hidden="true"
+                    className={cn("h-2 w-2 shrink-0 rounded-full", item.dot)}
+                  />
+                )}
                 {item.value}
               </dd>
             </div>

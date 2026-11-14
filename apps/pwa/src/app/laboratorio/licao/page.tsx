@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 
 import { Eyebrow } from "@/components/eyebrow";
+import { HonestNote } from "@/components/honest-note";
+import { IconFlask } from "@/components/icons";
 import { LessonRunner } from "@/components/lesson-runner";
 import { demoLesson } from "@/data/lesson-content";
 
@@ -12,12 +14,12 @@ export const metadata: Metadata = {
 
 export default function LessonDemoPage() {
   return (
-    <div className="flex flex-col gap-12">
+    <div className="flex flex-col gap-10">
       <section aria-labelledby="demo-title" className="flex flex-col gap-6">
         <Eyebrow>Laboratório experimental</Eyebrow>
         <h1
           id="demo-title"
-          className="max-w-2xl font-display text-4xl font-semibold leading-[1.1] tracking-tight text-foreground sm:text-5xl"
+          className="max-w-2xl font-display text-3xl font-semibold tracking-tight text-foreground sm:text-4xl"
         >
           Demonstração da experiência de lição
         </h1>
@@ -26,11 +28,11 @@ export default function LessonDemoPage() {
           para validar a interface e a mecânica antes do material real.
         </p>
 
-        <div className="flex flex-col gap-4 rounded-2xl border border-dashed border-border bg-surface/50 p-6 sm:p-7">
-          <h2 className="text-sm font-semibold text-foreground">
-            O que esta demonstração é — e o que não é
-          </h2>
-          <ul className="flex max-w-2xl flex-col gap-2.5 text-sm leading-relaxed text-muted">
+        <HonestNote
+          title="O que esta demonstração é — e o que não é"
+          icon={<IconFlask className="h-5 w-5" />}
+        >
+          <ul className="flex max-w-2xl flex-col gap-2.5">
             <li className="flex gap-2.5">
               <span aria-hidden="true" className="mt-2 h-1 w-1 shrink-0 rounded-full bg-accent" />
               Exercita a interface de lição: passos de explicação, exercícios de
@@ -47,7 +49,7 @@ export default function LessonDemoPage() {
               demonstração não marca nenhuma lição das trilhas como concluída.
             </li>
           </ul>
-        </div>
+        </HonestNote>
       </section>
 
       <LessonRunner
