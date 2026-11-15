@@ -2533,6 +2533,42 @@ a {
   translate: 0 calc(var(--xp, 0) * -56px);
 }
 
+/* fio de sinal: liga a tipografia à cena — nasce quando a marca é revelada */
+.xp-copy-01::after {
+  position: absolute;
+  top: 42%;
+  right: -96px;
+  width: 88px;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    rgba(53, 201, 232, 0.55),
+    rgba(53, 201, 232, 0)
+  );
+  content: "";
+  opacity: clamp(0, calc(1 - var(--xp, 0) * 4), 1);
+}
+
+@media (min-width: 900px) and (prefers-reduced-motion: no-preference) {
+  .xp-copy-01::after {
+    transform: scaleX(0);
+    transform-origin: left;
+    animation: xp-signal 1s cubic-bezier(0.22, 1, 0.36, 1) 2.75s forwards;
+  }
+
+  @keyframes xp-signal {
+    to {
+      transform: scaleX(1);
+    }
+  }
+}
+
+@media (max-width: 899px) {
+  .xp-copy-01::after {
+    display: none;
+  }
+}
+
 .xp-copy-02 {
   top: 50%;
   transform: translateY(-52%);
@@ -2586,7 +2622,7 @@ a {
 
 .xp-caption {
   margin-top: 30px;
-  color: #6d7994;
+  color: #93a0bd;
   font-size: 11px;
   letter-spacing: 0.02em;
   line-height: 1.65;
@@ -2752,5 +2788,21 @@ a {
 
   .xp-brand-tag {
     display: none;
+  }
+}
+
+/* ---------- tablet: cena recua para preservar a zona de leitura ---------- */
+@media (min-width: 761px) and (max-width: 1100px) {
+  .xp-sticky::before {
+    background: linear-gradient(
+      100deg,
+      rgba(11, 17, 34, 0.9) 0%,
+      rgba(11, 17, 34, 0.62) 46%,
+      rgba(11, 17, 34, 0.15) 72%
+    );
+  }
+
+  .xp-copy-block {
+    max-width: 480px;
   }
 }

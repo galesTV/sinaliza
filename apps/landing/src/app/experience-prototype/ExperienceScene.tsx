@@ -66,6 +66,13 @@ const CONNECTIONS: [number, number][] = [
 
 const TIPS = [4, 8, 12, 16, 20];
 const AMBER_NODE = 12; // único acento quente da cena (MASTER.md §2)
+const FINGERS = [
+  [1, 2, 3, 4],
+  [5, 6, 7, 8],
+  [9, 10, 11, 12],
+  [13, 14, 15, 16],
+  [17, 18, 19, 20],
+];
 
 // Nós "eco": a rede que a estrutura alcança no estado 02
 const ECHO_POINTS: [number, number, number][] = [
@@ -108,6 +115,24 @@ const COLORS = {
   echoEdge: 0x35c9e8,
   particle: 0x8174f5,
 };
+
+// Traço do símbolo Sinaliza (public/brand/sinaliza-simbolo.svg):
+// a mesma curva S, amostrada e desenhada em 3D — a convergência revela a marca.
+const BRAND_PATH: [number, number, number, number, number, number, number, number][] = [
+  [390, 126, 350, 82, 270, 76, 205, 105],
+  [205, 105, 145, 132, 111, 181, 130, 225],
+  [130, 225, 151, 273, 231, 279, 302, 253],
+  [302, 253, 370, 228, 410, 253, 390, 302],
+  [390, 302, 371, 348, 306, 384, 239, 387],
+  [239, 387, 191, 389, 151, 372, 126, 343],
+];
+const BRAND_DOTS: [number, number][] = [
+  [414, 112],
+  [105, 365],
+];
+const BRAND_SCALE = 2.4 / 313; // altura do traço (~313 unidades SVG) → ~2.4 unidades de mundo
+const svgToWorld = (x: number, y: number) =>
+  new THREE.Vector3((x - 256) * BRAND_SCALE, (256 - y) * BRAND_SCALE, 0);
 
 const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
 const smooth = (t: number) => t * t * (3 - 2 * t);
@@ -192,7 +217,9 @@ export function ExperienceScene() {
       return;
     }
 
-    const isCompact = container.clientWidth < 760;
+    const viewportW = container.clientWidth;
+    const isCompact = viewportW < 760;
+    const isTablet = viewportW >= 760 && viewportW < 1100;
     renderer.setPixelRatio(
       Math.min(window.devicePixelRatio, isCompact ? 1.5 : 1.75),
     );
@@ -225,13 +252,24 @@ export function ExperienceScene() {
       new THREE.Vector3(...p).sub(center).multiplyScalar(1.05),
     );
 
-    // Estado 02: a estrutura se abre — pontas viajam mais, eco nodes em arco.
+    // Estado 02 — a estrutura vira "sinal": cada dedo endireita num raio
+    // que parte da palma, e a rede de ecos o recebe em arco acima.
     const poseB = poseA.map((v, i) => {
-      const spread = TIPS.includes(i) ? 1.8 : 1.35;
-      const out = v.clone().multiplyScalar(spread);
-      out.z += (i % 3) * 0.35 - 0.5;
+      const out = v.clone().multiplyScalar(1.3);
+      out.z += (i % 3) * 0.3 - 0.45;
       out.x += 0.2;
       return out;
+    });
+    FINGERS.forEach((chain) => {
+      const root = poseA[chain[0]];
+      const dir = poseA[chain[3]].clone().sub(root);
+      const len = dir.length();
+      dir.normalize();
+      const rootB = poseB[chain[0]].clone();
+      for (let k = 1; k < 4; k++) {
+        const ray = rootB.clone().addScaledVector(dir, len * (k / 3) * 1.18);
+        poseB[chain[k]].lerpVectors(poseB[chain[k]], ray, 0.75);
+      }
     });
 
     // Pontos de partida: fragmentos dispersos (determinístico por índice)
@@ -301,6 +339,77 @@ export function ExperienceScene() {
       group.add(mesh);
       return { mesh, index: i };
     });
+
+    // -------------------------------------------------------------
+    // Traço da marca Sinaliza — desenhado pela convergência (o clímax)
+    // -------------------------------------------------------------
+    const brandCurve = new THREE.CurvePath<THREE.Vector3>();
+    BRAND_PATH.forEach(([x0, y0, x1, y1, x2, y2, x3, y3]) => {
+      brandCurve.add(
+        new THREE.CubicBezierCurve3(
+          svgToWorld(x0, y0),
+          svgToWorld(x1, y1),
+          svgToWorld(x2, y2),
+          svgToWorld(x3, y3),
+        ),
+      );
+    });
+
+    const TUBE_SEGS = 72;
+    const TUBE_RADIAL = 6;
+    const brandGeo = track(
+      new THREE.TubeGeometry(brandCurve, TUBE_SEGS, 0.03, TUBE_RADIAL, false),
+    );
+    // gradiente da marca ao longo do traço (ciano → azul → violeta)
+    const brandColors = new Float32Array(brandGeo.attributes.position.count * 3);
+    const brandStops = [
+      new THREE.Color(0x35c9e8),
+      new THREE.Color(0x287deb),
+      new THREE.Color(0x6957e8),
+    ];
+    const tmpColor = new THREE.Color();
+    const ringVerts = TUBE_RADIAL + 1;
+    for (let s = 0; s <= TUBE_SEGS; s++) {
+      const t = s / TUBE_SEGS;
+      if (t <= 0.52) tmpColor.lerpColors(brandStops[0], brandStops[1], t / 0.52);
+      else tmpColor.lerpColors(brandStops[1], brandStops[2], (t - 0.52) / 0.48);
+      for (let r = 0; r < ringVerts; r++) {
+        tmpColor.toArray(brandColors, (s * ringVerts + r) * 3);
+      }
+    }
+    brandGeo.setAttribute("color", new THREE.BufferAttribute(brandColors, 3));
+    brandGeo.setDrawRange(0, 0);
+    const brandMat = trackMat(
+      new THREE.MeshBasicMaterial({
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.95,
+      }),
+    );
+    const brandMesh = new THREE.Mesh(brandGeo, brandMat);
+    brandMesh.frustumCulled = false;
+
+    const brandGroup = new THREE.Group();
+    brandGroup.add(brandMesh);
+
+    // Pontos terminais do símbolo — os dois "sinais" ciano da marca
+    const dotGeo = track(new THREE.IcosahedronGeometry(0.1, 1));
+    const dotMat = trackMat(
+      new THREE.MeshBasicMaterial({
+        color: COLORS.tip,
+        transparent: true,
+        opacity: 0,
+      }),
+    );
+    BRAND_DOTS.forEach(([dx, dy]) => {
+      const dot = new THREE.Mesh(dotGeo, dotMat);
+      dot.position.copy(svgToWorld(dx, dy));
+      brandGroup.add(dot);
+    });
+
+    brandGroup.position.set(0.08, -0.35, 0.45);
+    brandGroup.scale.setScalar(0.9);
+    group.add(brandGroup);
 
     // Anel âmbar — pulso único quando a estrutura converge
     const ringGeo = track(new THREE.RingGeometry(0.18, 0.2, 48));
@@ -495,6 +604,18 @@ export function ExperienceScene() {
       edgeAttr.needsUpdate = true;
       edgeMat.opacity = edgeDraw * (0.72 - 0.3 * m);
 
+      // Traço da marca: desenhado no clímax da convergência, permanece
+      // como identidade no estado 01 e persiste no centro do estado 02
+      const brandDraw = easeOutCubic(clamp01((entrance - 0.72) / 0.26));
+      brandGeo.setDrawRange(
+        0,
+        Math.floor(brandDraw * brandGeo.index!.count),
+      );
+      dotMat.opacity = clamp01((entrance - 0.96) / 0.04);
+      brandGroup.position.z = 0.45 + m * 0.35;
+      brandGroup.scale.setScalar(0.9 * (1 - m * 0.18));
+      brandMat.opacity = 0.95 - m * 0.2;
+
       // Ecos do estado 02
       for (let i = 0; i < echoes.length; i++) {
         echoCurrent[i].copy(echoes[i]);
@@ -534,12 +655,16 @@ export function ExperienceScene() {
       group.position.x = 0.9 - m * 0.55;
       group.position.y =
         0.32 + m * 0.28 + Math.sin(elapsed * 0.4) * 0.05 * idle;
-      group.scale.setScalar(isCompact ? 0.52 : 0.68);
+      group.scale.setScalar(isCompact ? 0.52 : isTablet ? 0.58 : 0.68);
+      if (isTablet) group.position.x += 0.35;
 
+      // dolly cinematográfico: a câmera se aproxima durante o clímax da
+      // convergência e fica mais próxima até o scroll começar
+      const dolly = smooth(clamp01((entrance - 0.8) / 0.2)) * 0.55;
       camera.position.set(
         0.15 + m * -0.3,
         0.15 + m * 0.5,
-        7.4 + m * 2.3,
+        7.4 - dolly + m * 2.3,
       );
       camera.lookAt(0.2, 0.3, 0);
 
@@ -561,7 +686,6 @@ export function ExperienceScene() {
       if (prefersReducedMotion) return; // render por evento
       const dt = Math.min(0.05, (time - lastTime) / 1000 || 0.016);
       lastTime = time;
-      computeMorphTarget();
       updateFrame(dt);
       if (isInViewport && isPageVisible) {
         animationFrame = requestAnimationFrame(animate);
@@ -588,7 +712,9 @@ export function ExperienceScene() {
       }
     };
 
+    // morphTarget é recalculado só em eventos (scroll/resize), não por frame
     const onScroll = () => {
+      computeMorphTarget();
       if (prefersReducedMotion) renderOnce();
     };
 
@@ -608,6 +734,7 @@ export function ExperienceScene() {
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
       renderer.setSize(width, height);
+      computeMorphTarget();
       if (prefersReducedMotion) renderOnce();
     });
     resizeObserver.observe(container);
