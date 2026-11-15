@@ -2806,3 +2806,35 @@ a {
     max-width: 480px;
   }
 }
+
+/* ---------- EXPERIENCE — Ato 1 (direção híbrida) ---------- */
+.xp-title-01 {
+  font-size: clamp(46px, 7.4vw, 112px);
+  line-height: 1.0;
+  letter-spacing: -0.06em;
+  max-width: 12ch;
+  text-shadow: 0 2px 40px rgba(11, 17, 34, 0.9);
+}
+
+.xp-period {
+  color: var(--highlight, #f0a848);
+}
+
+/* a cópia do ato 1 senta mais abaixo — o título invade o espaço da cena */
+.xp-copy-01 {
+  top: 54%;
+  max-width: 720px;
+}
+
+@media (max-width: 760px) {
+  .xp-copy-01 {
+    top: auto;
+    bottom: 92px;
+    max-width: none;
+  }
+
+  .xp-title-01 {
+    font-size: clamp(40px, 11.5vw, 54px);
+    max-width: 14ch;
+  }
+}
