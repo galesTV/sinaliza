@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Sora } from "next/font/google";
 
 import { AppShell } from "@/components/app-shell";
+import { RegisterServiceWorker } from "@/components/register-sw";
 
 import "./globals.css";
 
@@ -42,6 +43,7 @@ export default function RootLayout({
     >
       <body className="min-h-full">
         <AppShell>{children}</AppShell>
+        <RegisterServiceWorker />
       </body>
     </html>
   );
