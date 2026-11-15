@@ -42,7 +42,7 @@ Computer vision features must be presented honestly as **experimental learning a
 ```text
 sinaliza/
 ├── apps/
-│   ├── landing/          # Institutional landing page (deployed — DO NOT redesign)
+│   ├── landing/          # Institutional landing page (deployed — redesign authorized on feat/landing-redesign, see §20)
 │   └── pwa/              # Educational application (in development)
 ├── supabase/
 │   ├── migrations/       # Versioned database migrations (planned)
@@ -195,16 +195,17 @@ The `apps/pwa` application must be a Progressive Web App:
 
 ## 20. Deployment constraints
 
-- The landing page is deployed on Vercel at <https://sinaliza-eta.vercel.app/> with Root Directory `apps/landing`. **Preserve this deployment.** Do not redesign, replace, or refactor the landing page; preserve its functionality, visual identity, animations, content, and deploy config.
+- The landing page is deployed on Vercel at <https://sinaliza-eta.vercel.app/> with Root Directory `apps/landing`. **Preserve this deployment** and its deploy config.
+- The owner has explicitly authorized a redesign of the landing page on the `feat/landing-redesign` branch (November 2026), under the approved Editorial + Technology direction of the Constellation design system (`apps/pwa/design-system/sinaliza/MASTER.md`). This authorization covers only that branch and scope: narrative, structure, design tokens, motion, and media within `apps/landing`. Preserve the brand fonts, the official assets in `public/brand/`, the deployment config, and every product-honesty constraint in this file. The Constellation motif derives from MediaPipe's 21 hand landmarks and is never presented as a representation of Libras signs.
+- Any other landing redesign, and any change to production deployment settings or release merges into `main`, still requires explicit owner approval.
 - The PWA will deploy as a separate Vercel project with Root Directory `apps/pwa`.
-- Never change production deployment settings without approval.
 
 ## 21. Instructions for AI agents
 
 - Inspect existing code before changing it. Never assume the repo matches a generic Next.js template — this is Next.js 16 with Cache Components and Turbopack; read `node_modules/next/dist/docs/` guides when unsure about APIs (see also `apps/landing/AGENTS.md`).
 - Prefer small, coherent changes. Avoid unnecessary dependencies and abstractions.
 - Never commit secrets. Never bypass RLS. Never claim unsupported Libras recognition capabilities.
-- Never remove working features without justification. Never redesign the landing page without authorization.
+- Never remove working features without justification. Never redesign the landing page outside the authorization defined in §20.
 - Run relevant tests before marking tasks complete. Document important architectural decisions in `docs/decisions/`.
 - If a fact cannot be confirmed, mark it as pending verification instead of inventing it.
 - If blocked on an external account, API key, payment, or human authorization: stop and explain exactly what the user must do. Do not invent credentials or claim configuration that does not exist.

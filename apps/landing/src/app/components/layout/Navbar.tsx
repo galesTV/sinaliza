@@ -2,9 +2,9 @@ import Image from "next/image";
 
 const navigation = [
   { label: "O projeto", href: "#projeto" },
-  { label: "Como funciona", href: "#jornada" },
+  { label: "A proposta", href: "#proposta" },
+  { label: "Plataforma", href: "#plataforma" },
   { label: "Tecnologia", href: "#tecnologia" },
-  { label: "Demonstração", href: "#demonstracao" },
 ];
 
 export function Navbar() {
