@@ -82,21 +82,28 @@ async function trimCache(cacheName, limit, exempt = new Set()) {
   }
 }
 
+// Cache writes must never break serving: every put/trim below absorbs
+// quota/storage failures so a full disk never breaks the online path.
 async function networkFirst(request) {
   const cache = await caches.open(PAGES_CACHE);
+  let response;
   try {
-    const response = await fetch(request);
-    if (isCacheableDocument(response)) {
-      await cache.put(request, response.clone());
-      await trimCache(PAGES_CACHE, PAGES_LIMIT, CORE_URLS);
-    }
-    return response;
+    response = await fetch(request);
   } catch {
     const cached = await cache.match(request, { ignoreSearch: true });
     if (cached) return cached;
     const fallback = await caches.match(OFFLINE_URL);
     return fallback || Response.error();
   }
+  if (isCacheableDocument(response)) {
+    try {
+      await cache.put(request, response.clone());
+      await trimCache(PAGES_CACHE, PAGES_LIMIT, CORE_URLS);
+    } catch {
+      console.warn("[sinaliza-sw] page cache write skipped:", request.url);
+    }
+  }
+  return response;
 }
 
 async function cacheFirst(request, cacheName, limit) {
@@ -105,24 +112,36 @@ async function cacheFirst(request, cacheName, limit) {
   if (cached) return cached;
   const response = await fetch(request);
   if (response.ok && (response.type === "basic" || response.type === "cors")) {
-    await cache.put(request, response.clone());
-    if (limit) await trimCache(cacheName, limit);
+    try {
+      await cache.put(request, response.clone());
+      if (limit) await trimCache(cacheName, limit);
+    } catch {
+      console.warn("[sinaliza-sw] cache write skipped:", request.url);
+    }
   }
   return response;
 }
 
-async function staleWhileRevalidate(request, cacheName, limit) {
+async function staleWhileRevalidate(request, cacheName, limit, event) {
   const cache = await caches.open(cacheName);
-  const cached = await cache.match(request);
+  // Cross-cache match: precached critical assets (manifest, icons, offline
+  // page) must also serve subresource requests, not only navigations.
+  const cached = (await cache.match(request)) || (await caches.match(request));
   const refreshed = fetch(request)
     .then(async (response) => {
       if (response.ok && response.type === "basic") {
-        await cache.put(request, response.clone());
-        await trimCache(cacheName, limit);
+        try {
+          await cache.put(request, response.clone());
+          await trimCache(cacheName, limit);
+        } catch {
+          console.warn("[sinaliza-sw] cache write skipped:", request.url);
+        }
       }
       return response;
     })
     .catch(() => cached);
+  // Keep the worker alive until the revalidation write settles.
+  event?.waitUntil(refreshed.catch(() => {}));
   return cached || refreshed;
 }
 
@@ -193,9 +212,9 @@ self.addEventListener("fetch", (event) => {
   }
 
   if (url.pathname.startsWith("/_next/image")) {
-    event.respondWith(staleWhileRevalidate(request, MEDIA_CACHE, MEDIA_LIMIT));
+    event.respondWith(staleWhileRevalidate(request, MEDIA_CACHE, MEDIA_LIMIT, event));
     return;
   }
 
-  event.respondWith(staleWhileRevalidate(request, BRAND_CACHE, BRAND_LIMIT));
+  event.respondWith(staleWhileRevalidate(request, BRAND_CACHE, BRAND_LIMIT, event));
 });
