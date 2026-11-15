@@ -2,10 +2,10 @@ import Image from "next/image";
 
 const footerLinks = [
   { label: "O projeto", href: "#projeto" },
-  { label: "Como funciona", href: "#jornada" },
+  { label: "A proposta", href: "#proposta" },
+  { label: "Plataforma", href: "#plataforma" },
   { label: "Tecnologia", href: "#tecnologia" },
-  { label: "Demonstração", href: "#demonstracao" },
-  { label: "O futuro", href: "#futuro" },
+  { label: "Próximos passos", href: "#futuro" },
 ];
 
 export function Footer() {
