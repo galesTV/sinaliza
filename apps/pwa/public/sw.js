@@ -38,7 +38,9 @@ const OFFLINE_URL = "/offline.html";
 const PAGES_LIMIT = 50;
 const MEDIA_LIMIT = 64;
 const BRAND_LIMIT = 30;
-const EXTERNAL_LIMIT = 20; // ~15 MB total: ~8 MB model + WASM set
+// Entry-count cap, not a byte budget: the allowlisted MediaPipe set is
+// ~3 files (~10 MB: 8 MB model + WASM), so counting entries bounds it.
+const EXTERNAL_LIMIT = 20;
 
 // Failure to cache any of these fails install so the browser retries later.
 const CRITICAL_ASSETS = [
@@ -67,10 +69,18 @@ function isAllowedExternal(url) {
   );
 }
 
-function isCacheableDocument(response) {
-  if (!response || !response.ok || response.type !== "basic") return false;
+// Shared store predicate: every strategy validates status, response type
+// (basic for same-origin, cors allowed only where opted in) and the
+// Cache-Control directives that actually forbid storing the response.
+function isStorable(response, { cors = false } = {}) {
+  if (!response || !response.ok) return false;
+  if (response.type !== "basic" && !(cors && response.type === "cors")) return false;
   const cacheControl = response.headers.get("cache-control") || "";
   return !/no-store|private/i.test(cacheControl);
+}
+
+function isCacheableDocument(response) {
+  return isStorable(response);
 }
 
 async function trimCache(cacheName, limit, exempt = new Set()) {
@@ -111,7 +121,7 @@ async function cacheFirst(request, cacheName, limit) {
   const cached = await cache.match(request);
   if (cached) return cached;
   const response = await fetch(request);
-  if (response.ok && (response.type === "basic" || response.type === "cors")) {
+  if (isStorable(response, { cors: true })) {
     try {
       await cache.put(request, response.clone());
       if (limit) await trimCache(cacheName, limit);
@@ -129,7 +139,7 @@ async function staleWhileRevalidate(request, cacheName, limit, event) {
   const cached = (await cache.match(request)) || (await caches.match(request));
   const refreshed = fetch(request)
     .then(async (response) => {
-      if (response.ok && response.type === "basic") {
+      if (isStorable(response)) {
         try {
           await cache.put(request, response.clone());
           await trimCache(cacheName, limit);
