@@ -43,7 +43,7 @@ Computer vision features must be presented honestly as **experimental learning a
 sinaliza/
 ├── apps/
 │   ├── landing/          # Institutional landing page (deployed — DO NOT redesign)
-│   └── pwa/              # Educational application (planned)
+│   └── pwa/              # Educational application (in development)
 ├── supabase/
 │   ├── migrations/       # Versioned database migrations (planned)
 │   └── seed/             # Initial development data (planned)
