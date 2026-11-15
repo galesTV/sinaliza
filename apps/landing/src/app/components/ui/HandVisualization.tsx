@@ -9,7 +9,8 @@ import * as THREE from "three";
  * - 21 landmarks com a numeração oficial (0 = pulso, 4/8/12/16/20 = pontas)
  * - Conexões idênticas às do MediaPipe (HAND_CONNECTIONS)
  * - Pele low-poly triangulada (dedos + palma), ossos finos por dentro e
- *   juntas coloridas por dedo, com nós brilhando em cada vértice da malha
+ *   juntas nos tons do sistema Constellation (MASTER.md §1): violeta
+ *   suave nas juntas, ciano nas pontas e um nó de ênfase âmbar
  * - Os dedos "respiram" (curl suave) e a mão acompanha o ponteiro
  */
 
@@ -79,15 +80,15 @@ const CURLING_FINGERS = [
   [17, 18, 19, 20],
 ];
 
-// Cor de cada landmark, agrupada por dedo
+// Tom de cada landmark: violeta suave na palma/juntas, ciano nas pontas
+// e um único nó âmbar de ênfase (regra de acento único do MASTER.md §2)
 const FINGER_COLORS: Record<number, number> = {};
+const EMPHASIZED_JOINT = 12; // ponta do dedo médio
 const colorGroups: [number[], number][] = [
-  [[0], 0xe0f7fa],
-  [[1, 2, 3, 4], 0x4dd0e1],
-  [[5, 6, 7, 8], 0x8174f5],
-  [[9, 10, 11, 12], 0x6ea8ff],
-  [[13, 14, 15, 16], 0x35c9e8],
-  [[17, 18, 19, 20], 0xb48cff],
+  [[0, 1, 2, 3, 5, 9, 13, 17], 0xc7c0ff],
+  [[6, 7, 10, 11, 14, 15, 18, 19], 0x8174f5],
+  [[4, 8, 16, 20], 0x35c9e8],
+  [[EMPHASIZED_JOINT], 0xf0a848],
 ];
 colorGroups.forEach(([ids, color]) =>
   ids.forEach((id) => (FINGER_COLORS[id] = color)),
@@ -174,9 +175,9 @@ export function HandVisualization() {
     // Rede de linhas que triangula a pele
     const skinLineMaterial = trackMat(
       new THREE.LineBasicMaterial({
-        color: 0x6fd8ff,
+        color: 0x35c9e8,
         transparent: true,
-        opacity: 0.5,
+        opacity: 0.45,
       }),
     );
 

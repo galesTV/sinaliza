@@ -1,4 +1,5 @@
 import { Reveal } from "../ui/Reveal";
+import { SpecimenGrid } from "../ui/SpecimenGrid";
 
 export function Alphabet() {
   return (
@@ -19,18 +20,12 @@ export function Alphabet() {
       </Reveal>
 
       <Reveal className="alphabet-catalog" delay={0.08}>
-        <div className="placeholder-frame placeholder-frame--wide">
-          <span className="placeholder-badge">Catálogo em preparação</span>
+        <SpecimenGrid />
 
-          <span className="alphabet-range" aria-hidden="true">
-            A — Z
-          </span>
-
-          <p>
-            O conteúdo do catálogo será apresentado após a validação
-            pedagógica do material.
-          </p>
-        </div>
+        <p className="alphabet-catalog-note">
+          As demonstrações visuais de cada letra estão em preparação e
+          passarão por validação pedagógica antes de serem publicadas.
+        </p>
       </Reveal>
     </section>
   );
