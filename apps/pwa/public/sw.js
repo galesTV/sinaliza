@@ -38,8 +38,8 @@ const OFFLINE_URL = "/offline.html";
 const PAGES_LIMIT = 50;
 const MEDIA_LIMIT = 64;
 const BRAND_LIMIT = 30;
-// Entry-count cap, not a byte budget: the allowlisted MediaPipe set is
-// ~3 files (~10 MB: 8 MB model + WASM), so counting entries bounds it.
+// Entry-count cap, not a byte budget: the allowlisted MediaPipe set is a
+// few files (~10 MB: 8 MB model + WASM loader), so counting bounds it.
 const EXTERNAL_LIMIT = 20;
 
 // Failure to cache any of these fails install so the browser retries later.
@@ -62,10 +62,20 @@ const CORE_BRAND_ASSETS = [
   "/brand/sinaliza-monocromatico.svg",
 ];
 
+// Mirrors the exact CDN assets loaded by src/lib/hand-tracking.ts: the
+// wasm directory of the pinned @mediapipe/tasks-vision version (covers
+// the SIMD and nosimd loader variants MediaPipe picks at runtime) and
+// the hand_landmarker float16 model. Anything else is network-only.
+const MEDIAPIPE_WASM_PREFIX = "/npm/@mediapipe/tasks-vision@0.10.21/wasm/";
+const MEDIAPIPE_MODEL_PATH =
+  "/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task";
+
 function isAllowedExternal(url) {
   return (
-    (url.host === "cdn.jsdelivr.net" && url.pathname.startsWith("/npm/@mediapipe/")) ||
-    (url.host === "storage.googleapis.com" && url.pathname.startsWith("/mediapipe-models/"))
+    (url.host === "cdn.jsdelivr.net" &&
+      url.pathname.startsWith(MEDIAPIPE_WASM_PREFIX)) ||
+    (url.host === "storage.googleapis.com" &&
+      url.pathname === MEDIAPIPE_MODEL_PATH)
   );
 }
 
