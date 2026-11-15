@@ -82,7 +82,7 @@ Dark theme only. Existing identity preserved; one restrained warm accent added.
 
 Amber is a **restrained highlight**: the glint on a selected catalog specimen, the emphasized landmark node, a milestone/achievement moment, a rare badge. Small doses — points, rings, short labels, tiny fills — never large surfaces.
 
-- **Implementation status:** `--color-highlight` is a planned token — the first change that uses it must add the variable and its `@theme` mapping to `apps/pwa/src/app/globals.css` before use.
+- **Implementation status:** `--color-highlight` is defined — `--highlight` in `:root` and its `@theme` mapping in `apps/pwa/src/app/globals.css`; usable as `text-highlight`, `bg-highlight`, etc.
 - Amber is **not** a semantic color. Success stays `#83dfb8`, destructive `#dc2626`, warning/feedback stay paired with icon + text. Never use amber to mean success, error, or warning.
 - Amber text on `--color-background`/`--color-surface*` passes AA (≈8.8:1) — allowed for short labels only.
 - On amber fills, use navy (`#10172b`) text/icons (≈8.8:1). **Never white text on amber (≈1.8:1 — fails).**

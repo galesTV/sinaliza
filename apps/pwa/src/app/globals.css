@@ -190,10 +190,15 @@ a {
    ACCESSIBILITY
    ======================================== */
 
+/* In @layer base so Tailwind utilities (e.g. focus-visible:outline-none
+   on programmatically focused headings) can opt out per element;
+   unlayered, this rule would beat every utility. */
+@layer base {
 :focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 3px;
   border-radius: 4px;
+}
 }
 
 .skip-link {

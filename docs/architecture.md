@@ -4,7 +4,7 @@
 
 O Sinaliza é um projeto de plataforma de aprendizagem de Língua Brasileira de Sinais (Libras), desenvolvido com uma abordagem incremental.
 
-A arquitetura atual prioriza uma aplicação web responsável pela apresentação do produto. A evolução planejada contempla uma plataforma de aprendizagem, com conteúdos educacionais, exercícios interativos, acompanhamento de progresso e experimentação com visão computacional.
+A arquitetura atual prioriza uma aplicação web responsável pela apresentação do produto. A evolução contempla uma plataforma de aprendizagem — em desenvolvimento em `apps/pwa/` — com conteúdos educacionais, exercícios interativos, acompanhamento de progresso e experimentação com visão computacional.
 
 O sistema está organizado em um monorepositório, permitindo manter diferentes aplicações e documentações dentro de uma estrutura compartilhada.
 
@@ -18,7 +18,7 @@ O projeto utiliza uma estrutura de monorepositório:
 sinaliza/
 ├── apps/
 │   ├── landing/          # Landing page institucional (publicada)
-│   └── pwa/              # Plataforma de aprendizagem (planejada)
+│   └── pwa/              # Plataforma de aprendizagem (em desenvolvimento)
 ├── supabase/
 │   ├── migrations/       # Migrações versionadas do banco (planejado)
 │   └── seed/             # Dados iniciais de desenvolvimento (planejado)
@@ -51,7 +51,7 @@ Um diretório `packages/shared/` somente será criado quando existir código efe
 
 ### 3.1. Landing page
 
-A landing page é a aplicação atualmente implementada e publicada.
+A landing page é a aplicação institucional, implementada e publicada.
 
 **URL de produção:** https://sinaliza-eta.vercel.app/
 
@@ -126,9 +126,9 @@ O experimento atual não realiza reconhecimento completo de sinais, tradução a
 
 Uma eventual integração deverá ser precedida por validações técnicas e educacionais, além da definição de uma interface clara de comunicação entre os componentes.
 
-## 5. Arquitetura planejada da plataforma (PWA)
+## 5. Arquitetura da plataforma (PWA)
 
-A plataforma de aprendizagem será implementada em `apps/pwa/` como uma aplicação Next.js independente, reutilizando as mesmas versões principais da landing page (ver [ADR 0002](decisions/0002-backend-supabase.md)).
+A plataforma de aprendizagem é implementada em `apps/pwa/` como uma aplicação Next.js independente, reutilizando as mesmas versões principais da landing page (ver [ADR 0002](decisions/0002-backend-supabase.md)). O scaffold e o núcleo educacional já existem; as camadas abaixo descrevem a arquitetura alvo, com itens ainda pendentes indicados.
 
 ### 5.1. Camada de apresentação
 
@@ -174,8 +174,8 @@ Responsabilidades bem delimitadas, evitando acoplamento com a interface e com as
 
 ### 5.5. Capacidades de PWA
 
-- Web app manifest, ícones, cores de tema e instalabilidade — **prioridade** junto ao acesso a conteúdo previamente armazenado em cache.
-- Service worker com cache do shell e de conteúdo já carregado, e fallback offline.
+- Web app manifest, ícones PNG e maskable, cores de tema e instalabilidade — **implementado**; verificação da instalação em dispositivo físico permanece pendente.
+- Service worker com cache do shell e de conteúdo já carregado, e fallback offline — **implementado** (`apps/pwa/public/sw.js` + `offline.html`), verificado em build de produção local.
 - Sincronização de progresso feito offline: **somente se couber no prazo e puder ser testada com segurança**, sem comprometer o núcleo educacional — cuidado com submissões duplicadas e atualizações conflitantes.
 - A experiência educacional permanece utilizável sem câmera e com funcionalidade offline básica — sem promessas de sincronização completa não implementada.
 
@@ -217,9 +217,10 @@ As regras de negócio e os componentes críticos deverão ser desenvolvidos de f
 
 A landing page está publicada na Vercel, em projeto próprio com Root Directory `apps/landing`.
 
+O PWA tem um **segundo projeto na Vercel**, com Root Directory `apps/pwa`, preservando integralmente a configuração e o deploy da landing (ver [ADR 0003](decisions/0003-deploy-vercel-dois-projetos.md)); previews de pull request estão ativos. O comportamento do deploy de produção ainda não foi verificado.
+
 ### Ambientes planejados
 
-- O PWA será implantado como um **segundo projeto na Vercel**, com Root Directory `apps/pwa`, preservando integralmente a configuração e o deploy da landing (ver [ADR 0003](decisions/0003-deploy-vercel-dois-projetos.md)).
 - Ambientes locais, de validação e de produção serão detalhados conforme a evolução da plataforma.
 
 ## 8. Decisões técnicas e pontos em aberto
@@ -233,11 +234,11 @@ As decisões abaixo registram o estado atual do projeto. Decisões marcadas como
 | Linguagem principal | TypeScript |
 | Hospedagem da landing page | Vercel (projeto próprio, Root Directory `apps/landing`) |
 | Separação da PoC Python | Definida |
-| Framework da plataforma de aprendizagem | Proposta: Next.js 16 + React 19 em `apps/pwa` (mesmas versões da landing) |
+| Framework da plataforma de aprendizagem | Definida: Next.js 16 + React 19 em `apps/pwa` (mesmas versões da landing) |
 | Backend e API | Proposta: Supabase + funcionalidade server-side do Next.js — ADR 0002 |
 | Banco de dados | Proposta: PostgreSQL via Supabase, migrações em `supabase/migrations` — ADR 0002 |
 | Autenticação | Proposta: Supabase Auth — ADR 0002 |
-| Deploy do PWA | Proposta: projeto Vercel separado, Root Directory `apps/pwa` — ADR 0003 |
+| Deploy do PWA | Definida: projeto Vercel separado, Root Directory `apps/pwa` — ADR 0003 (previews de PR ativos; comportamento de produção ainda não verificado) |
 | Integração da visão computacional | Em investigação (MediaPipe no navegador, processamento local) |
 | Estratégia de armazenamento de imagens e vídeos | Em aberto (Supabase Storage quando necessário) |
 | Infraestrutura dos futuros serviços | Proposta: sem serviço dedicado no MVP |
@@ -248,7 +249,7 @@ Novas decisões deverão ser registradas em `docs/decisions/` e atualizadas conf
 
 As próximas etapas técnicas deverão contemplar:
 
-1. Criação do scaffold de `apps/pwa` e provisionamento do projeto Supabase.
+1. Provisionamento do projeto Supabase.
 2. Modelagem das entidades e relações (perfis, trilhas, lições, exercícios, progresso).
 3. Implementação da autenticação e do gerenciamento de usuários.
 4. Estruturação dos conteúdos educacionais.
