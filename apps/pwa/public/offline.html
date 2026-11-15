@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#10172b">
+<title>Offline | Sinaliza</title>
+<style>
+  :root {
+    --bg: #10172b;
+    --surface: #171b3c;
+    --border: rgba(148, 163, 216, 0.18);
+    --text: #e8ecf8;
+    --muted: #9aa5c9;
+    --brand-a: #35c9e8;
+    --brand-b: #287deb;
+    --brand-c: #6957e8;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background:
+      radial-gradient(60rem 40rem at 80% -10%, rgba(105, 87, 232, 0.16), transparent 60%),
+      radial-gradient(50rem 35rem at 0% 100%, rgba(53, 201, 232, 0.10), transparent 60%),
+      var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  .card {
+    max-width: 26rem;
+    width: 100%;
+    padding: 2.25rem;
+    border: 1px solid var(--border);
+    border-radius: 1.25rem;
+    background: linear-gradient(160deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+    text-align: center;
+  }
+  .mark {
+    width: 4rem;
+    height: 4rem;
+    margin: 0 auto 1.5rem;
+    display: block;
+  }
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-bottom: 0.75rem;
+  }
+  p {
+    color: var(--muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 1.75rem;
+  }
+  a {
+    display: inline-block;
+    padding: 0.7rem 1.6rem;
+    border-radius: 999px;
+    background: linear-gradient(120deg, var(--brand-a), var(--brand-b), var(--brand-c));
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+  }
+  a:focus-visible {
+    outline: 2px solid var(--brand-a);
+    outline-offset: 3px;
+  }
+</style>
+</head>
+<body>
+<main class="card">
+  <svg class="mark" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ícone Sinaliza">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#10172B"/><stop offset="1" stop-color="#171B3C"/></linearGradient>
+      <linearGradient id="brand" x1="110" y1="120" x2="410" y2="400" gradientUnits="userSpaceOnUse"><stop stop-color="#35C9E8"/><stop offset=".52" stop-color="#287DEB"/><stop offset="1" stop-color="#6957E8"/></linearGradient>
+    </defs>
+    <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+    <path d="M390 126 C350 82 270 76 205 105 C145 132 111 181 130 225 C151 273 231 279 302 253 C370 228 410 253 390 302 C371 348 306 384 239 387 C191 389 151 372 126 343" fill="none" stroke="url(#brand)" stroke-width="48" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="414" cy="112" r="24" fill="#35C9E8"/><circle cx="105" cy="365" r="24" fill="#35C9E8"/>
+  </svg>
+  <h1>Você está offline</h1>
+  <p>Esta página ainda não está disponível sem conexão. Páginas visitadas antes continuam acessíveis — o restante do conteúdo aparece quando a conexão voltar.</p>
+  <a href="/">Voltar ao início</a>
+</main>
+</body>
+</html>
