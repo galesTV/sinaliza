@@ -1514,7 +1514,7 @@ a {
 .specimen-status {
   margin-top: -4px;
   font-size: 0.62rem;
-  color: rgba(167, 177, 200, 0.6);
+  color: var(--muted);
 }
 
 .alphabet-catalog-note {
