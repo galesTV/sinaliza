@@ -17,7 +17,7 @@ const groups = [
     items: [
       "Conteúdo pedagógico em validação",
       "Exercícios e atividades das trilhas",
-      "Contas e acompanhamento de progresso",
+      "Contas de usuário e sincronização do progresso",
     ],
   },
   {
