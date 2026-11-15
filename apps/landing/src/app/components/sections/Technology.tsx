@@ -31,7 +31,7 @@ export function Technology() {
     <section id="tecnologia" className="technology-section">
       <div className="technology-intro">
         <Reveal className="technology-copy">
-          <span className="eyebrow">04 — Tecnologia aplicada</span>
+          <span className="eyebrow">05 — Tecnologia aplicada</span>
 
           <h2 className="technology-title">
             Transformando movimentos em
@@ -85,7 +85,7 @@ export function Technology() {
       <div id="demonstracao" className="technology-demo">
         <Reveal className="technology-demo-heading">
           <div>
-            <span className="eyebrow">05 — Demonstração técnica</span>
+            <span className="eyebrow">Demonstração técnica</span>
             <h3>Da teoria para a prática.</h3>
           </div>
 
@@ -110,13 +110,13 @@ export function Technology() {
 
         <Reveal>
           <p className="technology-disclaimer">
-            A visualização 3D é ilustrativa. Atualmente, a prova de conceito
-            funciona como um experimento técnico independente, desenvolvido em
-            Python com MediaPipe e OpenCV. Ela permite detectar mãos,
-            identificar landmarks e extrair características geométricas. Esses
-            recursos ainda não estão integrados à plataforma e servem como base
-            para investigar futuras aplicações na aprendizagem de Libras. O
-            reconhecimento completo de sinais ainda não está implementado.
+            A visualização 3D é ilustrativa. A prova de conceito original é um
+            experimento técnico independente, desenvolvido em Python com
+            MediaPipe e OpenCV. A plataforma também conta com um laboratório
+            experimental no navegador que captura a mão e visualiza landmarks
+            — mas não reconhece sinais de Libras, não avalia fluência e não
+            traduz frases. O reconhecimento completo de sinais ainda não está
+            implementado.
           </p>
         </Reveal>
       </div>

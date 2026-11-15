@@ -36,7 +36,7 @@ export function Hero() {
 
         <div className="hero-supporting-text">
           <span className="hero-supporting-line" />
-          Aprender. Praticar. Conectar.
+          Uma plataforma de aprendizagem de Libras.
         </div>
       </Reveal>
 
@@ -69,8 +69,8 @@ export function Hero() {
           <span className="journey-card-icon journey-icon-learning">01</span>
 
           <div>
-            <strong>Aprender</strong>
-            <span>Descubra novos sinais</span>
+            <strong>Trilhas</strong>
+            <span>Alfabeto e vocabulário</span>
           </div>
         </div>
 
@@ -78,8 +78,8 @@ export function Hero() {
           <span className="journey-card-icon journey-icon-practice">02</span>
 
           <div>
-            <strong>Praticar</strong>
-            <span>Aprenda fazendo</span>
+            <strong>Lições</strong>
+            <span>Módulos estruturados</span>
           </div>
         </div>
 
@@ -87,12 +87,12 @@ export function Hero() {
           <span className="journey-card-icon journey-icon-progress">03</span>
 
           <div>
-            <strong>Evoluir</strong>
-            <span>Acompanhe sua jornada</span>
+            <strong>Laboratório</strong>
+            <span>Captura experimental</span>
           </div>
         </div>
 
-        <span className="hero-visual-caption">Uma jornada de aprendizagem</span>
+        <span className="hero-visual-caption">O produto em construção</span>
       </Reveal>
     </section>
   );

@@ -1,10 +1,11 @@
 import { Navbar } from "./components/layout/Navbar";
 import { Hero } from "./components/sections/Hero";
 import { Challenge } from "./components/sections/Challenge";
-import { Solution } from "./components/sections/Solution";
-import { HowItWorks } from "./components/sections/HowItWorks";
+import { Proposal } from "./components/sections/Proposal";
+import { Platform } from "./components/sections/Platform";
+import { Alphabet } from "./components/sections/Alphabet";
 import { Technology } from "./components/sections/Technology";
-import { Roadmap } from "./components/sections/Roadmap";
+import { NextSteps } from "./components/sections/NextSteps";
 import { FinalCTA } from "./components/sections/FinalCTA";
 import { Footer } from "./components/layout/Footer";
 
@@ -23,11 +24,15 @@ export default function Home() {
 
           <div className="section-divider" />
 
-          <Solution />
+          <Proposal />
 
           <div className="section-divider" />
 
-          <HowItWorks />
+          <Platform />
+
+          <div className="section-divider" />
+
+          <Alphabet />
 
           <div className="section-divider" />
 
@@ -35,7 +40,7 @@ export default function Home() {
 
           <div className="section-divider" />
 
-          <Roadmap />
+          <NextSteps />
 
           <div className="section-divider" />
 
