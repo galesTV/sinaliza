@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ExperienceSceneLoader } from "./ExperienceSceneLoader";
+import { ProductMedia } from "./ProductMedia";
 
 export const metadata: Metadata = {
   title: "Experiência Sinaliza — O gesto",
@@ -49,7 +50,7 @@ export default function ExperiencePrototype() {
               </p>
             </section>
 
-            <section className="xp-copy-block xp-copy-02" aria-hidden="false">
+            <section className="xp-copy-block xp-copy-02">
               <p className="xp-eyebrow">
                 <span className="xp-state-index">02</span>A conexão
               </p>
@@ -64,6 +65,26 @@ export default function ExperiencePrototype() {
                 à prática, da prática ao domínio da língua.
               </p>
             </section>
+
+            <section className="xp-copy-block xp-copy-03">
+              <p className="xp-eyebrow">
+                <span className="xp-state-index">03</span>O aprendizado
+              </p>
+              <h2 className="xp-title xp-title-03">
+                O aprendizado acontece na{" "}
+                <span className="gradient-text">prática.</span>
+              </h2>
+              <p className="xp-lead">
+                O Sinaliza acompanha a mão real, no espaço real — tecnologia a
+                serviço da língua de sinais.
+              </p>
+              <p className="xp-caption">
+                Registro real do protótipo do produto — PWA do Sinaliza.
+              </p>
+            </section>
+            <figure className="xp-product">
+              <ProductMedia />
+            </figure>
           </main>
 
           <p className="xp-scroll-hint">

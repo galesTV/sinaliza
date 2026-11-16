@@ -216,7 +216,8 @@ export function ExperienceScene() {
     container.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x0b1122, 0.034); // o fundo do corredor some na névoa
+    const fog = new THREE.FogExp2(0x0b1122, 0.034); // o fundo do corredor some na névoa
+    scene.fog = fog;
     const camera = new THREE.PerspectiveCamera(64, 1, 0.1, 120);
 
     const geometries: THREE.BufferGeometry[] = [];
@@ -259,6 +260,15 @@ export function ExperienceScene() {
         const ray = rootB.clone().addScaledVector(dir, len * (k / 3) * 1.18);
         poseB[chain[k]].lerpVectors(poseB[chain[k]], ray, 0.75);
       }
+    });
+
+    // Estado 03 — a abertura: a estrutura expande radialmente para além
+    // das bordas do quadro. Os fragmentos que sobram emolduram o espaço
+    // onde o produto real assume o protagonismo (Ato 3)
+    const poseC = poseB.map((v) => {
+      const out = v.clone().multiplyScalar(1.95);
+      out.z -= 0.6;
+      return out;
     });
 
     // Fragmentos de partida — convergem enquanto a câmera se aproxima
@@ -604,6 +614,10 @@ export function ExperienceScene() {
         morph = morphTarget;
       }
       const m = smooth(morph);
+      // coreografia de atos: m1 = travessia Ato 1→2 (xp 0→0.55),
+      // m2 = abertura Ato 2→3 (xp 0.6→0.9)
+      const m1 = smooth(clamp01(m / 0.55));
+      const m2 = smooth(clamp01((m - 0.6) / 0.3));
       const idle = prefersReducedMotion ? 0 : 1;
 
       // Nós: scatter → poseA (entrada) → poseB (scroll)
@@ -612,8 +626,11 @@ export function ExperienceScene() {
         const p = easeOutCubic(clamp01((entrance * 3.1 - nodeDelay) / 0.9));
         nodes[i].lerpVectors(scatter[i], poseA[i], p);
 
-        if (m > 0) {
-          nodes[i].lerp(poseB[i], m);
+        if (m1 > 0) {
+          nodes[i].lerp(poseB[i], m1);
+        }
+        if (m2 > 0) {
+          nodes[i].lerp(poseC[i], m2);
         }
 
         if (!prefersReducedMotion && entrance >= 1) {
@@ -624,15 +641,19 @@ export function ExperienceScene() {
         nodes[i].toArray(nodePositions, i * 3);
       }
       nodeAttr.needsUpdate = true;
+      nodeMat.opacity = 0.95 * (1 - m2 * 0.6);
 
-      tipMeshes.forEach(({ mesh, index }) => mesh.position.copy(nodes[index]));
+      tipMeshes.forEach(({ mesh, index }) => {
+        mesh.position.copy(nodes[index]);
+        mesh.visible = m2 < 0.7;
+      });
 
       // Anel âmbar: pulso único no topo do dossel ao convergir
       const ringPhase = clamp01((entrance - 0.82) / 0.18);
       const ringExpand = easeOutCubic(ringPhase);
       ring.position.copy(nodes[AMBER_NODE]);
       ring.scale.setScalar(0.4 + ringExpand * 2.4);
-      ringMat.opacity = m > 0.05 ? 0 : 0.45 * (1 - ringExpand);
+      ringMat.opacity = m1 > 0.05 ? 0 : 0.45 * (1 - ringExpand);
       ring.lookAt(camera.position);
 
       // Vigas: crescem progressivamente (base → topo) e acompanham os nós
@@ -653,7 +674,7 @@ export function ExperienceScene() {
         beamDir.divideScalar(len || 1);
         beam.quaternion.setFromUnitVectors(UP, beamDir);
       }
-      beamMat.opacity = edgeDraw * (0.78 - 0.2 * m);
+      beamMat.opacity = edgeDraw * (0.78 - 0.2 * m1) * (1 - m2 * 0.72);
 
       // Ecos do estado 02 — a rede lá no fundo do corredor
       for (let i = 0; i < echoes.length; i++) {
@@ -664,7 +685,7 @@ export function ExperienceScene() {
         echoCurrent[i].toArray(echoPositions, i * 3);
       }
       echoAttr.needsUpdate = true;
-      echoMat.opacity = m * 0.9;
+      echoMat.opacity = m1 * 0.9 * (1 - m2 * 0.55);
 
       for (let e = 0; e < TIP_ECHO_LINKS.length; e++) {
         const [a, b] = TIP_ECHO_LINKS[e];
@@ -678,12 +699,16 @@ export function ExperienceScene() {
         echoCurrent[b].toArray(echoEdgePositions, o + 3);
       }
       echoEdgeAttr.needsUpdate = true;
-      echoEdgeMat.opacity = m * 0.55;
+      echoEdgeMat.opacity = m1 * 0.55 * (1 - m2 * 0.55);
 
-      // Palavra monumental: aparece quando a câmera já está dentro
-      wordMat.opacity = smooth(clamp01((entrance - 0.68) / 0.22)) * (1 - m);
+      // Palavra monumental: aparece quando a câmera já está dentro e
+      // dissolve durante a travessia do Ato 2
+      wordMat.opacity = smooth(clamp01((entrance - 0.68) / 0.22)) * (1 - m1);
       wordPlane.position.y =
-        7.2 + Math.sin(elapsed * 0.35) * 0.06 * idle + m * 1.8;
+        7.2 + Math.sin(elapsed * 0.35) * 0.06 * idle + m1 * 1.8;
+
+      // Ato 3: a névoa engole os restos da estrutura — o espaço abre
+      fog.density = 0.034 + m2 * 0.05;
 
       // Câmera: percurso de entrada + avanço do scroll + parallax
       pointer.lerp(pointerTarget, 0.05);
@@ -694,10 +719,16 @@ export function ExperienceScene() {
       lookCurve.getPoint(e, lookPos);
       // scroll: a câmera atravessa a abóbada — as vigas dos dedos
       // passam pelas bordas do quadro enquanto o visitante avança
-      camPos.z -= m * 8.0;
-      camPos.y += m * 5.0;
-      lookPos.z -= m * 9.0;
-      lookPos.y += m * 2.2;
+      camPos.z -= m1 * 8.0;
+      camPos.y += m1 * 5.0;
+      lookPos.z -= m1 * 9.0;
+      lookPos.y += m1 * 2.2;
+      // Ato 2→3: o visitante mergulha para dentro — a estrutura expande
+      // para fora do quadro e a câmera atravessa o portal que ela abre
+      camPos.z -= m2 * 7.0;
+      camPos.y += m2 * 2.6;
+      lookPos.z -= m2 * 8.5;
+      lookPos.y += m2 * 1.4;
       // deriva suave de parallax
       camPos.x += pointer.x * 0.5;
       camPos.y += pointer.y * 0.35;

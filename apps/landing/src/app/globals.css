@@ -2426,7 +2426,7 @@ a {
 
 .xp-stage {
   position: relative;
-  height: 280vh;
+  height: 560vh;
   background: #0b1122;
 }
 
@@ -2530,7 +2530,7 @@ a {
 .xp-copy-01 {
   top: 50%;
   transform: translateY(-52%);
-  opacity: clamp(0, calc(1 - (var(--xp, 0) - 0.08) * 3.2), 1);
+  opacity: clamp(0, calc(1 - (var(--xp, 0) - 0.12) * 7), 1);
   translate: 0 calc(var(--xp, 0) * -56px);
 }
 
@@ -2540,8 +2540,11 @@ a {
 .xp-copy-02 {
   top: 50%;
   transform: translateY(-52%);
-  opacity: clamp(0, calc((var(--xp, 0) - 0.55) * 3.4), 1);
-  translate: 0 calc((1 - var(--xp, 0)) * 44px);
+  opacity: calc(
+    clamp(0, calc((var(--xp, 0) - 0.3) * 6), 1) *
+      clamp(0, calc(1 - (var(--xp, 0) - 0.52) * 7), 1)
+  );
+  translate: 0 calc((0.5 - var(--xp, 0)) * 80px);
 }
 
 .xp-eyebrow {
@@ -2700,7 +2703,7 @@ a {
 /* ---------- mobile: cena recua, texto assume o protagonismo ---------- */
 @media (max-width: 760px) {
   .xp-stage {
-    height: 240vh;
+    height: 460vh;
   }
 
   .xp-sticky::before {
@@ -2726,13 +2729,16 @@ a {
   }
 
   .xp-copy-01 {
-    opacity: clamp(0, calc(1 - (var(--xp, 0) - 0.08) * 3.2), 1);
+    opacity: clamp(0, calc(1 - (var(--xp, 0) - 0.12) * 7), 1);
     translate: 0 calc(var(--xp, 0) * -30px);
   }
 
   .xp-copy-02 {
-    opacity: clamp(0, calc((var(--xp, 0) - 0.55) * 3.4), 1);
-    translate: 0 calc((1 - var(--xp, 0)) * 30px);
+    opacity: calc(
+      clamp(0, calc((var(--xp, 0) - 0.3) * 6), 1) *
+        clamp(0, calc(1 - (var(--xp, 0) - 0.52) * 7), 1)
+    );
+    translate: 0 calc((0.5 - var(--xp, 0)) * 60px);
   }
 
   .xp-title {
@@ -2819,5 +2825,80 @@ a {
   .xp-title-01 {
     font-size: clamp(40px, 11.5vw, 54px);
     max-width: 14ch;
+  }
+}
+
+/* ---------- EXPERIENCE — Ato 3: a abertura para o produto ----------
+   A estrutura expande para fora do quadro (ver poseC na cena); aqui o
+   palco DOM: quadro do produto à direita, cópia à esquerda */
+.xp-copy-03 {
+  top: 50%;
+  bottom: auto;
+  max-width: 400px;
+  transform: translateY(-52%);
+  opacity: clamp(0, calc((var(--xp, 0) - 0.7) * 6), 1);
+  translate: 0 calc(clamp(0, calc(1 - (var(--xp, 0) - 0.7) * 6), 1) * 40px);
+}
+
+.xp-title-03 {
+  font-size: clamp(30px, 3.6vw, 46px);
+}
+
+.xp-product {
+  position: absolute;
+  top: 50%;
+  right: clamp(20px, 5vw, 64px);
+  z-index: 2;
+  width: min(48vw, 720px);
+  margin: 0;
+  transform: translateY(-50%);
+  opacity: clamp(0, calc((var(--xp, 0) - 0.72) * 6), 1);
+  scale: calc(0.94 + clamp(0, calc((var(--xp, 0) - 0.72) * 6), 1) * 0.06);
+  pointer-events: auto;
+}
+
+.xp-product-video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  border: 1px solid rgba(105, 87, 232, 0.45);
+  border-radius: 18px;
+  background: #0d1430;
+  box-shadow:
+    0 30px 90px rgba(0, 0, 0, 0.55),
+    0 0 80px rgba(105, 87, 232, 0.16);
+}
+
+@media (max-width: 760px) {
+  .xp-copy-03 {
+    top: auto;
+    right: 20px;
+    bottom: 96px;
+    left: 20px;
+    max-width: none;
+    transform: none;
+  }
+
+  .xp-title-03 {
+    font-size: clamp(26px, 7.5vw, 34px);
+  }
+
+  /* o produto fica atrás da cópia — a abertura vira o espaço superior */
+  .xp-product {
+    top: 15%;
+    right: 50%;
+    width: 86vw;
+    transform: translateX(50%);
+  }
+}
+
+@media (min-width: 761px) and (max-width: 1100px) {
+  .xp-copy-03 {
+    max-width: 340px;
+  }
+
+  .xp-product {
+    width: 52vw;
   }
 }
