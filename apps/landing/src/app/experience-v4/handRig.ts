@@ -35,6 +35,8 @@ export interface HandRig {
   setPhase: (phase: number) => void;
   setPlaying: (playing: boolean) => void;
   applyPose: () => void;
+  // `finger` is one amount for all fingers or [index, middle, ring, little].
+  setAmounts: (finger: number | readonly number[], thumb: number) => void;
 }
 
 export function createHandRig(asset: SkinnedHandAsset): HandRig {
@@ -119,6 +121,13 @@ export function createHandRig(asset: SkinnedHandAsset): HandRig {
       rig.playing = value;
     },
     applyPose,
+    setAmounts(finger: number | readonly number[], thumb: number) {
+      Object.values(FINGER_CHAINS).forEach((chain, index) => {
+        const amount = typeof finger === "number" ? finger : (finger[index] ?? 0);
+        applyChain(chain, FINGER_DELTAS, THREE.MathUtils.clamp(amount, 0, 1));
+      });
+      applyChain(THUMB_CHAIN, THUMB_DELTAS, THREE.MathUtils.clamp(thumb, 0, 1));
+    },
   };
 
   return rig;
