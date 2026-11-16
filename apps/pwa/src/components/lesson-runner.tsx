@@ -242,7 +242,7 @@ export function LessonRunner({
           >
             {block.title}
           </h2>
-          <LessonMedia block={block} />
+          <LessonMedia key={block.media.src} block={block} />
           <div>
             <button
               type="button"
