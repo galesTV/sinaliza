@@ -9,7 +9,8 @@
  * `demoLesson` is NOT Libras educational material: it is neutral content about
  * the lesson mechanics themselves, used by `/laboratorio/licao` to exercise the
  * interface end to end while real content awaits pedagogical/linguistic
- * validation.
+ * validation. Its media step uses synthetic generated fixtures under
+ * `public/media/fixtures/` — test-only assets, not sign demonstrations.
  */
 
 export interface LessonTextBlock {
@@ -37,11 +38,138 @@ export interface LessonExerciseBlock {
   exercise: LessonExercise;
 }
 
-export type LessonBlock = LessonTextBlock | LessonExerciseBlock;
+export interface LessonCaptionTrack {
+  /** URL of a WebVTT (.vtt) caption file. */
+  src: string;
+  /** BCP-47 language tag, e.g. "pt-BR". */
+  srclang: string;
+  /** Label shown in the player's caption menu, e.g. "Português". */
+  label: string;
+}
+
+export interface LessonVideoMedia {
+  type: "video";
+  src: string;
+  /** Optional still shown before playback and while metadata loads. */
+  poster?: string;
+  /** Optional WebVTT caption track. */
+  captions?: LessonCaptionTrack;
+}
+
+export interface LessonImageMedia {
+  type: "image";
+  src: string;
+  /** Alternative text describing what the image shows. */
+  alt: string;
+}
+
+export type LessonMedia = LessonVideoMedia | LessonImageMedia;
+
+/**
+ * Who made an asset and under what terms it may be used. `source` and
+ * `license` are always required — a public URL is NOT permission to reuse,
+ * so attribution/license can never be omitted silently.
+ */
+export interface LessonMediaAttribution {
+  /** Author or institution that produced the asset. */
+  source: string;
+  /** Where the asset or its rights information lives. */
+  sourceUrl?: string;
+  /** License name, e.g. "CC BY 4.0", or "Produção própria". */
+  license: string;
+  licenseUrl?: string;
+}
+
+/**
+ * A lesson step demonstrating a sign/concept through media. `title` is the
+ * accessible name (step heading + video label); `description` must stand on
+ * its own for anyone who cannot or does not play the media. Media steps
+ * advance freely — watching is never required for completion.
+ */
+export interface LessonMediaBlock {
+  kind: "media";
+  title: string;
+  description: string;
+  media: LessonMedia;
+  attribution: LessonMediaAttribution;
+}
+
+export type LessonBlock =
+  | LessonTextBlock
+  | LessonExerciseBlock
+  | LessonMediaBlock;
 
 export interface LessonContent {
   intro: string;
   blocks: LessonBlock[];
+}
+
+/**
+ * Well-formedness rules the runner relies on to stay completable and
+ * accessible. Returns a list of problems; an empty list means the content
+ * is safe to publish. Registry tests run this on every entry so malformed
+ * media/exercises cannot silently ship.
+ */
+export function validateLessonContent(content: LessonContent): string[] {
+  const problems: string[] = [];
+  if (!content.intro.trim()) problems.push("lesson: missing intro");
+  if (content.blocks.length === 0) problems.push("lesson: no blocks");
+
+  content.blocks.forEach((block, i) => {
+    const at = `block ${i} (${block.kind})`;
+    switch (block.kind) {
+      case "text":
+        if (!block.heading.trim()) problems.push(`${at}: missing heading`);
+        if (!block.body.trim()) problems.push(`${at}: missing body`);
+        break;
+      case "exercise": {
+        const { prompt, options, correctIndex, explanation } = block.exercise;
+        if (!prompt.trim()) problems.push(`${at}: missing prompt`);
+        if (options.length < 2)
+          problems.push(`${at}: fewer than 2 options`);
+        if (correctIndex < 0 || correctIndex >= options.length)
+          problems.push(`${at}: correctIndex out of bounds`);
+        if (!explanation.trim()) problems.push(`${at}: missing explanation`);
+        options.forEach((option, j) => {
+          if (!option.label.trim())
+            problems.push(`${at}: option ${j} missing label`);
+          if (!option.feedback.trim())
+            problems.push(`${at}: option ${j} missing feedback`);
+        });
+        break;
+      }
+      case "media":
+        problems.push(
+          ...validateMediaBlock(block).map((problem) => `${at}: ${problem}`),
+        );
+        break;
+    }
+  });
+
+  return problems;
+}
+
+function validateMediaBlock(block: LessonMediaBlock): string[] {
+  const problems: string[] = [];
+  if (!block.title.trim()) problems.push("missing title");
+  if (!block.description.trim()) problems.push("missing description");
+  if (!block.attribution.source.trim())
+    problems.push("missing attribution.source");
+  if (!block.attribution.license.trim())
+    problems.push("missing attribution.license");
+
+  const { media } = block;
+  if (!media.src.trim()) problems.push("missing media src");
+  if (media.type === "image" && !media.alt.trim())
+    problems.push("image: missing alt text");
+  if (media.type === "video" && media.captions) {
+    const { src, srclang, label } = media.captions;
+    if (!src.trim() || !src.endsWith(".vtt"))
+      problems.push("captions: src must be a .vtt file");
+    if (!srclang.trim()) problems.push("captions: missing srclang");
+    if (!label.trim()) problems.push("captions: missing label");
+  }
+  return problems;
 }
 
 /**
@@ -105,6 +233,26 @@ export const demoLesson: LessonContent = {
         correctIndex: 1,
         explanation:
           "Respostas erradas são parte do aprendizado: o retorno explica o erro e libera uma nova tentativa, sem penalidade.",
+      },
+    },
+    {
+      kind: "media",
+      title: "Demonstração visual (ativo sintético de teste)",
+      description:
+        "Este passo mostra como uma demonstração em vídeo aparece dentro de uma lição: o player tem controles nativos, legendas opcionais e nunca inicia sozinho. O arquivo é um padrão sintético gerado para testar a interface — não é uma demonstração de sinal.",
+      media: {
+        type: "video",
+        src: "/media/fixtures/demo-pulse.mp4",
+        poster: "/media/fixtures/demo-poster.png",
+        captions: {
+          src: "/media/fixtures/demo-captions.vtt",
+          srclang: "pt-BR",
+          label: "Português",
+        },
+      },
+      attribution: {
+        source: "Sinaliza — ativo sintético gerado para testes",
+        license: "Uso interno em testes de interface",
       },
     },
     {
