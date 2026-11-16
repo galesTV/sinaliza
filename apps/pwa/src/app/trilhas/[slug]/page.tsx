@@ -8,6 +8,7 @@ import { ConstellationFigure } from "@/components/constellation";
 import { Eyebrow } from "@/components/eyebrow";
 import { HonestNote } from "@/components/honest-note";
 import { ModuleCard } from "@/components/module-card";
+import { PathProgressLine } from "@/components/path-progress-line";
 import {
   getLearningPath,
   getLearningPaths,
@@ -77,6 +78,7 @@ async function PathContent({ params }: PathPageProps) {
           <Badge tone="accent">Aberta</Badge>
           <Badge>{stats.moduleCount} módulos</Badge>
           <Badge>{stats.lessonCount} lições</Badge>
+          <PathProgressLine pathSlug={path.slug} />
         </div>
       </header>
 
