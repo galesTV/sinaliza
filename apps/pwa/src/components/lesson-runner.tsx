@@ -14,6 +14,7 @@ import {
   IconRefresh,
   IconX,
 } from "./icons";
+import { LessonMedia } from "./lesson-media";
 import { markLessonCompleted } from "./use-progress";
 
 const OPTION_BUTTON_BASE =
@@ -215,6 +216,33 @@ export function LessonRunner({
               {block.body}
             </p>
           </div>
+          <div>
+            <button
+              type="button"
+              onClick={runner.advance}
+              className="btn-primary"
+            >
+              {stepIndex === stepCount - 1 ? "Finalizar lição" : "Continuar"}
+              <IconArrowRight className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {block?.kind === "media" && (
+        <div className="flex flex-col gap-4">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">
+            Demonstração
+          </p>
+          <h2
+            ref={headingRef}
+            tabIndex={-1}
+            id="lesson-runner-title"
+            className="font-display text-xl font-semibold tracking-tight text-foreground focus-visible:outline-none"
+          >
+            {block.title}
+          </h2>
+          <LessonMedia block={block} />
           <div>
             <button
               type="button"

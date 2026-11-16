@@ -161,6 +161,46 @@ describe("createLessonRunner", () => {
     expect(snap.block?.kind).toBe("text");
   });
 
+  it("advances past media steps freely and never counts them as exercises", () => {
+    const runner = createLessonRunner({
+      intro: "intro",
+      blocks: [
+        {
+          kind: "media",
+          title: "Demo",
+          description: "desc",
+          media: { type: "video", src: "/media/x.mp4" },
+          attribution: { source: "s", license: "l" },
+        },
+        {
+          kind: "exercise",
+          exercise: {
+            prompt: "Pergunta",
+            options: [
+              { label: "A", feedback: "f" },
+              { label: "B", feedback: "f" },
+            ],
+            correctIndex: 1,
+            explanation: "e",
+          },
+        },
+      ],
+    });
+
+    const snap = runner.getSnapshot();
+    expect(snap.stepCount).toBe(2);
+    expect(snap.totalExercises).toBe(1);
+    expect(snap.block?.kind).toBe("media");
+
+    // Media never gates progress: advancing does not require watching.
+    runner.advance();
+    expect(runner.getSnapshot().block?.kind).toBe("exercise");
+
+    runner.select(1);
+    runner.advance();
+    expect(runner.complete()).toBe(true);
+  });
+
   it("notifies subscribers on every transition", () => {
     const runner = createLessonRunner(makeContent());
     const listener = vi.fn();

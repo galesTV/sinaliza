@@ -7,51 +7,40 @@ import {
   demoLesson,
   getLessonContent,
   lessonContents,
+  validateLessonContent,
   type LessonContent,
+  type LessonMediaBlock,
 } from "./lesson-content";
 
 /**
- * Well-formedness rules the runner relies on to be completable: every
- * exercise needs at least two options, an in-bounds `correctIndex` and
- * populated feedback/explanation, and text blocks need real copy. A
- * malformed entry would silently make a lesson impossible to finish.
+ * Synthetic fixture — clearly labeled test data, NOT Libras material — used
+ * to exercise the media block shape without touching the real catalog.
  */
-function expectValidLessonContent(
-  content: LessonContent,
-  label: string,
-): void {
-  expect(content.intro.trim().length, `${label}: intro`).toBeGreaterThan(0);
-  expect(content.blocks.length, `${label}: blocks`).toBeGreaterThan(0);
+function makeMediaBlock(overrides: Partial<LessonMediaBlock> = {}): LessonMediaBlock {
+  return {
+    kind: "media",
+    title: "Demonstração sintética",
+    description: "Descrição de teste independente do vídeo.",
+    media: {
+      type: "video",
+      src: "/media/fixtures/demo-pulse.mp4",
+      poster: "/media/fixtures/demo-poster.png",
+      captions: {
+        src: "/media/fixtures/demo-captions.vtt",
+        srclang: "pt-BR",
+        label: "Português",
+      },
+    },
+    attribution: {
+      source: "Sinaliza — ativo sintético",
+      license: "Uso interno em testes",
+    },
+    ...overrides,
+  };
+}
 
-  for (const block of content.blocks) {
-    if (block.kind === "text") {
-      expect(block.heading.trim().length, `${label}: heading`).toBeGreaterThan(
-        0,
-      );
-      expect(block.body.trim().length, `${label}: body`).toBeGreaterThan(0);
-      continue;
-    }
-
-    const { prompt, options, correctIndex, explanation } = block.exercise;
-    expect(prompt.trim().length, `${label}: prompt`).toBeGreaterThan(0);
-    expect(options.length, `${label}: options`).toBeGreaterThanOrEqual(2);
-    expect(correctIndex, `${label}: correctIndex`).toBeGreaterThanOrEqual(0);
-    expect(correctIndex, `${label}: correctIndex`).toBeLessThan(
-      options.length,
-    );
-    expect(explanation.trim().length, `${label}: explanation`).toBeGreaterThan(
-      0,
-    );
-    for (const option of options) {
-      expect(option.label.trim().length, `${label}: option`).toBeGreaterThan(
-        0,
-      );
-      expect(
-        option.feedback.trim().length,
-        `${label}: option feedback`,
-      ).toBeGreaterThan(0);
-    }
-  }
+function validContent(blocks: LessonContent["blocks"]): LessonContent {
+  return { intro: "intro", blocks };
 }
 
 describe("lessonContents registry", () => {
@@ -75,7 +64,7 @@ describe("lessonContents registry", () => {
 
   it("contains only well-formed, completable lesson content", () => {
     for (const [key, content] of Object.entries(lessonContents)) {
-      expectValidLessonContent(content, key);
+      expect(validateLessonContent(content), key).toEqual([]);
     }
   });
 });
@@ -111,10 +100,99 @@ describe("getLessonContent", () => {
 describe("demoLesson", () => {
   it("exercises every block kind the runner supports", () => {
     const kinds = new Set(demoLesson.blocks.map((block) => block.kind));
-    expect(kinds).toEqual(new Set(["text", "exercise"]));
+    expect(kinds).toEqual(new Set(["text", "exercise", "media"]));
   });
 
-  it("keeps every exercise answer inside its own option list", () => {
-    expectValidLessonContent(demoLesson, "demoLesson");
+  it("is well-formed and completable", () => {
+    expect(validateLessonContent(demoLesson)).toEqual([]);
+  });
+});
+
+describe("validateLessonContent", () => {
+  it("accepts a well-formed video media block", () => {
+    expect(validateLessonContent(validContent([makeMediaBlock()]))).toEqual(
+      [],
+    );
+  });
+
+  it("accepts a well-formed image media block", () => {
+    expect(
+      validateLessonContent(
+        validContent([
+          makeMediaBlock({
+            media: {
+              type: "image",
+              src: "/media/fixtures/demo-diagram.png",
+              alt: "Diagrama sintético de teste",
+            },
+          }),
+        ]),
+      ),
+    ).toEqual([]);
+  });
+
+  it("accepts a video without optional poster and captions", () => {
+    const block = makeMediaBlock();
+    block.media = { type: "video", src: "/media/x.mp4" };
+    expect(validateLessonContent(validContent([block]))).toEqual([]);
+  });
+
+  it("rejects media without source or license", () => {
+    const problems = validateLessonContent(
+      validContent([
+        makeMediaBlock({
+          attribution: { source: " ", license: "" },
+        }),
+      ]),
+    );
+    expect(problems.join()).toContain("attribution.source");
+    expect(problems.join()).toContain("attribution.license");
+  });
+
+  it("rejects media without title or standalone description", () => {
+    const problems = validateLessonContent(
+      validContent([makeMediaBlock({ title: "", description: " " })]),
+    );
+    expect(problems.join()).toContain("missing title");
+    expect(problems.join()).toContain("missing description");
+  });
+
+  it("rejects an image without alt text", () => {
+    const problems = validateLessonContent(
+      validContent([
+        makeMediaBlock({
+          media: { type: "image", src: "/media/x.png", alt: " " },
+        }),
+      ]),
+    );
+    expect(problems.join()).toContain("missing alt text");
+  });
+
+  it("rejects malformed caption tracks", () => {
+    const block = makeMediaBlock();
+    if (block.media.type !== "video") throw new Error("fixture");
+    block.media.captions = { src: "legendas.txt", srclang: "", label: " " };
+    const problems = validateLessonContent(validContent([block]));
+    expect(problems.join()).toContain("captions");
+    expect(problems.join()).toContain("srclang");
+  });
+
+  it("still flags malformed exercises and empty lessons", () => {
+    const problems = validateLessonContent(
+      validContent([
+        {
+          kind: "exercise",
+          exercise: {
+            prompt: "p",
+            options: [{ label: "a", feedback: "f" }],
+            correctIndex: 5,
+            explanation: "e",
+          },
+        },
+      ]),
+    );
+    expect(problems.join()).toContain("fewer than 2 options");
+    expect(problems.join()).toContain("correctIndex out of bounds");
+    expect(validateLessonContent({ intro: "", blocks: [] })).not.toEqual([]);
   });
 });
