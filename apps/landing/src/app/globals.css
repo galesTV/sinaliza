@@ -2426,7 +2426,7 @@ a {
 
 .xp-stage {
   position: relative;
-  height: 560vh;
+  height: 640vh;
   background: #0b1122;
 }
 
@@ -2703,7 +2703,7 @@ a {
 /* ---------- mobile: cena recua, texto assume o protagonismo ---------- */
 @media (max-width: 760px) {
   .xp-stage {
-    height: 460vh;
+    height: 520vh;
   }
 
   .xp-sticky::before {
@@ -2836,7 +2836,10 @@ a {
   bottom: auto;
   max-width: 400px;
   transform: translateY(-52%);
-  opacity: clamp(0, calc((var(--xp, 0) - 0.7) * 6), 1);
+  opacity: calc(
+    clamp(0, calc((var(--xp, 0) - 0.7) * 6), 1) *
+      clamp(0, calc(1 - (var(--xp, 0) - 0.82) * 10), 1)
+  );
   translate: 0 calc(clamp(0, calc(1 - (var(--xp, 0) - 0.7) * 6), 1) * 40px);
 }
 
@@ -2875,7 +2878,10 @@ a {
 .xp-product-main {
   width: 82%;
   margin-left: auto;
-  opacity: clamp(0, calc((var(--xp, 0) - 0.7) * 6), 1);
+  opacity: calc(
+    clamp(0, calc((var(--xp, 0) - 0.7) * 6), 1) *
+      clamp(0, calc(1 - (var(--xp, 0) - 0.82) * 10), 1)
+  );
   translate: 0 calc(clamp(0, calc(1 - (var(--xp, 0) - 0.7) * 6), 1) * 34px);
 }
 
@@ -2884,7 +2890,10 @@ a {
   bottom: -14%;
   left: -6%;
   width: 44%;
-  opacity: clamp(0, calc((var(--xp, 0) - 0.76) * 6), 1);
+  opacity: calc(
+    clamp(0, calc((var(--xp, 0) - 0.76) * 6), 1) *
+      clamp(0, calc(1 - (var(--xp, 0) - 0.82) * 10), 1)
+  );
   translate: 0 calc(clamp(0, calc(1 - (var(--xp, 0) - 0.76) * 6), 1) * 26px);
 }
 
@@ -2893,7 +2902,10 @@ a {
   top: -9%;
   left: 8%;
   width: 38%;
-  opacity: clamp(0, calc((var(--xp, 0) - 0.8) * 6), 1);
+  opacity: calc(
+    clamp(0, calc((var(--xp, 0) - 0.8) * 6), 1) *
+      clamp(0, calc(1 - (var(--xp, 0) - 0.82) * 10), 1)
+  );
   translate: 0 calc(clamp(0, calc(1 - (var(--xp, 0) - 0.8) * 6), 1) * 20px);
 }
 
@@ -2937,7 +2949,10 @@ a {
   font-size: 11px;
   letter-spacing: 0.02em;
   line-height: 1.65;
-  opacity: clamp(0, calc((var(--xp, 0) - 0.84) * 6), 1);
+  opacity: calc(
+    clamp(0, calc((var(--xp, 0) - 0.84) * 6), 1) *
+      clamp(0, calc(1 - (var(--xp, 0) - 0.82) * 10), 1)
+  );
 }
 
 @media (max-width: 760px) {
@@ -2993,5 +3008,123 @@ a {
 
   .xp-product {
     width: 52vw;
+  }
+}
+
+/* ---------- EXPERIENCE — Ato 4: o laboratório ----------
+   O esqueleto de 21 landmarks se recompõe na cena (poseD); aqui o vídeo
+   real do PoC como evidência central com etiquetas de anotação */
+.xp-copy-04 {
+  top: 50%;
+  bottom: auto;
+  max-width: 420px;
+  transform: translateY(-52%);
+  opacity: clamp(0, calc((var(--xp, 0) - 0.9) * 10), 1);
+  translate: 0 calc(clamp(0, calc(1 - (var(--xp, 0) - 0.82) * 10), 1) * 34px);
+}
+
+.xp-title-04 {
+  font-size: clamp(30px, 3.8vw, 48px);
+}
+
+.xp-lab {
+  position: absolute;
+  top: 50%;
+  right: clamp(16px, 3.5vw, 56px);
+  z-index: 2;
+  width: min(48vw, 680px);
+  margin: 0;
+  transform: translateY(-50%);
+  opacity: clamp(0, calc((var(--xp, 0) - 0.9) * 10), 1);
+  scale: calc(0.95 + clamp(0, calc((var(--xp, 0) - 0.9) * 10), 1) * 0.05);
+  pointer-events: auto;
+}
+
+.xp-lab-frame {
+  position: relative;
+}
+
+.xp-lab-video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border: 1px solid rgba(240, 168, 72, 0.35);
+  border-radius: 14px;
+  background: #0d1430;
+  box-shadow:
+    0 30px 90px rgba(0, 0, 0, 0.55),
+    0 0 80px rgba(240, 168, 72, 0.1);
+}
+
+/* anotações do laboratório — etiquetas fora do quadro, não sobre ele */
+.xp-lab-tag-1 {
+  top: -14px;
+  right: 18px;
+  bottom: auto;
+  left: auto;
+}
+
+.xp-lab-tag-2 {
+  top: 38%;
+  right: auto;
+  bottom: auto;
+  left: -18px;
+}
+
+.xp-lab-tag-3 {
+  right: auto;
+  bottom: -14px;
+  left: 18px;
+}
+
+.xp-lab-caption {
+  position: static;
+  margin-top: 14px;
+  text-align: right;
+}
+
+@media (max-width: 760px) {
+  .xp-copy-04 {
+    top: auto;
+    right: 20px;
+    bottom: 96px;
+    left: 20px;
+    max-width: none;
+    transform: none;
+  }
+
+  .xp-title-04 {
+    font-size: clamp(26px, 7.5vw, 34px);
+  }
+
+  /* laboratório mobile: vídeo no topo, cópia no rodapé */
+  .xp-lab {
+    top: 11%;
+    right: 50%;
+    width: 88vw;
+    transform: translateX(50%);
+  }
+
+  .xp-lab-tag-2 {
+    left: 6px;
+  }
+}
+
+@media (min-width: 761px) and (max-width: 1100px) {
+  .xp-copy-04 {
+    max-width: 300px;
+  }
+
+  .xp-title-04 {
+    font-size: clamp(26px, 3.4vw, 38px);
+  }
+
+  .xp-lab {
+    width: 46vw;
+  }
+
+  .xp-lab-tag-2 {
+    left: 4px;
   }
 }

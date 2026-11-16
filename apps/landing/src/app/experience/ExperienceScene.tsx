@@ -271,6 +271,15 @@ export function ExperienceScene() {
       return out;
     });
 
+    // Estado 04 — o laboratório: a mesma topologia se recompõe em escala
+    // menor, o "esqueleto de rastreamento" que anota o PoC real
+    const poseD = poseA.map((v) => {
+      const out = v.clone().multiplyScalar(0.3);
+      out.x -= 0.7;
+      out.y += 0.2;
+      return out;
+    });
+
     // Fragmentos de partida — convergem enquanto a câmera se aproxima
     const scatter = poseA.map((_, i) => {
       const a = i * 2.39996; // ângulo áureo — dispersão estável entre renders
@@ -618,6 +627,9 @@ export function ExperienceScene() {
       // m2 = abertura Ato 2→3 (xp 0.6→0.9)
       const m1 = smooth(clamp01(m / 0.55));
       const m2 = smooth(clamp01((m - 0.6) / 0.3));
+      // m3 = recomposição Ato 3→4 (xp 0.86→1): a malha volta como
+      // esqueleto de laboratório enquanto o produto cede o palco
+      const m3 = smooth(clamp01((m - 0.86) / 0.14));
       const idle = prefersReducedMotion ? 0 : 1;
 
       // Nós: scatter → poseA (entrada) → poseB (scroll)
@@ -632,6 +644,9 @@ export function ExperienceScene() {
         if (m2 > 0) {
           nodes[i].lerp(poseC[i], m2);
         }
+        if (m3 > 0) {
+          nodes[i].lerp(poseD[i], m3);
+        }
 
         if (!prefersReducedMotion && entrance >= 1) {
           nodes[i].x += Math.sin(elapsed * 0.7 + i * 1.7) * 0.014;
@@ -641,11 +656,11 @@ export function ExperienceScene() {
         nodes[i].toArray(nodePositions, i * 3);
       }
       nodeAttr.needsUpdate = true;
-      nodeMat.opacity = 0.95 * (1 - m2 * 0.6);
+      nodeMat.opacity = 0.95 * (1 - m2 * 0.6) + m3 * 0.35;
 
       tipMeshes.forEach(({ mesh, index }) => {
         mesh.position.copy(nodes[index]);
-        mesh.visible = m2 < 0.7;
+        mesh.visible = m2 < 0.7 || m3 > 0.3;
       });
 
       // Anel âmbar: pulso único no topo do dossel ao convergir
@@ -674,7 +689,9 @@ export function ExperienceScene() {
         beamDir.divideScalar(len || 1);
         beam.quaternion.setFromUnitVectors(UP, beamDir);
       }
-      beamMat.opacity = edgeDraw * (0.78 - 0.2 * m1) * (1 - m2 * 0.72);
+      beamMat.opacity =
+        edgeDraw * (0.78 - 0.2 * m1) * (1 - m2 * 0.72) +
+        edgeDraw * m3 * 0.42;
 
       // Ecos do estado 02 — a rede lá no fundo do corredor
       for (let i = 0; i < echoes.length; i++) {
@@ -685,7 +702,7 @@ export function ExperienceScene() {
         echoCurrent[i].toArray(echoPositions, i * 3);
       }
       echoAttr.needsUpdate = true;
-      echoMat.opacity = m1 * 0.9 * (1 - m2 * 0.55);
+      echoMat.opacity = m1 * 0.9 * (1 - m2 * 0.55) + m3 * 0.55;
 
       for (let e = 0; e < TIP_ECHO_LINKS.length; e++) {
         const [a, b] = TIP_ECHO_LINKS[e];
@@ -699,7 +716,7 @@ export function ExperienceScene() {
         echoCurrent[b].toArray(echoEdgePositions, o + 3);
       }
       echoEdgeAttr.needsUpdate = true;
-      echoEdgeMat.opacity = m1 * 0.55 * (1 - m2 * 0.55);
+      echoEdgeMat.opacity = m1 * 0.55 * (1 - m2 * 0.55) + m3 * 0.25;
 
       // Palavra monumental: aparece quando a câmera já está dentro e
       // dissolve durante a travessia do Ato 2
@@ -707,8 +724,9 @@ export function ExperienceScene() {
       wordPlane.position.y =
         7.2 + Math.sin(elapsed * 0.35) * 0.06 * idle + m1 * 1.8;
 
-      // Ato 3: a névoa engole os restos da estrutura — o espaço abre
-      fog.density = 0.034 + m2 * 0.05;
+      // Ato 3: a névoa engole os restos da estrutura — o espaço abre;
+      // Ato 4: ela recua um pouco para revelar o esqueleto do laboratório
+      fog.density = 0.034 + m2 * 0.05 - m3 * 0.028;
 
       // Câmera: percurso de entrada + avanço do scroll + parallax
       pointer.lerp(pointerTarget, 0.05);
@@ -729,6 +747,14 @@ export function ExperienceScene() {
       camPos.y += m2 * 2.6;
       lookPos.z -= m2 * 8.5;
       lookPos.y += m2 * 1.4;
+      // Ato 3→4: leve recuo — quem se move é o grupo (abaixo),
+      // que desliza de volta para o corredor de visão como esqueleto
+      // de laboratório flutuando à esquerda do quadro do PoC
+      camPos.z += m3 * 2.0;
+      lookPos.x -= m3 * 2.0;
+      group.position.x = 0 - m3 * 3.6;
+      group.position.y = 2.4 + m3 * 3.0;
+      group.position.z = -2.2 - m3 * 14.0;
       // deriva suave de parallax
       camPos.x += pointer.x * 0.5;
       camPos.y += pointer.y * 0.35;

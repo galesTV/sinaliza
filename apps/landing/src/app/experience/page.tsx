@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { ExperienceSceneLoader } from "./ExperienceSceneLoader";
+import { ProductMedia } from "./ProductMedia";
 
 export const metadata: Metadata = {
   title: "Experiência Sinaliza — O gesto",
@@ -71,12 +72,12 @@ export default function ExperiencePrototype() {
                 <span className="xp-state-index">03</span>O aprendizado
               </p>
               <h2 className="xp-title xp-title-03">
-                O aprendizado acontece na{" "}
-                <span className="gradient-text">prática.</span>
+                Aprender Libras é uma{" "}
+                <span className="gradient-text">jornada.</span>
               </h2>
               <p className="xp-lead">
-                O Sinaliza acompanha a mão real, no espaço real — tecnologia a
-                serviço da língua de sinais.
+                Explore trilhas organizadas em módulos curtos, no seu próprio
+                ritmo. O conteúdo de cada lição está em preparação.
               </p>
               <p className="xp-caption">
                 Interface real do PWA do Sinaliza — plataforma de
@@ -120,6 +121,44 @@ export default function ExperiencePrototype() {
               <figcaption className="xp-product-caption">
                 Capturas reais do PWA em produção local — rotas /, /trilhas
                 e /trilhas/alfabeto.
+              </figcaption>
+            </figure>
+
+            <section className="xp-copy-block xp-copy-04">
+              <p className="xp-eyebrow">
+                <span className="xp-state-index">04</span>A prática
+              </p>
+              <h2 className="xp-title xp-title-04">
+                O gesto,{" "}
+                <span className="gradient-text">observado em tempo real.</span>
+              </h2>
+              <p className="xp-lead">
+                Um protótipo experimental em Python rastreia 21 pontos da mão
+                por segundo e classifica configurações estáticas treinadas —
+                instrumento de pesquisa, separado do PWA.
+              </p>
+              <p className="xp-caption">
+                Não reconhece Libras, não traduz sinais, não avalia fluência —
+                registro real do laboratório de visão computacional.
+              </p>
+            </section>
+
+            <figure className="xp-lab">
+              <div className="xp-lab-frame">
+                <ProductMedia />
+                <span className="xp-product-tag xp-lab-tag-1">
+                  <i>01</i>21 landmarks por mão
+                </span>
+                <span className="xp-product-tag xp-lab-tag-2">
+                  <i>02</i>Classificação por amostras
+                </span>
+                <span className="xp-product-tag xp-lab-tag-3">
+                  <i>03</i>Experimental — fora do PWA
+                </span>
+              </div>
+              <figcaption className="xp-product-caption xp-lab-caption">
+                Protótipo independente de visão computacional — Python,
+                OpenCV e MediaPipe.
               </figcaption>
             </figure>
           </main>
