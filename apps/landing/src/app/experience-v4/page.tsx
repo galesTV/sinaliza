@@ -7,7 +7,7 @@ export const instant = false;
 export const metadata: Metadata = {
   title: "Sinaliza — V4 art direction study",
   description:
-    "Estudo isolado de direção de arte para a experiência Sinaliza: dois conceitos de escultura do sinal, sem alterar a experiência atual.",
+    "Estudo isolado de direção de arte para a experiência Sinaliza: três tratamentos de uma mão low-poly em Phase B e conceitos Phase A preservados, sem alterar a experiência atual.",
 };
 
 type SearchParams = Record<string, string | string[] | undefined>;

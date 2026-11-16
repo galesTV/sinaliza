@@ -6,7 +6,12 @@ import {
   LANDMARK_TIPS,
 } from "./landmarks";
 
-export type ConceptId = "a" | "b";
+export type ConceptId =
+  | "a"
+  | "b"
+  | "hand-wireframe"
+  | "hand-anatomy"
+  | "hand-constellation";
 
 export interface BuiltConcept {
   group: THREE.Group;
