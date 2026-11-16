@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { ExperienceSceneLoader } from "./ExperienceSceneLoader";
-import { ProductMedia } from "./ProductMedia";
 
 export const metadata: Metadata = {
   title: "Experiência Sinaliza — O gesto",
@@ -79,11 +79,48 @@ export default function ExperiencePrototype() {
                 serviço da língua de sinais.
               </p>
               <p className="xp-caption">
-                Registro real do protótipo do produto — PWA do Sinaliza.
+                Interface real do PWA do Sinaliza — plataforma de
+                aprendizado de Libras, não um tradutor de sinais.
               </p>
             </section>
             <figure className="xp-product">
-              <ProductMedia />
+              <div className="xp-product-frame xp-product-main">
+                <Image
+                  src="/experience/pwa-home.webp"
+                  alt="Tela inicial do PWA Sinaliza: jornada em Libras com trilhas de aprendizagem"
+                  width={1280}
+                  height={800}
+                />
+                <span className="xp-product-tag">
+                  <i>01</i>Início — sua jornada
+                </span>
+              </div>
+              <div className="xp-product-frame xp-product-a">
+                <Image
+                  src="/experience/pwa-trilhas.webp"
+                  alt="Trilhas de aprendizagem do Sinaliza: alfabeto manual e vocabulário básico"
+                  width={1280}
+                  height={800}
+                />
+                <span className="xp-product-tag">
+                  <i>02</i>Trilhas de aprendizagem
+                </span>
+              </div>
+              <div className="xp-product-frame xp-product-b">
+                <Image
+                  src="/experience/pwa-alfabeto.webp"
+                  alt="Trilha Alfabeto manual: módulos com as 26 configurações de mão"
+                  width={1280}
+                  height={800}
+                />
+                <span className="xp-product-tag">
+                  <i>03</i>Alfabeto manual
+                </span>
+              </div>
+              <figcaption className="xp-product-caption">
+                Capturas reais do PWA em produção local — rotas /, /trilhas
+                e /trilhas/alfabeto.
+              </figcaption>
             </figure>
           </main>
 
