@@ -2471,16 +2471,17 @@ a {
   opacity: 0.85;
 }
 
-/* scrim editorial — mantém o texto legível sem apagar a cena */
+/* scrim editorial — prato de leitura no rodapé; o dossel fica limpo */
 .xp-sticky::before {
   position: absolute;
   inset: 0;
   z-index: 1;
   background: linear-gradient(
-    100deg,
-    rgba(11, 17, 34, 0.88) 0%,
-    rgba(11, 17, 34, 0.55) 38%,
-    transparent 64%
+    180deg,
+    rgba(11, 17, 34, 0.4) 0%,
+    rgba(11, 17, 34, 0.02) 30%,
+    rgba(11, 17, 34, 0.12) 62%,
+    rgba(11, 17, 34, 0.9) 94%
   );
   content: "";
   pointer-events: none;
@@ -2533,41 +2534,8 @@ a {
   translate: 0 calc(var(--xp, 0) * -56px);
 }
 
-/* fio de sinal: liga a tipografia à cena — nasce quando a marca é revelada */
-.xp-copy-01::after {
-  position: absolute;
-  top: 42%;
-  right: -96px;
-  width: 88px;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    rgba(53, 201, 232, 0.55),
-    rgba(53, 201, 232, 0)
-  );
-  content: "";
-  opacity: clamp(0, calc(1 - var(--xp, 0) * 4), 1);
-}
-
-@media (min-width: 900px) and (prefers-reduced-motion: no-preference) {
-  .xp-copy-01::after {
-    transform: scaleX(0);
-    transform-origin: left;
-    animation: xp-signal 1s cubic-bezier(0.22, 1, 0.36, 1) 2.75s forwards;
-  }
-
-  @keyframes xp-signal {
-    to {
-      transform: scaleX(1);
-    }
-  }
-}
-
-@media (max-width: 899px) {
-  .xp-copy-01::after {
-    display: none;
-  }
-}
+/* O fio de sinal do V2 saiu: dentro do espaço, a ponte texto↔cena é a
+   palavra monumental renderizada na própria cena (ver ExperienceScene). */
 
 .xp-copy-02 {
   top: 50%;
@@ -2791,14 +2759,15 @@ a {
   }
 }
 
-/* ---------- tablet: cena recua para preservar a zona de leitura ---------- */
+/* ---------- tablet: scrim inferior reforçado na zona de leitura ---------- */
 @media (min-width: 761px) and (max-width: 1100px) {
   .xp-sticky::before {
     background: linear-gradient(
-      100deg,
-      rgba(11, 17, 34, 0.9) 0%,
-      rgba(11, 17, 34, 0.62) 46%,
-      rgba(11, 17, 34, 0.15) 72%
+      180deg,
+      rgba(11, 17, 34, 0.42) 0%,
+      rgba(11, 17, 34, 0.08) 32%,
+      rgba(11, 17, 34, 0.2) 60%,
+      rgba(11, 17, 34, 0.92) 92%
     );
   }
 
@@ -2809,10 +2778,10 @@ a {
 
 /* ---------- EXPERIENCE — Ato 1 (direção híbrida) ---------- */
 .xp-title-01 {
-  font-size: clamp(46px, 7.4vw, 112px);
-  line-height: 1.0;
+  font-size: clamp(42px, 5.8vw, 80px);
+  line-height: 1.02;
   letter-spacing: -0.06em;
-  max-width: 12ch;
+  max-width: 14ch;
   text-shadow: 0 2px 40px rgba(11, 17, 34, 0.9);
 }
 
@@ -2820,10 +2789,19 @@ a {
   color: var(--highlight, #f0a848);
 }
 
-/* a cópia do ato 1 senta mais abaixo — o título invade o espaço da cena */
+/* a cópia do ato 1 vira prato de leitura no rodapé — o espaço fica livre
+   para a palavra monumental dentro da cena */
 .xp-copy-01 {
-  top: 54%;
-  max-width: 720px;
+  top: auto;
+  bottom: 9vh;
+  max-width: 640px;
+  transform: none;
+}
+
+.xp-copy-02 {
+  top: auto;
+  bottom: 10vh;
+  transform: none;
 }
 
 @media (max-width: 760px) {
@@ -2831,6 +2809,11 @@ a {
     top: auto;
     bottom: 92px;
     max-width: none;
+  }
+
+  .xp-copy-02 {
+    top: auto;
+    bottom: 96px;
   }
 
   .xp-title-01 {

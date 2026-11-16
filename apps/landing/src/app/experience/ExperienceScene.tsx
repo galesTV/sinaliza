@@ -4,15 +4,20 @@ import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 
 /**
- * Cena 3D do protótipo de experiência do hero.
+ * Cena 3D do Ato 1 — "Dentro do Gesto".
  *
- * Estrutura articulada abstrata inspirada na topologia de 21 landmarks do
- * MediaPipe Hands — os mesmos pontos e conexões que a captura experimental
- * desenha (referência tecnológica, NÃO um sinal de Libras).
+ * A topologia real de 21 landmarks do MediaPipe Hands (referência
+ * tecnológica, NÃO um sinal de Libras) é escalada ~4x e tombada para trás:
+ * o punho vira a entrada, a palma o dossel, os dedos uma colonnada de
+ * vigas de luz. A câmera entra no espaço em vez de observá-lo de fora.
  *
- * Narrativa em dois estados, controlada pelo scroll nativo:
- *   01 — O gesto: fragmentos convergem e formam a estrutura (entrada).
- *   02 — A conexão: a estrutura se abre em uma rede maior; eco nodes surgem.
+ * Single-canvas: a palavra monumental "GESTO" é um plano com CanvasTexture
+ * dentro da cena — alphaTest + depthWrite dão oclusão real por fragmento
+ * (as vigas passam na frente das letras, os vãos continuam transparentes).
+ * Texto essencial permanece no DOM, sempre legível.
+ *
+ * Scroll nativo: o morph avança a câmera para dentro do corredor enquanto
+ * os dedos endireitam em raios (demonstração preliminar do Ato 2).
  */
 
 // Pose de mão aberta, topologia real do MediaPipe (x → direita, y → cima)
@@ -65,7 +70,7 @@ const CONNECTIONS: [number, number][] = [
 ];
 
 const TIPS = [4, 8, 12, 16, 20];
-const AMBER_NODE = 12; // único acento quente da cena (MASTER.md §2)
+const AMBER_NODE = 12; // único acento quente — a luz que preside o dossel
 const FINGERS = [
   [1, 2, 3, 4],
   [5, 6, 7, 8],
@@ -74,7 +79,7 @@ const FINGERS = [
   [17, 18, 19, 20],
 ];
 
-// Nós "eco": a rede que a estrutura alcança no estado 02
+// Nós "eco": a rede que a estrutura alcança ao fundo do corredor (ato 2)
 const ECHO_POINTS: [number, number, number][] = [
   [-4.4, 1.6, -0.6],
   [-3.6, 3.0, -1.0],
@@ -87,7 +92,6 @@ const ECHO_POINTS: [number, number, number][] = [
   [-3.9, -1.9, -0.8],
 ];
 
-// landmark → eco mais próximo, e cadeia de ecos (índices separados)
 const TIP_ECHO_LINKS: [number, number][] = [
   [4, 0],
   [8, 1],
@@ -113,11 +117,10 @@ const COLORS = {
   amber: 0xf0a848,
   edge: 0x8f83f2,
   echoEdge: 0x35c9e8,
-  particle: 0x8174f5,
 };
 
-// O traço do símbolo Sinaliza (BRAND_PATH / TubeGeometry, commit 9a11395)
-// fica reservado para o Ato 5 — não faz parte do Ato 1.
+const WORD = "GESTO";
+const WORD_FONT = "Sora, Inter, system-ui, sans-serif";
 
 const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
 const smooth = (t: number) => t * t * (3 - 2 * t);
@@ -213,8 +216,8 @@ export function ExperienceScene() {
     container.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
-    scene.fog = new THREE.Fog(0x0b1122, 6.5, 15); // profundidade sem lights
-    const camera = new THREE.PerspectiveCamera(36, 1, 0.1, 100);
+    scene.fog = new THREE.FogExp2(0x0b1122, 0.034); // o fundo do corredor some na névoa
+    const camera = new THREE.PerspectiveCamera(64, 1, 0.1, 120);
 
     const geometries: THREE.BufferGeometry[] = [];
     const materials: THREE.Material[] = [];
@@ -228,7 +231,7 @@ export function ExperienceScene() {
     };
 
     // ---------------------------------------------------------------
-    // Geometria base
+    // Geometria base — mesma malha, agora em escala arquitetônica
     // ---------------------------------------------------------------
     const center = new THREE.Vector3();
     BASE_POINTS.forEach((p) => center.add(new THREE.Vector3(...p)));
@@ -238,8 +241,8 @@ export function ExperienceScene() {
       new THREE.Vector3(...p).sub(center).multiplyScalar(1.05),
     );
 
-    // Estado 02 — a estrutura vira "sinal": cada dedo endireita num raio
-    // que parte da palma, e a rede de ecos o recebe em arco acima.
+    // Estado 02 — os dedos endireitam em raios: o corredor que a câmera
+    // atravessa no scroll (demonstração preliminar do Ato 2)
     const poseB = poseA.map((v, i) => {
       const out = v.clone().multiplyScalar(1.3);
       out.z += (i % 3) * 0.3 - 0.45;
@@ -258,7 +261,7 @@ export function ExperienceScene() {
       }
     });
 
-    // Pontos de partida: fragmentos dispersos (determinístico por índice)
+    // Fragmentos de partida — convergem enquanto a câmera se aproxima
     const scatter = poseA.map((_, i) => {
       const a = i * 2.39996; // ângulo áureo — dispersão estável entre renders
       const r = 3.1 + ((i * 37) % 23) / 8;
@@ -281,7 +284,7 @@ export function ExperienceScene() {
     scene.add(group);
 
     // ---------------------------------------------------------------
-    // Nós — Points para a malha, esferas pequenas nas pontas (profundidade)
+    // Nós — juntas de luz na estrutura; esferas nas pontas (presença física)
     // ---------------------------------------------------------------
     const nodePositions = new Float32Array(nodeCount * 3);
     const nodeColors = new Float32Array(nodeCount * 3);
@@ -297,9 +300,26 @@ export function ExperienceScene() {
     nodeAttr.setUsage(THREE.DynamicDrawUsage);
     nodeGeo.setAttribute("position", nodeAttr);
     nodeGeo.setAttribute("color", new THREE.BufferAttribute(nodeColors, 3));
+    // sprite circular — sem ele, Points renderiza quadrados em escala
+    // monumental e quebra a ilusão de "junta de luz"
+    const dotCanvas = document.createElement("canvas");
+    dotCanvas.width = 64;
+    dotCanvas.height = 64;
+    const dotCtx = dotCanvas.getContext("2d");
+    if (dotCtx) {
+      const g = dotCtx.createRadialGradient(32, 32, 0, 32, 32, 32);
+      g.addColorStop(0, "rgba(255,255,255,1)");
+      g.addColorStop(0.55, "rgba(255,255,255,0.85)");
+      g.addColorStop(1, "rgba(255,255,255,0)");
+      dotCtx.fillStyle = g;
+      dotCtx.fillRect(0, 0, 64, 64);
+    }
+    const dotTexture = new THREE.CanvasTexture(dotCanvas);
     const nodeMat = trackMat(
       new THREE.PointsMaterial({
-        size: isCompact ? 0.085 : 0.1,
+        size: 0.34,
+        map: dotTexture,
+        alphaTest: 0.05,
         vertexColors: true,
         transparent: true,
         opacity: 0.95,
@@ -311,7 +331,7 @@ export function ExperienceScene() {
     nodePoints.frustumCulled = false;
     group.add(nodePoints);
 
-    // Pontas como esferas pequenas — presença física no meio dos pontos
+    // Pontas como juntas luminosas — os "capitéis" da colonnada
     const tipGeo = track(new THREE.IcosahedronGeometry(0.075, 1));
     const tipMeshes = TIPS.map((i) => {
       const mat = trackMat(
@@ -326,10 +346,7 @@ export function ExperienceScene() {
       return { mesh, index: i };
     });
 
-    // O traço-S da marca NÃO aparece no Ato 1 — o reveal completo fica
-    // reservado para o Ato 5 (BRAND_PATH/svgToWorld acima esperam por ele).
-
-    // Anel âmbar — pulso único quando a estrutura converge
+    // Anel âmbar — pulso único no ponto mais alto do dossel
     const ringGeo = track(new THREE.RingGeometry(0.18, 0.2, 48));
     const ringMat = trackMat(
       new THREE.MeshBasicMaterial({
@@ -344,23 +361,25 @@ export function ExperienceScene() {
     group.add(ring);
 
     // ---------------------------------------------------------------
-    // Arestas — topologia (estado 01) e rede de ecos (estado 02)
+    // Vigas — as conexões viram colunas volumétricas de luz (cilindros),
+    // não linhas de 1px: é o que faz a malha ler como arquitetura
     // ---------------------------------------------------------------
-    const edgePositions = new Float32Array(CONNECTIONS.length * 6);
-    const edgeAttr = new THREE.BufferAttribute(edgePositions, 3);
-    edgeAttr.setUsage(THREE.DynamicDrawUsage);
-    const edgeGeo = track(new THREE.BufferGeometry());
-    edgeGeo.setAttribute("position", edgeAttr);
-    const edgeMat = trackMat(
-      new THREE.LineBasicMaterial({
+    const beamGeo = track(new THREE.CylinderGeometry(0.028, 0.028, 1, 6, 1, true));
+    beamGeo.translate(0, 0.5, 0); // base em y=0 — a viga "cresce" de a→b
+    const beamMat = trackMat(
+      new THREE.MeshBasicMaterial({
         color: COLORS.edge,
         transparent: true,
         opacity: 0,
       }),
     );
-    const edges = new THREE.LineSegments(edgeGeo, edgeMat);
-    edges.frustumCulled = false;
-    group.add(edges);
+    const beams = CONNECTIONS.map(() => {
+      const mesh = new THREE.Mesh(beamGeo, beamMat);
+      group.add(mesh);
+      return mesh;
+    });
+    const UP = new THREE.Vector3(0, 1, 0);
+    const beamDir = new THREE.Vector3();
 
     const echoEdgePositions = new Float32Array(ECHO_CONNECTIONS * 6);
     const echoEdgeAttr = new THREE.BufferAttribute(echoEdgePositions, 3);
@@ -378,7 +397,6 @@ export function ExperienceScene() {
     echoEdges.frustumCulled = false;
     group.add(echoEdges);
 
-    // Pontos eco (aparecem só no estado 02)
     const echoPositions = new Float32Array(echoes.length * 3);
     const echoAttr = new THREE.BufferAttribute(echoPositions, 3);
     echoAttr.setUsage(THREE.DynamicDrawUsage);
@@ -387,7 +405,9 @@ export function ExperienceScene() {
     const echoMat = trackMat(
       new THREE.PointsMaterial({
         color: COLORS.tip,
-        size: 0.08,
+        size: 0.26,
+        map: dotTexture,
+        alphaTest: 0.05,
         transparent: true,
         opacity: 0,
         depthWrite: false,
@@ -398,34 +418,85 @@ export function ExperienceScene() {
     group.add(echoPoints);
 
     // ---------------------------------------------------------------
-    // Partículas de fundo — profundidade contida, não protagonistas
+    // Chão — um único plano de gradiente para ancorar o espaço
+    // (não é partícula decorativa: dá horizonte e recebe a luz da estrutura)
     // ---------------------------------------------------------------
-    const particlePositions = new Float32Array((isCompact ? 90 : 160) * 3);
-    for (let i = 0; i < particlePositions.length; i += 3) {
-      const a = Math.random() * Math.PI * 2;
-      const r = 3.2 + Math.random() * 4.5;
-      particlePositions[i] = Math.cos(a) * r;
-      particlePositions[i + 1] = Math.sin(a) * r * 0.7;
-      particlePositions[i + 2] = -2.5 + Math.random() * 3.5;
+    const floorCanvas = document.createElement("canvas");
+    floorCanvas.width = 512;
+    floorCanvas.height = 512;
+    const floorCtx = floorCanvas.getContext("2d");
+    if (floorCtx) {
+      const g = floorCtx.createRadialGradient(256, 256, 0, 256, 256, 256);
+      g.addColorStop(0, "rgba(105, 87, 232, 0.3)");
+      g.addColorStop(0.45, "rgba(105, 87, 232, 0.12)");
+      g.addColorStop(1, "rgba(105, 87, 232, 0)");
+      floorCtx.fillStyle = g;
+      floorCtx.fillRect(0, 0, 512, 512);
     }
-    const particleGeo = track(new THREE.BufferGeometry());
-    particleGeo.setAttribute(
-      "position",
-      new THREE.BufferAttribute(particlePositions, 3),
+    const floorTexture = new THREE.CanvasTexture(floorCanvas);
+    const floorGeo = track(new THREE.CircleGeometry(52, 48));
+    const floorMat = trackMat(
+      new THREE.MeshBasicMaterial({
+        map: floorTexture,
+        transparent: true,
+        opacity: 1,
+        depthWrite: false,
+        fog: false,
+      }),
     );
-    const particles = new THREE.Points(
-      particleGeo,
-      trackMat(
-        new THREE.PointsMaterial({
-          color: COLORS.particle,
-          size: 0.035,
-          transparent: true,
-          opacity: 0.55,
-          depthWrite: false,
-        }),
-      ),
+    const floor = new THREE.Mesh(floorGeo, floorMat);
+    floor.rotation.x = -Math.PI / 2;
+    floor.position.y = -2.6;
+    scene.add(floor);
+
+    // ---------------------------------------------------------------
+    // Palavra monumental dentro da cena — oclusão real pelas vigas
+    // alphaTest descarta os vãos (sem depth); depthWrite só nas letras
+    // ---------------------------------------------------------------
+    const wordCanvas = document.createElement("canvas");
+    wordCanvas.width = 2048;
+    wordCanvas.height = 512;
+    const wordCtx = wordCanvas.getContext("2d");
+    const wordTexture = new THREE.CanvasTexture(wordCanvas);
+    wordTexture.colorSpace = THREE.SRGBColorSpace;
+    const drawWord = () => {
+      if (!wordCtx) return;
+      wordCtx.clearRect(0, 0, 2048, 512);
+      const grad = wordCtx.createLinearGradient(0, 60, 0, 470);
+      grad.addColorStop(0, "#f4f6fc");
+      grad.addColorStop(1, "#b9aef5");
+      wordCtx.fillStyle = grad;
+      wordCtx.font = `650 300px ${WORD_FONT}`;
+      wordCtx.textAlign = "center";
+      wordCtx.textBaseline = "middle";
+      if ("letterSpacing" in wordCtx) {
+        (wordCtx as CanvasRenderingContext2D & { letterSpacing: string })
+          .letterSpacing = "-0.03em";
+      }
+      wordCtx.fillText(WORD, 1024, 268);
+      wordTexture.needsUpdate = true;
+    };
+    drawWord();
+    // redesenha quando a fonte display terminar de carregar
+    document.fonts?.ready.then(drawWord).catch(() => undefined);
+
+    const wordGeo = track(new THREE.PlaneGeometry(13, 3.25));
+    const wordMat = trackMat(
+      new THREE.MeshBasicMaterial({
+        map: wordTexture,
+        transparent: true,
+        opacity: 0,
+        depthWrite: true,
+        alphaTest: 0.02,
+        side: THREE.DoubleSide,
+        fog: false, // a palavra é um letreiro luminoso — não some na névoa
+      }),
     );
-    scene.add(particles);
+    const wordPlane = new THREE.Mesh(wordGeo, wordMat);
+    wordPlane.position.set(1.8, 9.4, -12);
+    wordPlane.rotation.y = 0.14;
+    wordPlane.rotation.x = -0.05;
+    scene.add(wordPlane);
 
     // ---------------------------------------------------------------
     // Estado da narrativa
@@ -435,7 +506,7 @@ export function ExperienceScene() {
     let isInViewport = true;
     let isPageVisible = document.visibilityState === "visible";
 
-    let entrance = prefersReducedMotion ? 1 : 0; // 0..1 (~2.6s)
+    let entrance = prefersReducedMotion ? 1 : 0; // 0..1 (~3.4s)
     let morph = 0; // 0..1 scroll-driven
     let morphTarget = 0;
 
@@ -443,7 +514,31 @@ export function ExperienceScene() {
     const pointerTarget = new THREE.Vector2();
     let elapsed = 0;
 
-    const ENTRANCE_SECONDS = 2.6;
+    const ENTRANCE_SECONDS = 3.4;
+
+    // Escala arquitetônica + tombamento quase horizontal: o punho nasce
+    // aos pés da câmera, a palma vira forro, os dedos sobem como uma
+    // abóbada de vigas sobre a cabeça do visitante
+    const ARCH_SCALE = isCompact ? 3.6 : isTablet ? 4.2 : 4.6;
+    group.scale.setScalar(ARCH_SCALE);
+    group.rotation.x = -0.62;
+    group.rotation.y = 0.1;
+    group.position.set(0, 2.4, -2.2);
+
+    // Percurso da câmera: de fora (monumento distante) para o limiar
+    // da abóbada — o punho passa sob os pés do visitante
+    const camCurve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(2.6, 0.8, 22),
+      new THREE.Vector3(1.0, -0.8, 13),
+      new THREE.Vector3(0.2, -2.0, 4.4),
+    ]);
+    const lookCurve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(0, 5.0, -14),
+      new THREE.Vector3(0.2, 5.4, -7),
+      new THREE.Vector3(0.0, 6.6, -7.0),
+    ]);
+    const camPos = new THREE.Vector3();
+    const lookPos = new THREE.Vector3();
 
     const computeMorphTarget = () => {
       if (!stage) return;
@@ -473,20 +568,18 @@ export function ExperienceScene() {
         morph = morphTarget;
       }
       const m = smooth(morph);
+      const idle = prefersReducedMotion ? 0 : 1;
 
       // Nós: scatter → poseA (entrada) → poseB (scroll)
       for (let i = 0; i < nodeCount; i++) {
         const nodeDelay = i * 0.045;
-        const p = easeOutCubic(
-          clamp01((entrance * 3.1 - nodeDelay) / 0.9),
-        );
+        const p = easeOutCubic(clamp01((entrance * 3.1 - nodeDelay) / 0.9));
         nodes[i].lerpVectors(scatter[i], poseA[i], p);
 
         if (m > 0) {
           nodes[i].lerp(poseB[i], m);
         }
 
-        // respiração sutil — desligada com reduced-motion
         if (!prefersReducedMotion && entrance >= 1) {
           nodes[i].x += Math.sin(elapsed * 0.7 + i * 1.7) * 0.014;
           nodes[i].y += Math.cos(elapsed * 0.55 + i * 1.3) * 0.014;
@@ -498,7 +591,7 @@ export function ExperienceScene() {
 
       tipMeshes.forEach(({ mesh, index }) => mesh.position.copy(nodes[index]));
 
-      // Anel âmbar: pulso único ao convergir, depois acompanha o nó 12
+      // Anel âmbar: pulso único no topo do dossel ao convergir
       const ringPhase = clamp01((entrance - 0.82) / 0.18);
       const ringExpand = easeOutCubic(ringPhase);
       ring.position.copy(nodes[AMBER_NODE]);
@@ -506,7 +599,7 @@ export function ExperienceScene() {
       ringMat.opacity = m > 0.05 ? 0 : 0.45 * (1 - ringExpand);
       ring.lookAt(camera.position);
 
-      // Arestas da topologia: desenho progressivo + acompanham os nós
+      // Vigas: crescem progressivamente (base → topo) e acompanham os nós
       const edgeDraw = prefersReducedMotion
         ? 1
         : clamp01((entrance - 0.45) / 0.5);
@@ -515,14 +608,18 @@ export function ExperienceScene() {
         const pEdge = easeOutCubic(
           clamp01(edgeDraw * 1.6 - (e / CONNECTIONS.length) * 0.6),
         );
-        tmp.lerpVectors(nodes[a], nodes[b], pEdge);
-        nodes[a].toArray(edgePositions, e * 6);
-        tmp.toArray(edgePositions, e * 6 + 3);
+        tmp.lerpVectors(nodes[a], nodes[b], Math.max(pEdge, 0.0001));
+        const beam = beams[e];
+        beam.position.copy(nodes[a]);
+        beamDir.subVectors(tmp, nodes[a]);
+        const len = beamDir.length();
+        beam.scale.y = len;
+        beamDir.divideScalar(len || 1);
+        beam.quaternion.setFromUnitVectors(UP, beamDir);
       }
-      edgeAttr.needsUpdate = true;
-      edgeMat.opacity = edgeDraw * (0.72 - 0.3 * m);
+      beamMat.opacity = edgeDraw * (0.72 - 0.22 * m);
 
-      // Ecos do estado 02
+      // Ecos do estado 02 — a rede lá no fundo do corredor
       for (let i = 0; i < echoes.length; i++) {
         echoCurrent[i].copy(echoes[i]);
         if (!prefersReducedMotion) {
@@ -547,35 +644,33 @@ export function ExperienceScene() {
       echoEdgeAttr.needsUpdate = true;
       echoEdgeMat.opacity = m * 0.55;
 
-      // Câmera e grupo
-      pointer.lerp(pointerTarget, 0.06);
-      const idle = prefersReducedMotion ? 0 : 1;
+      // Palavra monumental: aparece quando a câmera já está dentro
+      wordMat.opacity = smooth(clamp01((entrance - 0.68) / 0.22)) * (1 - m);
+      wordPlane.position.y =
+        9.4 + Math.sin(elapsed * 0.35) * 0.06 * idle + m * 1.8;
 
-      group.rotation.y =
-        -0.22 +
-        Math.sin(elapsed * 0.22) * 0.06 * idle +
-        pointer.x * 0.35 * (1 - m) +
-        m * 0.7;
-      group.rotation.x =
-        -0.08 + pointer.y * 0.18 * (1 - m) - m * 0.18;
-      group.position.x = 0.6 - m * 0.5;
-      group.position.y =
-        0.42 + m * 0.28 + Math.sin(elapsed * 0.4) * 0.05 * idle;
-      group.scale.setScalar(isCompact ? 0.5 : isTablet ? 0.58 : 0.62);
-      if (isTablet) group.position.x += 0.35;
+      // Câmera: percurso de entrada + avanço do scroll + parallax
+      pointer.lerp(pointerTarget, 0.05);
+      const e = prefersReducedMotion
+        ? 1
+        : smooth(clamp01(entrance * 1.15));
+      camCurve.getPoint(e, camPos);
+      lookCurve.getPoint(e, lookPos);
+      // scroll: a câmera atravessa a abóbada — as vigas dos dedos
+      // passam pelas bordas do quadro enquanto o visitante avança
+      camPos.z -= m * 8.0;
+      camPos.y += m * 5.0;
+      lookPos.z -= m * 9.0;
+      lookPos.y += m * 2.2;
+      // deriva suave de parallax
+      camPos.x += pointer.x * 0.5;
+      camPos.y += pointer.y * 0.35;
+      lookPos.x += pointer.x * 0.9;
+      camera.position.copy(camPos);
+      camera.lookAt(lookPos);
 
-      // dolly cinematográfico: a câmera se aproxima durante o clímax da
-      // convergência e fica mais próxima até o scroll começar
-      const dolly = smooth(clamp01((entrance - 0.8) / 0.2)) * 0.7;
-      camera.position.set(
-        0.15 + m * -0.3,
-        0.15 + m * 0.5,
-        6.6 - dolly + m * 2.5,
-      );
-      camera.lookAt(0.2, 0.3, 0);
-
-      particles.rotation.z = elapsed * 0.012 * idle;
-      particles.rotation.y = elapsed * 0.02 * idle + m * 0.3;
+      // a estrutura respira quase imperceptivelmente
+      group.rotation.z = Math.sin(elapsed * 0.16) * 0.012 * idle;
 
       writeProgressVar(morph);
       renderer.render(scene, camera);
@@ -680,6 +775,9 @@ export function ExperienceScene() {
       window.removeEventListener("scroll", onScroll);
       container.removeEventListener("pointermove", onPointerMove);
       container.removeEventListener("pointerleave", onPointerLeave);
+      wordTexture.dispose();
+      floorTexture.dispose();
+      dotTexture.dispose();
       geometries.forEach((g) => g.dispose());
       materials.forEach((m) => m.dispose());
       renderer.dispose();
