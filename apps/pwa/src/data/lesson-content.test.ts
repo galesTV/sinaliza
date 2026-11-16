@@ -7,7 +7,52 @@ import {
   demoLesson,
   getLessonContent,
   lessonContents,
+  type LessonContent,
 } from "./lesson-content";
+
+/**
+ * Well-formedness rules the runner relies on to be completable: every
+ * exercise needs at least two options, an in-bounds `correctIndex` and
+ * populated feedback/explanation, and text blocks need real copy. A
+ * malformed entry would silently make a lesson impossible to finish.
+ */
+function expectValidLessonContent(
+  content: LessonContent,
+  label: string,
+): void {
+  expect(content.intro.trim().length, `${label}: intro`).toBeGreaterThan(0);
+  expect(content.blocks.length, `${label}: blocks`).toBeGreaterThan(0);
+
+  for (const block of content.blocks) {
+    if (block.kind === "text") {
+      expect(block.heading.trim().length, `${label}: heading`).toBeGreaterThan(
+        0,
+      );
+      expect(block.body.trim().length, `${label}: body`).toBeGreaterThan(0);
+      continue;
+    }
+
+    const { prompt, options, correctIndex, explanation } = block.exercise;
+    expect(prompt.trim().length, `${label}: prompt`).toBeGreaterThan(0);
+    expect(options.length, `${label}: options`).toBeGreaterThanOrEqual(2);
+    expect(correctIndex, `${label}: correctIndex`).toBeGreaterThanOrEqual(0);
+    expect(correctIndex, `${label}: correctIndex`).toBeLessThan(
+      options.length,
+    );
+    expect(explanation.trim().length, `${label}: explanation`).toBeGreaterThan(
+      0,
+    );
+    for (const option of options) {
+      expect(option.label.trim().length, `${label}: option`).toBeGreaterThan(
+        0,
+      );
+      expect(
+        option.feedback.trim().length,
+        `${label}: option feedback`,
+      ).toBeGreaterThan(0);
+    }
+  }
+}
 
 describe("lessonContents registry", () => {
   it("only registers real lessons published as available", () => {
@@ -25,6 +70,12 @@ describe("lessonContents registry", () => {
         context!.lesson.status,
         `"${key}" has content but its lesson is not "available"`,
       ).toBe("available");
+    }
+  });
+
+  it("contains only well-formed, completable lesson content", () => {
+    for (const [key, content] of Object.entries(lessonContents)) {
+      expectValidLessonContent(content, key);
     }
   });
 });
@@ -64,14 +115,6 @@ describe("demoLesson", () => {
   });
 
   it("keeps every exercise answer inside its own option list", () => {
-    for (const block of demoLesson.blocks) {
-      if (block.kind !== "exercise") continue;
-      const { options, correctIndex } = block.exercise;
-      expect(correctIndex).toBeGreaterThanOrEqual(0);
-      expect(correctIndex).toBeLessThan(options.length);
-      for (const option of options) {
-        expect(option.feedback.length).toBeGreaterThan(0);
-      }
-    }
+    expectValidLessonContent(demoLesson, "demoLesson");
   });
 });

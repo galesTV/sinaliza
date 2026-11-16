@@ -53,7 +53,8 @@ export interface LessonContent {
  * `LessonContent` here and flip its `LessonStatus` to `"available"` in
  * `learning-paths.ts`; the lesson page then renders the runner and records
  * real completion automatically. `lesson-content.test.ts` guards that
- * entries here only point at real, available lessons.
+ * entries here only point at real, available lessons and that every
+ * exercise is well-formed enough to be completable.
  */
 export const lessonContents: Record<string, LessonContent> = {};
 
