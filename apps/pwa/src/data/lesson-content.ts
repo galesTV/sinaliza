@@ -44,6 +44,33 @@ export interface LessonContent {
   blocks: LessonBlock[];
 }
 
+/**
+ * Registry of validated lesson material, keyed by the same
+ * `trilha/modulo/licao` identifier the progress store uses.
+ *
+ * Empty today: no lesson material has passed pedagogical/linguistic
+ * validation yet. Publishing a lesson is a data change only — add its
+ * `LessonContent` here and flip its `LessonStatus` to `"available"` in
+ * `learning-paths.ts`; the lesson page then renders the runner and records
+ * real completion automatically. `lesson-content.test.ts` guards that
+ * entries here only point at real, available lessons and that every
+ * exercise is well-formed enough to be completable.
+ */
+export const lessonContents: Record<string, LessonContent> = {};
+
+/**
+ * Content seam, mirroring `getLessonContext` in `learning-paths.ts`: pages
+ * read through this getter so the local registry can later become a backend
+ * fetch without touching the UI layer.
+ */
+export function getLessonContent(
+  pathSlug: string,
+  moduleSlug: string,
+  lessonSlug: string,
+): LessonContent | undefined {
+  return lessonContents[`${pathSlug}/${moduleSlug}/${lessonSlug}`];
+}
+
 export const demoLesson: LessonContent = {
   intro:
     "Esta demonstração mostra como uma lição do Sinaliza funciona: passos de explicação, exercícios de múltipla escolha com retorno imediato e um estado de conclusão. O conteúdo fala sobre a própria interface — não é material educacional de Libras.",
