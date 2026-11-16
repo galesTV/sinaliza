@@ -3,8 +3,9 @@ import Link from "next/link";
 import { ActivitySummary } from "@/components/activity-panel";
 import { ConstellationFigure } from "@/components/constellation";
 import { Eyebrow } from "@/components/eyebrow";
-import { IconArrowRight, IconFlask } from "@/components/icons";
+import { IconFlask } from "@/components/icons";
 import { PathCard } from "@/components/path-card";
+import { ResumeCta } from "@/components/resume-cta";
 import { getLearningPaths } from "@/data/learning-paths";
 
 export default function Home() {
@@ -55,16 +56,7 @@ export default function Home() {
               </p>
             </div>
             <div className="flex shrink-0 flex-col items-stretch gap-3 sm:flex-row lg:flex-col">
-              <Link
-                href={`/trilhas/${firstPath.slug}`}
-                className="btn-primary"
-              >
-                Começar pelo alfabeto
-                <IconArrowRight className="h-4 w-4" />
-              </Link>
-              <Link href="/trilhas" className="btn-secondary">
-                Explorar trilhas
-              </Link>
+              <ResumeCta firstPathSlug={firstPath.slug} />
             </div>
           </div>
         </div>

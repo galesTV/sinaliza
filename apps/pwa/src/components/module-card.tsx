@@ -1,9 +1,9 @@
-import Link from "next/link";
-
 import { getLessonUrl, type CourseModule } from "@/data/learning-paths";
+import { lessonKey } from "@/lib/progress";
 import { cn } from "@/lib/utils";
 
 import { PlannedBadge } from "./badge";
+import { ModuleLessonChip } from "./module-lesson-chip";
 
 /**
  * One module in the path's learning trajectory: a numbered node on the
@@ -68,12 +68,12 @@ export function ModuleCard({
         >
           {module.lessons.map((lesson) => (
             <li key={lesson.slug}>
-              <Link
+              <ModuleLessonChip
                 href={getLessonUrl(pathSlug, module.slug, lesson.slug)}
-                className="inline-flex min-h-11 items-center rounded-lg border border-border bg-surface-elevated/60 px-3.5 text-xs font-medium text-muted transition-colors duration-200 hover:border-primary/45 hover:text-foreground"
-              >
-                {lesson.title}
-              </Link>
+                title={lesson.title}
+                status={lesson.status}
+                lessonKey={lessonKey(pathSlug, module.slug, lesson.slug)}
+              />
             </li>
           ))}
         </ul>
