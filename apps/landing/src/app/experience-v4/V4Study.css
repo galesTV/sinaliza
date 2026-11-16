@@ -364,3 +364,131 @@
     padding: 12px 14px;
   }
 }
+
+.v4-articulation {
+  background: #0b1020;
+}
+
+.v4-articulationCanvas {
+  z-index: 1;
+}
+
+.v4-articulationPanel {
+  position: absolute;
+  z-index: 2;
+  left: clamp(18px, 3vw, 32px);
+  right: clamp(18px, 3vw, 32px);
+  bottom: clamp(18px, 3vw, 28px);
+  display: grid;
+  gap: 14px;
+  max-width: min(560px, calc(100vw - 36px));
+  padding: 16px 18px;
+  border: 1px solid rgba(244, 241, 234, 0.12);
+  border-radius: 16px;
+  color: #f4f1ea;
+  background: rgba(11, 16, 32, 0.62);
+  backdrop-filter: blur(12px);
+}
+
+.v4-articulationHeader h1 {
+  margin: 6px 0 10px;
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(28px, 4vw, 44px);
+  line-height: 1;
+}
+
+.v4-articulationHeader .v4-lede {
+  max-width: 52ch;
+  margin: 0;
+}
+
+.v4-articulationControls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.v4-articulationButton {
+  padding: 10px 14px;
+  border: 1px solid rgba(53, 201, 232, 0.35);
+  border-radius: 999px;
+  color: #dff6ff;
+  background: rgba(53, 201, 232, 0.08);
+  font: inherit;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.v4-articulationButton:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.v4-articulationSlider {
+  flex: 1 1 220px;
+  accent-color: #35c9e8;
+}
+
+.v4-articulationPhase {
+  min-width: 92px;
+  color: #35c9e8;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.v4-articulationMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  color: #8f877b;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.v4-articulationMeta a {
+  color: #35c9e8;
+  text-decoration: none;
+}
+
+.v4-articulationMeta a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .v4-articulationPanel {
+    left: 14px;
+    right: 14px;
+    bottom: 14px;
+    padding: 14px;
+  }
+
+  .v4-articulationControls {
+    gap: 10px;
+  }
+
+  .v4-articulationSlider {
+    flex-basis: 100%;
+  }
+}
+
+.v4-articulationLink {
+  margin: 18px 0 0;
+}
+
+.v4-articulationLink a {
+  color: #35c9e8;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.v4-articulationLink a:hover {
+  text-decoration: underline;
+}

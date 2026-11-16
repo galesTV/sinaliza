@@ -166,6 +166,11 @@ function IndexView() {
             <ConceptCard key={concept} concept={concept} />
           ))}
         </section>
+        <p className="v4-articulationLink">
+          <Link href="/experience-v4/articulation">
+            Abrir prova de articulação da mão →
+          </Link>
+        </p>
       </section>
 
       <section className="v4-phaseBlock" aria-label="Phase A archive">
