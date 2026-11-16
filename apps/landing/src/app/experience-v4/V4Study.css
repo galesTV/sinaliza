@@ -4,8 +4,9 @@
   padding: clamp(28px, 5vw, 72px);
   color: #f4f1ea;
   background:
-    radial-gradient(ellipse 80% 50% at 70% 0%, rgba(240, 168, 72, 0.08), transparent 60%),
-    #0d0b09;
+    radial-gradient(ellipse 70% 45% at 72% 0%, rgba(53, 201, 232, 0.12), transparent 62%),
+    radial-gradient(ellipse 55% 40% at 18% 12%, rgba(111, 94, 232, 0.14), transparent 60%),
+    #0b1020;
   display: flex;
   flex-direction: column;
   gap: clamp(28px, 4vw, 48px);
@@ -13,6 +14,26 @@
 
 .v4-indexHeader {
   max-width: 980px;
+}
+
+.v4-phaseBlock {
+  display: grid;
+  gap: 18px;
+}
+
+.v4-phaseHeader {
+  display: grid;
+  gap: 8px;
+  max-width: 760px;
+}
+
+.v4-phaseHeader h2 {
+  margin: 0;
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(28px, 4vw, 54px);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
 }
 
 .v4-eyebrow {

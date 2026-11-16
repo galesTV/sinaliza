@@ -3,7 +3,15 @@
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
-import { buildConceptA, buildConceptB, disposeObject, type ConceptId } from "./scenes";
+import {
+  buildConceptA,
+  buildConceptB,
+  disposeObject,
+  type BuiltConcept,
+  type ConceptId,
+} from "./scenes";
+import { buildHandConcept, isHandTreatment } from "./handScene";
+import { loadHandAsset } from "./handAsset";
 
 type ViewMode = "composition" | "study";
 
@@ -14,8 +22,33 @@ interface ShotConfig {
   fov: number;
 }
 
+const HAND_SHOTS: Record<string, ShotConfig> = {
+  hero: {
+    objectPosition: [0.58, 0, 0],
+    cameraPosition: [3.7, 0.9, 7.5],
+    target: [0.16, -0.05, 0],
+    fov: 31,
+  },
+  anatomy: {
+    objectPosition: [0, 0, 0],
+    cameraPosition: [2.1, 1.75, 4.9],
+    target: [0.2, 0.62, 0.12],
+    fov: 43,
+  },
+  silhouette: {
+    objectPosition: [0, 0, 0],
+    cameraPosition: [-4.9, 0.5, 6.3],
+    target: [0, 0.15, 0],
+    fov: 34,
+  },
+};
+
 function shotConfig(concept: ConceptId, shot: string): ShotConfig {
-  const configs: Record<ConceptId, Record<string, ShotConfig>> = {
+  if (isHandTreatment(concept)) {
+    return HAND_SHOTS[shot] ?? HAND_SHOTS.hero;
+  }
+
+  const configs: Record<"a" | "b", Record<string, ShotConfig>> = {
     a: {
       hero: {
         objectPosition: [0.78, 0.08, 0],
@@ -70,10 +103,35 @@ function shotConfig(concept: ConceptId, shot: string): ShotConfig {
     },
   };
 
-  return configs[concept][shot] ?? configs[concept].hero;
+  const phaseConcept = concept === "a" ? "a" : "b";
+  return configs[phaseConcept][shot] ?? configs[phaseConcept].hero;
+}
+
+function setupHandLights(scene: THREE.Scene) {
+  const key = new THREE.DirectionalLight(0xeaf6ff, 2.4);
+  key.position.set(-4, 5, 3);
+  scene.add(key);
+
+  const rim = new THREE.DirectionalLight(0x35c9e8, 0.9);
+  rim.position.set(4, 2, -4);
+  scene.add(rim);
+
+  const fill = new THREE.DirectionalLight(0x6957e8, 0.45);
+  fill.position.set(3, -2, 2);
+  scene.add(fill);
+
+  scene.add(new THREE.AmbientLight(0x1b2743, 0.85));
+  const core = new THREE.PointLight(0x35c9e8, 4, 8, 2);
+  core.position.set(0, 1.4, 2);
+  scene.add(core);
 }
 
 function setupLights(scene: THREE.Scene, concept: ConceptId) {
+  if (isHandTreatment(concept)) {
+    setupHandLights(scene);
+    return;
+  }
+
   if (concept === "a") {
     const key = new THREE.DirectionalLight(0xfff0dd, 2.7);
     key.position.set(-4.2, 5.2, 4.2);
@@ -121,11 +179,17 @@ function setupLights(scene: THREE.Scene, concept: ConceptId) {
   scene.add(new THREE.AmbientLight(0x302b24, 0.7));
 }
 
+function fallbackLabel(concept: ConceptId) {
+  if (concept === "a") return "Corpo do sinal";
+  if (concept === "b") return "Estratos do gesto";
+  return concept.replace("hand-", "Mão ");
+}
+
 function Fallback({ concept, shot }: { concept: ConceptId; shot: string }) {
   return (
-    <div className="v4-fallback" role="img" aria-label={`Estudo ${concept.toUpperCase()} ${shot} sem WebGL`}>
+    <div className="v4-fallback" role="img" aria-label={`Estudo ${concept} ${shot} sem WebGL`}>
       <span>WebGL indisponível</span>
-      <strong>{concept === "a" ? "Corpo do sinal" : "Estratos do gesto"}</strong>
+      <strong>{fallbackLabel(concept)}</strong>
       <small>{shot}</small>
     </div>
   );
@@ -160,8 +224,11 @@ export function ConceptCanvas({
       return () => window.clearTimeout(timeout);
     }
 
+    const handTreatment = isHandTreatment(concept) ? concept : null;
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(concept === "a" ? 0x0d0b09 : 0x12100d);
+    scene.background = new THREE.Color(
+      handTreatment ? "#0b1020" : concept === "a" ? 0x0d0b09 : 0x12100d,
+    );
 
     const camera = new THREE.PerspectiveCamera(36, 1, 0.1, 60);
     const config = shotConfig(concept, shot);
@@ -174,7 +241,7 @@ export function ConceptCanvas({
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = concept === "a" ? 1.08 : 1.04;
+    renderer.toneMappingExposure = handTreatment ? 1.14 : concept === "a" ? 1.08 : 1.04;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.domElement.className = "v4-canvas";
     host.appendChild(renderer.domElement);
@@ -186,10 +253,7 @@ export function ConceptCanvas({
 
     setupLights(scene, concept);
 
-    const built = concept === "a" ? buildConceptA() : buildConceptB();
-    built.group.position.fromArray(config.objectPosition);
-    scene.add(built.group);
-
+    let built: BuiltConcept | null = null;
     const start = performance.now();
     let frame = 0;
     let disposed = false;
@@ -197,6 +261,7 @@ export function ConceptCanvas({
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const renderFrame = () => {
+      if (!built) return;
       const time = (performance.now() - start) / 1000;
       built.update(time, reducedMotion);
       camera.lookAt(new THREE.Vector3(...config.target));
@@ -220,9 +285,29 @@ export function ConceptCanvas({
     observer.observe(host);
     resize();
 
-    if (reducedMotion) {
-      renderFrame();
+    if (handTreatment) {
+      loadHandAsset()
+        .then((asset) => {
+          if (disposed) {
+            asset.geometry.dispose();
+            return;
+          }
+          built = buildHandConcept(handTreatment, asset);
+          built.group.position.fromArray(config.objectPosition);
+          scene.add(built.group);
+          if (reducedMotion) renderFrame();
+        })
+        .catch(() => {
+          if (!disposed) setFailed(true);
+        });
     } else {
+      built = concept === "a" ? buildConceptA() : buildConceptB();
+      built.group.position.fromArray(config.objectPosition);
+      scene.add(built.group);
+      if (reducedMotion) renderFrame();
+    }
+
+    if (!reducedMotion) {
       const loop = () => {
         if (disposed) return;
         frame = window.requestAnimationFrame(loop);
@@ -235,8 +320,10 @@ export function ConceptCanvas({
       disposed = true;
       window.cancelAnimationFrame(frame);
       observer.disconnect();
-      scene.remove(built.group);
-      disposeObject(built.group);
+      if (built) {
+        scene.remove(built.group);
+        disposeObject(built.group);
+      }
       environmentTexture.dispose();
       pmrem.dispose();
       renderer.dispose();
