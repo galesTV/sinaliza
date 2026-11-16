@@ -19,18 +19,21 @@ import { useProgressSnapshot } from "./use-progress";
 export function ResumeCtaView({
   resume,
   availableCount,
+  hasProgress,
   firstPathSlug,
 }: {
   resume: ResumeTarget | undefined;
   /** Available lessons across all paths. */
   availableCount: number;
+  /** Whether the learner already completed at least one lesson. */
+  hasProgress: boolean;
   firstPathSlug: string;
 }) {
   if (resume) {
     return (
       <>
         <Link href={resume.url} className="btn-primary">
-          Continuar: {resume.lesson.title}
+          {hasProgress ? "Continuar" : "Começar"}: {resume.lesson.title}
           <IconArrowRight className="h-4 w-4" />
         </Link>
         <Link href="/trilhas" className="btn-secondary">
@@ -83,16 +86,19 @@ export function ResumeCta({ firstPathSlug }: { firstPathSlug: string }) {
   const snapshot = useProgressSnapshot();
   const paths = getLearningPaths();
   const resume = getResumeLesson(paths, snapshot.completed);
-  const availableCount = paths.reduce(
-    (total, path) =>
-      total + getPathProgress(path, snapshot.completed).availableCount,
-    0,
-  );
+  let availableCount = 0;
+  let hasProgress = false;
+  for (const path of paths) {
+    const progress = getPathProgress(path, snapshot.completed);
+    availableCount += progress.availableCount;
+    hasProgress ||= progress.completedCount > 0;
+  }
 
   return (
     <ResumeCtaView
       resume={resume}
       availableCount={availableCount}
+      hasProgress={hasProgress}
       firstPathSlug={firstPathSlug}
     />
   );

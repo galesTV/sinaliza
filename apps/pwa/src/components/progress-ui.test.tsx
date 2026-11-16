@@ -116,6 +116,7 @@ describe("ResumeCtaView", () => {
       <ResumeCtaView
         resume={undefined}
         availableCount={0}
+        hasProgress={false}
         firstPathSlug="alfabeto"
       />,
     );
@@ -124,39 +125,59 @@ describe("ResumeCtaView", () => {
     expect(html).toContain("Nenhuma lição publicada ainda");
   });
 
-  it("offers a resume link straight to the next lesson", () => {
-    const path = {
-      slug: "alfabeto",
-      title: "Alfabeto",
-      summary: "",
-      goal: "",
-      icon: "alphabet" as const,
-      contentNote: "",
-      modules: [
-        {
-          slug: "m",
-          title: "",
-          description: "",
-          lessons: [
-            {
-              slug: "letra-a",
-              title: "Letra A",
-              status: "available" as const,
-              objective: "",
-            },
-          ],
-        },
-      ],
-    };
-    const resume = getResumeLesson([path], new Set());
+  const pathWithLesson = {
+    slug: "alfabeto",
+    title: "Alfabeto",
+    summary: "",
+    goal: "",
+    icon: "alphabet" as const,
+    contentNote: "",
+    modules: [
+      {
+        slug: "m",
+        title: "",
+        description: "",
+        lessons: [
+          {
+            slug: "letra-a",
+            title: "Letra A",
+            status: "available" as const,
+            objective: "",
+          },
+        ],
+      },
+    ],
+  };
+
+  it("says 'Começar' when the learner has no progress yet", () => {
+    const resume = getResumeLesson([pathWithLesson], new Set());
     const html = renderToStaticMarkup(
       <ResumeCtaView
         resume={resume}
         availableCount={1}
+        hasProgress={false}
         firstPathSlug="alfabeto"
       />,
     );
     expect(html).toContain('href="/trilhas/alfabeto/m/letra-a"');
+    expect(html).toContain("Começar:");
+    expect(html).not.toContain("Continuar:");
+    expect(html).toContain("Letra A");
+  });
+
+  it("says 'Continuar' once the learner has completed a lesson", () => {
+    const resume = getResumeLesson(
+      [pathWithLesson],
+      new Set([lessonKey("alfabeto", "m", "letra-b")]),
+    );
+    const html = renderToStaticMarkup(
+      <ResumeCtaView
+        resume={resume}
+        availableCount={1}
+        hasProgress={true}
+        firstPathSlug="alfabeto"
+      />,
+    );
     expect(html).toContain("Continuar:");
     expect(html).toContain("Letra A");
   });
@@ -166,6 +187,7 @@ describe("ResumeCtaView", () => {
       <ResumeCtaView
         resume={undefined}
         availableCount={2}
+        hasProgress={true}
         firstPathSlug="alfabeto"
       />,
     );
