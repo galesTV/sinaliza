@@ -317,7 +317,7 @@ export function ExperienceScene() {
     const dotTexture = new THREE.CanvasTexture(dotCanvas);
     const nodeMat = trackMat(
       new THREE.PointsMaterial({
-        size: 0.34,
+        size: 0.4,
         map: dotTexture,
         alphaTest: 0.05,
         vertexColors: true,
@@ -332,7 +332,7 @@ export function ExperienceScene() {
     group.add(nodePoints);
 
     // Pontas como juntas luminosas — os "capitéis" da colonnada
-    const tipGeo = track(new THREE.IcosahedronGeometry(0.075, 1));
+    const tipGeo = track(new THREE.IcosahedronGeometry(0.09, 1));
     const tipMeshes = TIPS.map((i) => {
       const mat = trackMat(
         new THREE.MeshBasicMaterial({
@@ -361,16 +361,34 @@ export function ExperienceScene() {
     group.add(ring);
 
     // ---------------------------------------------------------------
-    // Vigas — as conexões viram colunas volumétricas de luz (cilindros),
-    // não linhas de 1px: é o que faz a malha ler como arquitetura
+    // Vigas — colunas de luz: cilindro cônico (base mais larga, como uma
+    // coluna), textura de esmaecimento nas juntas e blending aditivo —
+    // a interseção de duas vigas acumula luz em vez de cortar seco
     // ---------------------------------------------------------------
-    const beamGeo = track(new THREE.CylinderGeometry(0.028, 0.028, 1, 6, 1, true));
+    const beamGeo = track(new THREE.CylinderGeometry(0.022, 0.048, 1, 10, 1, true));
     beamGeo.translate(0, 0.5, 0); // base em y=0 — a viga "cresce" de a→b
+    const beamCanvas = document.createElement("canvas");
+    beamCanvas.width = 8;
+    beamCanvas.height = 128;
+    const beamCtx = beamCanvas.getContext("2d");
+    if (beamCtx) {
+      const g = beamCtx.createLinearGradient(0, 0, 0, 128);
+      g.addColorStop(0, "rgba(255,255,255,0)");
+      g.addColorStop(0.14, "rgba(255,255,255,0.9)");
+      g.addColorStop(0.86, "rgba(255,255,255,0.9)");
+      g.addColorStop(1, "rgba(255,255,255,0)");
+      beamCtx.fillStyle = g;
+      beamCtx.fillRect(0, 0, 8, 128);
+    }
+    const beamTexture = new THREE.CanvasTexture(beamCanvas);
     const beamMat = trackMat(
       new THREE.MeshBasicMaterial({
         color: COLORS.edge,
+        map: beamTexture,
         transparent: true,
         opacity: 0,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
       }),
     );
     const beams = CONNECTIONS.map(() => {
@@ -480,7 +498,7 @@ export function ExperienceScene() {
     // redesenha quando a fonte display terminar de carregar
     document.fonts?.ready.then(drawWord).catch(() => undefined);
 
-    const wordGeo = track(new THREE.PlaneGeometry(13, 3.25));
+    const wordGeo = track(new THREE.PlaneGeometry(26, 6.5));
     const wordMat = trackMat(
       new THREE.MeshBasicMaterial({
         map: wordTexture,
@@ -493,7 +511,7 @@ export function ExperienceScene() {
       }),
     );
     const wordPlane = new THREE.Mesh(wordGeo, wordMat);
-    wordPlane.position.set(1.8, 9.4, -12);
+    wordPlane.position.set(4.0, 7.2, -12);
     wordPlane.rotation.y = 0.14;
     wordPlane.rotation.x = -0.05;
     scene.add(wordPlane);
@@ -526,17 +544,35 @@ export function ExperienceScene() {
     group.position.set(0, 2.4, -2.2);
 
     // Percurso da câmera: de fora (monumento distante) para o limiar
-    // da abóbada — o punho passa sob os pés do visitante
-    const camCurve = new THREE.CatmullRomCurve3([
-      new THREE.Vector3(2.6, 0.8, 22),
-      new THREE.Vector3(1.0, -0.8, 13),
-      new THREE.Vector3(0.2, -2.0, 4.4),
-    ]);
-    const lookCurve = new THREE.CatmullRomCurve3([
-      new THREE.Vector3(0, 5.0, -14),
-      new THREE.Vector3(0.2, 5.4, -7),
-      new THREE.Vector3(0.0, 6.6, -7.0),
-    ]);
+    // da abóbada — o punho passa sob os pés do visitante.
+    // Mobile tem trajetória própria: câmera mais próxima e centralizada
+    // para a colunata preencher o quadro vertical
+    const camCurve = new THREE.CatmullRomCurve3(
+      isCompact
+        ? [
+            new THREE.Vector3(1.2, 0.4, 19),
+            new THREE.Vector3(0.5, -1.2, 10),
+            new THREE.Vector3(0.0, -2.1, 5.6),
+          ]
+        : [
+            new THREE.Vector3(2.6, 0.8, 22),
+            new THREE.Vector3(1.0, -0.8, 13),
+            new THREE.Vector3(-0.4, -2.2, 4.6),
+          ],
+    );
+    const lookCurve = new THREE.CatmullRomCurve3(
+      isCompact
+        ? [
+            new THREE.Vector3(0, 5.4, -14),
+            new THREE.Vector3(0.2, 5.8, -7),
+            new THREE.Vector3(0.3, 6.6, -7),
+          ]
+        : [
+            new THREE.Vector3(0, 5.0, -14),
+            new THREE.Vector3(0.4, 5.6, -7),
+            new THREE.Vector3(0.8, 7.8, -7.2),
+          ],
+    );
     const camPos = new THREE.Vector3();
     const lookPos = new THREE.Vector3();
 
@@ -617,7 +653,7 @@ export function ExperienceScene() {
         beamDir.divideScalar(len || 1);
         beam.quaternion.setFromUnitVectors(UP, beamDir);
       }
-      beamMat.opacity = edgeDraw * (0.72 - 0.22 * m);
+      beamMat.opacity = edgeDraw * (0.78 - 0.2 * m);
 
       // Ecos do estado 02 — a rede lá no fundo do corredor
       for (let i = 0; i < echoes.length; i++) {
@@ -647,7 +683,7 @@ export function ExperienceScene() {
       // Palavra monumental: aparece quando a câmera já está dentro
       wordMat.opacity = smooth(clamp01((entrance - 0.68) / 0.22)) * (1 - m);
       wordPlane.position.y =
-        9.4 + Math.sin(elapsed * 0.35) * 0.06 * idle + m * 1.8;
+        7.2 + Math.sin(elapsed * 0.35) * 0.06 * idle + m * 1.8;
 
       // Câmera: percurso de entrada + avanço do scroll + parallax
       pointer.lerp(pointerTarget, 0.05);
@@ -778,6 +814,7 @@ export function ExperienceScene() {
       wordTexture.dispose();
       floorTexture.dispose();
       dotTexture.dispose();
+      beamTexture.dispose();
       geometries.forEach((g) => g.dispose());
       materials.forEach((m) => m.dispose());
       renderer.dispose();
