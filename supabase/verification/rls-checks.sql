@@ -60,8 +60,17 @@ select p.proname, p.proconfig,
   join pg_namespace n on n.oid = p.pronamespace
  where n.nspname = 'private' and p.proname = 'handle_new_user';
 
--- 7) Data API exposure: private must NOT be an exposed schema.
---    Expected: the row shows only 'public' (and 'graphql_public' if enabled).
-select nspname
-  from pg_namespace
- where nspname in ('public', 'private', 'graphql_public');
+-- 7) Schema exposure is a PostgREST setting — it is NOT readable from the
+--    SQL catalog, so verify it out-of-band:
+--      a) Dashboard → Settings → API → "Exposed schemas": must list only
+--         public (and graphql_public if enabled); private must be absent.
+--      b) Probe: POST $SUPABASE_URL/rest/v1/rpc/handle_new_user with the
+--         publishable key → must return 404.
+--    SQL-side sanity check: no function in private is executable by the
+--    API roles. Expected: rows only with anon_exec = f and auth_exec = f.
+select p.proname,
+       has_function_privilege('anon', p.oid, 'execute') as anon_exec,
+       has_function_privilege('authenticated', p.oid, 'execute') as auth_exec
+  from pg_proc p
+  join pg_namespace n on n.oid = p.pronamespace
+ where n.nspname = 'private';
