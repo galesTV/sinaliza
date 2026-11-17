@@ -114,17 +114,16 @@
   left: 0;
   right: 0;
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 16px;
   padding: clamp(18px, 3vh, 30px) clamp(20px, 5.5vw, 88px);
 }
 
 .v4c-wordmark {
-  font-family: var(--font-display), sans-serif;
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  display: block;
+  width: 164px;
+  height: auto;
 }
 
 .v4c-barNote {

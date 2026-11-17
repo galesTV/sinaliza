@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import "../Cinematic.css";
 import { CinematicHero } from "../CinematicHero";
 
@@ -18,7 +19,14 @@ export default function Page() {
         </p>
 
         <header className="v4c-bar">
-          <span className="v4c-wordmark">Sinaliza</span>
+          <Image
+            src="/brand/sinaliza-horizontal.svg"
+            alt="Sinaliza"
+            width={240}
+            height={72}
+            priority
+            className="v4c-wordmark"
+          />
           <span className="v4c-barNote">Estudo V4 · hero cinematográfico</span>
         </header>
 
