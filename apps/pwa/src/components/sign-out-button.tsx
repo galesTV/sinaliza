@@ -21,7 +21,15 @@ export function SignOutButton({ className }: { className?: string }) {
     setPending(true);
     try {
       if (isSupabaseConfigured()) {
-        await createClient().auth.signOut();
+        const client = createClient();
+        try {
+          const { error } = await client.auth.signOut();
+          if (error) throw error;
+        } catch {
+          // Revocation failed (offline/server error): clear the local
+          // session anyway so no credentials linger on this device.
+          await client.auth.signOut({ scope: "local" }).catch(() => {});
+        }
       }
       router.replace("/");
       router.refresh();
