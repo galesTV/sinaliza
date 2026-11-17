@@ -34,9 +34,11 @@
   height: 560vh;
 }
 
+/* Pinned, so it must never be taller than the window. */
 .v4c[data-mode="live"] .v4c-viewport {
   position: sticky;
   top: 0;
+  min-height: 0;
 }
 
 /* ---------- 3D layer ---------- */
@@ -481,6 +483,31 @@
 
   .v4c-noteIndex {
     font-size: 28px;
+  }
+}
+
+/* Short windows (landscape phones): the copy stays inside the pinned viewport. */
+@media (max-height: 559px) and (max-width: 1023px) {
+  .v4c-hero {
+    bottom: 16px;
+  }
+
+  .v4c-title {
+    font-size: clamp(22px, 7vh, 30px);
+  }
+
+  .v4c-eyebrow {
+    margin-bottom: 8px;
+  }
+
+  .v4c-lede {
+    margin-top: 10px;
+    font-size: 13.5px;
+    line-height: 1.45;
+  }
+
+  .v4c-note {
+    bottom: 16px;
   }
 }
 
