@@ -39,6 +39,9 @@ export async function updateSession(request: NextRequest) {
         cookiesToSet.forEach(({ name, value, options }) =>
           supabaseResponse.cookies.set(name, value, options),
         );
+        // A response carrying refreshed tokens must never be stored by the
+        // service worker or any intermediary cache.
+        supabaseResponse.headers.set("Cache-Control", "private, no-store");
       },
     },
   });
