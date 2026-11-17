@@ -63,6 +63,6 @@ Rotas: `/cadastro` (registro), `/login` (entrada), `/auth/confirm` (callback de 
 
 Configuração necessária no dashboard do Supabase (Authentication → URL Configuration):
 
-- **Redirect URLs** deve incluir `<origem-do-app>/auth/confirm` **e** `<origem-do-app>/auth/recovery` — ex.: `https://<dominio-do-pwa>/auth/confirm`, `https://<dominio-do-pwa>/auth/recovery`, e os equivalentes `http://localhost:3000/...` para desenvolvimento.
+- **Redirect URLs** deve incluir `<origem-do-app>/auth/confirm**` **e** `<origem-do-app>/auth/recovery` — ex.: `https://<dominio-do-pwa>/auth/confirm**`, `https://<dominio-do-pwa>/auth/recovery`, e os equivalentes `http://localhost:3000/...` para desenvolvimento. O wildcard `**` após `/auth/confirm` é necessário porque o link de confirmação carrega `?next=<destino>` para preservar o destino pós-cadastro; `/auth/recovery` ignora `next` e não precisa de wildcard.
 - **Confirm email** deve estar habilitado (decisão D1), caso contrário o cadastro entra direto sem verificação.
 - Nenhuma alteração de template de e-mail é necessária: os links padrão (`{{ .ConfirmationURL }}`) funcionam com os dois callbacks.

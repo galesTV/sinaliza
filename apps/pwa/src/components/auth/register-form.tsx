@@ -84,7 +84,9 @@ export function RegisterForm({ next }: { next: string }) {
         email: email.trim(),
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/confirm`,
+          // `next` travels inside the callback URL so /auth/confirm can
+          // land on the requested destination after verification.
+          emailRedirectTo: `${window.location.origin}/auth/confirm?next=${encodeURIComponent(next)}`,
         },
       });
       if (error) {
