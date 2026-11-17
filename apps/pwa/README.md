@@ -56,3 +56,12 @@ pwa/
 ## 🔐 Variáveis de ambiente
 
 Copie `.env.example` para `.env.local` ao configurar o Supabase. Apenas a chave *publishable* (`sb_publishable_...`) pode ser exposta via `NEXT_PUBLIC_*`; chaves *secret* nunca devem aparecer no navegador.
+
+## 🔑 Autenticação
+
+Rotas: `/cadastro` (registro), `/login` (entrada), `/auth/confirm` (callback dos e-mails), `/recuperar` + `/nova-senha` (redefinição de senha) e `/conta` (única rota que exige sessão, validada no servidor). Sem as variáveis de ambiente o app inteiro permanece em modo convidado.
+
+Configuração necessária no dashboard do Supabase (Authentication → URL Configuration):
+
+- **Redirect URLs** deve incluir `<origem-do-app>/auth/confirm` — ex.: `https://<dominio-do-pwa>/auth/confirm` e `http://localhost:3000/auth/confirm` para desenvolvimento.
+- **Confirm email** deve estar habilitado (decisão D1), caso contrário o cadastro entra direto sem verificação.
