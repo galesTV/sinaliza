@@ -91,6 +91,7 @@ export function CinematicHero({ children }: { children: ReactNode }) {
     let viewHeight = 1;
     let disposed = false;
     let frame = 0;
+    let running = false;
     let visible = true;
     let dirty = true;
     let target = reducedMotion ? REDUCED_MOTION_PROGRESS : 0;
@@ -176,13 +177,20 @@ export function CinematicHero({ children }: { children: ReactNode }) {
       writeHud();
     };
 
+    // The loop only runs while the stage is on screen.
+    const schedule = () => {
+      if (disposed || frame || !running || !visible) return;
+      lastTime = performance.now();
+      frame = window.requestAnimationFrame(tick);
+    };
+
     const tick = (now: number) => {
-      if (disposed) return;
+      frame = 0;
+      if (disposed || !visible) return;
       frame = window.requestAnimationFrame(tick);
       const delta = Math.min(0.1, (now - lastTime) / 1000);
       lastTime = now;
       frameMs += (delta * 1000 - frameMs) * 0.1;
-      if (!visible) return;
 
       target = readTarget();
       const gap = target - current;
@@ -208,6 +216,7 @@ export function CinematicHero({ children }: { children: ReactNode }) {
       if (visible) {
         current = readTarget();
         dirty = true;
+        schedule();
       }
     });
     visibilityObserver.observe(stage);
@@ -231,8 +240,12 @@ export function CinematicHero({ children }: { children: ReactNode }) {
         current = target;
         render();
         root.dataset.canvas = "ready";
-        if (!reducedMotion) frame = window.requestAnimationFrame(tick);
-        else dirty = false;
+        if (reducedMotion) {
+          dirty = false;
+        } else {
+          running = true;
+          schedule();
+        }
       })
       .catch(() => {
         if (!disposed) fail();
