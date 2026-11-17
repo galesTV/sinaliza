@@ -12,6 +12,20 @@
 
 export const PROGRESS_STORAGE_KEY = "sinaliza.progress.v1";
 
+/**
+ * Storage key for a given identity. Guests always share `PROGRESS_STORAGE_KEY`;
+ * an authenticated account gets its own `...v1.u_<userId>` key so guest
+ * progress and account progress are isolated per owner decision (ADR 0004,
+ * D4): one account's records never merge into another's local store. Moving
+ * guest keys into an account is a separate, explicit claim step — never an
+ * automatic side effect of signing in.
+ */
+export function progressStorageKey(userId: string | null): string {
+  return userId === null
+    ? PROGRESS_STORAGE_KEY
+    : `${PROGRESS_STORAGE_KEY}.u_${userId}`;
+}
+
 export interface ProgressStorage {
   getItem(key: string): string | null;
   setItem(key: string, value: string): void;
