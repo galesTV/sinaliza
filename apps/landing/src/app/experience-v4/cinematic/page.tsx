@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import "../Cinematic.css";
 import { CinematicHero } from "../CinematicHero";
 
@@ -70,10 +69,6 @@ export default function Page() {
           Esta seção ainda não foi implementada. A fatia vertical da Fase C
           termina aqui; o conteúdo real do próximo ato será definido após a
           aprovação do hero.
-        </p>
-        <p className="v4c-nextLinks">
-          <Link href="/experience-v4">Comparativo de tratamentos</Link>
-          <Link href="/experience-v4/articulation">Prova de articulação</Link>
         </p>
       </section>
     </main>

@@ -23,18 +23,7 @@ interface RestRotation {
   z: number;
 }
 
-function smoothstep(phase: number, start: number, end: number) {
-  return THREE.MathUtils.smoothstep(phase, start, end);
-}
-
 export interface HandRig {
-  phase: number;
-  playing: boolean;
-  duration: number;
-  update: (deltaTime: number) => void;
-  setPhase: (phase: number) => void;
-  setPlaying: (playing: boolean) => void;
-  applyPose: () => void;
   // `finger` is one amount for all fingers or [index, middle, ring, little].
   setAmounts: (finger: number | readonly number[], thumb: number) => void;
 }
@@ -56,9 +45,6 @@ export function createHandRig(asset: SkinnedHandAsset): HandRig {
     });
   }
 
-  let phase = 0;
-  const duration = 7;
-
   const resetBone = (name: string) => {
     const bone = asset.bones.get(name);
     const restRotation = rest.get(name);
@@ -79,48 +65,7 @@ export function createHandRig(asset: SkinnedHandAsset): HandRig {
     });
   };
 
-  const applyPose = () => {
-    const clamped = THREE.MathUtils.clamp(phase, 0, 1);
-    const finger = THREE.MathUtils.clamp(
-      smoothstep(clamped, 0.12, 0.45) - smoothstep(clamped, 0.78, 0.98),
-      0,
-      1,
-    );
-    const thumb = THREE.MathUtils.clamp(
-      smoothstep(clamped, 0.42, 0.62) - smoothstep(clamped, 0.8, 0.98),
-      0,
-      1,
-    );
-
-    for (const chain of Object.values(FINGER_CHAINS)) {
-      applyChain(chain, FINGER_DELTAS, finger);
-    }
-    applyChain(THUMB_CHAIN, THUMB_DELTAS, thumb);
-  };
-
-  const rig: HandRig = {
-    get phase() {
-      return phase;
-    },
-    set phase(value: number) {
-      phase = THREE.MathUtils.clamp(value, 0, 1);
-    },
-    playing: false,
-    duration,
-    update(deltaTime: number) {
-      if (rig.playing) {
-        rig.phase = (rig.phase + deltaTime / duration) % 1;
-      }
-      rig.applyPose();
-    },
-    setPhase(value: number) {
-      rig.phase = value;
-      rig.applyPose();
-    },
-    setPlaying(value: boolean) {
-      rig.playing = value;
-    },
-    applyPose,
+  return {
     setAmounts(finger: number | readonly number[], thumb: number) {
       Object.values(FINGER_CHAINS).forEach((chain, index) => {
         const amount = typeof finger === "number" ? finger : (finger[index] ?? 0);
@@ -129,6 +74,4 @@ export function createHandRig(asset: SkinnedHandAsset): HandRig {
       applyChain(THUMB_CHAIN, THUMB_DELTAS, THREE.MathUtils.clamp(thumb, 0, 1));
     },
   };
-
-  return rig;
 }
