@@ -1,8 +1,9 @@
 import type { EmailOtpType } from "@supabase/supabase-js";
 
 /**
- * Pure parsing of the `/auth/confirm` URL parameters, kept separate from
- * the route handler so the decision logic is unit-testable.
+ * Pure parsing of the auth email-link callback parameters (`/auth/confirm`
+ * and `/auth/recovery`), kept separate from the route handlers so the
+ * decision logic is unit-testable.
  *
  * Supabase sends two link styles:
  * - `?code=…` (PKCE flow) → `exchangeCodeForSession`.

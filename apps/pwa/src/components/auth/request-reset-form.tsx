@@ -62,7 +62,10 @@ export function RequestResetForm() {
     try {
       const { error } = await createClient().auth.resetPasswordForEmail(
         email.trim(),
-        { redirectTo: `${window.location.origin}/auth/confirm` },
+        // Dedicated recovery callback: the route itself determines
+        // that the verified session is for picking a new password —
+        // no inference from user data needed.
+        { redirectTo: `${window.location.origin}/auth/recovery` },
       );
       if (error) {
         setFormError(describeAuthError(error));
