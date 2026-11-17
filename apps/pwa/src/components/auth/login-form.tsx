@@ -65,7 +65,7 @@ export function LoginForm({
 
   return (
     <div className="flex flex-col gap-5">
-      <AuthNotice message={notice ?? formError} />
+      <AuthNotice message={formError ?? notice} />
       <form onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
         <AuthField
           id="email"
