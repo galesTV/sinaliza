@@ -25,6 +25,10 @@ describe("sanitizeRedirect", () => {
     "evil.com",
     "",
     "   ",
+    "/\n/evil.com",
+    "/\tevil.com",
+    "/\revil.com",
+    "/ evil.com",
   ])("rejects unsafe target %s", (target) => {
     expect(sanitizeRedirect(target, FALLBACK)).toBe(FALLBACK);
   });
