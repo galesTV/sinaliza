@@ -61,8 +61,8 @@ export function AuthField({
         className={cn(
           "min-h-11 w-full rounded-xl border bg-surface px-4 text-sm text-foreground outline-none transition-colors duration-200 placeholder:text-muted/70",
           error
-            ? "border-destructive/70"
-            : "border-border focus:border-accent/60",
+            ? "border-destructive/70 focus:border-destructive focus:ring-2 focus:ring-destructive/40"
+            : "border-border focus:border-accent/60 focus:ring-2 focus:ring-accent/30",
           disabled && "opacity-60",
         )}
       />
