@@ -70,9 +70,17 @@ reverte).
 
 ## Rollback
 
-Migrações `db push` não têm down-migrations automáticas. Para reverter a
-migração `20261117152227_profiles_and_lesson_completions` no projeto
-hospedado, execute no SQL Editor (remove profiles, completions e o trigger):
+Migrações `db push` não têm down-migrations automáticas. O caminho preferido
+mantém o fluxo de migrações versionadas (AGENTS.md §10): crie uma migração
+compensatória e aplique-a normalmente.
+
+```bash
+npx supabase migration new rollback_profiles_lesson_completions
+# cole o bloco SQL abaixo no arquivo gerado
+npx supabase db push
+```
+
+Conteúdo da migração de reversão (remove profiles, completions e o trigger):
 
 ```sql
 drop trigger if exists on_auth_user_created on auth.users;
@@ -83,11 +91,11 @@ drop table if exists public.profiles;
 drop schema if exists private;
 ```
 
-Depois marque a migração como revertida no histórico remoto:
+Caminho de emergência fora do fluxo versionado — somente com autorização
+explícita do owner, quando a migração compensatória não puder ser aplicada:
+o mesmo SQL no SQL Editor + `npx supabase migration repair --status
+reverted 20261117152227` para alinhar o histórico.
 
-```bash
-npx supabase migration repair --status reverted 20261117152227
-```
-
-ATENÇÃO: o `drop` destrói os dados das tabelas — para o schema inicial isso é
-aceitável (ainda sem dados de produção), mas confirme antes de executar.
+ATENÇÃO: os `drop`s destroem os dados das tabelas — para o schema inicial
+isso é aceitável (ainda sem dados de produção), mas confirme antes de
+executar.
