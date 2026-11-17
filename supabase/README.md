@@ -18,6 +18,8 @@ Infraestrutura de migrações versionadas para o projeto Supabase do Sinaliza
 supabase/
 ├── config.toml      # Configuração gerada por `supabase init` (stack local)
 ├── migrations/      # Migrações versionadas — <timestamp>_<nome>.sql
+├── tests/           # Suítes pgTAP (`npx supabase test db`, stack local)
+├── verification/    # Checks somente-leitura pós-deploy (SQL Editor)
 └── seed/            # Dados de desenvolvimento (quando houver)
 ```
 
@@ -40,3 +42,60 @@ npx supabase db push
 
 Desenvolvimento local opcional com stack completa (`npx supabase start`)
 requer Docker; não é necessário para o fluxo de migrações acima.
+
+## Testes de banco (pgTAP)
+
+```bash
+npx supabase start      # stack local completa (requer Docker)
+npx supabase test db    # roda supabase/tests/*.test.sql
+```
+
+As suítes rodam dentro de uma transação revertida ao final — nunca deixam
+dados de teste no banco. A stack local não inclui a extensão
+`supabase_test_helpers`: as fixtures inserem em `auth.users` diretamente e
+simulam chamadas autenticadas com as mesmas GUCs que o PostgREST define
+(`role` + `request.jwt.claim.sub`, lidas por `auth.uid()`).
+
+## Verificação pós-deploy
+
+Após `db push` no projeto hospedado, rode
+`supabase/verification/rls-checks.sql` no SQL Editor: são consultas
+somente-leitura que conferem flags de RLS, policies, grants de tabela e de
+coluna, o trigger e a exposição de schemas — cada query indica o resultado
+esperado. Para validação comportamental completa (isolamento entre usuários,
+acesso anônimo, idempotência), a suíte pgTAP é a fonte de verdade; ela também
+pode rodar contra o projeto vinculado com `npx supabase test db --remote`,
+desde que executada conscientemente (insere usuários de teste que a transação
+reverte).
+
+## Rollback
+
+Migrações `db push` não têm down-migrations automáticas. O caminho preferido
+mantém o fluxo de migrações versionadas (AGENTS.md §10): crie uma migração
+compensatória e aplique-a normalmente.
+
+```bash
+npx supabase migration new rollback_profiles_lesson_completions
+# cole o bloco SQL abaixo no arquivo gerado
+npx supabase db push
+```
+
+Conteúdo da migração de reversão (remove profiles, completions e o trigger):
+
+```sql
+drop trigger if exists on_auth_user_created on auth.users;
+drop function if exists private.handle_new_user();
+drop trigger if exists profiles_updated_at on public.profiles;
+drop table if exists public.lesson_completions;
+drop table if exists public.profiles;
+drop schema if exists private;
+```
+
+Caminho de emergência fora do fluxo versionado — somente com autorização
+explícita do owner, quando a migração compensatória não puder ser aplicada:
+o mesmo SQL no SQL Editor + `npx supabase migration repair --status
+reverted 20261117152227` para alinhar o histórico.
+
+ATENÇÃO: os `drop`s destroem os dados das tabelas — para o schema inicial
+isso é aceitável (ainda sem dados de produção), mas confirme antes de
+executar.
