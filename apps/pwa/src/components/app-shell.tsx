@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { HeaderAuth } from "./auth-nav";
 import { BottomNav, DesktopNav } from "./main-nav";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -28,6 +29,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
           <div className="flex items-center gap-4">
             <DesktopNav />
+            <HeaderAuth />
             <span className="hidden rounded-full border border-border px-3 py-1.5 text-[11px] font-medium tracking-wide text-muted sm:inline-block">
               Versão inicial
             </span>

@@ -56,3 +56,13 @@ pwa/
 ## 🔐 Variáveis de ambiente
 
 Copie `.env.example` para `.env.local` ao configurar o Supabase. Apenas a chave *publishable* (`sb_publishable_...`) pode ser exposta via `NEXT_PUBLIC_*`; chaves *secret* nunca devem aparecer no navegador.
+
+## 🔑 Autenticação
+
+Rotas: `/cadastro` (registro), `/login` (entrada), `/auth/confirm` (callback de confirmação), `/auth/recovery` (callback exclusivo de redefinição — a rota determina o propósito da sessão, sem heurísticas), `/recuperar` + `/nova-senha` (redefinição de senha) e `/conta` (única rota que exige sessão, validada no servidor). Sem as variáveis de ambiente o app inteiro permanece em modo convidado.
+
+Configuração necessária no dashboard do Supabase (Authentication → URL Configuration):
+
+- **Redirect URLs** deve incluir `<origem-do-app>/auth/confirm**` **e** `<origem-do-app>/auth/recovery` — ex.: `https://<dominio-do-pwa>/auth/confirm**`, `https://<dominio-do-pwa>/auth/recovery`, e os equivalentes `http://localhost:3000/...` para desenvolvimento. O wildcard `**` após `/auth/confirm` é necessário porque o link de confirmação carrega `?next=<destino>` para preservar o destino pós-cadastro; `/auth/recovery` ignora `next` e não precisa de wildcard.
+- **Confirm email** deve estar habilitado (decisão D1), caso contrário o cadastro entra direto sem verificação.
+- Nenhuma alteração de template de e-mail é necessária: os links padrão (`{{ .ConfirmationURL }}`) funcionam com os dois callbacks.

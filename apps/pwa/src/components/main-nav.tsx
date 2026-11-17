@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 
+import { BottomNavAuth } from "./auth-nav";
 import { IconHome, IconRoute } from "./icons";
 
 interface NavItem {
@@ -108,6 +109,7 @@ export function BottomNav() {
             </li>
           );
         })}
+        <BottomNavAuth pathname={pathname} />
       </ul>
     </nav>
   );

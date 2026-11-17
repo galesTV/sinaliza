@@ -14,7 +14,7 @@
  *   until it closes, so a new worker never controls an old-build page.
  */
 
-const VERSION = "v2";
+const VERSION = "v3";
 const CACHE_PREFIX = "sinaliza-";
 
 const CRITICAL_CACHE = `sinaliza-critical-${VERSION}`;
@@ -34,12 +34,17 @@ const KNOWN_CACHES = [
 ];
 
 // Paths reserved for authenticated flows (auth callbacks, account pages,
-// sign-in). They must NEVER be intercepted or cached: responses may be
-// personalized or carry session cookies, and a cached page could leak one
-// account's data to another account on a shared device. Auth UI does not
-// exist yet — this guard lands before it does. Authenticated routes must
-// additionally send `Cache-Control: private, no-store`.
-const AUTHENTICATED_PREFIXES = ["/auth", "/conta", "/login", "/cadastro"];
+// sign-in, recovery). They must NEVER be intercepted or cached: responses
+// may be personalized or carry session cookies, and a cached page could
+// leak one account's data to another account on a shared device.
+const AUTHENTICATED_PREFIXES = [
+  "/auth",
+  "/conta",
+  "/login",
+  "/cadastro",
+  "/recuperar",
+  "/nova-senha",
+];
 
 const OFFLINE_URL = "/offline.html";
 

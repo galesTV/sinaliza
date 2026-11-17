@@ -129,6 +129,15 @@ export function IconFlask(props: IconProps) {
   );
 }
 
+export function IconUser(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5" />
+    </Svg>
+  );
+}
+
 export function IconGraduationCap(props: IconProps) {
   return (
     <Svg {...props}>
