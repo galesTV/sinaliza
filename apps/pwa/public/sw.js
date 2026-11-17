@@ -14,7 +14,7 @@
  *   until it closes, so a new worker never controls an old-build page.
  */
 
-const VERSION = "v1";
+const VERSION = "v2";
 const CACHE_PREFIX = "sinaliza-";
 
 const CRITICAL_CACHE = `sinaliza-critical-${VERSION}`;
@@ -32,6 +32,14 @@ const KNOWN_CACHES = [
   BRAND_CACHE,
   EXTERNAL_CACHE,
 ];
+
+// Paths reserved for authenticated flows (auth callbacks, account pages,
+// sign-in). They must NEVER be intercepted or cached: responses may be
+// personalized or carry session cookies, and a cached page could leak one
+// account's data to another account on a shared device. Auth UI does not
+// exist yet — this guard lands before it does. Authenticated routes must
+// additionally send `Cache-Control: private, no-store`.
+const AUTHENTICATED_PREFIXES = ["/auth", "/conta", "/login", "/cadastro"];
 
 const OFFLINE_URL = "/offline.html";
 
@@ -213,6 +221,18 @@ self.addEventListener("fetch", (event) => {
     if (isAllowedExternal(url)) {
       event.respondWith(cacheFirst(request, EXTERNAL_CACHE, EXTERNAL_LIMIT));
     }
+    return;
+  }
+
+  // Auth/account paths: network only, no interception — see the declaration
+  // above. Leaving respondWith uncalled lets the request hit the network
+  // untouched by any cache.
+  if (
+    AUTHENTICATED_PREFIXES.some(
+      (prefix) =>
+        url.pathname === prefix || url.pathname.startsWith(`${prefix}/`),
+    )
+  ) {
     return;
   }
 

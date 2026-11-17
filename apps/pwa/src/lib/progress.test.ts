@@ -5,6 +5,7 @@ import {
   createProgressStore,
   lessonKey,
   parseLessonKey,
+  progressStorageKey,
   type ProgressStorage,
 } from "./progress";
 
@@ -37,6 +38,23 @@ describe("lessonKey / parseLessonKey", () => {
     expect(parseLessonKey("a/b/c/d")).toBeNull();
     expect(parseLessonKey("a//c")).toBeNull();
     expect(parseLessonKey("")).toBeNull();
+  });
+});
+
+describe("progressStorageKey", () => {
+  it("keeps the shared guest key when there is no account", () => {
+    expect(progressStorageKey(null)).toBe(PROGRESS_STORAGE_KEY);
+    expect(progressStorageKey(null)).toBe("sinaliza.progress.v1");
+  });
+
+  it("scopes keys per account so progress never mixes", () => {
+    const alice = progressStorageKey("user-a-uuid");
+    const bob = progressStorageKey("user-b-uuid");
+
+    expect(alice).toBe("sinaliza.progress.v1.u_user-a-uuid");
+    expect(bob).toBe("sinaliza.progress.v1.u_user-b-uuid");
+    expect(alice).not.toBe(bob);
+    expect(alice).not.toBe(PROGRESS_STORAGE_KEY);
   });
 });
 
