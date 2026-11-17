@@ -109,7 +109,7 @@ export function createHandRig(asset: SkinnedHandAsset): HandRig {
     duration,
     update(deltaTime: number) {
       if (rig.playing) {
-        rig.phase = rig.phase + deltaTime / duration;
+        rig.phase = (rig.phase + deltaTime / duration) % 1;
       }
       rig.applyPose();
     },
