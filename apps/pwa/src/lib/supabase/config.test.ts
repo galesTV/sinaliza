@@ -52,11 +52,23 @@ describe("getSupabaseEnv", () => {
     expect(isSupabaseConfigured()).toBe(false);
   });
 
-  it("rejects malformed URLs and non-https endpoints", () => {
+  it("rejects malformed URLs and non-https remote endpoints", () => {
     setEnv("not-a-url", "sb_publishable_real-key");
     expect(getSupabaseEnv()).toBeNull();
-    setEnv("http://localhost:54321", "sb_publishable_real-key");
+    setEnv("http://evil.example.com", "sb_publishable_real-key");
     expect(getSupabaseEnv()).toBeNull();
+  });
+
+  it("accepts http URLs for a local Supabase stack", () => {
+    setEnv("http://127.0.0.1:54321", "sb_publishable_real-key");
+    expect(getSupabaseEnv()).toEqual({
+      url: "http://127.0.0.1:54321",
+      publishableKey: "sb_publishable_real-key",
+    });
+    setEnv("http://localhost:54321", "sb_publishable_real-key");
+    expect(getSupabaseEnv()?.url).toBe("http://localhost:54321");
+    setEnv("http://[::1]:54321", "sb_publishable_real-key");
+    expect(getSupabaseEnv()?.url).toBe("http://[::1]:54321");
   });
 
   it("trims surrounding whitespace", () => {

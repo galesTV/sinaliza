@@ -17,13 +17,20 @@ export interface SupabaseEnv {
 }
 
 const PLACEHOLDER_HOST = "your-project-ref.supabase.co";
+const LOOPBACK_HOSTS = new Set(["localhost", "127.0.0.1", "[::1]"]);
 
 function readUrl(): string | null {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
   if (!url) return null;
   try {
     const parsed = new URL(url);
-    if (parsed.protocol !== "https:" || !parsed.hostname) return null;
+    if (!parsed.hostname) return null;
+    // Remote projects require TLS; plain http is only valid for a local
+    // Supabase stack (`supabase start` → http://127.0.0.1:54321).
+    const allowed =
+      parsed.protocol === "https:" ||
+      (parsed.protocol === "http:" && LOOPBACK_HOSTS.has(parsed.hostname));
+    if (!allowed) return null;
     // The .env.example placeholder parses fine but is not a real project.
     if (parsed.hostname === PLACEHOLDER_HOST) return null;
     return parsed.origin;
