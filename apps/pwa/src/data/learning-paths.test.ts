@@ -5,6 +5,8 @@ import {
   getLearningPaths,
   getPathStats,
 } from "./learning-paths";
+import { getCatalogEntry, isPublishable } from "./lesson-catalog";
+import { lessonKey } from "@/lib/progress";
 
 describe("learning paths data", () => {
   it("exposes the alphabet and vocabulary paths", () => {
@@ -28,6 +30,29 @@ describe("learning paths data", () => {
       for (const mod of path.modules) {
         for (const lesson of mod.lessons) {
           expect(["planned", "available"]).toContain(lesson.status);
+        }
+      }
+    }
+  });
+
+  it("requires a publishable catalog entry for every available lesson", () => {
+    // Closing the status-flip gap: marking a lesson "available" is only
+    // legitimate when the catalog carries the full validation evidence —
+    // otherwise the page would promise content that never passed review.
+    for (const path of getLearningPaths()) {
+      for (const mod of path.modules) {
+        for (const lesson of mod.lessons) {
+          if (lesson.status !== "available") continue;
+          const key = lessonKey(path.slug, mod.slug, lesson.slug);
+          const entry = getCatalogEntry(key);
+          expect(
+            entry,
+            `available lesson "${key}" has no catalog entry`,
+          ).toBeDefined();
+          expect(
+            isPublishable(entry!),
+            `available lesson "${key}" lacks expert validation evidence`,
+          ).toBe(true);
         }
       }
     }

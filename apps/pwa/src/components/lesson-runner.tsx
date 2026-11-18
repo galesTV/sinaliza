@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 
 import { Badge } from "./badge";
 import {
+  IconArrowLeft,
   IconArrowRight,
   IconCheck,
   IconGraduationCap,
@@ -28,12 +29,30 @@ const OPTION_TONES = {
   disabled: "border-border bg-white/[0.015] text-muted",
 } as const;
 
+function BackButton({
+  onBack,
+  visible,
+}: {
+  onBack: () => void;
+  visible: boolean;
+}) {
+  if (!visible) return null;
+  return (
+    <button type="button" onClick={onBack} className="btn-secondary">
+      <IconArrowLeft className="h-4 w-4" />
+      Voltar
+    </button>
+  );
+}
+
 function ExerciseBlock({
   exercise,
   selectedOption,
   result,
   onSelect,
   onAdvance,
+  onBack,
+  canGoBack,
   isLastBlock,
 }: {
   exercise: LessonExercise;
@@ -41,6 +60,8 @@ function ExerciseBlock({
   result: "correct" | "incorrect" | null;
   onSelect: (index: number) => void;
   onAdvance: () => void;
+  onBack: () => void;
+  canGoBack: boolean;
   isLastBlock: boolean;
 }) {
   const solved = result === "correct";
@@ -131,12 +152,15 @@ function ExerciseBlock({
         </div>
       )}
 
-      {solved && (
-        <div>
-          <button type="button" onClick={onAdvance} className="btn-primary">
-            {isLastBlock ? "Finalizar lição" : "Continuar"}
-            <IconArrowRight className="h-4 w-4" />
-          </button>
+      {(solved || canGoBack) && (
+        <div className="flex flex-wrap gap-3">
+          {solved && (
+            <button type="button" onClick={onAdvance} className="btn-primary">
+              {isLastBlock ? "Finalizar lição" : "Continuar"}
+              <IconArrowRight className="h-4 w-4" />
+            </button>
+          )}
+          <BackButton onBack={onBack} visible={canGoBack} />
         </div>
       )}
     </div>
@@ -216,7 +240,7 @@ export function LessonRunner({
               {block.body}
             </p>
           </div>
-          <div>
+          <div className="flex flex-wrap gap-3">
             <button
               type="button"
               onClick={runner.advance}
@@ -225,6 +249,7 @@ export function LessonRunner({
               {stepIndex === stepCount - 1 ? "Finalizar lição" : "Continuar"}
               <IconArrowRight className="h-4 w-4" />
             </button>
+            <BackButton onBack={runner.back} visible={snapshot.canGoBack} />
           </div>
         </div>
       )}
@@ -243,7 +268,7 @@ export function LessonRunner({
             {block.title}
           </h2>
           <LessonMedia key={block.media.src} block={block} />
-          <div>
+          <div className="flex flex-wrap gap-3">
             <button
               type="button"
               onClick={runner.advance}
@@ -252,6 +277,7 @@ export function LessonRunner({
               {stepIndex === stepCount - 1 ? "Finalizar lição" : "Continuar"}
               <IconArrowRight className="h-4 w-4" />
             </button>
+            <BackButton onBack={runner.back} visible={snapshot.canGoBack} />
           </div>
         </div>
       )}
@@ -275,6 +301,8 @@ export function LessonRunner({
             result={snapshot.result}
             onSelect={runner.select}
             onAdvance={runner.advance}
+            onBack={runner.back}
+            canGoBack={snapshot.canGoBack}
             isLastBlock={stepIndex === stepCount - 1}
           />
         </div>
@@ -326,6 +354,7 @@ export function LessonRunner({
                 Recomeçar
               </button>
             )}
+            <BackButton onBack={runner.back} visible={snapshot.canGoBack} />
           </div>
         </div>
       )}

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import {
@@ -8,6 +9,7 @@ import {
 import { Breadcrumb } from "@/components/breadcrumb";
 import { ValidationStatusBadge } from "@/components/draft-preview";
 import { Eyebrow } from "@/components/eyebrow";
+import { IconFlask } from "@/components/icons";
 import {
   alphabetSpecimens,
   getSpecimen,
@@ -121,6 +123,14 @@ export default async function SpecimenPreviewPage({
           ))}
         </ul>
       </section>
+
+      <Link
+        href="/laboratorio/experiencia"
+        className="group inline-flex items-center gap-2 self-start text-sm font-medium text-accent transition-colors hover:text-foreground"
+      >
+        <IconFlask className="h-4 w-4" />
+        Voltar à experiência guiada
+      </Link>
     </div>
   );
 }

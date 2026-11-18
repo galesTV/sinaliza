@@ -3,8 +3,11 @@
  *
  * Walks a `LessonContent` block list: text blocks advance freely, exercises
  * require a correct answer before advancing, and the lesson can only be
- * completed at the end with every exercise solved. `complete()` is idempotent
- * so accidental duplicate calls never emit a second completion.
+ * completed at the end with every exercise solved. Steps also navigate
+ * backward freely — a solved exercise stays solved when revisited, so
+ * `solvedExercises` is always counted exactly once per block. `complete()`
+ * is idempotent so accidental duplicate calls never emit a second
+ * completion.
  *
  * The demo at `/laboratorio/licao` uses this runner without a progress store;
  * real lessons will pair it with `progress.ts` via the `onComplete` callback.
@@ -25,6 +28,8 @@ export interface LessonRunnerSnapshot {
   selectedOption: number | null;
   /** Result of the last selection on the current exercise. */
   result: ExerciseResult | null;
+  /** Whether a previous step exists. */
+  canGoBack: boolean;
   solvedExercises: number;
   totalExercises: number;
   /** Reached the end with all exercises solved and not yet completed. */
@@ -38,6 +43,11 @@ export interface LessonRunnerDeps {
   onComplete?(): void;
 }
 
+interface BlockState {
+  selectedOption: number | null;
+  result: ExerciseResult | null;
+}
+
 export function createLessonRunner(
   content: LessonContent,
   deps: LessonRunnerDeps = {},
@@ -47,10 +57,14 @@ export function createLessonRunner(
     (block) => block.kind === "exercise",
   ).length;
 
+  // Per-block answer state: revisiting a solved exercise shows it solved —
+  // it can never be re-counted or flip back to unanswered.
+  const blockStates: BlockState[] = content.blocks.map(() => ({
+    selectedOption: null,
+    result: null,
+  }));
+
   let stepIndex = 0;
-  let selectedOption: number | null = null;
-  let result: ExerciseResult | null = null;
-  let solvedExercises = 0;
   let completed = false;
   let snapshot = buildSnapshot();
 
@@ -62,16 +76,31 @@ export function createLessonRunner(
     return atEnd() ? null : content.blocks[stepIndex];
   }
 
+  function currentState(): BlockState | null {
+    return atEnd() ? null : blockStates[stepIndex];
+  }
+
+  function solvedCount(): number {
+    return blockStates.filter(
+      (state, index) =>
+        content.blocks[index].kind === "exercise" &&
+        state.result === "correct",
+    ).length;
+  }
+
   function buildSnapshot(): LessonRunnerSnapshot {
+    const state = currentState();
     return {
       stepIndex,
       stepCount: content.blocks.length,
       block: currentBlock(),
-      selectedOption,
-      result,
-      solvedExercises,
+      selectedOption: state?.selectedOption ?? null,
+      result: state?.result ?? null,
+      canGoBack: stepIndex > 0,
+      solvedExercises: solvedCount(),
       totalExercises,
-      canComplete: atEnd() && solvedExercises === totalExercises && !completed,
+      canComplete:
+        atEnd() && solvedCount() === totalExercises && !completed,
       completed,
     };
   }
@@ -89,8 +118,9 @@ export function createLessonRunner(
    */
   function select(optionIndex: number) {
     const block = currentBlock();
-    if (!block || block.kind !== "exercise") return;
-    if (result === "correct") return;
+    const state = currentState();
+    if (!block || !state || block.kind !== "exercise") return;
+    if (state.result === "correct") return;
     if (
       optionIndex < 0 ||
       optionIndex >= block.exercise.options.length
@@ -98,13 +128,11 @@ export function createLessonRunner(
       return;
     }
 
-    selectedOption = optionIndex;
-    if (optionIndex === block.exercise.correctIndex) {
-      result = "correct";
-      solvedExercises += 1;
-    } else {
-      result = "incorrect";
-    }
+    state.selectedOption = optionIndex;
+    state.result =
+      optionIndex === block.exercise.correctIndex
+        ? "correct"
+        : "incorrect";
     emit();
   }
 
@@ -114,12 +142,21 @@ export function createLessonRunner(
    */
   function advance() {
     const block = currentBlock();
-    if (!block) return;
-    if (block.kind === "exercise" && result !== "correct") return;
+    const state = currentState();
+    if (!block || !state) return;
+    if (block.kind === "exercise" && state.result !== "correct") return;
 
     stepIndex += 1;
-    selectedOption = null;
-    result = null;
+    emit();
+  }
+
+  /**
+   * Moves to the previous block, restoring its recorded answer state.
+   * No-op on the first step; also valid from the completion screen.
+   */
+  function back() {
+    if (stepIndex === 0) return;
+    stepIndex -= 1;
     emit();
   }
 
@@ -138,9 +175,10 @@ export function createLessonRunner(
 
   function restart() {
     stepIndex = 0;
-    selectedOption = null;
-    result = null;
-    solvedExercises = 0;
+    for (const state of blockStates) {
+      state.selectedOption = null;
+      state.result = null;
+    }
     completed = false;
     emit();
   }
@@ -153,6 +191,7 @@ export function createLessonRunner(
     getSnapshot: () => snapshot,
     select,
     advance,
+    back,
     complete,
     restart,
   };
