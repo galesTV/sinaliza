@@ -16,6 +16,11 @@ import {
   getLessonContext,
 } from "@/data/learning-paths";
 import {
+  getSpecimenByLessonKey,
+  getSpecimenUrl,
+  isSpecimenPublishable,
+} from "@/data/alphabet-specimens";
+import {
   getCatalogEntry,
   getLessonDraftUrl,
   isPublishable,
@@ -71,6 +76,7 @@ async function LessonContent({ params }: LessonPageProps) {
   const { path, module, lesson, position, lessonCount } = context;
   const key = lessonKey(path.slug, module.slug, lesson.slug);
   const catalogEntry = getCatalogEntry(key);
+  const specimen = getSpecimenByLessonKey(key);
 
   return (
     <div className="flex flex-col gap-10">
@@ -140,6 +146,11 @@ async function LessonContent({ params }: LessonPageProps) {
           draftHref={
             catalogEntry?.draft && !isPublishable(catalogEntry)
               ? getLessonDraftUrl(key)
+              : undefined
+          }
+          specimenHref={
+            specimen && !isSpecimenPublishable(specimen)
+              ? getSpecimenUrl(specimen.letter)
               : undefined
           }
         />
