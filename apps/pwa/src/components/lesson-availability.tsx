@@ -25,10 +25,12 @@ export function LessonStatusBadge({ status }: { status: LessonStatus }) {
  *
  * Publication guard: the runner mounts only when the lesson's catalog entry
  * is publishable — `expert-validated` with the full review chain covering
- * the current content version. A manually flipped `status` or committed
- * content without validation evidence falls back to the honest note, so
- * unvalidated material is never rendered as published and `lessonKey` —
- * the only path that records progress — never reaches the runner.
+ * the current content version. A manually flipped `status`, a missing
+ * catalog entry or an incomplete review chain falls back to the honest
+ * note, and `lessonKey` — the only path that records progress — never
+ * reaches the runner. The guard validates the catalog entry; it does not
+ * prove `content` matches the reviewed draft (documented residual risk in
+ * docs/revisao-processo-publicacao.md).
  */
 export function LessonContentArea({
   status,
