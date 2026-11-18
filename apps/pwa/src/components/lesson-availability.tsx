@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import type { LessonContent } from "@/data/lesson-content";
+import { getCatalogEntry, isPublishable } from "@/data/lesson-catalog";
 import type { LessonStatus } from "@/data/learning-paths";
 
 import { Badge, PlannedBadge } from "./badge";
@@ -20,9 +21,16 @@ export function LessonStatusBadge({ status }: { status: LessonStatus }) {
  * The main instructional-content slot of a lesson page. Until validated
  * material exists (status "planned"), it renders an honest pending panel.
  * An "available" lesson without `content` is a data gap — it also gets an
- * honest fallback instead of a blank area. When validated `content` exists,
- * the runner takes over here and `lessonKey` records real completion in the
- * progress store.
+ * honest fallback instead of a blank area.
+ *
+ * Publication guard: the runner mounts only when the lesson's catalog entry
+ * is publishable — `expert-validated` with the full review chain covering
+ * the current content version. A manually flipped `status`, a missing
+ * catalog entry or an incomplete review chain falls back to the honest
+ * note, and `lessonKey` — the only path that records progress — never
+ * reaches the runner. The guard validates the catalog entry; it does not
+ * prove `content` matches the reviewed draft (documented residual risk in
+ * docs/revisao-processo-publicacao.md).
  */
 export function LessonContentArea({
   status,
@@ -39,7 +47,13 @@ export function LessonContentArea({
   /** Link to the visual specimen preview, when one is catalogued. */
   specimenHref?: string;
 }) {
-  if (status === "available" && content) {
+  const catalogEntry = lessonKey ? getCatalogEntry(lessonKey) : undefined;
+  if (
+    status === "available" &&
+    content &&
+    catalogEntry &&
+    isPublishable(catalogEntry)
+  ) {
     return <LessonRunner content={content} lessonKey={lessonKey} />;
   }
   if (status === "available") {
