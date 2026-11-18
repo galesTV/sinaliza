@@ -1,13 +1,120 @@
+import { isValidElement, type ReactElement, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
+import {
+  lessonCatalog,
+  type LessonCatalogEntry,
+  type LessonReview,
+} from "@/data/lesson-catalog";
+import type { LessonContent } from "@/data/lesson-content";
 import { getLessonContext } from "@/data/learning-paths";
 
+import DraftPreviewPage from "../app/laboratorio/licoes/[...key]/page";
 import {
   LessonContentArea,
   LessonStatusBadge,
 } from "./lesson-availability";
 import { LessonPager } from "./lesson-pager";
+import { LessonRunner } from "./lesson-runner";
+
+/**
+ * Catalog fixtures pushed for the duration of a test. `lessonCatalog` is a
+ * mutable registry: each test snapshots its length and `afterEach` truncates
+ * back, restoring the original state even when a test fails midway.
+ */
+let catalogLength = lessonCatalog.length;
+beforeEach(() => {
+  catalogLength = lessonCatalog.length;
+});
+afterEach(() => {
+  lessonCatalog.length = catalogLength;
+});
+
+const TEST_LESSON_KEY = "trilha/modulo/licao";
+
+const testContent: LessonContent = {
+  intro: "Introdução da lição.",
+  blocks: [{ kind: "text", heading: "Passo único", body: "texto" }],
+};
+
+function makeCatalogEntry(
+  overrides: Partial<LessonCatalogEntry> = {},
+): LessonCatalogEntry {
+  return {
+    id: "teste-runtime-guard",
+    lessonKey: TEST_LESSON_KEY,
+    title: "Lição de teste",
+    objective: "Objetivo de teste",
+    references: [
+      {
+        institution: "Instituição de teste",
+        url: "https://example.org/fonte",
+        purpose: "Testar",
+        consultedAt: "2026-11-18",
+      },
+    ],
+    plannedOutline: ["passo"],
+    validationStatus: "draft",
+    version: "draft-1",
+    reviews: [],
+    ...overrides,
+  };
+}
+
+function makeReview(
+  type: LessonReview["type"],
+  overrides: Partial<LessonReview> = {},
+): LessonReview {
+  return {
+    reviewer: `Revisor ${type}`,
+    type,
+    date: "2026-11-18",
+    version: "draft-1",
+    ...overrides,
+  };
+}
+
+const FULL_REVIEW_CHAIN: LessonReview[] = [
+  makeReview("research"),
+  makeReview("technical"),
+  makeReview("expert"),
+];
+
+function publishableEntry(
+  overrides: Partial<LessonCatalogEntry> = {},
+): LessonCatalogEntry {
+  return makeCatalogEntry({
+    validationStatus: "expert-validated",
+    reviews: [...FULL_REVIEW_CHAIN],
+    draft: testContent,
+    ...overrides,
+  });
+}
+
+/** The honest fallback means no runner mounted: the content is absent and
+ * `lessonKey` never reaches a component that could record progress. */
+function expectUnavailableFallback(html: string) {
+  expect(html).toContain("Conteúdo indisponível no momento");
+  expect(html).toContain("Nenhum progresso é registrado");
+  expect(html).not.toContain("Passo único");
+  expect(html).not.toContain("Passo 1 de");
+}
+
+/** Finds the first element of a given component type in a rendered tree. */
+function findElement(node: ReactNode, type: unknown): ReactElement | null {
+  if (Array.isArray(node)) {
+    for (const child of node) {
+      const found = findElement(child, type);
+      if (found) return found;
+    }
+    return null;
+  }
+  if (!isValidElement(node)) return null;
+  if (node.type === type) return node;
+  const children = (node.props as { children?: ReactNode }).children;
+  return findElement(children, type);
+}
 
 describe("LessonStatusBadge", () => {
   it("renders the availability state", () => {
@@ -27,15 +134,13 @@ describe("LessonContentArea", () => {
     expect(html).toContain("validação pedagógica");
   });
 
-  it("renders the lesson runner when an available lesson has content", () => {
+  it("renders the lesson runner for a publishable catalog entry", () => {
+    lessonCatalog.push(publishableEntry());
     const html = renderToStaticMarkup(
       <LessonContentArea
         status="available"
-        lessonKey="trilha/modulo/licao"
-        content={{
-          intro: "Introdução da lição.",
-          blocks: [{ kind: "text", heading: "Passo único", body: "texto" }],
-        }}
+        lessonKey={TEST_LESSON_KEY}
+        content={testContent}
       />,
     );
     expect(html).toContain("Passo único");
@@ -43,13 +148,12 @@ describe("LessonContentArea", () => {
   });
 
   it("renders the lesson introduction before the first block", () => {
+    lessonCatalog.push(publishableEntry());
     const html = renderToStaticMarkup(
       <LessonContentArea
         status="available"
-        content={{
-          intro: "Introdução da lição.",
-          blocks: [{ kind: "text", heading: "Passo único", body: "texto" }],
-        }}
+        lessonKey={TEST_LESSON_KEY}
+        content={testContent}
       />,
     );
     expect(html).toContain("Introdução da lição.");
@@ -61,6 +165,102 @@ describe("LessonContentArea", () => {
     const html = renderToStaticMarkup(<LessonContentArea status="available" />);
     expect(html).toContain("Conteúdo indisponível no momento");
     expect(html).not.toContain("Passo 1 de");
+  });
+});
+
+describe("LessonContentArea publication guard", () => {
+  it("blocks content for an available lesson with no catalog entry", () => {
+    const html = renderToStaticMarkup(
+      <LessonContentArea
+        status="available"
+        lessonKey="trilha/modulo/sem-catalogo"
+        content={testContent}
+      />,
+    );
+    expectUnavailableFallback(html);
+  });
+
+  it("blocks content when no lesson key reaches the area", () => {
+    const html = renderToStaticMarkup(
+      <LessonContentArea status="available" content={testContent} />,
+    );
+    expectUnavailableFallback(html);
+  });
+
+  it("blocks content whose catalog entry is still a draft", () => {
+    lessonCatalog.push(makeCatalogEntry({ draft: testContent }));
+    const html = renderToStaticMarkup(
+      <LessonContentArea
+        status="available"
+        lessonKey={TEST_LESSON_KEY}
+        content={testContent}
+      />,
+    );
+    expectUnavailableFallback(html);
+  });
+
+  it("blocks an expert-validated entry without valid reviews", () => {
+    lessonCatalog.push(
+      makeCatalogEntry({
+        validationStatus: "expert-validated",
+        draft: testContent,
+      }),
+    );
+    const html = renderToStaticMarkup(
+      <LessonContentArea
+        status="available"
+        lessonKey={TEST_LESSON_KEY}
+        content={testContent}
+      />,
+    );
+    expectUnavailableFallback(html);
+  });
+
+  it("blocks reviews that cover an older content version", () => {
+    lessonCatalog.push(
+      makeCatalogEntry({
+        validationStatus: "expert-validated",
+        version: "draft-2",
+        reviews: [...FULL_REVIEW_CHAIN],
+        draft: testContent,
+      }),
+    );
+    const html = renderToStaticMarkup(
+      <LessonContentArea
+        status="available"
+        lessonKey={TEST_LESSON_KEY}
+        content={testContent}
+      />,
+    );
+    expectUnavailableFallback(html);
+  });
+
+  it("renders and can record progress for a fully validated lesson", () => {
+    lessonCatalog.push(publishableEntry());
+    const html = renderToStaticMarkup(
+      <LessonContentArea
+        status="available"
+        lessonKey={TEST_LESSON_KEY}
+        content={testContent}
+      />,
+    );
+    expect(html).toContain("Passo 1 de 1");
+    expect(html).toContain("Finalizar lição");
+  });
+});
+
+describe("laboratory draft preview", () => {
+  it("runs the draft runner without a progress key", async () => {
+    const page = await DraftPreviewPage({
+      params: Promise.resolve({
+        key: ["alfabeto", "primeiros-passos", "libras-e-uma-lingua"],
+      }),
+    });
+    const runner = findElement(page, LessonRunner);
+    expect(runner).not.toBeNull();
+    expect(
+      (runner!.props as { lessonKey?: string }).lessonKey,
+    ).toBeUndefined();
   });
 });
 

@@ -33,35 +33,44 @@ lição pode ser publicada apenas por alteração manual de `status`.
 | Alteração manual | Efeito real |
 |---|---|
 | `Lesson.status` → `"available"`, sem conteúdo em `lessonContents` | A página mostra o aviso honesto "Conteúdo indisponível no momento"; nenhum rascunho aparece e **nenhum progresso é registrado**. Não publica nada. |
-| Conteúdo adicionado a `lessonContents` sem entrada `expert-validated` | **Barrido pelos testes** de segurança de publicação. |
+| Conteúdo adicionado a `lessonContents` sem entrada `expert-validated` | **Barrido em runtime** pela guarda de `LessonContentArea` (Fase 5) e pelos testes de segurança de publicação. |
 | `validationStatus` → `"expert-validated"` sem revisões | `validateCatalogEntry` falha (cadeia obrigatória); `isPublishable` retorna `false`; testes falham. |
 | Revisões antigas reaproveitadas após edição do rascunho | `review.version !== entry.version` → inválidas; testes falham. |
 
-## Risco residual identificado
+## Proteção em tempo de execução (Fase 5)
 
-**A guarda existe apenas na suíte de testes, não em tempo de execução.**
-`LessonContentArea` renderiza qualquer `lessonContents[key]` para uma
-lição `"available"` sem consultar o catálogo em runtime. Se alguém
-commitar conteúdo não validado + status `available` e os testes não
-rodarem (ou forem removidos), o material chega à trilha sem nenhuma
-barreira estrutural.
+**Implementada.** `LessonContentArea` só monta o `LessonRunner` quando a
+entrada de catálogo da lição existe e `isPublishable(entry)` retorna
+verdadeiro — `expert-validated`, cadeia completa de revisões sobre a
+versão atual do conteúdo e rascunho bem-formado. A guarda é
+*fail-closed*: catálogo ausente, status sem revisões válidas e revisões
+de versões anteriores caem no aviso honesto "Conteúdo indisponível no
+momento". Sem o runner montado, o conteúdo não renderiza e `lessonKey` —
+o único caminho que grava progresso — nunca é recebido.
 
-**Avaliação:** hoje a barreira é suficiente porque os testes rodam em todo
-PR — mas a integridade da publicação depende integralmente deles.
+Conteúdo commitado em `lessonContents` + `status: "available"` sem
+validação legítima agora é bloqueado em runtime, mesmo que os testes não
+rodem. As rotas de laboratório não passam por `LessonContentArea` e
+continuam exibindo rascunhos identificados, sem `lessonKey` e sem
+registro de progresso.
 
-**Correção mínima proposta (não aplicada — aguardando decisão):**
-fazer `LessonContentArea` renderizar o conteúdo somente quando
-`isPublishable(getCatalogEntry(key))` for verdadeiro, reutilizando a
-regra já existente. São ~5 linhas e nenhuma mudança de modelo de dados;
-o aviso honesto atual cobre o caso de lição `available` sem publicação
-legítima. Alternativa equivalente: um assert no build/CI já garantido
-pelos testes atuais — nesse caso, documentar no AGENTS.md que a suíte de
-testes é parte do mecanismo de publicação.
+## Riscos residuais
+
+- **Conteúdo vs. versão revisada:** a guarda comprova que a *entrada de
+  catálogo* é publicável, mas não que `lessonContents[key]` é idêntico ao
+  rascunho revisado — uma divergência entre os dois ainda renderizaria o
+  material do registro publicado. Mitigação possível (não aplicada):
+  renderizar `entry.draft` diretamente ou comparar conteúdo e versão no
+  momento da renderização.
+- **Páginas estáticas:** a guarda é avaliada em build; uma alteração de
+  dados exige rebuild/deploy — comportamento idêntico ao de hoje.
+- A suíte de testes segue como segunda barreira, agora cobrindo também
+  os cenários de bloqueio da guarda em `lesson-page.test.tsx`.
 
 ## Conclusão
 
 Não foi encontrada falha que permita publicar conteúdo não validado sem
 que os testes falhem. O fluxo está correto e o versionamento impede o
-reuso indevido de revisões. O risco residual é de arquitetura (guarda só
-em teste), documentado acima com uma correção mínima opcional — nenhuma
-regra foi flexibilizada.
+reuso indevido de revisões. O risco arquitetural identificado na Fase 4 —
+guarda existente apenas em teste — foi corrigido na Fase 5 com a proteção
+em runtime descrita acima, sem flexibilizar nenhuma regra.
