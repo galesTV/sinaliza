@@ -18,6 +18,23 @@ import {
 import { LessonMedia } from "./lesson-media";
 import { markLessonCompleted } from "./use-progress";
 
+/** Copy for the finish flow, split by whether completion records progress. */
+export function runnerCopy(recordsProgress: boolean) {
+  return recordsProgress
+    ? {
+        finish: "Finalizar lição",
+        complete: "Concluir lição",
+        completeHint:
+          "Você respondeu todos os exercícios corretamente. Conclua para registrar a lição.",
+      }
+    : {
+        finish: "Finalizar experiência",
+        complete: "Concluir experiência",
+        completeHint:
+          "Você respondeu todos os exercícios corretamente. Concluir a experiência não registra progresso.",
+      };
+}
+
 const OPTION_BUTTON_BASE =
   "flex min-h-11 w-full items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm font-medium transition-colors duration-200 focus-visible:outline-none";
 
@@ -54,6 +71,7 @@ function ExerciseBlock({
   onBack,
   canGoBack,
   isLastBlock,
+  finishLabel,
 }: {
   exercise: LessonExercise;
   selectedOption: number | null;
@@ -63,6 +81,7 @@ function ExerciseBlock({
   onBack: () => void;
   canGoBack: boolean;
   isLastBlock: boolean;
+  finishLabel: string;
 }) {
   const solved = result === "correct";
 
@@ -156,7 +175,7 @@ function ExerciseBlock({
         <div className="flex flex-wrap gap-3">
           {solved && (
             <button type="button" onClick={onAdvance} className="btn-primary">
-              {isLastBlock ? "Finalizar lição" : "Continuar"}
+              {isLastBlock ? finishLabel : "Continuar"}
               <IconArrowRight className="h-4 w-4" />
             </button>
           )}
@@ -200,6 +219,7 @@ export function LessonRunner({
   }, [snapshot.stepIndex]);
 
   const { block, stepIndex, stepCount } = snapshot;
+  const copy = runnerCopy(completedKey !== undefined);
 
   return (
     <section
@@ -246,7 +266,7 @@ export function LessonRunner({
               onClick={runner.advance}
               className="btn-primary"
             >
-              {stepIndex === stepCount - 1 ? "Finalizar lição" : "Continuar"}
+              {stepIndex === stepCount - 1 ? copy.finish : "Continuar"}
               <IconArrowRight className="h-4 w-4" />
             </button>
             <BackButton onBack={runner.back} visible={snapshot.canGoBack} />
@@ -274,7 +294,7 @@ export function LessonRunner({
               onClick={runner.advance}
               className="btn-primary"
             >
-              {stepIndex === stepCount - 1 ? "Finalizar lição" : "Continuar"}
+              {stepIndex === stepCount - 1 ? copy.finish : "Continuar"}
               <IconArrowRight className="h-4 w-4" />
             </button>
             <BackButton onBack={runner.back} visible={snapshot.canGoBack} />
@@ -304,6 +324,7 @@ export function LessonRunner({
             onBack={runner.back}
             canGoBack={snapshot.canGoBack}
             isLastBlock={stepIndex === stepCount - 1}
+            finishLabel={copy.finish}
           />
         </div>
       )}
@@ -329,7 +350,7 @@ export function LessonRunner({
               <p className="max-w-xl text-sm leading-relaxed text-muted">
                 {snapshot.completed
                   ? "Você respondeu todos os exercícios corretamente."
-                  : "Você respondeu todos os exercícios corretamente. Conclua para registrar a lição."}
+                  : copy.completeHint}
               </p>
             </div>
           </div>
@@ -342,7 +363,7 @@ export function LessonRunner({
                 className="btn-primary"
               >
                 <IconCheck className="h-4 w-4" />
-                Concluir lição
+                {copy.complete}
               </button>
             ) : (
               <button
