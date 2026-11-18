@@ -300,3 +300,109 @@ export const demoLesson: LessonContent = {
     },
   ],
 };
+
+/**
+ * Guided learning experience for `/laboratorio/experiencia` — the integrated
+ * walkthrough of the full activity flow (objective → explanation → visual
+ * demonstration → exercise → feedback → conclusion). Like `demoLesson`, it
+ * is NOT Libras educational material: the content describes the platform
+ * itself and points at the alphabet specimens catalogued for curation. Its
+ * media step reuses the same synthetic fixture — a labeled test asset, not
+ * a sign demonstration — because no licensed sign media exists yet.
+ */
+export const guidedExperience: LessonContent = {
+  intro:
+    "Esta experiência percorre o fluxo completo de uma atividade de aprendizagem do Sinaliza: objetivo, explicação, demonstração visual quando há mídia autorizada, exercícios com retorno imediato e conclusão. O conteúdo fala sobre a própria plataforma — não é material pedagógico validado de Libras.",
+  blocks: [
+    {
+      kind: "text",
+      heading: "O que você vai percorrer",
+      body: "O objetivo desta atividade é mostrar como uma experiência de aprendizagem funciona do início ao fim: cada etapa aparece em sequência, você avança no seu ritmo e recebe retorno a cada exercício. Ao final, a experiência mostra onde estão os primeiros espécimes visuais do alfabeto manual, ainda em curadoria.",
+    },
+    {
+      kind: "text",
+      heading: "Como o conteúdo é organizado",
+      body: "No Sinaliza, o aprendizado é organizado em trilhas, módulos e lições. Cada lição mistura explicações curtas, demonstrações visuais e exercícios de múltipla escolha. Antes de ser publicada, toda lição passa por revisão de pesquisa, revisão técnica e validação de um especialista — material em revisão fica no laboratório, marcado como rascunho.",
+    },
+    {
+      kind: "media",
+      title: "Demonstração visual (ativo sintético de teste)",
+      description:
+        "Este passo mostra como uma demonstração visual aparece dentro de uma experiência de aprendizagem. O arquivo é um padrão sintético gerado para testar a interface — não é uma demonstração de sinal. As demonstrações reais das letras ainda estão em produção e só serão exibidas com licença confirmada.",
+      media: {
+        type: "video",
+        src: "/media/fixtures/demo-pulse.mp4",
+        poster: "/media/fixtures/demo-poster.png",
+        captions: {
+          src: "/media/fixtures/demo-captions.vtt",
+          srclang: "pt-BR",
+          label: "Português",
+        },
+      },
+      attribution: {
+        source: "Sinaliza — ativo sintético gerado para testes",
+        license: "Uso interno em testes de interface",
+      },
+    },
+    {
+      kind: "exercise",
+      exercise: {
+        prompt:
+          "O que esta experiência do laboratório registra no seu progresso?",
+        options: [
+          {
+            label: "Marca uma lição da trilha do alfabeto como concluída",
+            feedback:
+              "Não: experiências do laboratório são separadas das trilhas e nunca marcam lições como concluídas.",
+          },
+          {
+            label: "Nada — a atividade do laboratório não gera progresso",
+            feedback:
+              "Correto: o laboratório existe para experimentar a interface; o progresso só é registrado em lições validadas das trilhas.",
+          },
+          {
+            label: "Desbloqueia os espécimes das letras A, B, C, I e L",
+            feedback:
+              "Não: os espécimes ficam visíveis no laboratório independentemente desta experiência, e nada aqui muda o estado deles.",
+          },
+        ],
+        correctIndex: 1,
+        explanation:
+          "Laboratório e trilhas são áreas separadas: concluir esta experiência não grava progresso, não desbloqueia lições e não altera o estado de nenhum espécime.",
+      },
+    },
+    {
+      kind: "text",
+      heading: "O alfabeto manual em curadoria",
+      body: "As letras A, B, C, I e L já estão catalogadas como espécimes visuais — registros que acompanham referências, estado de validação e licença de mídia. Nenhuma delas tem demonstração publicada ainda: cada página mostra honestamente o estado em produção, sem imagens provisórias ou demonstrações inventadas.",
+    },
+    {
+      kind: "exercise",
+      exercise: {
+        prompt:
+          "Quando uma demonstração visual de uma letra pode aparecer em uma lição?",
+        options: [
+          {
+            label: "Assim que qualquer vídeo da letra for encontrado na internet",
+            feedback:
+              "Não: um vídeo público não é permissão de uso. A mídia só entra quando há evidência de autorização registrada.",
+          },
+          {
+            label:
+              "Quando houver licença confirmada e a revisão especializada da versão atual",
+            feedback:
+              "Exato: exibição exige evidência de permissão, e publicação exige a cadeia completa de revisões sobre a versão atual do conteúdo.",
+          },
+          {
+            label: "Quando a letra estiver catalogada no laboratório",
+            feedback:
+              "Estar catalogada é só o primeiro passo: o espécime continua em rascunho até passar por toda a revisão e ter mídia licenciada.",
+          },
+        ],
+        correctIndex: 1,
+        explanation:
+          "Mídia sem licença comprovada nunca é exibida, e nenhuma lição é publicada sem a revisão completa — pesquisa, técnica e especialista — da versão atual.",
+      },
+    },
+  ],
+};

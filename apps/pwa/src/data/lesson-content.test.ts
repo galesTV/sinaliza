@@ -6,6 +6,7 @@ import { getLessonContext, getLearningPaths } from "./learning-paths";
 import {
   demoLesson,
   getLessonContent,
+  guidedExperience,
   lessonContents,
   validateLessonContent,
   type LessonContent,
@@ -105,6 +106,53 @@ describe("demoLesson", () => {
 
   it("is well-formed and completable", () => {
     expect(validateLessonContent(demoLesson)).toEqual([]);
+  });
+});
+
+describe("guidedExperience", () => {
+  it("exercises every block kind the runner supports", () => {
+    const kinds = new Set(guidedExperience.blocks.map((block) => block.kind));
+    expect(kinds).toEqual(new Set(["text", "exercise", "media"]));
+  });
+
+  it("is well-formed and completable", () => {
+    expect(validateLessonContent(guidedExperience)).toEqual([]);
+  });
+
+  it("is laboratory content, never registered as a published lesson", () => {
+    // The guided experience lives outside `lessonContents`: no lesson key
+    // points at it, so completing it can never record real progress.
+    expect(Object.values(lessonContents)).not.toContain(guidedExperience);
+    for (const key of Object.keys(lessonContents)) {
+      expect(lessonContents[key]).not.toBe(guidedExperience);
+    }
+  });
+
+  it("labels its media step honestly as a synthetic test asset", () => {
+    const mediaBlocks = guidedExperience.blocks.filter(
+      (block) => block.kind === "media",
+    );
+    expect(mediaBlocks.length).toBeGreaterThan(0);
+    for (const block of mediaBlocks) {
+      if (block.kind !== "media") continue;
+      expect(block.media.src).toContain("/media/fixtures/");
+      expect(block.attribution.license).toContain("test");
+      expect(block.description).toContain("não é uma demonstração de sinal");
+    }
+  });
+
+  it("has a completable exercise sequence with immediate feedback", () => {
+    const exercises = guidedExperience.blocks.filter(
+      (block) => block.kind === "exercise",
+    );
+    expect(exercises.length).toBeGreaterThan(0);
+    for (const block of exercises) {
+      if (block.kind !== "exercise") continue;
+      for (const option of block.exercise.options) {
+        expect(option.feedback.trim().length).toBeGreaterThan(0);
+      }
+      expect(block.exercise.explanation.trim().length).toBeGreaterThan(0);
+    }
   });
 });
 

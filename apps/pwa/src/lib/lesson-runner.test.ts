@@ -201,6 +201,61 @@ describe("createLessonRunner", () => {
     expect(runner.complete()).toBe(true);
   });
 
+  it("navigates backward freely and restores each step's answer state", () => {
+    const runner = createLessonRunner(makeContent());
+    expect(runner.getSnapshot().canGoBack).toBe(false);
+    runner.back(); // already at the first step — no-op
+    expect(runner.getSnapshot().stepIndex).toBe(0);
+
+    runner.advance();
+    expect(runner.getSnapshot().canGoBack).toBe(true);
+
+    // An incorrect answer is remembered when returning to the exercise.
+    runner.select(0);
+    runner.back();
+    expect(runner.getSnapshot().block?.kind).toBe("text");
+    runner.advance();
+    const returned = runner.getSnapshot();
+    expect(returned.result).toBe("incorrect");
+    expect(returned.selectedOption).toBe(0);
+  });
+
+  it("keeps a revisited exercise solved and never re-counts it", () => {
+    const runner = createLessonRunner(makeContent());
+    runner.advance();
+    runner.select(1);
+    expect(runner.getSnapshot().solvedExercises).toBe(1);
+
+    runner.back();
+    runner.advance();
+    const snap = runner.getSnapshot();
+    expect(snap.result).toBe("correct");
+    expect(snap.solvedExercises).toBe(1);
+
+    // Selecting again on the revisited exercise cannot flip or recount it.
+    runner.select(0);
+    expect(runner.getSnapshot().solvedExercises).toBe(1);
+    expect(runner.getSnapshot().result).toBe("correct");
+  });
+
+  it("returns from the completion screen to the last block", () => {
+    const runner = createLessonRunner(makeContent());
+    runner.advance();
+    runner.select(1);
+    runner.advance();
+    runner.select(0);
+    runner.advance();
+    expect(runner.getSnapshot().block).toBeNull();
+
+    runner.back();
+    const snap = runner.getSnapshot();
+    expect(snap.block?.kind).toBe("exercise");
+    expect(snap.result).toBe("correct");
+
+    runner.advance();
+    expect(runner.getSnapshot().canComplete).toBe(true);
+  });
+
   it("notifies subscribers on every transition", () => {
     const runner = createLessonRunner(makeContent());
     const listener = vi.fn();

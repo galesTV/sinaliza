@@ -115,6 +115,28 @@ export default function Home() {
         <ul className="grid gap-5 sm:grid-cols-2">
           <li>
             <Link
+              href="/laboratorio/experiencia"
+              className="group flex h-full items-start gap-3.5 rounded-2xl border border-dashed border-border bg-surface/50 p-5 transition-colors duration-200 hover:border-accent/40 hover:bg-surface"
+            >
+              <span
+                aria-hidden="true"
+                className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-border bg-surface-elevated text-muted transition-colors duration-200 group-hover:text-accent"
+              >
+                <IconFlask className="h-5 w-5" />
+              </span>
+              <span className="flex min-w-0 flex-col gap-1.5">
+                <span className="text-sm font-semibold text-foreground">
+                  Experiência guiada
+                </span>
+                <span className="text-sm leading-relaxed text-muted">
+                  Fluxo completo de uma atividade de aprendizagem — sem
+                  registrar progresso.
+                </span>
+              </span>
+            </Link>
+          </li>
+          <li>
+            <Link
               href="/laboratorio/licao"
               className="group flex h-full items-start gap-3.5 rounded-2xl border border-dashed border-border bg-surface/50 p-5 transition-colors duration-200 hover:border-accent/40 hover:bg-surface"
             >
