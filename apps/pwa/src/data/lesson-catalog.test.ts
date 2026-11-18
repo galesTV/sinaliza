@@ -123,6 +123,19 @@ describe("publication safety", () => {
     }
   });
 
+  it("requires a publishable catalog entry for every published lesson", () => {
+    // Mirror direction: anything that reaches lessonContents must be backed
+    // by a catalog entry carrying the full review evidence.
+    for (const key of Object.keys(lessonContents)) {
+      const entry = getCatalogEntry(key);
+      expect(entry, `published "${key}" has no catalog entry`).toBeDefined();
+      expect(
+        isPublishable(entry!),
+        `published "${key}" lacks expert validation evidence`,
+      ).toBe(true);
+    }
+  });
+
   it("marks every status as not publishable without review evidence", () => {
     // Even "expert-validated" alone is not enough — the review chain and a
     // well-formed draft are required (positive case covered below).
