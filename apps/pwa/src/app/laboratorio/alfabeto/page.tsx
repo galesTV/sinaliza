@@ -53,8 +53,9 @@ export default function AlphabetSpecimensPage() {
             </li>
             <li className="flex gap-2.5">
               <span aria-hidden="true" className="mt-2 h-1 w-1 shrink-0 rounded-full bg-accent" />
-              Nenhuma mídia é exibida sem licença confirmada e validação
-              especializada registrada no catálogo.
+              Mídia só aparece em prévia com evidência de autorização
+              registrada; publicação como lição continua exigindo
+              validação especializada da versão atual.
             </li>
           </ul>
         </HonestNote>
