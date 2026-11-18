@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
-import { getLearningPath } from "@/data/learning-paths";
+import { getLearningPath, getPathStats } from "@/data/learning-paths";
 
 import { PathCard } from "./path-card";
 
@@ -14,7 +14,8 @@ describe("PathCard", () => {
 
     expect(html).toContain('href="/trilhas/alfabeto"');
     expect(html).toContain("Alfabeto manual");
-    expect(html).toContain("6 módulos");
-    expect(html).toContain("28 lições");
+    const stats = getPathStats(path!);
+    expect(html).toContain(`${stats.moduleCount} módulos`);
+    expect(html).toContain(`${stats.lessonCount} lições`);
   });
 });

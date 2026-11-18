@@ -98,6 +98,11 @@ export const learningPaths: LearningPath[] = [
           "O que é o alfabeto manual, quando ele é usado em Libras e como aproveitar melhor a trilha.",
         lessons: [
           plannedLesson(
+            "libras-e-uma-lingua",
+            "Libras é uma língua",
+            "Reconhecer a Libras como língua visual-espacial com estrutura gramatical própria.",
+          ),
+          plannedLesson(
             "o-que-e",
             "O que é a datilologia",
             "Entender o que é a datilologia e o papel dela dentro da Libras.",

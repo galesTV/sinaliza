@@ -52,10 +52,10 @@ describe("getLessonContext", () => {
     const first = getLessonContext(
       "alfabeto",
       "primeiros-passos",
-      "o-que-e",
+      "libras-e-uma-lingua",
     );
     expect(first?.previous).toBeUndefined();
-    expect(first?.next?.slug).toBe("quando-usar");
+    expect(first?.next?.slug).toBe("o-que-e");
 
     const last = getLessonContext("alfabeto", "letras-u-z", "letra-z");
     expect(last?.next).toBeUndefined();
