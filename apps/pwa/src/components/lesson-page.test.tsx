@@ -76,10 +76,14 @@ describe("LessonPager", () => {
   });
 
   it("renders no previous link on the first lesson and no next link on the last", () => {
-    const first = getLessonContext("alfabeto", "primeiros-passos", "o-que-e")!;
+    const first = getLessonContext(
+      "alfabeto",
+      "primeiros-passos",
+      "libras-e-uma-lingua",
+    )!;
     const firstHtml = renderToStaticMarkup(<LessonPager context={first} />);
     expect(firstHtml).not.toContain("Lição anterior");
-    expect(firstHtml).toContain("/trilhas/alfabeto/primeiros-passos/quando-usar");
+    expect(firstHtml).toContain("/trilhas/alfabeto/primeiros-passos/o-que-e");
 
     const last = getLessonContext("alfabeto", "letras-u-z", "letra-z")!;
     const lastHtml = renderToStaticMarkup(<LessonPager context={last} />);
