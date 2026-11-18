@@ -112,7 +112,7 @@ export interface LessonCatalogEntry {
 
 const CONSULTED_AT = "2026-11-18";
 
-const REFERENCIAS_COMUNS = {
+const COMMON_REFERENCES = {
   lei10436: {
     institution: "Presidência da República — Portal da Legislação",
     url: "https://www.planalto.gov.br/ccivil_03/leis/2002/l10436.htm",
@@ -139,17 +139,17 @@ export const lessonCatalog: LessonCatalogEntry[] = [
       "Reconhecer a Libras como língua visual-espacial com estrutura gramatical própria, distinta do português e dos gestos comuns.",
     references: [
       {
-        ...REFERENCIAS_COMUNS.lei10436,
+        ...COMMON_REFERENCES.lei10436,
         purpose:
           "Base legal do reconhecimento da Libras (art. 1º): meio legal de comunicação e expressão, sistema linguístico de natureza visual-motora com estrutura gramatical própria.",
       },
       {
-        ...REFERENCIAS_COMUNS.inesGramatica,
+        ...COMMON_REFERENCES.inesGramatica,
         purpose:
           "Referência institucional sobre a estrutura gramatical da Libras e os parâmetros de formação dos sinais.",
       },
       {
-        ...REFERENCIAS_COMUNS.ufscGramatica,
+        ...COMMON_REFERENCES.ufscGramatica,
         purpose:
           "Fonte acadêmica da descrição linguística da Libras (fonologia, morfologia e sintaxe da língua).",
       },
@@ -262,12 +262,12 @@ export const lessonCatalog: LessonCatalogEntry[] = [
         consultedAt: CONSULTED_AT,
       },
       {
-        ...REFERENCIAS_COMUNS.inesGramatica,
+        ...COMMON_REFERENCES.inesGramatica,
         purpose:
           "Base para situar a datilologia como recurso dentro da língua, e não como a língua em si.",
       },
       {
-        ...REFERENCIAS_COMUNS.ufscGramatica,
+        ...COMMON_REFERENCES.ufscGramatica,
         purpose:
           "Fundamentação linguística sobre o papel da soletração manual e a distinção entre datilologia e sinais lexicais.",
       },
