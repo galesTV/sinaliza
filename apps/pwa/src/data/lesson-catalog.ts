@@ -39,7 +39,7 @@ export const VALIDATION_STATUS_ORDER: readonly LessonValidationStatus[] = [
  * `expert-validated` demands the whole chain (research + technical +
  * expert), not just the expert sign-off.
  */
-const REQUIRED_REVIEWS: Record<
+export const REQUIRED_REVIEWS: Record<
   LessonValidationStatus,
   readonly LessonReview["type"][]
 > = {
@@ -390,7 +390,7 @@ export function getLessonDraftUrl(key: string): string {
 
 /** A review counts as evidence only when complete and covering the
  * entry's current content version. */
-function isValidReview(review: LessonReview): boolean {
+export function isValidReview(review: LessonReview): boolean {
   return (
     review.reviewer.trim().length > 0 &&
     /^\d{4}-\d{2}-\d{2}$/.test(review.date) &&
@@ -398,15 +398,16 @@ function isValidReview(review: LessonReview): boolean {
   );
 }
 
-function hasCurrentReview(
-  entry: LessonCatalogEntry,
+export function hasCurrentReview(
+  reviews: LessonReview[],
+  version: string,
   type: LessonReview["type"],
 ): boolean {
-  return entry.reviews.some(
+  return reviews.some(
     (review) =>
       review.type === type &&
       isValidReview(review) &&
-      review.version === entry.version,
+      review.version === version,
   );
 }
 
@@ -420,7 +421,7 @@ export function isPublishable(entry: LessonCatalogEntry): boolean {
   return (
     entry.validationStatus === "expert-validated" &&
     REQUIRED_REVIEWS[entry.validationStatus].every((type) =>
-      hasCurrentReview(entry, type),
+      hasCurrentReview(entry.reviews, entry.version, type),
     ) &&
     Boolean(entry.draft) &&
     validateLessonContent(entry.draft!).length === 0
