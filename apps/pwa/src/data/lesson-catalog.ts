@@ -163,7 +163,7 @@ export const lessonCatalog: LessonCatalogEntry[] = [
       "Exercício: como os sinais são produzidos e percebidos",
     ],
     validationStatus: "draft",
-    version: "draft-1",
+    version: "draft-2",
     reviews: [],
     mediaPlan: {
       summary:
@@ -223,7 +223,7 @@ export const lessonCatalog: LessonCatalogEntry[] = [
             options: [
               {
                 label:
-                  "Pela combinação de configuração de mãos, ponto de articulação, movimento e expressões",
+                  "Pela combinação de configuração de mãos, ponto de articulação, movimento, direção e expressões",
                 feedback:
                   "Correto: esses parâmetros se combinam para formar cada sinal — mudar um deles pode mudar o significado.",
               },
