@@ -34,15 +34,19 @@ export const VALIDATION_STATUS_ORDER: readonly LessonValidationStatus[] = [
   "expert-validated",
 ];
 
-/** Which review type evidence a status requires (draft requires none). */
-const STATUS_REVIEW_REQUIREMENT: Record<
+/**
+ * Review evidence each status requires. The lifecycle is sequential —
+ * `expert-validated` demands the whole chain (research + technical +
+ * expert), not just the expert sign-off.
+ */
+const REQUIRED_REVIEWS: Record<
   LessonValidationStatus,
-  LessonReview["type"] | null
+  readonly LessonReview["type"][]
 > = {
-  draft: null,
-  "research-reviewed": "research",
-  "technical-reviewed": "technical",
-  "expert-validated": "expert",
+  draft: [],
+  "research-reviewed": ["research"],
+  "technical-reviewed": ["research", "technical"],
+  "expert-validated": ["research", "technical", "expert"],
 };
 
 export interface LessonReference {
@@ -90,6 +94,12 @@ export interface LessonCatalogEntry {
    */
   plannedOutline: string[];
   validationStatus: LessonValidationStatus;
+  /**
+   * Current content version, e.g. "draft-1". Bump it whenever the content
+   * changes: a review only counts toward publication while its `version`
+   * matches this field — stale reviews never validate new content.
+   */
+  version: string;
   reviews: LessonReview[];
   mediaPlan?: LessonMediaPlan;
   /**
@@ -153,6 +163,7 @@ export const lessonCatalog: LessonCatalogEntry[] = [
       "Exercício: como os sinais são produzidos e percebidos",
     ],
     validationStatus: "draft",
+    version: "draft-1",
     reviews: [],
     mediaPlan: {
       summary:
@@ -175,7 +186,7 @@ export const lessonCatalog: LessonCatalogEntry[] = [
         {
           kind: "text",
           heading: "Não é português sinalizado — e não é universal",
-          body: "A Libras tem gramática própria, com organização de frases diferente do português. Sinalizar uma frase em português palavra por palavra não é falar Libras. Assim como as línguas orais, as línguas de sinais variam entre países: existe a língua de sinais americana, a francesa, e assim por diante — e no Brasil há ainda variações regionais de sinais.",
+          body: "A Libras tem gramática própria, com organização de frases diferente do português. Sinalizar uma frase em português palavra por palavra não é falar Libras. E assim como há muitas línguas orais, há muitas línguas de sinais diferentes no mundo — a Libras é a língua das comunidades surdas do Brasil, que também apresenta variações regionais de sinais.",
         },
         {
           kind: "exercise",
@@ -197,7 +208,7 @@ export const lessonCatalog: LessonCatalogEntry[] = [
                 label:
                   "Porque é a mesma língua de sinais usada em todos os países",
                 feedback:
-                  "Na verdade, cada país tem sua língua de sinais — a Libras é específica das comunidades surdas do Brasil.",
+                  "Na verdade, existem muitas línguas de sinais diferentes no mundo — a Libras é a língua das comunidades surdas do Brasil.",
               },
             ],
             correctIndex: 1,
@@ -270,6 +281,7 @@ export const lessonCatalog: LessonCatalogEntry[] = [
       "Exercício: situações de uso da datilologia",
     ],
     validationStatus: "draft",
+    version: "draft-1",
     reviews: [],
     mediaPlan: {
       summary:
@@ -282,7 +294,7 @@ export const lessonCatalog: LessonCatalogEntry[] = [
         {
           kind: "text",
           heading: "O que é a datilologia",
-          body: "A datilologia é a soletração manual: cada letra do alfabeto é representada por uma configuração de mão, permitindo escrever palavras letra por letra. O alfabeto manual de Libras tem uma configuração de mão para cada uma das 26 letras.",
+          body: "A datilologia é a soletração manual: cada letra do alfabeto é representada por uma configuração de mão, permitindo soletrar palavras visualmente, letra por letra. O alfabeto manual de Libras tem uma configuração de mão para cada uma das 26 letras.",
         },
         {
           kind: "text",
@@ -303,7 +315,7 @@ export const lessonCatalog: LessonCatalogEntry[] = [
                 label:
                   "A datilologia representa letras; os sinais são unidades da língua com significado próprio",
                 feedback:
-                  "Exato: soletrar é escrever com as mãos; sinalizar é usar o léxico e a gramática da língua.",
+                  "Exato: soletrar representa letras do alfabeto escrito por configurações de mão; sinalizar usa o léxico e a gramática próprios da língua.",
               },
               {
                 label:
@@ -376,12 +388,43 @@ export function getLessonDraftUrl(key: string): string {
   return `/laboratorio/licoes/${key}`;
 }
 
+/** A review counts as evidence only when complete and covering the
+ * entry's current content version. */
+function isValidReview(review: LessonReview): boolean {
+  return (
+    review.reviewer.trim().length > 0 &&
+    /^\d{4}-\d{2}-\d{2}$/.test(review.date) &&
+    review.version.trim().length > 0
+  );
+}
+
+function hasCurrentReview(
+  entry: LessonCatalogEntry,
+  type: LessonReview["type"],
+): boolean {
+  return entry.reviews.some(
+    (review) =>
+      review.type === type &&
+      isValidReview(review) &&
+      review.version === entry.version,
+  );
+}
+
 /**
  * A draft is publishable into `lessonContents` only when the entry reached
- * `expert-validated` — i.e., a specialist review is on record.
+ * `expert-validated` AND the full review chain (research, technical, expert)
+ * covers the current content version — a bare status or a stale review is
+ * never enough. The draft itself must exist and be well-formed.
  */
 export function isPublishable(entry: LessonCatalogEntry): boolean {
-  return entry.validationStatus === "expert-validated";
+  return (
+    entry.validationStatus === "expert-validated" &&
+    REQUIRED_REVIEWS[entry.validationStatus].every((type) =>
+      hasCurrentReview(entry, type),
+    ) &&
+    Boolean(entry.draft) &&
+    validateLessonContent(entry.draft!).length === 0
+  );
 }
 
 /**
@@ -419,15 +462,29 @@ export function validateCatalogEntry(entry: LessonCatalogEntry): string[] {
       problems.push(`${at}: consultedAt must be YYYY-MM-DD`);
   });
 
+  if (!entry.version.trim()) problems.push("entry: missing version");
+
   if (!VALIDATION_STATUS_ORDER.includes(entry.validationStatus)) {
     problems.push(`entry: unknown status "${entry.validationStatus}"`);
   }
 
-  const required = STATUS_REVIEW_REQUIREMENT[entry.validationStatus];
-  if (required && !entry.reviews.some((review) => review.type === required)) {
-    problems.push(
-      `entry: status "${entry.validationStatus}" requires a ${required} review`,
-    );
+  for (const type of REQUIRED_REVIEWS[entry.validationStatus]) {
+    const matching = entry.reviews.filter((review) => review.type === type);
+    if (matching.length === 0) {
+      problems.push(
+        `entry: status "${entry.validationStatus}" requires a ${type} review`,
+      );
+    } else if (!matching.some((review) => isValidReview(review))) {
+      problems.push(`entry: ${type} review is incomplete`);
+    } else if (
+      !matching.some(
+        (review) => isValidReview(review) && review.version === entry.version,
+      )
+    ) {
+      problems.push(
+        `entry: ${type} review covers an outdated content version`,
+      );
+    }
   }
 
   entry.reviews.forEach((review, i) => {

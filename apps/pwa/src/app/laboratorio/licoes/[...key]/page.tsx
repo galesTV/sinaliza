@@ -30,6 +30,7 @@ export async function generateMetadata({
   return {
     title: `Laboratório — ${entry.title} (prévia)`,
     description: entry.objective,
+    robots: { index: false, follow: false },
   };
 }
 

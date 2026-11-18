@@ -34,10 +34,30 @@ function makeEntry(
     ],
     plannedOutline: ["passo"],
     validationStatus: "draft",
+    version: "draft-1",
     reviews: [],
     ...overrides,
   };
 }
+
+function makeReview(
+  type: LessonCatalogEntry["reviews"][number]["type"],
+  overrides: Partial<LessonCatalogEntry["reviews"][number]> = {},
+): LessonCatalogEntry["reviews"][number] {
+  return {
+    reviewer: `Revisor ${type}`,
+    type,
+    date: "2026-11-18",
+    version: "draft-1",
+    ...overrides,
+  };
+}
+
+const FULL_REVIEW_CHAIN = [
+  makeReview("research"),
+  makeReview("technical"),
+  makeReview("expert"),
+];
 
 describe("lessonCatalog", () => {
   it("registers every entry as well-formed and traceable", () => {
@@ -103,11 +123,70 @@ describe("publication safety", () => {
     }
   });
 
-  it("marks non-validated statuses as not publishable", () => {
+  it("marks every status as not publishable without review evidence", () => {
+    // Even "expert-validated" alone is not enough — the review chain and a
+    // well-formed draft are required (positive case covered below).
     for (const status of VALIDATION_STATUS_ORDER) {
       const entry = makeEntry({ validationStatus: status });
-      expect(isPublishable(entry)).toBe(status === "expert-validated");
+      expect(isPublishable(entry)).toBe(false);
     }
+  });
+
+  it("is not publishable with a bare expert-validated status", () => {
+    // Status alone is not evidence: the review chain must exist and cover
+    // the current content version.
+    const entry = makeEntry({
+      validationStatus: "expert-validated",
+      draft: {
+        intro: "intro",
+        blocks: [{ kind: "text", heading: "h", body: "b" }],
+      },
+    });
+    expect(isPublishable(entry)).toBe(false);
+  });
+
+  it("is not publishable with an incomplete or stale review chain", () => {
+    const missingStages = makeEntry({
+      validationStatus: "expert-validated",
+      reviews: [makeReview("expert")],
+    });
+    expect(isPublishable(missingStages)).toBe(false);
+
+    const stale = makeEntry({
+      validationStatus: "expert-validated",
+      version: "draft-2",
+      reviews: [...FULL_REVIEW_CHAIN],
+    });
+    expect(isPublishable(stale)).toBe(false);
+
+    const incomplete = makeEntry({
+      validationStatus: "expert-validated",
+      reviews: [
+        makeReview("research"),
+        makeReview("technical"),
+        makeReview("expert", { version: "" }),
+      ],
+    });
+    expect(isPublishable(incomplete)).toBe(false);
+  });
+
+  it("is publishable only with the full chain on the current version", () => {
+    const entry = makeEntry({
+      validationStatus: "expert-validated",
+      reviews: [...FULL_REVIEW_CHAIN],
+      draft: {
+        intro: "intro",
+        blocks: [{ kind: "text", heading: "h", body: "b" }],
+      },
+    });
+    expect(isPublishable(entry)).toBe(true);
+
+    // Without draft content there is nothing to publish.
+    expect(isPublishable({ ...entry, draft: undefined })).toBe(false);
+    // Malformed draft content is not publishable either.
+    expect(
+      isPublishable({ ...entry, draft: { intro: "", blocks: [] } }),
+    ).toBe(false);
   });
 });
 
@@ -119,21 +198,50 @@ describe("validateCatalogEntry", () => {
     expect(problems.join()).toContain("expert-validated");
   });
 
-  it("accepts expert-validated when the expert review is recorded", () => {
+  it("accepts expert-validated with the full review chain on the current version", () => {
+    const problems = validateCatalogEntry(
+      makeEntry({
+        validationStatus: "expert-validated",
+        reviews: [...FULL_REVIEW_CHAIN],
+      }),
+    );
+    expect(problems).toEqual([]);
+  });
+
+  it("requires the research and technical reviews before the expert one", () => {
+    const problems = validateCatalogEntry(
+      makeEntry({
+        validationStatus: "expert-validated",
+        reviews: [makeReview("expert")],
+      }),
+    );
+    expect(problems.join()).toContain("research");
+    expect(problems.join()).toContain("technical");
+  });
+
+  it("flags an incomplete review as no evidence", () => {
     const problems = validateCatalogEntry(
       makeEntry({
         validationStatus: "expert-validated",
         reviews: [
-          {
-            reviewer: "Especialista em Libras",
-            type: "expert",
-            date: "2026-11-18",
-            version: "draft-1",
-          },
+          makeReview("research"),
+          makeReview("technical"),
+          makeReview("expert", { reviewer: "" }),
         ],
       }),
     );
-    expect(problems).toEqual([]);
+    expect(problems.join()).toContain("expert review is incomplete");
+  });
+
+  it("flags a review that covers an outdated content version", () => {
+    const problems = validateCatalogEntry(
+      makeEntry({
+        validationStatus: "expert-validated",
+        version: "draft-2",
+        reviews: [...FULL_REVIEW_CHAIN],
+      }),
+    );
+    expect(problems.join()).toContain("outdated content version");
   });
 
   it("rejects intermediate statuses without the matching review", () => {

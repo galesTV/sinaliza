@@ -17,6 +17,7 @@ export const metadata: Metadata = {
   title: "Laboratório — Prévia de lições em revisão",
   description:
     "Rascunhos de lições do catálogo pedagógico do Sinaliza: conteúdo em revisão, ainda não validado pedagógica e linguisticamente.",
+  robots: { index: false, follow: false },
 };
 
 export default function DraftLessonsPage() {
