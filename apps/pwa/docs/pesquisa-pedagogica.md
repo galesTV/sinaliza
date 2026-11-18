@@ -51,7 +51,9 @@ registram progresso.
   trilha.
 - **Mídia:** decidir produção própria de demonstrações (alfabeto manual e
   exemplos de parâmetros) ou licenciamento verificável; registrar evidência
-  de permissão no `mediaPlan` do catálogo.
+  de permissão no `mediaPlan` do catálogo. A curadoria das letras candidatas
+  (A, B, C, L e I) e o procedimento de produção estão em
+  `docs/curadoria-alfabeto.md`.
 
 ## Perguntas para avaliação especializada
 

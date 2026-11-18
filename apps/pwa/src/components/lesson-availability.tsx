@@ -29,12 +29,15 @@ export function LessonContentArea({
   content,
   lessonKey,
   draftHref,
+  specimenHref,
 }: {
   status: LessonStatus;
   content?: LessonContent;
   lessonKey?: string;
   /** Link to the unvalidated draft preview, when the catalog holds one. */
   draftHref?: string;
+  /** Link to the visual specimen preview, when one is catalogued. */
+  specimenHref?: string;
 }) {
   if (status === "available" && content) {
     return <LessonRunner content={content} lessonKey={lessonKey} />;
@@ -63,6 +66,15 @@ export function LessonContentArea({
         >
           <IconFlask className="h-4 w-4" />
           Ver prévia do conteúdo em revisão — rascunho não validado
+        </Link>
+      )}
+      {specimenHref && (
+        <Link
+          href={specimenHref}
+          className="group inline-flex items-center gap-2 self-start text-sm font-medium text-accent transition-colors hover:text-foreground"
+        >
+          <IconFlask className="h-4 w-4" />
+          Ver prévia da demonstração visual — espécime não validado
         </Link>
       )}
     </div>
