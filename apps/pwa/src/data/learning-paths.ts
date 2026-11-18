@@ -107,6 +107,11 @@ export const learningPaths: LearningPath[] = [
             "Quando a soletração manual é usada",
             "Reconhecer situações do cotidiano em que a soletração manual aparece.",
           ),
+          plannedLesson(
+            "libras-e-uma-lingua",
+            "Libras é uma língua",
+            "Reconhecer a Libras como língua visual-espacial com estrutura gramatical própria.",
+          ),
         ],
       },
       letterGroup(

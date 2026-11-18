@@ -1,0 +1,66 @@
+# Pesquisa pedagógica — fundação de conteúdo
+
+Registro das fontes que embasam o catálogo pedagógico
+(`src/data/lesson-catalog.ts`), do estado de validação de cada lição e das
+pendências de revisão. Documento vivo: atualize-o a cada nova fonte, revisão
+ou decisão de publicação.
+
+**Consulta das fontes:** 18/11/2026.
+
+## Fontes institucionais e acadêmicas
+
+| Fonte | URL | Finalidade | Direitos de uso |
+|---|---|---|---|
+| Instituto Nacional de Educação de Surdos (INES) — *Gramática da Libras, Volume 1* (publicação, 2023) | https://www.gov.br/ines/pt-br/central-de-conteudos/publicacoes-1/todas-as-publicacoes/gramatica-da-libras-volume-1 | Referência institucional para a estrutura gramatical da Libras e os parâmetros de formação dos sinais (lições A e B). | Publicação institucional de distribuição gratuita. Reprodução integral ou de trechos para fins educativos precisa ser confirmada nos termos da própria publicação — **citação de ideias usada; nenhum trecho, imagem ou mídia foi copiado**. |
+| Universidade Federal de Santa Catarina (UFSC) — *Gramática da Libras (V.1)*, Quadros, R. M. de et al. (repositório institucional, 2023) | https://repositorio.ufsc.br/handle/123456789/262318 | Fundamentação linguística acadêmica: modalidade visual-espacial, parâmetros dos sinais e papel da datilologia. | Obra acadêmica em repositório institucional. Situação de licença não confirmada para reprodução — **usada como referência conceitual, sem cópia de conteúdo**. |
+| Instituto Nacional de Educação de Surdos (INES) — *Alfabeto de Libras e Configuração de Mãos* | https://www.gov.br/ines/pt-br/central-de-conteudos/publicacoes-1/todas-as-publicacoes/alfabeto-manual-e-configuracao-de-maos | Referência para o alfabeto manual e as configurações de mão (lição B e trilha do alfabeto). | Página de publicações institucional. Imagens/licenças dos materiais **não verificadas — nenhuma mídia reutilizada**. |
+
+## Fundamentação legal
+
+A legislação fundamenta o problema e a proposta educacional do Sinaliza —
+**não é validação do conteúdo das lições**. Textos localizados com apoio do
+acervo [ctresb/leis](https://github.com/ctresb/leis) e confirmados na redação
+vigente do Portal da Legislação do Planalto.
+
+| Norma | URL oficial | Dispositivos relevantes |
+|---|---|---|
+| Lei nº 10.436/2002 — reconhecimento da Libras | https://www.planalto.gov.br/ccivil_03/leis/2002/l10436.htm | Art. 1º (reconhecimento como meio legal de comunicação; parágrafo único: sistema linguístico visual-motor com estrutura gramatical própria); art. 2º (apoio institucional ao uso e difusão); art. 4º (ensino de Libras na formação de professores). |
+| Decreto nº 5.626/2005 — regulamentação | https://www.planalto.gov.br/ccivil_03/_ato_2004-2006/2005/decreto/d5626.htm | Art. 2º (definição de pessoa surda); arts. 3º–6º (Libras como disciplina e formação de docentes/instrutores); art. 24 (acessibilidade em cursos a distância — janela de intérprete e legendas). |
+| Lei nº 13.146/2015 — Lei Brasileira de Inclusão | https://www.planalto.gov.br/ccivil_03/_ato_2015-2018/2015/lei/l13146.htm | Art. 3º, V (comunicação inclui a Libras); art. 27 (educação como direito); art. 28, IV (educação bilíngue: Libras como primeira língua, português escrito como segunda). |
+
+## Conteúdos preparados
+
+| Lição | Chave | Estado | Rascunho |
+|---|---|---|---|
+| A — Libras é uma língua | `alfabeto/primeiros-passos/libras-e-uma-lingua` | `draft` | Introdução, 3 blocos de explicação, 2 exercícios de múltipla escolha com feedback. |
+| B — O que é a datilologia | `alfabeto/primeiros-passos/o-que-e` | `draft` | Introdução, 3 blocos de explicação, 2 exercícios de múltipla escolha com feedback. |
+
+Ambas apenas texto — nenhum vídeo ou imagem foi incluído porque nenhuma
+licença de mídia foi confirmada. As prévias ficam em
+`/laboratorio/licoes/<chave>` com aviso explícito de revisão pendente e não
+registram progresso.
+
+## Pendências de revisão
+
+- **Revisão de pesquisa:** conferir se a redação fielmente reflete as fontes
+  (especialmente parâmetros dos sinais e casos de uso da datilologia).
+- **Revisão técnica:** verificar clareza, extensão e adequação ao público
+  iniciante; revisar se os exercícios medem o objetivo declarado.
+- **Validação especializada:** avaliação de profissional de Libras/educação
+  de surdos — requisito para `expert-validated` e para a publicação na
+  trilha.
+- **Mídia:** decidir produção própria de demonstrações (alfabeto manual e
+  exemplos de parâmetros) ou licenciamento verificável; registrar evidência
+  de permissão no `mediaPlan` do catálogo.
+
+## Perguntas para avaliação especializada
+
+1. A ordem conceitual (língua → datilologia → letras) é adequada para o
+   público-alvo do MVP?
+2. Os exemplos de uso da datilologia (nomes próprios, termos técnicos,
+   siglas) cobrem os casos relevantes sem sugerir que "soletrar = falar
+   Libras"?
+3. A descrição dos parâmetros dos sinais está correta e suficiente para uma
+   primeira lição conceitual?
+4. Devemos citar variações regionais de sinais neste nível, ou simplificar?
+5. Quais exercícios adicionais avaliariam melhor os objetivos declarados?

@@ -15,6 +15,11 @@ import {
   getLearningPaths,
   getLessonContext,
 } from "@/data/learning-paths";
+import {
+  getCatalogEntry,
+  getLessonDraftUrl,
+  isPublishable,
+} from "@/data/lesson-catalog";
 import { getLessonContent } from "@/data/lesson-content";
 import { lessonKey } from "@/lib/progress";
 
@@ -64,6 +69,8 @@ async function LessonContent({ params }: LessonPageProps) {
   if (!context) notFound();
 
   const { path, module, lesson, position, lessonCount } = context;
+  const key = lessonKey(path.slug, module.slug, lesson.slug);
+  const catalogEntry = getCatalogEntry(key);
 
   return (
     <div className="flex flex-col gap-10">
@@ -129,7 +136,12 @@ async function LessonContent({ params }: LessonPageProps) {
         <LessonContentArea
           status={lesson.status}
           content={getLessonContent(path.slug, module.slug, lesson.slug)}
-          lessonKey={lessonKey(path.slug, module.slug, lesson.slug)}
+          lessonKey={key}
+          draftHref={
+            catalogEntry?.draft && !isPublishable(catalogEntry)
+              ? getLessonDraftUrl(key)
+              : undefined
+          }
         />
       </section>
 
