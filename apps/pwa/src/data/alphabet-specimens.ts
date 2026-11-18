@@ -17,9 +17,10 @@ import {
   type LessonReview,
   type LessonValidationStatus,
 } from "./lesson-catalog";
-import type {
-  LessonMedia,
-  LessonMediaAttribution,
+import {
+  validateLessonMedia,
+  type LessonMedia,
+  type LessonMediaAttribution,
 } from "./lesson-content";
 import { parseLessonKey } from "@/lib/progress";
 
@@ -176,9 +177,21 @@ export function getSpecimenUrl(letter: string): string {
   return `/laboratorio/alfabeto/${letter.trim().toLowerCase()}`;
 }
 
-function hasLicensedAttribution(specimen: AlphabetSpecimen): boolean {
+/**
+ * Whether the specimen's media may be shown at all (previews included):
+ * a present asset whose attribution records author, license and
+ * non-empty permission evidence. Media without proven permission is
+ * never displayed, however well-formed it is.
+ */
+export function hasDisplayPermission(
+  specimen: AlphabetSpecimen,
+): specimen is AlphabetSpecimen & {
+  media: LessonMedia;
+  attribution: SpecimenAttribution;
+} {
   const attribution = specimen.attribution;
   return (
+    Boolean(specimen.media) &&
     Boolean(attribution) &&
     attribution!.source.trim().length > 0 &&
     attribution!.license.trim().length > 0 &&
@@ -188,9 +201,9 @@ function hasLicensedAttribution(specimen: AlphabetSpecimen): boolean {
 
 /**
  * A specimen may be presented as validated material only when the full
- * review chain covers the current version AND a licensed demonstration
- * asset exists — status alone, stale reviews or media without permission
- * evidence never qualify.
+ * review chain covers the current version AND a structurally valid,
+ * licensed demonstration asset exists — status alone, stale reviews or
+ * media without permission evidence never qualify.
  */
 export function isSpecimenPublishable(specimen: AlphabetSpecimen): boolean {
   return (
@@ -198,8 +211,8 @@ export function isSpecimenPublishable(specimen: AlphabetSpecimen): boolean {
     REQUIRED_REVIEWS[specimen.validationStatus].every((type) =>
       hasCurrentReview(specimen.reviews, specimen.version, type),
     ) &&
-    Boolean(specimen.media) &&
-    hasLicensedAttribution(specimen)
+    hasDisplayPermission(specimen) &&
+    validateLessonMedia(specimen.media!).length === 0
   );
 }
 
@@ -275,20 +288,11 @@ export function validateSpecimen(specimen: AlphabetSpecimen): string[] {
   }
 
   if (specimen.media) {
-    if (!specimen.media.src.trim()) problems.push("media: missing src");
-    if (
-      specimen.media.type === "image" &&
-      !specimen.media.alt.trim()
-    )
-      problems.push("media: image requires alt text");
-    if (
-      specimen.media.type === "video" &&
-      specimen.media.captions &&
-      (!specimen.media.captions.src.trim() ||
-        !specimen.media.captions.srclang.trim() ||
-        !specimen.media.captions.label.trim())
-    )
-      problems.push("media: incomplete captions track");
+    problems.push(
+      ...validateLessonMedia(specimen.media).map(
+        (problem) => `media: ${problem}`,
+      ),
+    );
     if (!specimen.attribution) {
       problems.push("media: missing attribution");
     } else {

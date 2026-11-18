@@ -6,7 +6,7 @@ import {
   type AlphabetSpecimen,
 } from "@/data/alphabet-specimens";
 
-import { SpecimenViewer } from "./alphabet-specimen";
+import { SpecimenReviewNote, SpecimenViewer } from "./alphabet-specimen";
 
 const LICENSED_MEDIA: Pick<AlphabetSpecimen, "media" | "attribution"> = {
   media: {
@@ -65,5 +65,50 @@ describe("SpecimenViewer", () => {
     );
     expect(html).toContain("<img");
     expect(html).toContain("Licença");
+  });
+
+  it("never renders media without proven display permission", () => {
+    for (const attribution of [
+      undefined,
+      { source: "Fonte externa", license: "Sem licença informada" },
+      {
+        source: "Fonte externa",
+        license: "CC BY 4.0",
+        permissionEvidence: "",
+      },
+    ]) {
+      const html = renderToStaticMarkup(
+        <SpecimenViewer
+          specimen={makeSpecimen({
+            media: {
+              type: "image",
+              src: "/media/x.jpg",
+              alt: "Configuração de mão.",
+            },
+            attribution,
+          })}
+        />,
+      );
+      expect(html).not.toContain("<img");
+      expect(html).toContain("em produção");
+    }
+  });
+
+  it("previews licensed media while the unvalidated-review note shows", () => {
+    const specimen = makeSpecimen({
+      validationStatus: "draft",
+      media: LICENSED_MEDIA.media,
+      attribution: LICENSED_MEDIA.attribution,
+    });
+    const html = renderToStaticMarkup(
+      <>
+        <SpecimenReviewNote specimen={specimen} />
+        <SpecimenViewer specimen={specimen} />
+      </>,
+    );
+    // Licensed media is displayable even in draft — but the pending-review
+    // warning must stay on the page.
+    expect(html).toContain("<img");
+    expect(html).toContain("não validado");
   });
 });

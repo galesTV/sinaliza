@@ -158,7 +158,18 @@ function validateMediaBlock(block: LessonMediaBlock): string[] {
   if (!block.attribution.license.trim())
     problems.push("missing attribution.license");
 
-  const { media } = block;
+  problems.push(...validateLessonMedia(block.media));
+  return problems;
+}
+
+/**
+ * Structural rules for a single media asset — empty means the asset is
+ * well-formed. Shared by `validateMediaBlock` (published lesson content)
+ * and the alphabet specimen catalog, so the same asset shape is enforced
+ * wherever media can ship.
+ */
+export function validateLessonMedia(media: LessonMedia): string[] {
+  const problems: string[] = [];
   if (!media.src.trim()) problems.push("missing media src");
   if (media.type === "image" && !media.alt.trim())
     problems.push("image: missing alt text");

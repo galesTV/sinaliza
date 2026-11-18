@@ -1,4 +1,7 @@
-import type { AlphabetSpecimen } from "@/data/alphabet-specimens";
+import {
+  hasDisplayPermission,
+  type AlphabetSpecimen,
+} from "@/data/alphabet-specimens";
 import type { LessonMediaBlock } from "@/data/lesson-content";
 
 import { HonestNote } from "./honest-note";
@@ -8,12 +11,13 @@ import { LessonMedia } from "./lesson-media";
 /**
  * Maps a specimen onto the media block the accessible `LessonMedia`
  * renderer already knows how to present (native controls, captions,
- * attribution, error fallback). Only called when licensed media exists.
+ * attribution, error fallback). Only called when the asset carries
+ * proven display permission — media without it is never rendered.
  */
 function toMediaBlock(
   specimen: AlphabetSpecimen,
 ): LessonMediaBlock | undefined {
-  if (!specimen.media || !specimen.attribution) return undefined;
+  if (!hasDisplayPermission(specimen)) return undefined;
   return {
     kind: "media",
     title: specimen.title,

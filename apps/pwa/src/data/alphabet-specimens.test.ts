@@ -7,6 +7,7 @@ import {
   getSpecimen,
   getSpecimenByLessonKey,
   getSpecimenUrl,
+  hasDisplayPermission,
   isSpecimenPublishable,
   validateSpecimen,
   type AlphabetSpecimen,
@@ -124,6 +125,8 @@ describe("alphabetSpecimens catalog", () => {
     for (const specimen of alphabetSpecimens) {
       expect(specimen.media).toBeUndefined();
       expect(specimen.attribution).toBeUndefined();
+      expect(specimen.validationStatus).toBe("draft");
+      expect(hasDisplayPermission(specimen)).toBe(false);
       expect(isSpecimenPublishable(specimen)).toBe(false);
     }
   });
@@ -225,6 +228,47 @@ describe("isSpecimenPublishable", () => {
       ...LICENSED_MEDIA,
     });
     expect(isSpecimenPublishable(specimen)).toBe(true);
+  });
+
+  it("keeps licensed media displayable in preview but not publishable", () => {
+    // Display permission and publishability are separate gates: licensed
+    // media may be previewed while the review chain is still pending.
+    const draftWithMedia = makeSpecimen({ ...LICENSED_MEDIA });
+    expect(hasDisplayPermission(draftWithMedia)).toBe(true);
+    expect(isSpecimenPublishable(draftWithMedia)).toBe(false);
+  });
+
+  it("rejects structurally invalid media even with the full chain", () => {
+    const base = {
+      validationStatus: "expert-validated" as const,
+      reviews: [...FULL_REVIEW_CHAIN],
+      attribution: LICENSED_MEDIA.attribution,
+    };
+
+    const emptySrc = makeSpecimen({
+      ...base,
+      media: { type: "image", src: "  ", alt: "Configuração de mão." },
+    });
+    expect(isSpecimenPublishable(emptySrc)).toBe(false);
+    expect(validateSpecimen(emptySrc).join()).toContain("missing media src");
+
+    const emptyAlt = makeSpecimen({
+      ...base,
+      media: { type: "image", src: "/media/x.jpg", alt: " " },
+    });
+    expect(isSpecimenPublishable(emptyAlt)).toBe(false);
+    expect(validateSpecimen(emptyAlt).join()).toContain("alt text");
+
+    const badCaptions = makeSpecimen({
+      ...base,
+      media: {
+        type: "video",
+        src: "/media/x.mp4",
+        captions: { src: "/media/x.txt", srclang: "", label: "" },
+      },
+    });
+    expect(isSpecimenPublishable(badCaptions)).toBe(false);
+    expect(validateSpecimen(badCaptions).join()).toContain("captions");
   });
 });
 
