@@ -235,7 +235,7 @@ describe("LessonContentArea publication guard", () => {
     expectUnavailableFallback(html);
   });
 
-  it("renders and can record progress for a fully validated lesson", () => {
+  it("renders the runner for a fully validated lesson", () => {
     lessonCatalog.push(publishableEntry());
     const html = renderToStaticMarkup(
       <LessonContentArea

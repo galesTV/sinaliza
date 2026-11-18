@@ -71,6 +71,8 @@ registro de progresso.
 
 Não foi encontrada falha que permita publicar conteúdo não validado sem
 que os testes falhem. O fluxo está correto e o versionamento impede o
-reuso indevido de revisões. O risco arquitetural identificado na Fase 4 —
-guarda existente apenas em teste — foi corrigido na Fase 5 com a proteção
-em runtime descrita acima, sem flexibilizar nenhuma regra.
+reuso indevido de revisões. A guarda implementada na Fase 5 impede a
+montagem do runner — e portanto a renderização e o registro de progresso
+— quando a entrada de catálogo da lição não é publicável, sem
+flexibilizar nenhuma regra. Permanece o risco documentado acima: a guarda
+não comprova que `lessonContents[key]` é idêntico ao rascunho validado.
