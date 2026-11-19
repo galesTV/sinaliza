@@ -1,3 +1,4 @@
+import { PWA_URL } from "../../lib/site";
 import { Reveal } from "../ui/Reveal";
 
 export function FinalCTA() {
@@ -25,10 +26,20 @@ export function FinalCTA() {
 
           <div className="final-cta-actions">
             <a
-              href="https://github.com/galesTV/sinaliza"
+              href={PWA_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="final-cta-primary"
+            >
+              Experimentar o Sinaliza
+              <span aria-hidden="true">↗</span>
+            </a>
+
+            <a
+              href="https://github.com/galesTV/sinaliza"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="final-cta-secondary"
             >
               Conheça o projeto no GitHub
               <span aria-hidden="true">↗</span>

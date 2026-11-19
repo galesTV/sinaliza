@@ -1,5 +1,7 @@
 import Image from "next/image";
 
+import { PWA_URL } from "../../lib/site";
+
 const navigation = [
   { label: "O projeto", href: "#projeto" },
   { label: "A proposta", href: "#proposta" },
@@ -39,8 +41,13 @@ export function Navbar() {
             ))}
           </nav>
 
-          <a href="#demonstracao" className="nav-cta">
-            Veja a demonstração
+          <a
+            href={PWA_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="nav-cta"
+          >
+            Experimentar
             <span aria-hidden="true">↗</span>
           </a>
 
@@ -58,8 +65,17 @@ export function Navbar() {
                 </a>
               ))}
 
-              <a href="#demonstracao" className="mobile-nav-cta">
-                Veja a demonstração ↗
+              <a href="#demonstracao">
+                Veja a demonstração
+              </a>
+
+              <a
+                href={PWA_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mobile-nav-cta"
+              >
+                Experimentar o Sinaliza ↗
               </a>
             </nav>
           </details>

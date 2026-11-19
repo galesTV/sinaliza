@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { PWA_URL } from "../../lib/site";
 import { Reveal } from "../ui/Reveal";
 
 export function Hero() {
@@ -23,9 +24,19 @@ export function Hero() {
         </p>
 
         <div className="hero-actions">
-          <a href="#projeto" className="hero-primary-button">
-            Descubra o Sinaliza
+          <a
+            href={PWA_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hero-primary-button"
+          >
+            Experimentar o Sinaliza
             <span aria-hidden="true">↗</span>
+          </a>
+
+          <a href="#projeto" className="hero-secondary-button">
+            Descubra o Sinaliza
+            <span aria-hidden="true">→</span>
           </a>
 
           <a href="#demonstracao" className="hero-secondary-button">
