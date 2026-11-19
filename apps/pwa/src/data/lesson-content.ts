@@ -23,10 +23,58 @@ export interface LessonExerciseOption {
   label: string;
   /** Short explanation shown when this option is selected. */
   feedback: string;
+  /**
+   * Optional media that presents this option (e.g. a demonstration image
+   * for "which of these is the letter B?"). Subject to the same display
+   * gate as the prompt stimulus: an option whose media cannot be shown
+   * makes the exercise non-answerable.
+   */
+  media?: LessonExerciseMedia;
+}
+
+/**
+ * Media attached to an exercise — a visual stimulus or an option
+ * presentation — plus its authorship/licensing record. `description` is
+ * shown beside the media and is also the standalone textual description
+ * screen readers rely on when it serves as the stimulus description.
+ */
+export interface LessonExerciseMedia {
+  media: LessonMedia;
+  attribution: LessonMediaAttribution;
+  /** Standalone description shown with the media. */
+  description?: string;
+}
+
+/**
+ * Description-based counterpart of a visual exercise, offered when the
+ * stimulus cannot be displayed (permission gate or load failure) or when
+ * the learner prefers reading to watching. It is a DIFFERENT assessment —
+ * recognition from a verbal description, not visual identification — and
+ * the UI labels it as such. Pedagogical equivalence is not claimed until
+ * expert validation. The variant never carries media.
+ */
+export interface LessonDescriptionVariant {
+  prompt: string;
+  options: LessonExerciseOption[];
+  correctIndex: number;
+  explanation: string;
 }
 
 export interface LessonExercise {
   prompt: string;
+  /**
+   * Optional visual stimulus the question refers to (e.g. a hand
+   * configuration photo). When present, it is essential: if it cannot be
+   * displayed, the exercise cannot be answered — the description variant
+   * is offered instead, or the exercise stays blocked.
+   */
+  promptMedia?: LessonExerciseMedia;
+  /**
+   * Text-only counterpart used when essential media is unavailable or
+   * when the learner chooses to answer from a description instead of a
+   * visual demonstration.
+   */
+  descriptionVariant?: LessonDescriptionVariant;
   options: LessonExerciseOption[];
   correctIndex: number;
   /** Shown after the correct answer is selected. */
@@ -78,6 +126,19 @@ export interface LessonMediaAttribution {
   /** License name, e.g. "CC BY 4.0", or "Produção própria". */
   license: string;
   licenseUrl?: string;
+  /**
+   * Reference to the recorded proof that reuse is permitted — a license
+   * URL, an authorization document, or an own-production note. The
+   * display gate (`hasMediaDisplayPermission`) requires this field to be
+   * non-empty before any asset is rendered.
+   *
+   * Limit of the technical gate: it verifies that evidence was
+   * *recorded*, not that it is legally valid. A non-empty string is a
+   * tripwire against publishing unlicensed media by omission — the human
+   * review chain (research/technical/expert) is responsible for checking
+   * that the referenced evidence actually authorizes the use.
+   */
+  permissionEvidence?: string;
 }
 
 /**
@@ -98,6 +159,48 @@ export type LessonBlock =
   | LessonTextBlock
   | LessonExerciseBlock
   | LessonMediaBlock;
+
+/**
+ * Display gate shared by lesson media blocks and exercise media: an asset
+ * may be rendered only when its attribution records author, license and a
+ * non-empty permission evidence reference. Fail-closed — anything missing
+ * means "not cleared", never "probably fine".
+ *
+ * What the gate does NOT prove: the legal validity of the evidence. A
+ * recorded string claims permission exists; verifying it is a human
+ * review task, not something the type system or this predicate can do.
+ */
+export function hasMediaDisplayPermission(
+  attribution?: LessonMediaAttribution,
+): boolean {
+  return (
+    Boolean(attribution) &&
+    attribution!.source.trim().length > 0 &&
+    attribution!.license.trim().length > 0 &&
+    Boolean(attribution!.permissionEvidence?.trim())
+  );
+}
+
+/** Every media declared by an exercise (stimulus plus option media). */
+export function exerciseMediaList(
+  exercise: LessonExercise,
+): LessonExerciseMedia[] {
+  return [
+    ...(exercise.promptMedia ? [exercise.promptMedia] : []),
+    ...exercise.options.flatMap((option) => (option.media ? [option.media] : [])),
+  ];
+}
+
+/**
+ * Whether every media the exercise depends on has recorded permission
+ * evidence. A visual exercise with any unpermitted media cannot be
+ * answered — the learner must not guess at a hidden stimulus.
+ */
+export function isExerciseVisuallyPermitted(exercise: LessonExercise): boolean {
+  return exerciseMediaList(exercise).every((item) =>
+    hasMediaDisplayPermission(item.attribution),
+  );
+}
 
 export interface LessonContent {
   intro: string;
@@ -122,22 +225,13 @@ export function validateLessonContent(content: LessonContent): string[] {
         if (!block.heading.trim()) problems.push(`${at}: missing heading`);
         if (!block.body.trim()) problems.push(`${at}: missing body`);
         break;
-      case "exercise": {
-        const { prompt, options, correctIndex, explanation } = block.exercise;
-        if (!prompt.trim()) problems.push(`${at}: missing prompt`);
-        if (options.length < 2)
-          problems.push(`${at}: fewer than 2 options`);
-        if (correctIndex < 0 || correctIndex >= options.length)
-          problems.push(`${at}: correctIndex out of bounds`);
-        if (!explanation.trim()) problems.push(`${at}: missing explanation`);
-        options.forEach((option, j) => {
-          if (!option.label.trim())
-            problems.push(`${at}: option ${j} missing label`);
-          if (!option.feedback.trim())
-            problems.push(`${at}: option ${j} missing feedback`);
-        });
+      case "exercise":
+        problems.push(
+          ...validateExercise(block.exercise).map(
+            (problem) => `${at}: ${problem}`,
+          ),
+        );
         break;
-      }
       case "media":
         problems.push(
           ...validateMediaBlock(block).map((problem) => `${at}: ${problem}`),
@@ -153,12 +247,91 @@ function validateMediaBlock(block: LessonMediaBlock): string[] {
   const problems: string[] = [];
   if (!block.title.trim()) problems.push("missing title");
   if (!block.description.trim()) problems.push("missing description");
-  if (!block.attribution.source.trim())
-    problems.push("missing attribution.source");
-  if (!block.attribution.license.trim())
-    problems.push("missing attribution.license");
-
+  problems.push(...validateAttribution(block.attribution));
   problems.push(...validateLessonMedia(block.media));
+  return problems;
+}
+
+function validateAttribution(attribution: LessonMediaAttribution): string[] {
+  const problems: string[] = [];
+  if (!attribution.source.trim()) problems.push("missing attribution.source");
+  if (!attribution.license.trim()) problems.push("missing attribution.license");
+  // `permissionEvidence` is intentionally NOT a structural problem: drafts
+  // are expected to carry media blocks whose permission is still pending —
+  // the runtime display gate (`hasMediaDisplayPermission`) is what stops
+  // the asset from rendering. Validating the evidence itself is a human
+  // review task anyway.
+  return problems;
+}
+
+function validateExerciseMedia(item: LessonExerciseMedia): string[] {
+  return [
+    ...validateAttribution(item.attribution),
+    ...validateLessonMedia(item.media),
+  ];
+}
+
+function validateExerciseCore(
+  core: {
+    prompt: string;
+    options: LessonExerciseOption[];
+    correctIndex: number;
+    explanation: string;
+  },
+  allowOptionMedia: boolean,
+): string[] {
+  const problems: string[] = [];
+  if (!core.prompt.trim()) problems.push("missing prompt");
+  if (core.options.length < 2) problems.push("fewer than 2 options");
+  if (core.correctIndex < 0 || core.correctIndex >= core.options.length)
+    problems.push("correctIndex out of bounds");
+  if (!core.explanation.trim()) problems.push("missing explanation");
+  core.options.forEach((option, j) => {
+    if (!option.label.trim()) problems.push(`option ${j} missing label`);
+    if (!option.feedback.trim()) problems.push(`option ${j} missing feedback`);
+    if (option.media) {
+      if (!allowOptionMedia) {
+        problems.push(`option ${j}: media not allowed in description variant`);
+      } else {
+        problems.push(
+          ...validateExerciseMedia(option.media).map(
+            (problem) => `option ${j} media: ${problem}`,
+          ),
+        );
+      }
+    }
+  });
+  return problems;
+}
+
+function validateExercise(exercise: LessonExercise): string[] {
+  const problems: string[] = [];
+  const hasMedia =
+    Boolean(exercise.promptMedia) ||
+    exercise.options.some((option) => option.media);
+
+  if (exercise.promptMedia) {
+    problems.push(
+      ...validateExerciseMedia(exercise.promptMedia).map(
+        (problem) => `promptMedia: ${problem}`,
+      ),
+    );
+  }
+  problems.push(...validateExerciseCore(exercise, true));
+
+  if (exercise.descriptionVariant) {
+    // A description variant only makes sense as an alternative path for
+    // media-dependent exercises; on a text-only exercise it is dead data.
+    if (!hasMedia)
+      problems.push(
+        "descriptionVariant: requires promptMedia or option.media",
+      );
+    problems.push(
+      ...validateExerciseCore(exercise.descriptionVariant, false).map(
+        (problem) => `descriptionVariant: ${problem}`,
+      ),
+    );
+  }
   return problems;
 }
 
@@ -264,6 +437,8 @@ export const demoLesson: LessonContent = {
       attribution: {
         source: "Sinaliza — ativo sintético gerado para testes",
         license: "Uso interno em testes de interface",
+        permissionEvidence:
+          "Ativo sintético produzido pelo próprio projeto Sinaliza para testes de interface; não reproduz conteúdo de terceiros.",
       },
     },
     {
@@ -342,6 +517,8 @@ export const guidedExperience: LessonContent = {
       attribution: {
         source: "Sinaliza — ativo sintético gerado para testes",
         license: "Uso interno em testes de interface",
+        permissionEvidence:
+          "Ativo sintético produzido pelo próprio projeto Sinaliza para testes de interface; não reproduz conteúdo de terceiros.",
       },
     },
     {
@@ -402,6 +579,239 @@ export const guidedExperience: LessonContent = {
         correctIndex: 1,
         explanation:
           "Mídia sem licença comprovada nunca é exibida, e nenhuma lição é publicada sem a revisão completa — pesquisa, técnica e especialista — da versão atual.",
+      },
+    },
+  ],
+};
+
+/**
+ * Visual-exercise lab content for `/laboratorio/licao-visual` — exercises the
+ * promptMedia/option.media extensions, the permission gate and the
+ * description-based alternative path using synthetic shape fixtures. NOT
+ * Libras content: shapes stand in for hand configurations so the mechanics
+ * can be tested before licensed sign media exists.
+ */
+const syntheticAttribution: LessonMediaAttribution = {
+  source: "Sinaliza — ativo sintético gerado para testes",
+  license: "Uso interno em testes de interface",
+  permissionEvidence:
+    "Ativo sintético produzido pelo próprio projeto Sinaliza para testes de interface; não reproduz conteúdo de terceiros.",
+};
+
+const unlicensedAttribution: LessonMediaAttribution = {
+  source: "Sinaliza — ativo sintético gerado para testes",
+  license: "Uso interno em testes de interface",
+  // No permissionEvidence on purpose: exercises the fail-closed gate.
+};
+
+export const visualExerciseDemo: LessonContent = {
+  intro:
+    "Esta demonstração testa exercícios com estímulo visual usando formas geométricas sintéticas: uma imagem autorizada, opções com imagem, um estímulo bloqueado por falta de permissão e um estímulo que falha ao carregar. O conteúdo não é material de Libras — serve para verificar a mecânica antes de existir mídia licenciada.",
+  blocks: [
+    {
+      kind: "text",
+      heading: "Como funciona um exercício visual",
+      body: "Alguns exercícios apresentam uma imagem como estímulo — por exemplo, a demonstração de uma forma. Quando a imagem não pode ser exibida (sem permissão registrada ou falha de carregamento), o exercício não aceita palpite: ou uma versão alternativa baseada em descrição é oferecida, ou ele permanece bloqueado.",
+    },
+    {
+      kind: "exercise",
+      exercise: {
+        prompt: "Qual forma geométrica aparece na imagem acima?",
+        promptMedia: {
+          media: {
+            type: "image",
+            src: "/media/fixtures/shape-circle.svg",
+            alt: "Um círculo preenchido em azul sobre fundo claro.",
+          },
+          attribution: syntheticAttribution,
+          description: "Imagem do estímulo: uma única forma geométrica azul.",
+        },
+        options: [
+          {
+            label: "Círculo",
+            feedback: "Correto: a imagem mostra um círculo preenchido.",
+          },
+          {
+            label: "Quadrado",
+            feedback:
+              "Não: um quadrado teria quatro lados retos e ângulos retos.",
+          },
+          {
+            label: "Triângulo",
+            feedback: "Não: um triângulo teria três lados e três vértices.",
+          },
+        ],
+        correctIndex: 0,
+        explanation:
+          "O círculo é a única forma sem lados retos nem vértices entre as três opções.",
+      },
+    },
+    {
+      kind: "exercise",
+      exercise: {
+        prompt: "Qual das imagens abaixo mostra um quadrado?",
+        options: [
+          {
+            label: "Imagem 1",
+            feedback: "Não: a imagem 1 mostra um triângulo.",
+            media: {
+              media: {
+                type: "image",
+                src: "/media/fixtures/shape-triangle.svg",
+                alt: "Demonstração visual da opção 1.",
+              },
+              attribution: syntheticAttribution,
+            },
+          },
+          {
+            label: "Imagem 2",
+            feedback: "Correto: a imagem 2 mostra um quadrado.",
+            media: {
+              media: {
+                type: "image",
+                src: "/media/fixtures/shape-square.svg",
+                alt: "Demonstração visual da opção 2.",
+              },
+              attribution: syntheticAttribution,
+            },
+          },
+        ],
+        correctIndex: 1,
+        explanation:
+          "O quadrado tem quatro lados iguais e quatro ângulos retos; a outra imagem mostra um triângulo.",
+      },
+    },
+    {
+      kind: "exercise",
+      exercise: {
+        prompt: "Qual forma geométrica aparece na imagem acima?",
+        promptMedia: {
+          media: {
+            type: "image",
+            src: "/media/fixtures/shape-circle.svg",
+            alt: "Um círculo preenchido em azul sobre fundo claro.",
+          },
+          // Same asset, but without permission evidence: the gate blocks
+          // the stimulus and the description variant is offered instead.
+          attribution: unlicensedAttribution,
+        },
+        descriptionVariant: {
+          prompt:
+            "Pela descrição: a forma tem todos os pontos à mesma distância do centro, sem lados retos. Qual forma é essa?",
+          options: [
+            {
+              label: "Círculo",
+              feedback: "Correto: a descrição corresponde a um círculo.",
+            },
+            {
+              label: "Quadrado",
+              feedback: "Não: um quadrado tem lados retos e ângulos retos.",
+            },
+          ],
+          correctIndex: 0,
+          explanation:
+            "Uma forma com todos os pontos equidistantes do centro é um círculo.",
+        },
+        options: [
+          {
+            label: "Círculo",
+            feedback: "Correto.",
+          },
+          {
+            label: "Quadrado",
+            feedback: "Não.",
+          },
+        ],
+        correctIndex: 0,
+        explanation: "A imagem mostra um círculo.",
+      },
+    },
+    {
+      kind: "exercise",
+      exercise: {
+        prompt: "Qual forma geométrica aparece na imagem acima?",
+        promptMedia: {
+          media: {
+            type: "image",
+            // Permission recorded, but the file does not exist: exercises
+            // the runtime load-failure path, which behaves like the gate.
+            src: "/media/fixtures/shape-does-not-exist.svg",
+            alt: "Um círculo preenchido em azul sobre fundo claro.",
+          },
+          attribution: syntheticAttribution,
+        },
+        descriptionVariant: {
+          prompt:
+            "Pela descrição: a forma tem três lados e três vértices. Qual forma é essa?",
+          options: [
+            {
+              label: "Triângulo",
+              feedback: "Correto: três lados e três vértices é um triângulo.",
+            },
+            {
+              label: "Círculo",
+              feedback: "Não: o círculo não tem lados retos.",
+            },
+          ],
+          correctIndex: 0,
+          explanation: "A forma descrita é um triângulo.",
+        },
+        options: [
+          {
+            label: "Triângulo",
+            feedback: "Correto.",
+          },
+          {
+            label: "Círculo",
+            feedback: "Não.",
+          },
+        ],
+        correctIndex: 0,
+        explanation: "A imagem mostra um triângulo.",
+      },
+    },
+  ],
+};
+
+/**
+ * Companion of `visualExerciseDemo` for `/laboratorio/licao-visual-bloqueada`:
+ * a visual exercise whose stimulus lacks permission evidence AND has no
+ * description variant — it must stay blocked and non-completable, proving a
+ * visual exercise can never be guessed at with a hidden stimulus.
+ */
+export const blockedExerciseDemo: LessonContent = {
+  intro:
+    "Esta demonstração contém um exercício cujo estímulo visual não tem evidência de permissão e não possui alternativa por descrição: ele deve permanecer bloqueado e a atividade não pode ser concluída.",
+  blocks: [
+    {
+      kind: "text",
+      heading: "Exercício sem estímulo disponível",
+      body: "O exercício a seguir depende de uma imagem que ainda não tem autorização registrada. Sem o estímulo, responder seria adivinhar — por isso as opções ficam bloqueadas e o avanço não é liberado.",
+    },
+    {
+      kind: "exercise",
+      exercise: {
+        prompt: "Qual forma geométrica aparece na imagem acima?",
+        promptMedia: {
+          media: {
+            type: "image",
+            src: "/media/fixtures/shape-circle.svg",
+            alt: "Um círculo preenchido em azul sobre fundo claro.",
+          },
+          attribution: unlicensedAttribution,
+        },
+        options: [
+          {
+            label: "Círculo",
+            feedback: "Correto.",
+          },
+          {
+            label: "Quadrado",
+            feedback: "Não.",
+          },
+        ],
+        correctIndex: 0,
+        explanation: "A imagem mostra um círculo.",
       },
     },
   ],

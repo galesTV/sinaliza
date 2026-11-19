@@ -2,7 +2,13 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
-import type { LessonContent, LessonExercise } from "@/data/lesson-content";
+import {
+  exerciseMediaList,
+  isExerciseVisuallyPermitted,
+  type LessonContent,
+  type LessonExercise,
+  type LessonExerciseOption,
+} from "@/data/lesson-content";
 import { createLessonRunner } from "@/lib/lesson-runner";
 import { cn } from "@/lib/utils";
 
@@ -15,6 +21,7 @@ import {
   IconRefresh,
   IconX,
 } from "./icons";
+import { HonestNote } from "./honest-note";
 import { LessonMedia } from "./lesson-media";
 import { markLessonCompleted } from "./use-progress";
 
@@ -67,6 +74,7 @@ function ExerciseBlock({
   selectedOption,
   result,
   onSelect,
+  onSelectVariant,
   onAdvance,
   onBack,
   canGoBack,
@@ -77,6 +85,7 @@ function ExerciseBlock({
   selectedOption: number | null;
   result: "correct" | "incorrect" | null;
   onSelect: (index: number) => void;
+  onSelectVariant: (index: number) => void;
   onAdvance: () => void;
   onBack: () => void;
   canGoBack: boolean;
@@ -85,13 +94,81 @@ function ExerciseBlock({
 }) {
   const solved = result === "correct";
 
+  // Runtime failures: media that passed the static permission gate can
+  // still fail to load — those count as unavailable the same way.
+  const [failedSrcs, setFailedSrcs] = useState<ReadonlySet<string>>(
+    () => new Set<string>(),
+  );
+  const [prefersDescription, setPrefersDescription] = useState(false);
+
+  const mediaUnavailable =
+    !isExerciseVisuallyPermitted(exercise) ||
+    exerciseMediaList(exercise).some((item) =>
+      failedSrcs.has(item.media.src),
+    );
+
+  const variant = exercise.descriptionVariant;
+  const useVariant = Boolean(variant) && (mediaUnavailable || prefersDescription);
+  const blocked = mediaUnavailable && !variant;
+
+  const prompt = useVariant ? variant!.prompt : exercise.prompt;
+  const options: LessonExerciseOption[] = useVariant
+    ? variant!.options
+    : exercise.options;
+  const correctIndex = useVariant
+    ? variant!.correctIndex
+    : exercise.correctIndex;
+  const explanation = useVariant
+    ? variant!.explanation
+    : exercise.explanation;
+
+  const markFailed = (src: string) =>
+    setFailedSrcs((previous) => {
+      if (previous.has(src)) return previous;
+      const next = new Set(previous);
+      next.add(src);
+      return next;
+    });
+
   return (
     <div className="flex flex-col gap-5">
-      <fieldset className="flex flex-col gap-2.5">
-        <legend className="sr-only">{exercise.prompt}</legend>
-        {exercise.options.map((option, index) => {
+      {exercise.promptMedia && !useVariant && (
+        <LessonMedia
+          key={exercise.promptMedia.media.src}
+          block={{
+            kind: "media",
+            title: "Estímulo do exercício",
+            description:
+              exercise.promptMedia.description ??
+              "Demonstração visual referida pelo enunciado deste exercício.",
+            media: exercise.promptMedia.media,
+            attribution: exercise.promptMedia.attribution,
+          }}
+          onUnavailable={() => markFailed(exercise.promptMedia!.media.src)}
+        />
+      )}
+
+      {useVariant && (
+        <HonestNote>
+          Versão por descrição: avalia a compreensão da descrição da
+          demonstração, não a identificação visual. Não é uma equivalência
+          pedagógica validada.
+        </HonestNote>
+      )}
+
+      {blocked && (
+        <HonestNote title="Exercício indisponível por enquanto">
+          Este exercício depende de uma demonstração visual que não pode ser
+          exibida no momento — sem o estímulo, responder seria adivinhar. As
+          opções ficam bloqueadas até a mídia estar autorizada e disponível.
+        </HonestNote>
+      )}
+
+      <fieldset className="flex flex-col gap-2.5" disabled={blocked}>
+        <legend className="sr-only">{prompt}</legend>
+        {options.map((option, index) => {
           const isSelected = selectedOption === index;
-          const isCorrect = index === exercise.correctIndex;
+          const isCorrect = index === correctIndex;
           const tone = solved
             ? isCorrect
               ? OPTION_TONES.correct
@@ -105,17 +182,19 @@ function ExerciseBlock({
             <label key={option.label} className="block">
               <input
                 type="radio"
-                name={exercise.prompt}
+                name={`${exercise.prompt}${useVariant ? " (descrição)" : ""}`}
                 className="peer sr-only"
-                checked={isSelected}
-                disabled={solved}
-                onChange={() => onSelect(index)}
+                checked={!blocked && isSelected}
+                disabled={solved || blocked}
+                onChange={() =>
+                  useVariant ? onSelectVariant(index) : onSelect(index)
+                }
               />
               <span
                 className={cn(
                   OPTION_BUTTON_BASE,
                   "peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-ring",
-                  solved ? "cursor-default" : "cursor-pointer",
+                  solved || blocked ? "cursor-default" : "cursor-pointer",
                   tone,
                 )}
               >
@@ -132,14 +211,41 @@ function ExerciseBlock({
                     String.fromCharCode(65 + index)
                   )}
                 </span>
-                {option.label}
+                <span className="flex min-w-0 flex-1 items-center gap-3">
+                  {!useVariant && option.media && (
+                    // eslint-disable-next-line @next/next/no-img-element -- lesson media stays dependency-free; next/image is not used in this app
+                    <img
+                      src={option.media.media.src}
+                      alt={
+                        option.media.media.type === "image"
+                          ? option.media.media.alt
+                          : ""
+                      }
+                      className="h-16 w-16 shrink-0 rounded-lg border border-border bg-black/40 object-contain"
+                      onError={() => markFailed(option.media!.media.src)}
+                    />
+                  )}
+                  {option.label}
+                </span>
               </span>
             </label>
           );
         })}
       </fieldset>
 
-      {result && selectedOption !== null && (
+      {variant && !mediaUnavailable && !solved && result === null && (
+        <button
+          type="button"
+          onClick={() => setPrefersDescription((value) => !value)}
+          className="self-start text-sm font-medium text-muted underline underline-offset-4 transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+        >
+          {prefersDescription
+            ? "Voltar à versão com imagem"
+            : "Responder por descrição"}
+        </button>
+      )}
+
+      {result && selectedOption !== null && selectedOption < options.length && (
         <div
           role="status"
           className={cn(
@@ -163,11 +269,9 @@ function ExerciseBlock({
             )}
           </p>
           <p className="text-muted">
-            {exercise.options[selectedOption].feedback}
+            {options[selectedOption].feedback}
           </p>
-          {solved && (
-            <p className="text-muted">{exercise.explanation}</p>
-          )}
+          {solved && <p className="text-muted">{explanation}</p>}
         </div>
       )}
 
@@ -320,6 +424,7 @@ export function LessonRunner({
             selectedOption={snapshot.selectedOption}
             result={snapshot.result}
             onSelect={runner.select}
+            onSelectVariant={runner.selectVariant}
             onAdvance={runner.advance}
             onBack={runner.back}
             canGoBack={snapshot.canGoBack}

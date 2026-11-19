@@ -13,7 +13,11 @@
  * real lessons will pair it with `progress.ts` via the `onComplete` callback.
  */
 
-import type { LessonBlock, LessonContent } from "@/data/lesson-content";
+import {
+  isExerciseVisuallyPermitted,
+  type LessonBlock,
+  type LessonContent,
+} from "@/data/lesson-content";
 
 export type ExerciseResult = "correct" | "incorrect";
 
@@ -115,12 +119,19 @@ export function createLessonRunner(
    * Records a selection on the current exercise. Ignored on non-exercise
    * steps and once the exercise is already solved — a solved exercise can
    * never flip back, so `solvedExercises` is counted exactly once.
+   *
+   * Guess-proofing: a selection on an exercise whose media stimulus is not
+   * display-permitted is ignored outright — a visual question can never be
+   * answered while its stimulus is hidden. Runtime load failures are a UI
+   * concern (the component disables the inputs); the runner only enforces
+   * the static, data-checkable half.
    */
   function select(optionIndex: number) {
     const block = currentBlock();
     const state = currentState();
     if (!block || !state || block.kind !== "exercise") return;
     if (state.result === "correct") return;
+    if (!isExerciseVisuallyPermitted(block.exercise)) return;
     if (
       optionIndex < 0 ||
       optionIndex >= block.exercise.options.length
@@ -133,6 +144,28 @@ export function createLessonRunner(
       optionIndex === block.exercise.correctIndex
         ? "correct"
         : "incorrect";
+    emit();
+  }
+
+  /**
+   * Records a selection scored against the exercise's description variant
+   * — the text-only path used when the visual stimulus cannot be shown or
+   * when the learner answers from a description. Ignored when the exercise
+   * has no variant, and scored against `variant.correctIndex`, never the
+   * visual exercise's.
+   */
+  function selectVariant(optionIndex: number) {
+    const block = currentBlock();
+    const state = currentState();
+    if (!block || !state || block.kind !== "exercise") return;
+    if (state.result === "correct") return;
+    const variant = block.exercise.descriptionVariant;
+    if (!variant) return;
+    if (optionIndex < 0 || optionIndex >= variant.options.length) return;
+
+    state.selectedOption = optionIndex;
+    state.result =
+      optionIndex === variant.correctIndex ? "correct" : "incorrect";
     emit();
   }
 
@@ -190,6 +223,7 @@ export function createLessonRunner(
     },
     getSnapshot: () => snapshot,
     select,
+    selectVariant,
     advance,
     back,
     complete,

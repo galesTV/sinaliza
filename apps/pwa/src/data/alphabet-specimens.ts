@@ -18,6 +18,7 @@ import {
   type LessonValidationStatus,
 } from "./lesson-catalog";
 import {
+  hasMediaDisplayPermission,
   validateLessonMedia,
   type LessonMedia,
   type LessonMediaAttribution,
@@ -189,13 +190,9 @@ export function hasDisplayPermission(
   media: LessonMedia;
   attribution: SpecimenAttribution;
 } {
-  const attribution = specimen.attribution;
   return (
     Boolean(specimen.media) &&
-    Boolean(attribution) &&
-    attribution!.source.trim().length > 0 &&
-    attribution!.license.trim().length > 0 &&
-    Boolean(attribution!.permissionEvidence?.trim())
+    hasMediaDisplayPermission(specimen.attribution)
   );
 }
 
