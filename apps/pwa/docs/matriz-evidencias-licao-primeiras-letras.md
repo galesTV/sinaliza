@@ -124,9 +124,12 @@ a revisão especializada indicar.
 - **Mídia:** as imagens Fiocruz (CC BY-NC declarada) estão em curadoria
   separada (`docs/curadoria-midia-fiocruz.md`) — a especialista pode
   avaliar adequação linguística das fotos; a decisão de licenciamento é
-  do responsável. Com o draft-4, aprovar a licença e registrar
-  `permissionEvidence` + incorporar os arquivos nos caminhos planejados
-  é o que desbloqueia os exercícios visuais.
+  do responsável. Com o draft-4, incorporar os arquivos e registrar
+  `permissionEvidence` **desbloqueia apenas a exibição técnica** — a
+  publicação continua exigindo as verificações humanas do checklist de
+  ativação (licença exata, direitos de imagem, correção linguística,
+  coerência ativo × texto × gabarito, revisão especializada da versão
+  final).
 - **Fidelidade descrição × foto:** quando a mídia chegar, conferir se
   cada `descriptionVariant` descreve de fato a imagem incorporada
   (itens 12–13).

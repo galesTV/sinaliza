@@ -438,8 +438,13 @@ test.describe("draft preview", () => {
       await expect(
         page.getByText("Demonstração visual em produção"),
       ).toBeVisible();
-      // Attribution is preserved even while the media is unavailable.
+      // Candidate attribution is preserved even while the media is
+      // unavailable — but never as a link: the lesson must not point
+      // learners at an unlicensed, unvalidated photo.
       await expect(page.getByText(/Fiocruz Imagens/)).toBeVisible();
+      await expect(
+        page.locator('a[href*="fiocruzimagens"]'),
+      ).toHaveCount(0);
       await page.getByRole("button", { name: "Continuar" }).click();
     }
     await expect(

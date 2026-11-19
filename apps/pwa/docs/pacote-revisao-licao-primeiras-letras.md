@@ -108,8 +108,11 @@ ou de produção própria.
 explicação de letra — são slots `LessonMediaBlock`
 "Demonstração da letra X", cuja descrição replica a
 configuração ensinada e cujo estado visível é o painel "Demonstração
-visual em produção" + crédito do candidato Fiocruz (autor, acervo,
-licença declarada). Caminhos planejados:
+visual em produção" + crédito marcado "Candidato em curadoria" nomeando
+autor, acervo e licença declarada da série Fiocruz — **sem link**: a URL
+do item fica apenas no código e na documentação de curadoria, para que a
+lição nunca direcione o aprendiz a uma foto não licenciada. Caminhos
+planejados:
 `/media/alfabeto/primeiros-passos/letra-{b,l,a,i}.jpg` — **arquivos
 inexistentes, intencionalmente**.
 

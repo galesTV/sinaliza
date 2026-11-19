@@ -139,7 +139,10 @@ const COMMON_REFERENCES = {
  * Imagens collection (author Mauro Campello, patrimonial rights Fundação
  * Oswaldo Cruz, declared license "Uso não comercial (by-nc)"), recorded in
  * `docs/curadoria-midia-fiocruz.md`. Approval pending: nothing here grants
- * reuse permission.
+ * reuse permission. The `url` fields are the activation reference for the
+ * curation decision — they are deliberately NOT passed to `attribution`
+ * (see `pendingLetterMedia`), so learner-facing UI never links to an
+ * unlicensed candidate photo.
  */
 const FIOCRUZ_CANDIDATES: Record<
   "A" | "B" | "I" | "L",
@@ -170,7 +173,10 @@ const FIOCRUZ_CANDIDATES: Record<
  * so the fail-closed display gate keeps the slot in the honest "em
  * produção" state and exercises fall back to their description variants.
  * The attribution names the curation candidate for traceability; it is
- * not a reuse claim.
+ * marked "candidato em curadoria" so the credit line can never read as
+ * the provenance of a displayed demonstration, and no `sourceUrl` is
+ * exposed — a learner must not be linked through to an unlicensed,
+ * unvalidated photo from inside a lesson.
  */
 function pendingLetterMedia(letter: keyof typeof FIOCRUZ_CANDIDATES): {
   media: LessonImageMedia;
@@ -184,9 +190,8 @@ function pendingLetterMedia(letter: keyof typeof FIOCRUZ_CANDIDATES): {
       alt: `Demonstração fotográfica da configuração de mão da letra ${letter} do alfabeto manual de Libras.`,
     },
     attribution: {
-      source: `Mauro Campello — série "Alfabeto em Libras", Fiocruz Imagens / Fundação Oswaldo Cruz (item ${candidate.item}, candidato)`,
-      sourceUrl: candidate.url,
-      license: "Uso não comercial (by-nc) — versão exata a confirmar",
+      source: `Candidato em curadoria — Mauro Campello, série "Alfabeto em Libras", Fiocruz Imagens / Fundação Oswaldo Cruz (item ${candidate.item})`,
+      license: "\"Uso não comercial (by-nc)\", declarada pelo acervo — versão exata a confirmar",
       // No permissionEvidence on purpose: the candidate still awaits
       // curation approval and expert review, so the gate stays closed.
     },

@@ -100,9 +100,12 @@ exercícios visuais que estas fotos alimentariam:
   `letra-l.jpg`, `letra-a.jpg`, `letra-i.jpg` (convenção
   `public/media/<trilha>/<modulo>/`). **Os arquivos não existem** — são
   identificadores reservados.
-- Atribuição já escrita nos slots: autor (Mauro Campello), série e acervo
-  (Fiocruz Imagens / Fundação Oswaldo Cruz), URL do item e licença
-  declarada — com a observação "versão exata a confirmar". Nenhum slot
+- Atribuição já escrita nos slots: marcada "Candidato em curadoria" e
+  nomeando autor (Mauro Campello), série e acervo (Fiocruz Imagens /
+  Fundação Oswaldo Cruz) e licença declarada — com a observação "versão
+  exata a confirmar". **Sem link na interface do aprendiz:** a URL do
+  item fica no código e nesta curadoria, mas não é exposta na lição —
+  clicar nela exibiria a foto não licenciada e não validada. Nenhum slot
   tem `permissionEvidence`: tudo permanece no estado "em produção" até a
   aprovação da licença.
 - Exercícios dependentes: identificação da letra demonstrada (estímulo
@@ -110,9 +113,35 @@ exercícios visuais que estas fotos alimentariam:
   Ambos têm `descriptionVariant` que hoje carrega a avaliação — quando a
   mídia chegar, conferir se cada variante descreve fielmente a foto
   incorporada.
-- Para liberar: aprovar a licença, incorporar os arquivos nos caminhos
-  acima e registrar o `permissionEvidence` (URL da licença + documento
-  de confirmação, se obtido).
+- Para liberar **a exibição** (desbloquear o gate técnico): incorporar
+  os arquivos nos caminhos acima e registrar o `permissionEvidence`.
+  Isso **não basta para publicar** — a lista abaixo registra as
+  verificações humanas exigidas.
+
+### Verificações humanas obrigatórias antes de qualquer uso
+
+O `permissionEvidence` e o gate de exibição são salvaguardas técnicas —
+verificam que uma evidência foi registrada, não que ela autoriza o uso
+(ver "Limite do gate" em `docs/midia-licoes.md`). Antes de ativar a
+exibição — e, separadamente, antes de publicar a lição — conferir:
+
+1. **Licença exata e compatibilidade:** confirmar a versão da licença
+   (ex.: CC BY-NC 4.0), obter/linkar o texto legal e decidir se a
+   restrição não-comercial é compatível com o produto — decisão do
+   responsável, registrada.
+2. **Direitos de imagem/personalidade:** autorização da(s) pessoa(s)
+   fotografada(s) — presumida pela publicação institucional, mas não
+   documentada nos metadados; confirmar com a Fiocruz.
+3. **Correção linguística de cada foto:** a especialista confere
+   configuração, orientação e enquadramento de cada letra demonstrada
+   (pergunta 7 do pacote de revisão).
+4. **Coerência ativo × texto × gabarito:** cada foto incorporada deve
+   corresponder ao `alt`, à descrição do bloco, à `descriptionVariant`
+   e ao gabarito/feedback do exercício que a usa.
+5. **Revisão especializada da versão final:** a publicação segue o fluxo
+   de `docs/revisao-processo-publicacao.md` — `validationStatus`
+   "expert-validated" exige revisão especializada registrada sobre a
+   versão corrente, não apenas o gate liberado.
 
 ## Alternativa registrada
 
