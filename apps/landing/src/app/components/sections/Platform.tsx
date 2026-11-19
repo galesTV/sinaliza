@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Reveal } from "../ui/Reveal";
 import { StaggerGroup, StaggerItem } from "../ui/StaggerGroup";
 
@@ -17,6 +18,12 @@ const facts = [
     description:
       "Acompanhamento da jornada e indicadores de progresso em evolução.",
   },
+];
+
+const secondaryShots = [
+  { src: "/platform/trilhas.webp", alt: "Página de trilhas de aprendizagem do Sinaliza", caption: "Trilhas de aprendizagem" },
+  { src: "/platform/alfabeto.webp", alt: "Trilha do alfabeto manual com seus módulos", caption: "Trilha do alfabeto" },
+  { src: "/platform/lab.webp", alt: "Laboratório experimental de detecção de mãos no navegador", caption: "Laboratório experimental" },
 ];
 
 export function Platform() {
@@ -39,14 +46,33 @@ export function Platform() {
 
       <div className="platform-grid">
         <Reveal className="platform-evidence" delay={0.08}>
-          <div className="placeholder-frame">
-            <span className="placeholder-badge">Evidências do produto</span>
+          <figure className="shot shot-featured">
+            <Image
+              src="/platform/dashboard.webp"
+              alt="Painel inicial do Sinaliza com trilhas de aprendizagem"
+              width={1440}
+              height={960}
+              sizes="(max-width: 800px) 100vw, 58vw"
+            />
+            <figcaption>
+              Painel do estudante — captura do aplicativo em desenvolvimento
+            </figcaption>
+          </figure>
 
-            <p>
-              Capturas da plataforma serão apresentadas aqui, direto do
-              aplicativo em desenvolvimento.
-            </p>
-          </div>
+          <ul className="shot-row">
+            {secondaryShots.map((shot) => (
+              <li className="shot" key={shot.src}>
+                <Image
+                  src={shot.src}
+                  alt={shot.alt}
+                  width={1440}
+                  height={960}
+                  sizes="(max-width: 800px) 33vw, 18vw"
+                />
+                <span className="shot-caption">{shot.caption}</span>
+              </li>
+            ))}
+          </ul>
         </Reveal>
 
         <StaggerGroup className="platform-facts" as="ol">

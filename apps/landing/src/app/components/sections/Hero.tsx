@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { ConstellationFigure } from "../ui/ConstellationFigure";
 import { Reveal } from "../ui/Reveal";
 
 export function Hero() {
@@ -43,15 +44,15 @@ export function Hero() {
       <Reveal
         className="hero-visual"
         role="img"
-        ariaLabel="Ilustração conceitual da jornada de aprendizagem do Sinaliza"
+        ariaLabel="Constelação que conecta as superfícies do produto — trilhas, lições e laboratório — ao símbolo do Sinaliza"
         delay={0.12}
         duration={0.7}
         distance={12}
       >
+        <div className="hero-visual-inner">
         <div className="hero-visual-glow" />
 
-        <div className="hero-orbit hero-orbit-outer" />
-        <div className="hero-orbit hero-orbit-inner" />
+        <ConstellationFigure className="hero-constellation" />
 
         <div className="hero-visual-center">
           <Image
@@ -93,6 +94,7 @@ export function Hero() {
         </div>
 
         <span className="hero-visual-caption">O produto em construção</span>
+        </div>
       </Reveal>
     </section>
   );
