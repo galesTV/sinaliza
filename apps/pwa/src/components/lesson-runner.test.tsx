@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
-import type { LessonContent } from "@/data/lesson-content";
+import type { LessonContent, LessonExercise } from "@/data/lesson-content";
 
 import { LessonRunner, runnerCopy } from "./lesson-runner";
 
@@ -41,5 +41,110 @@ describe("LessonRunner copy by mode", () => {
     );
     expect(html).toContain("Finalizar lição");
     expect(html).not.toContain("Finalizar experiência");
+  });
+});
+
+describe("visual exercises", () => {
+  const permitted = {
+    source: "Fonte",
+    license: "Licença",
+    permissionEvidence: "doc-123",
+  };
+  const gated = { source: "Fonte", license: "Licença" };
+
+  function contentWith(exercise: LessonExercise): LessonContent {
+    return { intro: "Intro.", blocks: [{ kind: "exercise", exercise }] };
+  }
+
+  it("renders a permitted promptMedia stimulus above the options", () => {
+    const html = renderToStaticMarkup(
+      <LessonRunner
+        content={contentWith({
+          prompt: "Qual forma?",
+          promptMedia: {
+            media: {
+              type: "image",
+              src: "/media/fixtures/shape-circle.svg",
+              alt: "Um círculo azul.",
+            },
+            attribution: permitted,
+          },
+          options: [
+            { label: "Círculo", feedback: "ok" },
+            { label: "Quadrado", feedback: "não" },
+          ],
+          correctIndex: 0,
+          explanation: "e",
+        })}
+      />,
+    );
+    expect(html).toContain('src="/media/fixtures/shape-circle.svg"');
+    expect(html).toContain('alt="Um círculo azul."');
+    expect(html).toContain("Círculo");
+  });
+
+  it("offers the description variant when the stimulus is gated", () => {
+    const html = renderToStaticMarkup(
+      <LessonRunner
+        content={contentWith({
+          prompt: "Qual forma aparece na imagem?",
+          promptMedia: {
+            media: {
+              type: "image",
+              src: "/media/fixtures/shape-circle.svg",
+              alt: "Um círculo azul.",
+            },
+            attribution: gated,
+          },
+          descriptionVariant: {
+            prompt: "Pela descrição, qual forma é essa?",
+            options: [
+              { label: "Círculo", feedback: "ok" },
+              { label: "Quadrado", feedback: "não" },
+            ],
+            correctIndex: 0,
+            explanation: "e",
+          },
+          options: [
+            { label: "Círculo", feedback: "ok" },
+            { label: "Quadrado", feedback: "não" },
+          ],
+          correctIndex: 0,
+          explanation: "e",
+        })}
+      />,
+    );
+    // The gated stimulus never renders and the variant prompt is used.
+    expect(html).not.toContain('src="/media/fixtures/shape-circle.svg"');
+    expect(html).toContain("Versão por descrição");
+    expect(html).toContain("Pela descrição, qual forma é essa?");
+  });
+
+  it("blocks the exercise when the stimulus is gated and no variant exists", () => {
+    const html = renderToStaticMarkup(
+      <LessonRunner
+        content={contentWith({
+          prompt: "Qual forma aparece na imagem?",
+          promptMedia: {
+            media: {
+              type: "image",
+              src: "/media/fixtures/shape-circle.svg",
+              alt: "Um círculo azul.",
+            },
+            attribution: gated,
+          },
+          options: [
+            { label: "Círculo", feedback: "ok" },
+            { label: "Quadrado", feedback: "não" },
+          ],
+          correctIndex: 0,
+          explanation: "e",
+        })}
+      />,
+    );
+    expect(html).toContain("Exercício indisponível");
+    // Every option input is disabled — the exercise cannot be answered.
+    const inputs = html.match(/<input[^>]*disabled[^>]*>/g) ?? [];
+    expect(inputs.length).toBe(2);
   });
 });
