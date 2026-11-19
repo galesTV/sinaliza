@@ -371,7 +371,7 @@ export const lessonCatalog: LessonCatalogEntry[] = [
     lessonKey: lessonKey("alfabeto", "primeiros-passos", "primeiras-letras"),
     title: "Primeiras letras do alfabeto manual",
     objective:
-      "Reconhecer as configurações de mão das letras B, L, A e I e os cuidados para não confundi-las com letras parecidas.",
+      "Identificar, a partir de descrições, características das configurações de mão das letras B, L, A e I, preparando-se para reconhecê-las em demonstrações visuais.",
     references: [
       {
         institution:
@@ -407,7 +407,7 @@ export const lessonCatalog: LessonCatalogEntry[] = [
       "Exercício: identificar a letra do dedo mínimo estendido",
     ],
     validationStatus: "draft",
-    version: "draft-1",
+    version: "draft-2",
     reviews: [],
     mediaPlan: {
       summary:
@@ -430,17 +430,17 @@ export const lessonCatalog: LessonCatalogEntry[] = [
         {
           kind: "text",
           heading: "Letra L — indicador e polegar em 'L'",
-          body: "Na letra L, o dedo indicador aponta para cima e o polegar se abre para o lado, enquanto os demais dedos ficam dobrados. A forma lembra a letra 'L' escrita. Cuidado: a letra G também usa o indicador estendido — o que muda é a posição do polegar e a orientação da mão.",
+          body: "Na letra L, o dedo indicador aponta para cima e o polegar se abre para o lado, enquanto os demais dedos ficam dobrados. A forma lembra a letra 'L' escrita. Cuidado: outras letras, como a G, também usam o indicador estendido — a posição do polegar e a orientação da mão são pontos de atenção a confirmar nas demonstrações.",
         },
         {
           kind: "text",
           heading: "Letra A — punho fechado",
-          body: "Na letra A, a mão fecha em um punho, com os quatro dedos dobrados e o polegar apoiado ao lado deles, por fora. Cuidado: a letra S tem uma forma muito parecida — o que diferencia as duas é a posição do polegar.",
+          body: "Na letra A, a mão fecha em um punho, com os quatro dedos dobrados e o polegar apoiado ao lado deles, por fora. Cuidado: a letra S tem uma forma muito parecida — a posição do polegar é um ponto de atenção a confirmar nas demonstrações.",
         },
         {
           kind: "text",
           heading: "Letra I — só o dedo mínimo estendido",
-          body: "Na letra I, apenas o dedo mínimo fica estendido; os outros dedos e o polegar ficam dobrados. Cuidado: a letra J usa uma forma parecida, mas com movimento — o I é estático.",
+          body: "Na letra I, apenas o dedo mínimo fica estendido; os outros dedos e o polegar ficam dobrados. Cuidado: a letra J usa uma forma parecida — um ponto de atenção é que ela costuma envolver movimento, enquanto o I é estático.",
         },
         {
           kind: "exercise",

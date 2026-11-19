@@ -1,7 +1,7 @@
 # Matriz de evidências — Lição "Primeiras letras do alfabeto manual"
 
 Relação entre cada afirmação do rascunho
-(`alfabeto/primeiros-passos/primeiras-letras`, versão `draft-1`) e as
+(`alfabeto/primeiros-passos/primeiras-letras`, versão `draft-2`) e as
 fontes consultadas para a preparação da revisão especializada.
 
 **Data da consulta:** 19/11/2026.
@@ -33,19 +33,31 @@ especialista e/ou de mídia licenciada.
 | 4 | Letra B: "a mão fica aberta e estendida, com os quatro dedos juntos e o polegar dobrado sobre a palma." | F3, F1 | UFRB registra a configuração "mão em letra 'B'" (CM 61/62) e a variante "mão em letra 'B' com o dedo polegar destacado" (CM 63); INES é a referência primária da configuração. | **Fiel em essência — descrição redigida, pendente de confirmação visual.** A posição exata do polegar (sobre a palma × sobre os dedos) deve ser conferida contra imagem licenciada ou pela especialista. | Registrar à especialista: UFRB documenta variante com polegar destacado — a descrição ensinada deve corresponder à forma canônica do alfabeto. |
 | 5 | "essa forma de 'mão estendida' aparece em muitos sinais da Libras." | F3 | UFRB lista dezenas de sinais produzidos com a configuração "mão em letra 'B'" (pp. 335–341 e seguintes). | **Fiel.** | — |
 | 6 | Letra L: "o dedo indicador aponta para cima e o polegar se abre para o lado, enquanto os demais dedos ficam dobrados." | F3, F1 | UFRB registra "mão em letra 'L'" (CM 8a) usada em sinais como ÁGUA, LEI, PAPEL. | **Fiel em essência — descrição redigida, pendente de confirmação visual.** | Orientação da palma não descrita (sem regra universal) — confirmar com imagem/especialista. |
-| 7 | "a letra G também usa o indicador estendido — o que muda é a posição do polegar e a orientação da mão." | F5 | Registro interno da curadoria (ambiguidade L×G sinalizada na análise técnica). | **Razoável como cautela — não verificada em fonte primária nesta consulta.** | Pendência explícita para a especialista: confirmar a distinção L×G e a formulação. |
+| 7 | "outras letras, como a G, também usam o indicador estendido — a posição do polegar e a orientação da mão são pontos de atenção a confirmar nas demonstrações." | F5 | Registro interno da curadoria (ambiguidade L×G sinalizada na análise técnica). | **Reformulada como ponto de atenção a confirmar** (`draft-1` → `draft-2`): a redação anterior atribuía a diferença a traços específicos sem fonte primária; a nova versão não fecha a explicação diferencial. | Pendência explícita para a especialista: confirmar a distinção L×G e a formulação. |
 | 8 | Letra A: "a mão fecha em um punho, com os quatro dedos dobrados e o polegar apoiado ao lado deles, por fora." | F3, F1 | UFRB registra "mão em letra 'A'" (CM 1) usada em sinais como EVACUAR, APAGAR, ACOMPANHAR. | **Fiel em essência — descrição redigida, pendente de confirmação visual.** | Posição exata do polegar (lateral × sobre os dedos) a confirmar. |
-| 9 | "a letra S tem uma forma muito parecida — o que diferencia as duas é a posição do polegar." | F5 | Registro interno da curadoria (ambiguidade A×S sinalizada). | **Razoável como cautela — não verificada em fonte primária nesta consulta.** | Pendência para a especialista: confirmar a distinção A×S (posição do polegar × movimento/orientação). |
+| 9 | "a letra S tem uma forma muito parecida — a posição do polegar é um ponto de atenção a confirmar nas demonstrações." | F5 | Registro interno da curadoria (ambiguidade A×S sinalizada). | **Reformulada como ponto de atenção a confirmar** (`draft-1` → `draft-2`), pelo mesmo motivo do item 7. | Pendência para a especialista: confirmar a distinção A×S (posição do polegar × movimento/orientação). |
 | 10 | Letra I: "apenas o dedo mínimo fica estendido; os outros dedos e o polegar ficam dobrados." | F3, F1 | UFRB registra "mão em letra 'I'" (CM 38) e a variante "mão em letra 'I' com o dedo polegar dobrado" (CM 39). | **Fiel em essência — descrição redigida, pendente de confirmação visual.** | A variante com polegar dobrado documentada no UFRB reforça a necessidade de confirmar a forma canônica. |
-| 11 | "a letra J usa uma forma parecida, mas com movimento — o I é estático." | F5 | Registro interno da curadoria: "I é estático; J usa a mesma configuração com movimento". | **Razoável — convergente com a literatura** (J é convencionalmente descrito como I + movimento), mas sem fonte primária extraída nesta consulta. | Pendência para a especialista confirmar. |
+| 11 | "a letra J usa uma forma parecida — um ponto de atenção é que ela costuma envolver movimento, enquanto o I é estático." | F5 | Registro interno da curadoria: "I é estático; J usa a mesma configuração com movimento". | **Reformulada como ponto de atenção a confirmar** (`draft-1` → `draft-2`): convergente com a literatura (J é convencionalmente descrito como I + movimento), mas sem fonte primária extraída nesta consulta. | Pendência para a especialista confirmar. |
 | 12 | Exercícios 1 e 3 — alternativas corretas replicam as descrições dos itens 4 e 10. | — | Descrições rastreadas acima. | **Consistente.** | Explicações registram explicitamente que o exercício verifica o entendimento da descrição, não a identificação visual (cuidado pedagógico aprovado). |
 | 13 | Exercício 2 — "a forma dos dedos e a orientação da mão são o que diferencia uma letra da outra" / "as letras que você viu até aqui são estáticas". | F2, F3, F5 | Orientação como traço distintivo (F2); todas as quatro letras do recorte são configurações estáticas (F5). | **Fiel.** | — |
 
 ## Alterações aplicadas ao rascunho
 
-Não aplicável — `draft-1` criado nesta etapa (primeira versão do
-conteúdo). Próxima versão (`draft-2`) deve incorporar as correções que a
-revisão especializada indicar.
+`draft-1` → `draft-2` (19/11/2026), ajustes aprovados pelo responsável
+antes do push:
+
+1. **Objetivo da lição** reformulado para "Identificar, a partir de
+   descrições, características das configurações de mão das letras B, L,
+   A e I, preparando-se para reconhecê-las em demonstrações visuais" —
+   alinhamento com o que os exercícios de fato avaliam (compreensão
+   textual, não habilidade visual).
+2. **Cautelas A×S, L×G e I×J** reformuladas de explicações diferenciais
+   para "pontos de atenção a confirmar nas demonstrações" — a redação
+   anterior transmitia certeza maior que a evidência das fontes.
+
+Demais afirmações mantidas: eram adequadamente fundamentadas ou já
+formuladas com cautela. Próxima versão (`draft-3`) deve incorporar as
+correções que a revisão especializada indicar.
 
 ## Pendências e dúvidas para a especialista
 

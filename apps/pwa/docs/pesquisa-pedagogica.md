@@ -41,7 +41,7 @@ vigente do Portal da Legislação do Planalto.
 |---|---|---|---|
 | A — Libras é uma língua | `alfabeto/primeiros-passos/libras-e-uma-lingua` | `draft` | `draft-2`: introdução, 3 blocos de explicação, 2 exercícios de múltipla escolha com feedback. Matriz de evidências e pacote de revisão em `docs/matriz-evidencias-licao-libras-e-uma-lingua.md` e `docs/pacote-revisao-licao-libras-e-uma-lingua.md`. |
 | B — O que é a datilologia | `alfabeto/primeiros-passos/o-que-e` | `draft` | `draft-1`: introdução, 3 blocos de explicação, 2 exercícios de múltipla escolha com feedback. Auditoria de fidelidade concluída sem correções; matriz e pacote em `docs/matriz-evidencias-licao-o-que-e.md` e `docs/pacote-revisao-licao-o-que-e.md`. |
-| C — Primeiras letras do alfabeto manual | `alfabeto/primeiros-passos/primeiras-letras` | `draft` | `draft-1`: introdução, 5 blocos de explicação (observação + letras B, L, A, I), 3 exercícios de múltipla escolha com feedback. Matriz e pacote em `docs/matriz-evidencias-licao-primeiras-letras.md` e `docs/pacote-revisao-licao-primeiras-letras.md`. |
+| C — Primeiras letras do alfabeto manual | `alfabeto/primeiros-passos/primeiras-letras` | `draft` | `draft-2`: introdução, 5 blocos de explicação (observação + letras B, L, A, I), 3 exercícios de múltipla escolha com feedback. Objetivo limitado à identificação a partir de descrições; cautelas A×S/L×G/I×J formuladas como pontos de atenção a confirmar. Matriz e pacote em `docs/matriz-evidencias-licao-primeiras-letras.md` e `docs/pacote-revisao-licao-primeiras-letras.md`. |
 
 Todas apenas texto — nenhum vídeo ou imagem foi incluído porque nenhuma
 licença de mídia foi confirmada. As prévias ficam em

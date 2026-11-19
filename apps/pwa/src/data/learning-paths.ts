@@ -115,7 +115,7 @@ export const learningPaths: LearningPath[] = [
           plannedLesson(
             "primeiras-letras",
             "Primeiras letras do alfabeto manual",
-            "Reconhecer as configurações de mão das letras B, L, A e I e os cuidados para não confundi-las.",
+            "Identificar, a partir de descrições, as configurações de mão das letras B, L, A e I.",
           ),
         ],
       },

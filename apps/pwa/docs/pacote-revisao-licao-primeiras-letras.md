@@ -5,7 +5,7 @@ Nenhuma aprovação, parceria ou endosso é atribuído pela leitura deste
 documento — as decisões registradas ao final dependem da revisão.
 
 **Lição:** `alfabeto/primeiros-passos/primeiras-letras` — versão
-`draft-1` (rascunho, **não validado**)
+`draft-2` (rascunho, **não validado**)
 **Preparado em:** 19/11/2026
 **Prévia navegável:** `/laboratorio/licoes/alfabeto/primeiros-passos/primeiras-letras`
 (marcada como "Rascunho — conteúdo não validado"; não registra progresso)
@@ -27,8 +27,9 @@ estática.
 lições anteriores.
 
 **Objetivo declarado:**
-> Reconhecer as configurações de mão das letras B, L, A e I e os
-> cuidados para não confundi-las com letras parecidas.
+> Identificar, a partir de descrições, características das configurações
+> de mão das letras B, L, A e I, preparando-se para reconhecê-las em
+> demonstrações visuais.
 
 **Limitação declarada do objetivo:** nesta versão a lição é textual; os
 exercícios verificam o entendimento das descrições, **não** a capacidade
@@ -73,18 +74,21 @@ visual depende da mídia prevista no `mediaPlan` (curadoria Fiocruz em
 **Bloco 3 — "Letra L — indicador e polegar em 'L'"**
 > Na letra L, o dedo indicador aponta para cima e o polegar se abre para
 > o lado, enquanto os demais dedos ficam dobrados. A forma lembra a letra
-> 'L' escrita. Cuidado: a letra G também usa o indicador estendido — o
-> que muda é a posição do polegar e a orientação da mão.
+> 'L' escrita. Cuidado: outras letras, como a G, também usam o indicador
+> estendido — a posição do polegar e a orientação da mão são pontos de
+> atenção a confirmar nas demonstrações.
 
 **Bloco 4 — "Letra A — punho fechado"**
 > Na letra A, a mão fecha em um punho, com os quatro dedos dobrados e o
 > polegar apoiado ao lado deles, por fora. Cuidado: a letra S tem uma
-> forma muito parecida — o que diferencia as duas é a posição do polegar.
+> forma muito parecida — a posição do polegar é um ponto de atenção a
+> confirmar nas demonstrações.
 
 **Bloco 5 — "Letra I — só o dedo mínimo estendido"**
 > Na letra I, apenas o dedo mínimo fica estendido; os outros dedos e o
-> polegar ficam dobrados. Cuidado: a letra J usa uma forma parecida, mas
-> com movimento — o I é estático.
+> polegar ficam dobrados. Cuidado: a letra J usa uma forma parecida — um
+> ponto de atenção é que ela costuma envolver movimento, enquanto o I é
+> estático.
 
 ## 5. Exercícios com respostas
 
@@ -138,6 +142,20 @@ demonstrações."
 
 Matriz afirmação × evidência: `docs/matriz-evidencias-licao-primeiras-letras.md`.
 
+**Links externos para consulta da especialista (não são aprovação de
+licença nem validação pedagógica):**
+
+- Letra A: https://www.fiocruzimagens.fiocruz.br/s/fiocruzimagens/item/127847
+- Letra B: https://www.fiocruzimagens.fiocruz.br/s/fiocruzimagens/item/127848
+- Letra I: https://www.fiocruzimagens.fiocruz.br/s/fiocruzimagens/item/127856
+- Letra L: https://www.fiocruzimagens.fiocruz.br/s/fiocruzimagens/item/127859
+
+Fotografias da série "Alfabeto em Libras" (Fiocruz Imagens, autoria de
+Mauro Campello, licença declarada "Uso não comercial (by-nc)"). Os links
+são fornecidos apenas para que a especialista avalie a adequação
+linguística de cada imagem; nenhuma imagem foi baixada, copiada ou
+incorporada ao produto, e a decisão de licenciamento é do responsável.
+
 ## 7. Perguntas objetivas para a especialista
 
 1. As descrições dedo-a-dedo das letras B, L, A e I estão corretas —
@@ -167,6 +185,7 @@ Matriz afirmação × evidência: `docs/matriz-evidencias-licao-primeiras-letras
 | Decisão | Status | Observação |
 |---|---|---|
 | Recorte B → L → A → I (provisório) | Aprovado pelo responsável 19/11/2026 | Letra C fora do recorte; sujeito a ajuste pela especialista. |
+| Objetivo alinhado à avaliação textual e cautelas reformuladas como pontos de atenção | Aplicado em `draft-2`, 19/11/2026 | O objetivo não promete reconhecimento visual; A×S, L×G e I×J passaram a pontos de atenção a confirmar. |
 | Lição como 4ª do módulo `primeiros-passos` | Aprovado pelo responsável 19/11/2026 | "Quando a soletração manual é usada" preservada como 3ª. |
 | Sem mídia nesta versão | Aplicado | Fotos Fiocruz em curadoria separada; nada incorporado. |
 | `validationStatus: "draft"`, `reviews: []` | Aplicado | Aguarda reunião de 25/11/2026. |
