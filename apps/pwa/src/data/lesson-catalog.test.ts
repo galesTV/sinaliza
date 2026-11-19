@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { parseLessonKey } from "@/lib/progress";
+import { createLessonRunner } from "@/lib/lesson-runner";
 
 import {
   getCatalogEntry,
@@ -14,6 +15,10 @@ import {
   type LessonCatalogEntry,
 } from "./lesson-catalog";
 import { lessonContents } from "./lesson-content";
+import {
+  hasMediaDisplayPermission,
+  isExerciseVisuallyPermitted,
+} from "./lesson-content";
 import { getLessonContext } from "./learning-paths";
 
 function makeEntry(
@@ -311,6 +316,77 @@ describe("validateCatalogEntry", () => {
       makeEntry({ draft: { intro: "", blocks: [] } }),
     );
     expect(problems.join()).toContain("draft:");
+  });
+});
+
+describe("primeiras-letras draft-4", () => {
+  const entry = getCatalogEntry(
+    "alfabeto/primeiros-passos/primeiras-letras",
+  )!;
+
+  it("stays a draft: never publishable, never in the lesson registry", () => {
+    expect(entry.validationStatus).toBe("draft");
+    expect(entry.version).toBe("draft-4");
+    expect(isPublishable(entry)).toBe(false);
+    expect(lessonContents[entry.lessonKey]).toBeUndefined();
+    expect(validateCatalogEntry(entry)).toEqual([]);
+  });
+
+  it("declares one gated media slot per taught letter", () => {
+    const mediaBlocks = entry.draft!.blocks.flatMap((block) =>
+      block.kind === "media" ? [block] : [],
+    );
+    expect(mediaBlocks.length).toBe(4);
+    for (const block of mediaBlocks) {
+      expect(block.media.type).toBe("image");
+      expect(block.media.src).toMatch(
+        /^\/media\/alfabeto\/primeiros-passos\/letra-[abil]\.jpg$/,
+      );
+      // No evidence was recorded: the fail-closed gate must keep every
+      // slot in the "em produção" state instead of rendering the asset.
+      expect(block.attribution.permissionEvidence).toBeUndefined();
+      expect(hasMediaDisplayPermission(block.attribution)).toBe(false);
+    }
+  });
+
+  it("gates both visual exercises and offers a description variant", () => {
+    const visual = entry.draft!.blocks.flatMap((block) =>
+      block.kind === "exercise" &&
+      (block.exercise.promptMedia ||
+        block.exercise.options.some((option) => option.media))
+        ? [block.exercise]
+        : [],
+    );
+    expect(visual.length).toBeGreaterThanOrEqual(2);
+    for (const exercise of visual) {
+      expect(isExerciseVisuallyPermitted(exercise)).toBe(false);
+      expect(exercise.descriptionVariant).toBeDefined();
+    }
+  });
+
+  it("remains completable without any media via the description variants", () => {
+    const runner = createLessonRunner(entry.draft!);
+    while (runner.getSnapshot().block) {
+      const { block } = runner.getSnapshot();
+      if (block?.kind === "exercise") {
+        // Visual select() is refused while media is gated; the variant
+        // path is what keeps the lesson completable today.
+        if (!isExerciseVisuallyPermitted(block.exercise)) {
+          runner.select(0);
+          expect(runner.getSnapshot().result).toBeNull();
+        }
+        const variant = block.exercise.descriptionVariant;
+        if (variant) {
+          runner.selectVariant(variant.correctIndex);
+        } else {
+          runner.select(block.exercise.correctIndex);
+        }
+        expect(runner.getSnapshot().result).toBe("correct");
+      }
+      runner.advance();
+    }
+    expect(runner.getSnapshot().canComplete).toBe(true);
+    expect(runner.complete()).toBe(true);
   });
 });
 

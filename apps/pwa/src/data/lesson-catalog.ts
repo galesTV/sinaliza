@@ -15,7 +15,11 @@
  * review is recorded. Technical integrity is not linguistic validation.
  */
 
-import type { LessonContent } from "./lesson-content";
+import type {
+  LessonContent,
+  LessonImageMedia,
+  LessonMediaAttribution,
+} from "./lesson-content";
 import { validateLessonContent } from "./lesson-content";
 import { getLessonContext } from "./learning-paths";
 import { lessonKey, parseLessonKey } from "@/lib/progress";
@@ -129,6 +133,65 @@ const COMMON_REFERENCES = {
     consultedAt: CONSULTED_AT,
   },
 } as const;
+
+/**
+ * Candidate items of the "Alfabeto em Libras" photo series in the Fiocruz
+ * Imagens collection (author Mauro Campello, patrimonial rights Fundação
+ * Oswaldo Cruz, declared license "Uso não comercial (by-nc)"), recorded in
+ * `docs/curadoria-midia-fiocruz.md`. Approval pending: nothing here grants
+ * reuse permission.
+ */
+const FIOCRUZ_CANDIDATES: Record<
+  "A" | "B" | "I" | "L",
+  { item: string; url: string }
+> = {
+  A: {
+    item: "127847",
+    url: "https://www.fiocruzimagens.fiocruz.br/s/fiocruzimagens/item/127847",
+  },
+  B: {
+    item: "127848",
+    url: "https://www.fiocruzimagens.fiocruz.br/s/fiocruzimagens/item/127848",
+  },
+  I: {
+    item: "127856",
+    url: "https://www.fiocruzimagens.fiocruz.br/s/fiocruzimagens/item/127856",
+  },
+  L: {
+    item: "127859",
+    url: "https://www.fiocruzimagens.fiocruz.br/s/fiocruzimagens/item/127859",
+  },
+};
+
+/**
+ * Planned media slot for one letter demonstration. The path follows the
+ * `public/media/<trilha>/<modulo>/` convention but the file intentionally
+ * does not exist yet, and `permissionEvidence` is deliberately absent —
+ * so the fail-closed display gate keeps the slot in the honest "em
+ * produção" state and exercises fall back to their description variants.
+ * The attribution names the curation candidate for traceability; it is
+ * not a reuse claim.
+ */
+function pendingLetterMedia(letter: keyof typeof FIOCRUZ_CANDIDATES): {
+  media: LessonImageMedia;
+  attribution: LessonMediaAttribution;
+} {
+  const candidate = FIOCRUZ_CANDIDATES[letter];
+  return {
+    media: {
+      type: "image",
+      src: `/media/alfabeto/primeiros-passos/letra-${letter.toLowerCase()}.jpg`,
+      alt: `Demonstração fotográfica da configuração de mão da letra ${letter} do alfabeto manual de Libras.`,
+    },
+    attribution: {
+      source: `Mauro Campello — série "Alfabeto em Libras", Fiocruz Imagens / Fundação Oswaldo Cruz (item ${candidate.item}, candidato)`,
+      sourceUrl: candidate.url,
+      license: "Uso não comercial (by-nc) — versão exata a confirmar",
+      // No permissionEvidence on purpose: the candidate still awaits
+      // curation approval and expert review, so the gate stays closed.
+    },
+  };
+}
 
 export const lessonCatalog: LessonCatalogEntry[] = [
   {
@@ -371,7 +434,7 @@ export const lessonCatalog: LessonCatalogEntry[] = [
     lessonKey: lessonKey("alfabeto", "primeiros-passos", "primeiras-letras"),
     title: "Primeiras letras do alfabeto manual",
     objective:
-      "Identificar, a partir de descrições, características das configurações de mão das letras B, L, A e I, preparando-se para reconhecê-las em demonstrações visuais.",
+      "Identificar características das configurações de mão das letras B, L, A e I — pela descrição nesta versão e, quando houver mídia licenciada, por identificação visual da letra demonstrada.",
     references: [
       {
         institution:
@@ -396,26 +459,27 @@ export const lessonCatalog: LessonCatalogEntry[] = [
       },
     ],
     plannedOutline: [
-      "Introdução: por que começar com poucas letras",
-      "Explicação: como observar uma configuração de mão",
-      "Explicação: letra B — mão aberta e plana",
-      "Explicação: letra L — indicador e polegar formando um 'L' (cuidado: letra G)",
-      "Explicação: letra A — punho fechado (cuidado: letra S)",
-      "Explicação: letra I — só o dedo mínimo estendido (cuidado: letra J)",
-      "Exercício: identificar a configuração da letra B pela descrição",
-      "Exercício: o que observar primeiro em uma demonstração",
-      "Exercício: identificar a letra do dedo mínimo estendido",
+      "Introdução: como observar uma configuração de mão",
+      "Letra B — explicação e slot de demonstração (mídia em produção)",
+      "Letra L — explicação e slot de demonstração (cuidado: letra G)",
+      "Letra A — explicação e slot de demonstração (cuidado: letra S)",
+      "Letra I — explicação e slot de demonstração (cuidado: letra J)",
+      "Comparação e revisão das quatro configurações",
+      "Exercício visual: identificar a letra demonstrada (alternativa por descrição)",
+      "Exercício visual: qual imagem mostra a letra I (alternativa por descrição)",
+      "Exercício textual: o que observar primeiro em uma demonstração",
+      "Recapitulação final",
     ],
     validationStatus: "draft",
-    version: "draft-3",
+    version: "draft-4",
     reviews: [],
     mediaPlan: {
       summary:
-        "Demonstrações visuais das letras B, L, A e I são essenciais para a lição. Candidatas em curadoria: série 'Alfabeto em Língua Brasileira de Sinais (Libras)' do acervo Fiocruz Imagens (autoria de Mauro Campello, licença declarada 'Uso não comercial (by-nc)', direito patrimonial da Fundação Oswaldo Cruz). As imagens não foram incorporadas nem autorizadas — aguardam aprovação separada da curadoria e validação da especialista. Alternativa planejada: produção própria com autorização de imagem por escrito.",
+        "O draft-4 adiciona slots de demonstração das letras B, L, A e I (`LessonMediaBlock`, caminhos planejados `/media/alfabeto/primeiros-passos/letra-*.jpg`) e dois exercícios de identificação visual — todos sem `permissionEvidence`, portanto bloqueados pelo gate de exibição até haver licença confirmada. Nenhum arquivo foi incorporado. Candidatas em curadoria: série 'Alfabeto em Língua Brasileira de Sinais (Libras)' do acervo Fiocruz Imagens (autoria de Mauro Campello, licença declarada 'Uso não comercial (by-nc)', itens 127847/127848/127856/127859), aguardando aprovação separada da curadoria e validação da especialista. Alternativa planejada: produção própria com autorização de imagem por escrito.",
     },
     draft: {
       intro:
-        "Nesta lição, você vai dar os primeiros passos no alfabeto manual de Libras conhecendo quatro letras — B, L, A e I — observando a forma de cada configuração de mão e os cuidados para não confundir letras parecidas.",
+        "Nesta lição, você vai dar os primeiros passos no alfabeto manual de Libras conhecendo quatro letras — B, L, A e I — observando a forma de cada configuração de mão e os cuidados para não confundir letras parecidas. As demonstrações visuais de cada letra estão em produção: enquanto elas não chegam, a descrição de cada passo cobre o conteúdo.",
       blocks: [
         {
           kind: "text",
@@ -428,9 +492,23 @@ export const lessonCatalog: LessonCatalogEntry[] = [
           body: "Na letra B, a mão fica aberta e estendida, com os quatro dedos juntos e o polegar dobrado sobre a palma. Observe a mão bem aberta: essa forma de 'mão estendida' aparece em muitos sinais da Libras.",
         },
         {
+          kind: "media",
+          title: "Demonstração da letra B",
+          description:
+            "Demonstração visual da configuração da letra B: a mão aberta e estendida, com os quatro dedos juntos e o polegar dobrado sobre a palma. A imagem candidata está em curadoria e só será exibida quando houver licença confirmada e revisão especializada.",
+          ...pendingLetterMedia("B"),
+        },
+        {
           kind: "text",
           heading: "Letra L — indicador e polegar em 'L'",
           body: "Na letra L, o dedo indicador aponta para cima e o polegar se abre para o lado, enquanto os demais dedos ficam dobrados. A forma lembra a letra 'L' escrita. Cuidado: outras letras, como a G, também usam o indicador estendido — a posição do polegar e a orientação da mão são pontos de atenção a confirmar nas demonstrações.",
+        },
+        {
+          kind: "media",
+          title: "Demonstração da letra L",
+          description:
+            "Demonstração visual da configuração da letra L: o dedo indicador estendido para cima e o polegar aberto para o lado, com os demais dedos dobrados. A imagem candidata está em curadoria e só será exibida quando houver licença confirmada e revisão especializada.",
+          ...pendingLetterMedia("L"),
         },
         {
           kind: "text",
@@ -438,36 +516,142 @@ export const lessonCatalog: LessonCatalogEntry[] = [
           body: "Na letra A, a mão fecha em um punho, com os quatro dedos dobrados e o polegar apoiado ao lado deles, por fora. Cuidado: a letra S tem uma forma muito parecida — a posição do polegar é um ponto de atenção a confirmar nas demonstrações.",
         },
         {
+          kind: "media",
+          title: "Demonstração da letra A",
+          description:
+            "Demonstração visual da configuração da letra A: a mão fechada em punho, com os quatro dedos dobrados e o polegar apoiado ao lado deles, por fora. A imagem candidata está em curadoria e só será exibida quando houver licença confirmada e revisão especializada.",
+          ...pendingLetterMedia("A"),
+        },
+        {
           kind: "text",
           heading: "Letra I — só o dedo mínimo estendido",
           body: "Na letra I, apenas o dedo mínimo fica estendido; os outros dedos e o polegar ficam dobrados. Cuidado: a letra J usa uma forma parecida — um ponto de atenção é que ela costuma envolver movimento, enquanto o I é estático.",
         },
         {
+          kind: "media",
+          title: "Demonstração da letra I",
+          description:
+            "Demonstração visual da configuração da letra I: apenas o dedo mínimo estendido, com os demais dedos e o polegar dobrados. A imagem candidata está em curadoria e só será exibida quando houver licença confirmada e revisão especializada.",
+          ...pendingLetterMedia("I"),
+        },
+        {
+          kind: "text",
+          heading: "Comparando as quatro letras",
+          body: "Recapitulando as formas: a letra B usa a mão aberta e plana, com os quatro dedos juntos; a letra L estende o indicador e abre o polegar; a letra A fecha a mão em punho; e a letra I estende somente o dedo mínimo. As quatro são configurações estáticas — nenhuma depende de movimento. As letras parecidas ficam como ponto de atenção: a letra S se aproxima da A, a G se aproxima da L e a J usa uma forma parecida com a I, mas costuma envolver movimento — as diferenças exatas serão confirmadas nas demonstrações e na revisão especializada.",
+        },
+        {
           kind: "exercise",
           exercise: {
-            prompt: "Qual descrição corresponde à configuração da letra B?",
+            prompt:
+              "Qual letra do alfabeto manual está sendo demonstrada na imagem?",
+            promptMedia: pendingLetterMedia("B"),
             options: [
               {
-                label:
-                  "Mão aberta e estendida, quatro dedos juntos e polegar dobrado sobre a palma",
+                label: "Letra B",
                 feedback:
-                  "Isso mesmo: a letra B usa a mão aberta e plana, com os dedos unidos.",
+                  "Isso mesmo: a imagem mostra a mão aberta e plana, com os quatro dedos juntos — a configuração da letra B.",
               },
               {
-                label: "Indicador estendido e polegar aberto, formando um 'L'",
+                label: "Letra L",
                 feedback:
-                  "Essa é a letra L — no B, os quatro dedos ficam estendidos juntos.",
+                  "Não: na letra L, o indicador fica estendido e o polegar aberto — a imagem mostra a mão aberta com os quatro dedos juntos.",
               },
               {
-                label:
-                  "Mão fechada em punho, com o polegar apoiado ao lado dos dedos",
+                label: "Letra A",
                 feedback:
-                  "Essa é a letra A — no B, a mão permanece aberta.",
+                  "Não: a letra A é um punho fechado — a imagem mostra a mão aberta.",
+              },
+              {
+                label: "Letra I",
+                feedback:
+                  "Não: na letra I, só o dedo mínimo fica estendido — a imagem mostra os quatro dedos juntos.",
               },
             ],
             correctIndex: 0,
             explanation:
-              "Este exercício verifica o entendimento da descrição da letra B — o reconhecimento visual se desenvolve observando as demonstrações de cada configuração.",
+              "A letra B usa a mão aberta e plana: quatro dedos juntos e polegar dobrado sobre a palma.",
+            descriptionVariant: {
+              prompt:
+                "Pela descrição: a demonstração mostra a mão aberta e estendida, com os quatro dedos juntos e o polegar dobrado sobre a palma. Qual letra é essa?",
+              options: [
+                {
+                  label: "Letra B",
+                  feedback:
+                    "Correto: a descrição corresponde à configuração da letra B.",
+                },
+                {
+                  label: "Letra L",
+                  feedback:
+                    "Não: a descrição da letra L tem o indicador estendido e o polegar aberto.",
+                },
+                {
+                  label: "Letra A",
+                  feedback:
+                    "Não: a descrição da letra A é um punho fechado, não a mão aberta.",
+                },
+                {
+                  label: "Letra I",
+                  feedback:
+                    "Não: na descrição da letra I, só o dedo mínimo fica estendido.",
+                },
+              ],
+              correctIndex: 0,
+              explanation:
+                "Esta versão avalia a compreensão da descrição da letra B — não a identificação visual da configuração.",
+            },
+          },
+        },
+        {
+          kind: "exercise",
+          exercise: {
+            prompt: "Qual destas imagens mostra a letra I?",
+            options: [
+              {
+                label: "Imagem 1",
+                feedback:
+                  "Não: a imagem 1 mostra a mão aberta e plana — a configuração da letra B.",
+                media: pendingLetterMedia("B"),
+              },
+              {
+                label: "Imagem 2",
+                feedback:
+                  "Isso mesmo: a imagem 2 mostra somente o dedo mínimo estendido — a configuração da letra I.",
+                media: pendingLetterMedia("I"),
+              },
+              {
+                label: "Imagem 3",
+                feedback:
+                  "Não: a imagem 3 mostra o punho fechado — a configuração da letra A.",
+                media: pendingLetterMedia("A"),
+              },
+            ],
+            correctIndex: 1,
+            explanation:
+              "Na letra I, só o dedo mínimo fica estendido; os demais dedos e o polegar ficam dobrados.",
+            descriptionVariant: {
+              prompt:
+                "Pela descrição: a imagem 1 mostra a mão aberta com os quatro dedos juntos; a imagem 2 mostra a mão fechada com apenas o dedo mínimo estendido; a imagem 3 mostra a mão fechada em punho com o polegar apoiado ao lado dos dedos. Qual imagem mostra a letra I?",
+              options: [
+                {
+                  label: "Imagem 1",
+                  feedback:
+                    "Não: a imagem 1 descreve a configuração da letra B, a mão aberta e plana.",
+                },
+                {
+                  label: "Imagem 2",
+                  feedback:
+                    "Correto: a imagem 2 descreve só o dedo mínimo estendido — a configuração da letra I.",
+                },
+                {
+                  label: "Imagem 3",
+                  feedback:
+                    "Não: a imagem 3 descreve a configuração da letra A, o punho fechado.",
+                },
+              ],
+              correctIndex: 1,
+              explanation:
+                "Esta versão avalia a compreensão das descrições das imagens — não a identificação visual das configurações.",
+            },
           },
         },
         {
@@ -499,31 +683,9 @@ export const lessonCatalog: LessonCatalogEntry[] = [
           },
         },
         {
-          kind: "exercise",
-          exercise: {
-            prompt:
-              "Qual destas letras usa somente o dedo mínimo estendido?",
-            options: [
-              {
-                label: "Letra B",
-                feedback:
-                  "Não: na letra B, os quatro dedos ficam estendidos juntos, com o polegar dobrado sobre a palma.",
-              },
-              {
-                label: "Letra L",
-                feedback:
-                  "Não: na letra L, quem fica estendido é o dedo indicador, junto com o polegar aberto.",
-              },
-              {
-                label: "Letra I",
-                feedback:
-                  "Isso mesmo: na letra I, só o dedo mínimo fica estendido e os demais dedos ficam dobrados.",
-              },
-            ],
-            correctIndex: 2,
-            explanation:
-              "Este exercício verifica o entendimento da descrição da letra I — a identificação visual das letras se desenvolve com a observação das demonstrações.",
-          },
+          kind: "text",
+          heading: "Recapitulando",
+          body: "Você conheceu as configurações de mão de quatro letras do alfabeto manual — B, L, A e I — e aprendeu a observar a forma dos dedos e a orientação da mão. Quando as demonstrações visuais estiverem licenciadas, os exercícios de identificação passam a mostrar as imagens reais; até lá, a versão por descrição mantém a prática sem fingir avaliar o olhar.",
         },
       ],
     },
