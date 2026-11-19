@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type RefObject,
+} from "react";
 
 import {
   exerciseMediaList,
@@ -80,6 +86,7 @@ function ExerciseBlock({
   canGoBack,
   isLastBlock,
   finishLabel,
+  headingRef,
 }: {
   exercise: LessonExercise;
   selectedOption: number | null;
@@ -91,6 +98,7 @@ function ExerciseBlock({
   canGoBack: boolean;
   isLastBlock: boolean;
   finishLabel: string;
+  headingRef: RefObject<HTMLHeadingElement | null>;
 }) {
   const solved = result === "correct";
 
@@ -100,6 +108,13 @@ function ExerciseBlock({
     () => new Set<string>(),
   );
   const [prefersDescription, setPrefersDescription] = useState(false);
+  // Which modality the last answer was recorded in. An answer's feedback
+  // and option highlighting must always read from that modality's pool —
+  // a media failure after answering can flip the view without changing
+  // what was actually answered.
+  const [answeredMode, setAnsweredMode] = useState<
+    "visual" | "description" | null
+  >(null);
 
   const mediaUnavailable =
     !isExerciseVisuallyPermitted(exercise) ||
@@ -118,9 +133,20 @@ function ExerciseBlock({
   const correctIndex = useVariant
     ? variant!.correctIndex
     : exercise.correctIndex;
-  const explanation = useVariant
-    ? variant!.explanation
-    : exercise.explanation;
+
+  // Feedback and answer styling always follow the modality the answer was
+  // recorded in, not the modality currently displayed.
+  const answeredInShownMode =
+    answeredMode === null ||
+    answeredMode === (useVariant ? "description" : "visual");
+  const feedbackOptions =
+    answeredMode === "description" && variant
+      ? variant.options
+      : exercise.options;
+  const feedbackExplanation =
+    answeredMode === "description" && variant
+      ? variant.explanation
+      : exercise.explanation;
 
   const markFailed = (src: string) =>
     setFailedSrcs((previous) => {
@@ -130,8 +156,23 @@ function ExerciseBlock({
       return next;
     });
 
+  const handleSelect = (index: number) => {
+    setAnsweredMode(useVariant ? "description" : "visual");
+    if (useVariant) onSelectVariant(index);
+    else onSelect(index);
+  };
+
   return (
     <div className="flex flex-col gap-5">
+      <h2
+        ref={headingRef}
+        tabIndex={-1}
+        id="lesson-runner-title"
+        className="font-display text-xl font-semibold tracking-tight text-foreground focus-visible:outline-none"
+      >
+        {prompt}
+      </h2>
+
       {exercise.promptMedia && !useVariant && (
         <LessonMedia
           key={exercise.promptMedia.media.src}
@@ -148,13 +189,16 @@ function ExerciseBlock({
         />
       )}
 
-      {useVariant && (
-        <HonestNote>
-          Versão por descrição: avalia a compreensão da descrição da
-          demonstração, não a identificação visual. Não é uma equivalência
-          pedagógica validada.
-        </HonestNote>
-      )}
+      {/* Announced politely so assistive tech hears the modality change. */}
+      <div aria-live="polite">
+        {useVariant && (
+          <HonestNote>
+            Versão por descrição: avalia a compreensão da descrição da
+            demonstração, não a identificação visual. Não é uma equivalência
+            pedagógica validada.
+          </HonestNote>
+        )}
+      </div>
 
       {blocked && (
         <HonestNote title="Exercício indisponível por enquanto">
@@ -167,8 +211,8 @@ function ExerciseBlock({
       <fieldset className="flex flex-col gap-2.5" disabled={blocked}>
         <legend className="sr-only">{prompt}</legend>
         {options.map((option, index) => {
-          const isSelected = selectedOption === index;
-          const isCorrect = index === correctIndex;
+          const isSelected = answeredInShownMode && selectedOption === index;
+          const isCorrect = answeredInShownMode && index === correctIndex;
           const tone = solved
             ? isCorrect
               ? OPTION_TONES.correct
@@ -186,9 +230,7 @@ function ExerciseBlock({
                 className="peer sr-only"
                 checked={!blocked && isSelected}
                 disabled={solved || blocked}
-                onChange={() =>
-                  useVariant ? onSelectVariant(index) : onSelect(index)
-                }
+                onChange={() => handleSelect(index)}
               />
               <span
                 className={cn(
@@ -236,6 +278,7 @@ function ExerciseBlock({
       {variant && !mediaUnavailable && !solved && result === null && (
         <button
           type="button"
+          aria-pressed={prefersDescription}
           onClick={() => setPrefersDescription((value) => !value)}
           className="self-start text-sm font-medium text-muted underline underline-offset-4 transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
         >
@@ -245,7 +288,9 @@ function ExerciseBlock({
         </button>
       )}
 
-      {result && selectedOption !== null && selectedOption < options.length && (
+      {result &&
+        selectedOption !== null &&
+        selectedOption < feedbackOptions.length && (
         <div
           role="status"
           className={cn(
@@ -269,9 +314,9 @@ function ExerciseBlock({
             )}
           </p>
           <p className="text-muted">
-            {options[selectedOption].feedback}
+            {feedbackOptions[selectedOption].feedback}
           </p>
-          {solved && <p className="text-muted">{explanation}</p>}
+          {solved && <p className="text-muted">{feedbackExplanation}</p>}
         </div>
       )}
 
@@ -411,14 +456,6 @@ export function LessonRunner({
           <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">
             Exercício
           </p>
-          <h2
-            ref={headingRef}
-            tabIndex={-1}
-            id="lesson-runner-title"
-            className="font-display text-xl font-semibold tracking-tight text-foreground focus-visible:outline-none"
-          >
-            {block.exercise.prompt}
-          </h2>
           <ExerciseBlock
             exercise={block.exercise}
             selectedOption={snapshot.selectedOption}
@@ -430,6 +467,7 @@ export function LessonRunner({
             canGoBack={snapshot.canGoBack}
             isLastBlock={stepIndex === stepCount - 1}
             finishLabel={copy.finish}
+            headingRef={headingRef}
           />
         </div>
       )}

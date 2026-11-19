@@ -118,6 +118,50 @@ describe("visual exercises", () => {
     expect(html).not.toContain('src="/media/fixtures/shape-circle.svg"');
     expect(html).toContain("Versão por descrição");
     expect(html).toContain("Pela descrição, qual forma é essa?");
+    // The step heading itself carries the variant's prompt — the question
+    // actually being asked — not the hidden visual one.
+    expect(html).toMatch(/<h2[^>]*>\s*Pela descrição, qual forma é essa\?/);
+  });
+
+  it("exposes an accessible modality toggle next to a permitted stimulus", () => {
+    const html = renderToStaticMarkup(
+      <LessonRunner
+        content={contentWith({
+          prompt: "Qual forma aparece na imagem?",
+          promptMedia: {
+            media: {
+              type: "image",
+              src: "/media/fixtures/shape-circle.svg",
+              alt: "Um círculo azul.",
+            },
+            attribution: permitted,
+          },
+          descriptionVariant: {
+            prompt: "Pela descrição, qual forma é essa?",
+            options: [
+              { label: "Círculo", feedback: "ok" },
+              { label: "Quadrado", feedback: "não" },
+            ],
+            correctIndex: 0,
+            explanation: "e",
+          },
+          options: [
+            { label: "Círculo", feedback: "ok" },
+            { label: "Quadrado", feedback: "não" },
+          ],
+          correctIndex: 0,
+          explanation: "e",
+        })}
+      />,
+    );
+    // Real <button> with an accessible name and pressed-state indication.
+    expect(html).toMatch(
+      /<button[^>]*aria-pressed="false"[^>]*>\s*Responder por descrição/,
+    );
+    // The heading shows the visual prompt while the image is visible.
+    expect(html).toMatch(
+      /<h2[^>]*>\s*Qual forma aparece na imagem\?/,
+    );
   });
 
   it("blocks the exercise when the stimulus is gated and no variant exists", () => {

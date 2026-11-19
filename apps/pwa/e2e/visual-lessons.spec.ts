@@ -107,6 +107,68 @@ test.describe("visual exercise infrastructure", () => {
     await expect(page.getByText("Correto!")).toBeVisible();
   });
 
+  test("switches to description mode through the accessible toggle", async ({
+    page,
+  }) => {
+    await page.goto("/laboratorio/licao-visual");
+    await page.getByRole("button", { name: "Continuar" }).click();
+
+    // Exercise 1 has a permitted stimulus AND a description variant: the
+    // manual toggle is exposed as a pressed-state button.
+    const toggle = page.getByRole("button", {
+      name: "Responder por descrição",
+    });
+    await expect(toggle).toBeVisible();
+    await expect(toggle).toHaveAttribute("aria-pressed", "false");
+
+    await toggle.click();
+
+    // The visible heading switches to the variant's prompt — the question
+    // actually being asked — and the modality note is announced.
+    await expect(
+      page.getByRole("heading", { name: /Pela descrição/ }),
+    ).toBeVisible();
+    await expect(page.getByText("Versão por descrição")).toBeVisible();
+    await expect(
+      page.locator('img[src="/media/fixtures/shape-circle.svg"]'),
+    ).toHaveCount(0);
+
+    // Toggling back restores the visual version.
+    const back = page.getByRole("button", {
+      name: "Voltar à versão com imagem",
+    });
+    await expect(back).toHaveAttribute("aria-pressed", "true");
+    await back.click();
+    await expect(
+      page.locator('img[src="/media/fixtures/shape-circle.svg"]').first(),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", {
+        name: "Qual forma geométrica aparece na imagem acima?",
+      }),
+    ).toBeVisible();
+
+    // Switch to description mode again and answer there: scoring uses the
+    // variant's own answer key and feedback pool.
+    await page
+      .getByRole("button", { name: "Responder por descrição" })
+      .click();
+    await option(page, "Quadrado").click();
+    await expect(page.getByText("Ainda não")).toBeVisible();
+    await expect(
+      page.getByText("um quadrado tem quatro lados retos"),
+    ).toBeVisible();
+
+    // After answering, the modality toggle is no longer offered.
+    await expect(
+      page.getByRole("button", { name: "Voltar à versão com imagem" }),
+    ).toHaveCount(0);
+
+    await option(page, "Círculo").click();
+    await expect(page.getByText("Correto!")).toBeVisible();
+    await expectNoProgressRecorded(page);
+  });
+
   test("falls back to the description variant when media is gated or fails", async ({
     page,
   }) => {
@@ -118,10 +180,13 @@ test.describe("visual exercise infrastructure", () => {
     await page.getByRole("button", { name: "Continuar" }).click();
 
     // Exercise 3: stimulus without permission evidence — the image is never
-    // rendered and the description variant is offered instead.
+    // rendered and the description variant is offered instead. The visible
+    // heading is the variant's prompt, not the hidden visual one.
     await expect(page.getByText("Versão por descrição")).toBeVisible();
     await expect(
-      page.getByText("Pela descrição: a forma tem todos os pontos"),
+      page.getByRole("heading", {
+        name: /Pela descrição: a forma tem todos os pontos/,
+      }),
     ).toBeVisible();
     await expect(
       page.locator('img[src="/media/fixtures/shape-circle.svg"]'),
@@ -134,7 +199,9 @@ test.describe("visual exercise infrastructure", () => {
     // failure produces the same description-variant fallback.
     await expect(page.getByText("Versão por descrição")).toBeVisible();
     await expect(
-      page.getByText("Pela descrição: a forma tem três lados"),
+      page.getByRole("heading", {
+        name: /Pela descrição: a forma tem três lados/,
+      }),
     ).toBeVisible();
     await option(page, "Triângulo").click();
     await expect(page.getByText("Correto!")).toBeVisible();

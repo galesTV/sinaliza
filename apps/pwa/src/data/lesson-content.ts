@@ -644,6 +644,25 @@ export const visualExerciseDemo: LessonContent = {
         correctIndex: 0,
         explanation:
           "O círculo é a única forma sem lados retos nem vértices entre as três opções.",
+        // Present even though the stimulus is permitted: exercises the manual
+        // "Responder por descrição" toggle path.
+        descriptionVariant: {
+          prompt:
+            "Pela descrição: a forma não tem lados retos nem vértices e todos os seus pontos ficam à mesma distância do centro. Qual forma é essa?",
+          options: [
+            {
+              label: "Círculo",
+              feedback: "Correto: a descrição corresponde a um círculo.",
+            },
+            {
+              label: "Quadrado",
+              feedback: "Não: um quadrado tem quatro lados retos.",
+            },
+          ],
+          correctIndex: 0,
+          explanation:
+            "Uma forma sem lados retos com pontos equidistantes do centro é um círculo.",
+        },
       },
     },
     {
