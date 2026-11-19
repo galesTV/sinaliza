@@ -112,6 +112,11 @@ export const learningPaths: LearningPath[] = [
             "Quando a soletração manual é usada",
             "Reconhecer situações do cotidiano em que a soletração manual aparece.",
           ),
+          plannedLesson(
+            "primeiras-letras",
+            "Primeiras letras do alfabeto manual",
+            "Identificar, a partir de descrições, as configurações de mão das letras B, L, A e I.",
+          ),
         ],
       },
       letterGroup(

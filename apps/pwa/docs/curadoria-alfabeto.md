@@ -86,3 +86,22 @@ páginas — situação registrada como "não confirmada" em cada fonte.
 - Descrições das configurações de mão aguardam especialista em Libras.
 - Matriz de ambiguidades (A×S, L×G, I×J, B×mão aberta) precisa de revisão
   linguística antes de orientar o design de feedback visual.
+
+## Atualização — Fase 8B (19/11/2026)
+
+- **Recorte provisório da lição "Primeiras letras do alfabeto manual"
+  aprovado pelo responsável:** B → L → A → I. A letra C, embora
+  catalogada, ficou fora do primeiro recorte didático (curva menos
+  estável em demonstração estática); os cinco espécimes continuam
+  registrados no catálogo para trabalho futuro.
+- **Nova fonte de mídia candidata:** série "Alfabeto em Libras" do acervo
+  Fiocruz Imagens (autoria Mauro Campello, licença declarada "Uso não
+  comercial (by-nc)", direito patrimonial Fundação Oswaldo Cruz). A
+  curadoria completa — itens 127847 (A), 127848 (B), 127856 (I), 127859
+  (L), licença, atribuição, restrições e adequação — está em
+  `docs/curadoria-midia-fiocruz.md`, aguardando aprovação separada.
+  **Nenhuma imagem foi incorporada.**
+- **Novas referências textuais:** UFRB (*Dicionário de Configurações das
+  Mãos em Libras*, tabela de Felipe & Monteiro 2001) e artigo do IFSC
+  (26 configurações = letras do alfabeto português) registrados em
+  `docs/pesquisa-pedagogica.md`.

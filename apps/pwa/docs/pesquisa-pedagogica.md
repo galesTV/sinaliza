@@ -18,6 +18,9 @@ ou decisão de publicação.
 | ENAP — *Apostila em Libras — Curso Básico* (repositório institucional, 2019, 79 p.) | https://repositorio.enap.gov.br/bitstream/1/4121/4/Apostila%20em%20LIBRAS%20-%20Curso%20B%C3%A1sico%20ENAP%202019.pdf | Verificação da lição A: línguas de sinais não são universais ("cada país tem a sua"), estruturas gramaticais próprias, distinção entre língua e gestos soltos. | Material didático de órgão federal — **verificação conceitual, sem cópia**. |
 | Felipe, Tanya Amara — "Os processos de formação de palavra na Libras", *ETD* (Unicamp), republicado no FUNARTE Digital | https://funartemaisdigital.funarte.gov.br/periodicos/os-processos-de-formacao-de-palavra-na-libras/ | Lista canônica de parâmetros dos sinais e caracterização da Libras como língua flexional (lição A). | Artigo acadêmico republicado em portal institucional — **referência conceitual, sem cópia**. |
 | Batista, Jerlan Pereira — "Variação linguística na Libras e possíveis implicações no ambiente escolar", *Educação Pública* (Fundação CECIERJ) | https://educacaopublica.cecierj.edu.br/artigos/24/27/variacao-linguistica-na-libras-e-possiveis-implicacoes-no-ambiente-escolar | Fundamentação para a afirmação de variações regionais na Libras (lição A). | Artigo em periódico de acesso aberto — **referência conceitual, sem cópia**. |
+| Artigo do IFSC — "Ensino de libras para ouvintes em cursos de extensão", *Seminário Nacional de Ciência e Tecnologia do IFSC* | https://periodicos.ifsc.edu.br/index.php/snctifsc/article/view/6899 | Verificação das lições B e C: "26 configurações de mão que correspondem às letras do alfabeto português" (citando Quadros & Karnopp, 2004); orientação da palma como parte de cada configuração. | Periódico acadêmico de acesso aberto — **referência conceitual, sem cópia**. |
+| UFRB — *Dicionário de Configurações das Mãos em Libras* (Charles Lary Marques Ferraz, editora UFRB, 362 p.) | https://www1.ufrb.edu.br/editora/component/phocadownload/category/2-e-books | Verificação da lição C: configurações nomeadas por letras ("mão em letra 'A'/'B'/'I'/'L'"), parâmetros CM/PA/movimento/orientação/expressão, variantes documentadas (polegar destacado/dobrado). | Publicação de editora universitária — **referência conceitual, sem cópia**. |
+| Fiocruz Imagens — série "Alfabeto em Língua Brasileira de Sinais (Libras)" (Mauro Campello, 2024) | https://www.fiocruzimagens.fiocruz.br/s/fiocruzimagens/item/127847 (letra A; demais itens em `docs/curadoria-midia-fiocruz.md`) | Candidata de mídia para a lição C: fotos licenciadas de cada letra. | Licença declarada "Uso não comercial (by-nc)" nos itens do acervo — **curadoria em `docs/curadoria-midia-fiocruz.md`; nenhuma imagem incorporada**; versão exata da licença e direitos de imagem a confirmar. |
 
 ## Fundamentação legal
 
@@ -37,9 +40,10 @@ vigente do Portal da Legislação do Planalto.
 | Lição | Chave | Estado | Rascunho |
 |---|---|---|---|
 | A — Libras é uma língua | `alfabeto/primeiros-passos/libras-e-uma-lingua` | `draft` | `draft-2`: introdução, 3 blocos de explicação, 2 exercícios de múltipla escolha com feedback. Matriz de evidências e pacote de revisão em `docs/matriz-evidencias-licao-libras-e-uma-lingua.md` e `docs/pacote-revisao-licao-libras-e-uma-lingua.md`. |
-| B — O que é a datilologia | `alfabeto/primeiros-passos/o-que-e` | `draft` | `draft-1`: introdução, 3 blocos de explicação, 2 exercícios de múltipla escolha com feedback. |
+| B — O que é a datilologia | `alfabeto/primeiros-passos/o-que-e` | `draft` | `draft-1`: introdução, 3 blocos de explicação, 2 exercícios de múltipla escolha com feedback. Auditoria de fidelidade concluída sem correções; matriz e pacote em `docs/matriz-evidencias-licao-o-que-e.md` e `docs/pacote-revisao-licao-o-que-e.md`. |
+| C — Primeiras letras do alfabeto manual | `alfabeto/primeiros-passos/primeiras-letras` | `draft` | `draft-3`: introdução, 5 blocos de explicação (observação + letras B, L, A, I), 3 exercícios de múltipla escolha com feedback. Objetivo limitado à identificação a partir de descrições; cautelas A×S/L×G/I×J formuladas como pontos de atenção a confirmar. Matriz e pacote em `docs/matriz-evidencias-licao-primeiras-letras.md` e `docs/pacote-revisao-licao-primeiras-letras.md`. |
 
-Ambas apenas texto — nenhum vídeo ou imagem foi incluído porque nenhuma
+Todas apenas texto — nenhum vídeo ou imagem foi incluído porque nenhuma
 licença de mídia foi confirmada. As prévias ficam em
 `/laboratorio/licoes/<chave>` com aviso explícito de revisão pendente e não
 registram progresso.
@@ -57,7 +61,12 @@ registram progresso.
   exemplos de parâmetros) ou licenciamento verificável; registrar evidência
   de permissão no `mediaPlan` do catálogo. A curadoria das letras candidatas
   (A, B, C, L e I) e o procedimento de produção estão em
-  `docs/curadoria-alfabeto.md`.
+  `docs/curadoria-alfabeto.md`; a curadoria específica das fotos Fiocruz
+  (CC BY-NC declarada) está em `docs/curadoria-midia-fiocruz.md`, aguardando
+  aprovação separada.
+- **Orientação da palma na lição C:** por decisão pedagógica, nenhuma regra
+  universal foi escrita; as orientações específicas de B, L, A e I dependem
+  de evidência visual/especialista — registrado nas pendências da matriz.
 
 ## Perguntas para avaliação especializada
 

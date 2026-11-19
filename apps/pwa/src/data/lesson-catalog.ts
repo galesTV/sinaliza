@@ -366,6 +366,168 @@ export const lessonCatalog: LessonCatalogEntry[] = [
       ],
     },
   },
+  {
+    id: "primeiras-letras",
+    lessonKey: lessonKey("alfabeto", "primeiros-passos", "primeiras-letras"),
+    title: "Primeiras letras do alfabeto manual",
+    objective:
+      "Identificar, a partir de descrições, características das configurações de mão das letras B, L, A e I, preparando-se para reconhecê-las em demonstrações visuais.",
+    references: [
+      {
+        institution:
+          "Instituto Nacional de Educação de Surdos (INES) — Alfabeto de Libras e Configuração de Mãos",
+        url: "https://www.gov.br/ines/pt-br/central-de-conteudos/publicacoes-1/todas-as-publicacoes/alfabeto-manual-e-configuracao-de-maos",
+        purpose:
+          "Referência institucional primária para a configuração de mão de cada letra do alfabeto manual.",
+        consultedAt: CONSULTED_AT,
+      },
+      {
+        institution:
+          "Universidade Federal do Recôncavo da Bahia (UFRB) — Dicionário de Configurações das Mãos em Libras (Charles Lary Marques Ferraz)",
+        url: "https://www1.ufrb.edu.br/editora/component/phocadownload/category/2-e-books",
+        purpose:
+          "Dicionário organizado por configuração de mão; usa as letras do alfabeto manual como nome das configurações e documenta os parâmetros de produção dos sinais (configuração, ponto de articulação, movimento, orientação e expressão).",
+        consultedAt: CONSULTED_AT,
+      },
+      {
+        ...COMMON_REFERENCES.ufscGramatica,
+        purpose:
+          "Fundamentação dos parâmetros de formação dos sinais, incluindo a orientação da mão como traço distintivo de cada configuração.",
+      },
+    ],
+    plannedOutline: [
+      "Introdução: por que começar com poucas letras",
+      "Explicação: como observar uma configuração de mão",
+      "Explicação: letra B — mão aberta e plana",
+      "Explicação: letra L — indicador e polegar formando um 'L' (cuidado: letra G)",
+      "Explicação: letra A — punho fechado (cuidado: letra S)",
+      "Explicação: letra I — só o dedo mínimo estendido (cuidado: letra J)",
+      "Exercício: identificar a configuração da letra B pela descrição",
+      "Exercício: o que observar primeiro em uma demonstração",
+      "Exercício: identificar a letra do dedo mínimo estendido",
+    ],
+    validationStatus: "draft",
+    version: "draft-3",
+    reviews: [],
+    mediaPlan: {
+      summary:
+        "Demonstrações visuais das letras B, L, A e I são essenciais para a lição. Candidatas em curadoria: série 'Alfabeto em Língua Brasileira de Sinais (Libras)' do acervo Fiocruz Imagens (autoria de Mauro Campello, licença declarada 'Uso não comercial (by-nc)', direito patrimonial da Fundação Oswaldo Cruz). As imagens não foram incorporadas nem autorizadas — aguardam aprovação separada da curadoria e validação da especialista. Alternativa planejada: produção própria com autorização de imagem por escrito.",
+    },
+    draft: {
+      intro:
+        "Nesta lição, você vai dar os primeiros passos no alfabeto manual de Libras conhecendo quatro letras — B, L, A e I — observando a forma de cada configuração de mão e os cuidados para não confundir letras parecidas.",
+      blocks: [
+        {
+          kind: "text",
+          heading: "Como observar uma configuração de mão",
+          body: "Cada letra do alfabeto manual é uma configuração de mão: a posição dos dedos e do polegar e a orientação em que a mão é apresentada. Ao ver uma demonstração, repare primeiro na forma dos dedos e depois observe para onde a palma e os dedos apontam — cada letra tem a sua orientação própria.",
+        },
+        {
+          kind: "text",
+          heading: "Letra B — mão aberta e plana",
+          body: "Na letra B, a mão fica aberta e estendida, com os quatro dedos juntos e o polegar dobrado sobre a palma. Observe a mão bem aberta: essa forma de 'mão estendida' aparece em muitos sinais da Libras.",
+        },
+        {
+          kind: "text",
+          heading: "Letra L — indicador e polegar em 'L'",
+          body: "Na letra L, o dedo indicador aponta para cima e o polegar se abre para o lado, enquanto os demais dedos ficam dobrados. A forma lembra a letra 'L' escrita. Cuidado: outras letras, como a G, também usam o indicador estendido — a posição do polegar e a orientação da mão são pontos de atenção a confirmar nas demonstrações.",
+        },
+        {
+          kind: "text",
+          heading: "Letra A — punho fechado",
+          body: "Na letra A, a mão fecha em um punho, com os quatro dedos dobrados e o polegar apoiado ao lado deles, por fora. Cuidado: a letra S tem uma forma muito parecida — a posição do polegar é um ponto de atenção a confirmar nas demonstrações.",
+        },
+        {
+          kind: "text",
+          heading: "Letra I — só o dedo mínimo estendido",
+          body: "Na letra I, apenas o dedo mínimo fica estendido; os outros dedos e o polegar ficam dobrados. Cuidado: a letra J usa uma forma parecida — um ponto de atenção é que ela costuma envolver movimento, enquanto o I é estático.",
+        },
+        {
+          kind: "exercise",
+          exercise: {
+            prompt: "Qual descrição corresponde à configuração da letra B?",
+            options: [
+              {
+                label:
+                  "Mão aberta e estendida, quatro dedos juntos e polegar dobrado sobre a palma",
+                feedback:
+                  "Isso mesmo: a letra B usa a mão aberta e plana, com os dedos unidos.",
+              },
+              {
+                label: "Indicador estendido e polegar aberto, formando um 'L'",
+                feedback:
+                  "Essa é a letra L — no B, os quatro dedos ficam estendidos juntos.",
+              },
+              {
+                label:
+                  "Mão fechada em punho, com o polegar apoiado ao lado dos dedos",
+                feedback:
+                  "Essa é a letra A — no B, a mão permanece aberta.",
+              },
+            ],
+            correctIndex: 0,
+            explanation:
+              "Este exercício verifica o entendimento da descrição da letra B — o reconhecimento visual se desenvolve observando as demonstrações de cada configuração.",
+          },
+        },
+        {
+          kind: "exercise",
+          exercise: {
+            prompt:
+              "Ao observar a demonstração de uma letra do alfabeto manual pela primeira vez, o que merece atenção primeiro?",
+            options: [
+              {
+                label:
+                  "A forma dos dedos e do polegar e a orientação em que a mão é apresentada",
+                feedback:
+                  "Isso: a forma dos dedos e a orientação da mão são traços centrais para distinguir uma letra da outra — em letras com movimento, como a J, o movimento também diferencia.",
+              },
+              {
+                label: "A velocidade com que a mão se move",
+                feedback:
+                  "As letras que você viu até aqui são estáticas — o que importa primeiro é a forma e a orientação da mão.",
+              },
+              {
+                label: "O tamanho da mão de quem demonstra",
+                feedback:
+                  "O tamanho da mão não muda a letra — a posição dos dedos e a orientação, sim.",
+              },
+            ],
+            correctIndex: 0,
+            explanation:
+              "Observar a forma dos dedos e a orientação da mão é o caminho para distinguir letras parecidas, como A e S ou L e G.",
+          },
+        },
+        {
+          kind: "exercise",
+          exercise: {
+            prompt:
+              "Qual destas letras usa somente o dedo mínimo estendido?",
+            options: [
+              {
+                label: "Letra B",
+                feedback:
+                  "Não: na letra B, os quatro dedos ficam estendidos juntos, com o polegar dobrado sobre a palma.",
+              },
+              {
+                label: "Letra L",
+                feedback:
+                  "Não: na letra L, quem fica estendido é o dedo indicador, junto com o polegar aberto.",
+              },
+              {
+                label: "Letra I",
+                feedback:
+                  "Isso mesmo: na letra I, só o dedo mínimo fica estendido e os demais dedos ficam dobrados.",
+              },
+            ],
+            correctIndex: 2,
+            explanation:
+              "Este exercício verifica o entendimento da descrição da letra I — a identificação visual das letras se desenvolve com a observação das demonstrações.",
+          },
+        },
+      ],
+    },
+  },
 ];
 
 export function getCatalogEntry(
