@@ -79,8 +79,10 @@ criadas para o teste, identificadas por variáveis de ambiente
 - UPDATE e DELETE em `lesson_completions` rejeitados (ausência de grant,
   incluindo tentativa cruzada de B sobre linha de A) (E.4.3, E.4.4).
 - DELETE em `profiles` rejeitado (E.4.3).
-- INSERT fornecendo `completed_at` rejeitado por permissão de coluna —
-  confirma que o timestamp é sempre do servidor (E.4.3).
+- INSERT fornecendo `completed_at` rejeitado por permissão de coluna. Isso
+  confirma que o cliente autenticado não pode fornecer esse campo no INSERT
+  testado; nas inserções permitidas, aplica-se o valor padrão
+  (`default now()`) definido pelo banco (E.4.3).
 - Integridade da linha de A preservada após as tentativas de UPDATE/DELETE
   de B (comparação de snapshots `user_id`, `lesson_key`, `completed_at`)
   (E.4.4).
@@ -91,7 +93,7 @@ criadas para o teste, identificadas por variáveis de ambiente
 |---|---|---|
 | E.4.1 | 1 | Conta A sem registros em `lesson_completions` — leitura cruzada sem conclusão conclusiva naquele run (coberta depois em E.4.2/E.4.4). |
 | E.4.2 | 2 | Probes dependentes de estado não exercitados naquela configuração de flags. |
-| E.4.3 | 5 | Probes que exigem linha descartável de A criada por `-IncludeOwnedInsertTests`, e teste de UPDATE cruzado de perfil B desativado intencionalmente para proteger dados reais. |
+| E.4.3 | 5 | Probes que exigem linha descartável de A criada por `-IncludeOwnedInsertTests`, e teste de UPDATE cruzado de perfil B desativado intencionalmente para preservar a integridade do perfil de teste durante a bateria. |
 | E.4.4 | 1 | UPDATE cruzado do perfil de B não executado intencionalmente. |
 
 Limitações gerais:
@@ -101,8 +103,8 @@ Limitações gerais:
   tabelas fora do escopo).
 - Não houve teste de carga, fuzzing ou exploração — é verificação
   funcional de políticas, não pentest.
-- O probe de UPDATE cross-user em `profiles` permanece desativado por
-  segurança dos dados das contas de teste.
+- O probe de UPDATE cross-user em `profiles` permanece desativado para
+  preservar a integridade do perfil de teste durante a bateria.
 - Resultados refletem as policies/migrations aplicadas na data do teste;
   mudanças futuras de schema exigem nova execução.
 
