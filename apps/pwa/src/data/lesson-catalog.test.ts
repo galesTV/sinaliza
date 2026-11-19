@@ -88,14 +88,18 @@ describe("lessonCatalog", () => {
     }
   });
 
-  it("registers the two foundational concept lessons as drafts", () => {
+  it("registers the three foundational concept lessons as drafts", () => {
     const lingua = getCatalogEntry(
       "alfabeto/primeiros-passos/libras-e-uma-lingua",
     );
     const datilologia = getCatalogEntry("alfabeto/primeiros-passos/o-que-e");
+    const primeirasLetras = getCatalogEntry(
+      "alfabeto/primeiros-passos/primeiras-letras",
+    );
     expect(lingua?.draft).toBeDefined();
     expect(datilologia?.draft).toBeDefined();
-    for (const entry of [lingua, datilologia]) {
+    expect(primeirasLetras?.draft).toBeDefined();
+    for (const entry of [lingua, datilologia, primeirasLetras]) {
       expect(entry?.validationStatus).toBe("draft");
       expect(isPublishable(entry!)).toBe(false);
     }
