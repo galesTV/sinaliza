@@ -28,12 +28,93 @@ Todo passo de mídia é um `LessonMediaBlock` em `src/data/lesson-content.ts`:
     sourceUrl: "https://...",            // opcional
     license: "CC BY 4.0",                // obrigatório — nunca omita
     licenseUrl: "https://creativecommons.org/licenses/by/4.0/",
+    permissionEvidence: "URL/ID do registro de autorização", // obrigatório para exibir
   },
 }
 ```
 
 Para imagens, `media` é `{ type: "image", src, alt }` — o `alt` é obrigatório
 e validado.
+
+## Gate de exibição (fail-closed)
+
+`hasMediaDisplayPermission(attribution)` em `lesson-content.ts` decide se um
+ativo pode ser renderizado: exige `source`, `license` **e**
+`permissionEvidence` não vazios. `LessonMedia` aplica o gate em todo
+render — lições publicadas **e** prévias de rascunho passam pelo mesmo
+componente, então a prévia nunca contorna a regra. Sem evidência, o ativo
+não aparece: um painel honesto "em produção" substitui a mídia, mantendo
+descrição e atribuição visíveis.
+
+**Limite do gate:** ele verifica que uma evidência foi *registrada*, não que
+ela é juridicamente válida. Uma string não vazia não prova licença — a
+revisão humana (pesquisa → técnica → especialista) é quem confere que a
+evidência referenciada autoriza de fato o uso. O gate existe para impedir
+publicação por omissão, não para certificar direitos.
+
+## Mídia em exercícios
+
+`LessonExercise` aceita mídia opcional em dois pontos, ambos cobertos pelo
+mesmo gate. `promptMedia` aceita imagem ou vídeo; `option.media` é
+restrita a **imagens** (tipo e validação estrutural rejeitam vídeo — uma
+miniatura de vídeo dentro de uma opção de resposta não tem forma
+acessível honesta). Quando alternativas exibem imagens, os créditos
+(fonte + licença) aparecem em texto discreto abaixo das opções.
+
+```ts
+{
+  kind: "exercise",
+  exercise: {
+    prompt: "Qual letra está sendo demonstrada?",
+    promptMedia: { media: {...}, attribution: {...} }, // estímulo (opcional)
+    options: [
+      { label: "Imagem 1", feedback: "...", media: { media, attribution } },
+      { label: "Imagem 2", feedback: "...", media: { media, attribution } },
+    ],
+    correctIndex: 1,
+    explanation: "...",
+    descriptionVariant: { /* ver abaixo */ },          // opcional
+  },
+}
+```
+
+**Regra central:** um exercício cujo estímulo/opção não pode ser exibido
+**não é respondível** — o aluno nunca adivinha um estímulo oculto. O
+bloqueio tem duas camadas distintas:
+
+- **Validação do runner:** `select` recusa a resposta quando a permissão
+  registrada falha (`isExerciseVisuallyPermitted`) — a metade estática,
+  verificável nos dados.
+- **Bloqueio da interface:** falhas de carregamento em tempo de execução
+  são tratadas pelo componente, que desativa as opções — o runner não
+  enxerga falhas de rede.
+
+### Alternativa por descrição
+
+`descriptionVariant` é a modalidade textual de um exercício visual: enunciado,
+opções e gabarito próprios (`selectVariant` pontua contra
+`variant.correctIndex`). Ela é oferecida quando o estímulo não pode ser
+exibido — e o aluno pode optar por ela mesmo com a mídia visível. A interface
+rotula a variante como avaliação **por descrição**, não identificação visual;
+equivalência pedagógica só poderá ser afirmada após validação especializada.
+A variante é sempre só texto (mídia dentro dela é erro de validação).
+
+## Exercícios de demonstração
+
+`/laboratorio/licao-visual` (`visualExerciseDemo`) exercita os quatro caminhos
+com formas geométricas sintéticas: estímulo autorizado, opções com imagem,
+estímulo sem permissão → variante, e arquivo ausente → variante.
+`/laboratorio/licao-visual-bloqueada` (`blockedExerciseDemo`) mostra um
+exercício sem alternativa que permanece bloqueado.
+
+## Testes E2E
+
+`npm run test:e2e` (Playwright, `@playwright/test`) roda `e2e/visual-lessons.spec.ts`
+em dois projetos — desktop e viewport móvel ~390px — cobrindo: fluxo de
+exercícios textuais, bloqueio de mídia sem permissão, bloqueio de exercício
+sem estímulo, exercícios com fixtures locais, navegação por teclado e
+ausência de registro de progresso em prévias. O servidor de dev sobe
+sozinho na porta 3100.
 
 ## Organização sugerida dos ativos
 

@@ -4,12 +4,18 @@ import { parseLessonKey } from "@/lib/progress";
 
 import { getLessonContext, getLearningPaths } from "./learning-paths";
 import {
+  blockedExerciseDemo,
   demoLesson,
   getLessonContent,
   guidedExperience,
+  hasMediaDisplayPermission,
+  isExerciseVisuallyPermitted,
   lessonContents,
   validateLessonContent,
+  visualExerciseDemo,
   type LessonContent,
+  type LessonExercise,
+  type LessonExerciseOption,
   type LessonMediaBlock,
 } from "./lesson-content";
 
@@ -242,5 +248,219 @@ describe("validateLessonContent", () => {
     expect(problems.join()).toContain("fewer than 2 options");
     expect(problems.join()).toContain("correctIndex out of bounds");
     expect(validateLessonContent({ intro: "", blocks: [] })).not.toEqual([]);
+  });
+});
+
+describe("media permission gate", () => {
+  const baseAttribution = {
+    source: "Fonte",
+    license: "Licença",
+    permissionEvidence: "doc-123",
+  };
+
+  it("requires source, license and non-empty permission evidence", () => {
+    expect(hasMediaDisplayPermission(baseAttribution)).toBe(true);
+    expect(hasMediaDisplayPermission(undefined)).toBe(false);
+    expect(
+      hasMediaDisplayPermission({ ...baseAttribution, source: " " }),
+    ).toBe(false);
+    expect(
+      hasMediaDisplayPermission({ ...baseAttribution, license: "" }),
+    ).toBe(false);
+    expect(
+      hasMediaDisplayPermission({ ...baseAttribution, permissionEvidence: "" }),
+    ).toBe(false);
+    expect(
+      hasMediaDisplayPermission({
+        source: "Fonte",
+        license: "Licença",
+      }),
+    ).toBe(false);
+  });
+
+  it("gates an exercise when any required media lacks evidence", () => {
+    const exercise: LessonExercise = {
+      prompt: "p",
+      promptMedia: {
+        media: { type: "image", src: "/m.png", alt: "a" },
+        attribution: baseAttribution,
+      },
+      options: [
+        { label: "a", feedback: "f" },
+        {
+          label: "b",
+          feedback: "f",
+          media: {
+            media: { type: "image", src: "/n.png", alt: "b" },
+            attribution: { source: "Fonte", license: "Licença" },
+          },
+        },
+      ],
+      correctIndex: 0,
+      explanation: "e",
+    };
+    // The option media has no permissionEvidence → not visually permitted.
+    expect(isExerciseVisuallyPermitted(exercise)).toBe(false);
+
+    exercise.options[1].media!.attribution.permissionEvidence = "doc-456";
+    expect(isExerciseVisuallyPermitted(exercise)).toBe(true);
+  });
+
+  it("treats media-free exercises as always permitted", () => {
+    const exercise: LessonExercise = {
+      prompt: "p",
+      options: [
+        { label: "a", feedback: "f" },
+        { label: "b", feedback: "f" },
+      ],
+      correctIndex: 0,
+      explanation: "e",
+    };
+    expect(isExerciseVisuallyPermitted(exercise)).toBe(true);
+  });
+});
+
+describe("visual exercise validation", () => {
+  const permittedMedia = {
+    media: { type: "image" as const, src: "/m.png", alt: "estímulo" },
+    attribution: {
+      source: "Fonte",
+      license: "Licença",
+      permissionEvidence: "doc-123",
+    },
+  };
+
+  function visualExercise(): LessonExercise {
+    return {
+      prompt: "Qual letra?",
+      promptMedia: permittedMedia,
+      options: [
+        { label: "a", feedback: "f" },
+        { label: "b", feedback: "f" },
+      ],
+      correctIndex: 0,
+      explanation: "e",
+    };
+  }
+
+  it("accepts a well-formed visual exercise", () => {
+    const content = validContent([
+      { kind: "exercise", exercise: visualExercise() },
+    ]);
+    expect(validateLessonContent(content)).toEqual([]);
+  });
+
+  it("flags malformed promptMedia and option media", () => {
+    const exercise = visualExercise();
+    exercise.promptMedia = {
+      media: { type: "image", src: " ", alt: " " },
+      attribution: { source: "", license: "" },
+    };
+    exercise.options[0].media = {
+      media: { type: "image", src: "/ok.png", alt: " " },
+      attribution: { source: "F", license: "L" },
+    };
+    const problems = validateLessonContent(
+      validContent([{ kind: "exercise", exercise }]),
+    );
+    expect(problems.join()).toContain("promptMedia");
+    expect(problems.join()).toContain("missing media src");
+    expect(problems.join()).toContain("attribution.source");
+    expect(problems.join()).toContain("option 0 media");
+  });
+
+  it("rejects video in option.media — options are image-only", () => {
+    const exercise = visualExercise();
+    // Draft content arrives as data (e.g. JSON): malformed media kinds can
+    // bypass the narrower option type, so structural validation must also
+    // refuse videos in answer options.
+    exercise.options[0].media = {
+      media: { type: "video", src: "/v.mp4" },
+      attribution: { source: "F", license: "L" },
+    } as unknown as LessonExerciseOption["media"];
+    const problems = validateLessonContent(
+      validContent([{ kind: "exercise", exercise }]),
+    );
+    expect(problems.join()).toContain(
+      "option 0 media: only image media is supported",
+    );
+  });
+
+  it("flags a description variant on a media-free exercise", () => {
+    const exercise: LessonExercise = {
+      prompt: "p",
+      options: [
+        { label: "a", feedback: "f" },
+        { label: "b", feedback: "f" },
+      ],
+      correctIndex: 0,
+      explanation: "e",
+      descriptionVariant: {
+        prompt: "p2",
+        options: [
+          { label: "a", feedback: "f" },
+          { label: "b", feedback: "f" },
+        ],
+        correctIndex: 0,
+        explanation: "e",
+      },
+    };
+    const problems = validateLessonContent(
+      validContent([{ kind: "exercise", exercise }]),
+    );
+    expect(problems.join()).toContain(
+      "descriptionVariant: requires promptMedia or option.media",
+    );
+  });
+
+  it("flags malformed variants and media inside a variant", () => {
+    const exercise = visualExercise();
+    exercise.descriptionVariant = {
+      prompt: " ",
+      options: [
+        { label: "a", feedback: "f", media: permittedMedia },
+      ],
+      correctIndex: 5,
+      explanation: "e",
+    };
+    const problems = validateLessonContent(
+      validContent([{ kind: "exercise", exercise }]),
+    );
+    expect(problems.join()).toContain("descriptionVariant: missing prompt");
+    expect(problems.join()).toContain("fewer than 2 options");
+    expect(problems.join()).toContain("correctIndex out of bounds");
+    expect(problems.join()).toContain(
+      "media not allowed in description variant",
+    );
+  });
+});
+
+describe("visualExerciseDemo lab content", () => {
+  it("is well-formed and exercises every media path", () => {
+    expect(validateLessonContent(visualExerciseDemo)).toEqual([]);
+    const exercises = visualExerciseDemo.blocks.flatMap((block) =>
+      block.kind === "exercise" ? [block.exercise] : [],
+    );
+    // One fully permitted stimulus, one option-media exercise, one gated
+    // stimulus with variant and one load-failing stimulus with variant.
+    expect(exercises.length).toBe(4);
+    expect(isExerciseVisuallyPermitted(exercises[0])).toBe(true);
+    expect(isExerciseVisuallyPermitted(exercises[1])).toBe(true);
+    expect(isExerciseVisuallyPermitted(exercises[2])).toBe(false);
+    expect(isExerciseVisuallyPermitted(exercises[3])).toBe(true);
+    expect(exercises[2].descriptionVariant).toBeDefined();
+    expect(exercises[3].descriptionVariant).toBeDefined();
+  });
+});
+
+describe("blockedExerciseDemo lab content", () => {
+  it("is well-formed and gated without a description variant", () => {
+    expect(validateLessonContent(blockedExerciseDemo)).toEqual([]);
+    const exercise = blockedExerciseDemo.blocks.find(
+      (block) => block.kind === "exercise",
+    );
+    if (exercise?.kind !== "exercise") throw new Error("fixture");
+    expect(isExerciseVisuallyPermitted(exercise.exercise)).toBe(false);
+    expect(exercise.exercise.descriptionVariant).toBeUndefined();
   });
 });

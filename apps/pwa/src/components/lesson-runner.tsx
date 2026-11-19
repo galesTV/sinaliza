@@ -1,8 +1,21 @@
 "use client";
 
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type RefObject,
+} from "react";
 
-import type { LessonContent, LessonExercise } from "@/data/lesson-content";
+import {
+  exerciseMediaList,
+  hasMediaDisplayPermission,
+  isExerciseVisuallyPermitted,
+  type LessonContent,
+  type LessonExercise,
+  type LessonExerciseOption,
+} from "@/data/lesson-content";
 import { createLessonRunner } from "@/lib/lesson-runner";
 import { cn } from "@/lib/utils";
 
@@ -15,6 +28,7 @@ import {
   IconRefresh,
   IconX,
 } from "./icons";
+import { HonestNote } from "./honest-note";
 import { LessonMedia } from "./lesson-media";
 import { markLessonCompleted } from "./use-progress";
 
@@ -66,32 +80,172 @@ function ExerciseBlock({
   exercise,
   selectedOption,
   result,
+  answeredInVariant,
   onSelect,
+  onSelectVariant,
   onAdvance,
   onBack,
   canGoBack,
   isLastBlock,
   finishLabel,
+  headingRef,
 }: {
   exercise: LessonExercise;
   selectedOption: number | null;
   result: "correct" | "incorrect" | null;
+  /** Which modality the recorded answer belongs to (runner per-block state). */
+  answeredInVariant: boolean;
   onSelect: (index: number) => void;
+  onSelectVariant: (index: number) => void;
   onAdvance: () => void;
   onBack: () => void;
   canGoBack: boolean;
   isLastBlock: boolean;
   finishLabel: string;
+  headingRef: RefObject<HTMLHeadingElement | null>;
 }) {
   const solved = result === "correct";
 
+  const variant = exercise.descriptionVariant;
+
+  // Runtime failures: media that passed the static permission gate can
+  // still fail to load — those count as unavailable the same way. This
+  // state lives per step (the parent keys ExerciseBlock by stepIndex), so
+  // a failure in one exercise can never leak into another, and revisiting
+  // a step retries the load exactly once instead of latching forever.
+  const [failedSrcs, setFailedSrcs] = useState<ReadonlySet<string>>(
+    () => new Set<string>(),
+  );
+  // Temporary per-exercise preference: it does not leak to other
+  // exercises, and a revisit starts in the modality the recorded answer
+  // belongs to so the view always matches the answer record.
+  const [prefersDescription, setPrefersDescription] = useState(
+    () => answeredInVariant && Boolean(variant),
+  );
+
+  const mediaUnavailable =
+    !isExerciseVisuallyPermitted(exercise) ||
+    exerciseMediaList(exercise).some((item) =>
+      failedSrcs.has(item.media.src),
+    );
+
+  const useVariant = Boolean(variant) && (mediaUnavailable || prefersDescription);
+  const blocked = mediaUnavailable && !variant;
+
+  const prompt = useVariant ? variant!.prompt : exercise.prompt;
+  const options: LessonExerciseOption[] = useVariant
+    ? variant!.options
+    : exercise.options;
+  const correctIndex = useVariant
+    ? variant!.correctIndex
+    : exercise.correctIndex;
+
+  // Feedback, option highlighting and the answer key always follow the
+  // modality the answer was recorded in — never the modality currently on
+  // screen. A media failure after answering may flip the view but cannot
+  // reinterpret the recorded answer.
+  const recordedMode =
+    result === null ? null : answeredInVariant ? "description" : "visual";
+  const answeredInShownMode =
+    recordedMode === null ||
+    recordedMode === (useVariant ? "description" : "visual");
+  const feedbackOptions =
+    recordedMode === "description" && variant
+      ? variant.options
+      : exercise.options;
+  const feedbackExplanation =
+    recordedMode === "description" && variant
+      ? variant.explanation
+      : exercise.explanation;
+
+  // Discreet credits for the option thumbnails actually on screen — the
+  // same attribution metadata the media blocks show. Hidden media never
+  // earns a credit line.
+  const optionAttributions = useVariant
+    ? []
+    : Array.from(
+        new Map(
+          options
+            .filter(
+              (option) =>
+                option.media &&
+                hasMediaDisplayPermission(option.media.attribution) &&
+                !failedSrcs.has(option.media.media.src),
+            )
+            .map((option) => {
+              const attribution = option.media!.attribution;
+              return [
+                `${attribution.source} ${attribution.license}`,
+                attribution,
+              ] as const;
+            }),
+        ).values(),
+      );
+
+  const markFailed = (src: string) =>
+    setFailedSrcs((previous) => {
+      if (previous.has(src)) return previous;
+      const next = new Set(previous);
+      next.add(src);
+      return next;
+    });
+
+  const handleSelect = (index: number) => {
+    if (useVariant) onSelectVariant(index);
+    else onSelect(index);
+  };
+
   return (
     <div className="flex flex-col gap-5">
-      <fieldset className="flex flex-col gap-2.5">
-        <legend className="sr-only">{exercise.prompt}</legend>
-        {exercise.options.map((option, index) => {
-          const isSelected = selectedOption === index;
-          const isCorrect = index === exercise.correctIndex;
+      <h2
+        ref={headingRef}
+        tabIndex={-1}
+        id="lesson-runner-title"
+        className="font-display text-xl font-semibold tracking-tight text-foreground focus-visible:outline-none"
+      >
+        {prompt}
+      </h2>
+
+      {exercise.promptMedia && !useVariant && (
+        <LessonMedia
+          key={exercise.promptMedia.media.src}
+          block={{
+            kind: "media",
+            title: "Estímulo do exercício",
+            description:
+              exercise.promptMedia.description ??
+              "Demonstração visual referida pelo enunciado deste exercício.",
+            media: exercise.promptMedia.media,
+            attribution: exercise.promptMedia.attribution,
+          }}
+          onUnavailable={() => markFailed(exercise.promptMedia!.media.src)}
+        />
+      )}
+
+      {/* Announced politely so assistive tech hears the modality change. */}
+      <div aria-live="polite">
+        {useVariant && (
+          <HonestNote>
+            Versão por descrição: avalia a compreensão da descrição da
+            demonstração, não a identificação visual. Não é uma equivalência
+            pedagógica validada.
+          </HonestNote>
+        )}
+      </div>
+
+      {blocked && (
+        <HonestNote title="Exercício indisponível por enquanto">
+          Este exercício depende de uma demonstração visual que não pode ser
+          exibida no momento — sem o estímulo, responder seria adivinhar. As
+          opções ficam bloqueadas até a mídia estar autorizada e disponível.
+        </HonestNote>
+      )}
+
+      <fieldset className="flex flex-col gap-2.5" disabled={blocked}>
+        <legend className="sr-only">{prompt}</legend>
+        {options.map((option, index) => {
+          const isSelected = answeredInShownMode && selectedOption === index;
+          const isCorrect = answeredInShownMode && index === correctIndex;
           const tone = solved
             ? isCorrect
               ? OPTION_TONES.correct
@@ -105,17 +259,17 @@ function ExerciseBlock({
             <label key={option.label} className="block">
               <input
                 type="radio"
-                name={exercise.prompt}
+                name={`${exercise.prompt}${useVariant ? " (descrição)" : ""}`}
                 className="peer sr-only"
-                checked={isSelected}
-                disabled={solved}
-                onChange={() => onSelect(index)}
+                checked={!blocked && isSelected}
+                disabled={solved || blocked}
+                onChange={() => handleSelect(index)}
               />
               <span
                 className={cn(
                   OPTION_BUTTON_BASE,
                   "peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-ring",
-                  solved ? "cursor-default" : "cursor-pointer",
+                  solved || blocked ? "cursor-default" : "cursor-pointer",
                   tone,
                 )}
               >
@@ -132,14 +286,52 @@ function ExerciseBlock({
                     String.fromCharCode(65 + index)
                   )}
                 </span>
-                {option.label}
+                <span className="flex min-w-0 flex-1 items-center gap-3">
+                  {!useVariant && option.media && (
+                    // eslint-disable-next-line @next/next/no-img-element -- lesson media stays dependency-free; next/image is not used in this app
+                    <img
+                      src={option.media.media.src}
+                      alt={option.media.media.alt}
+                      className="h-16 w-16 shrink-0 rounded-lg border border-border bg-black/40 object-contain"
+                      onError={() => markFailed(option.media!.media.src)}
+                    />
+                  )}
+                  {option.label}
+                </span>
               </span>
             </label>
           );
         })}
       </fieldset>
 
-      {result && selectedOption !== null && (
+      {optionAttributions.length > 0 && (
+        <p className="text-[11px] leading-relaxed text-muted">
+          Créditos das imagens das alternativas:{" "}
+          {optionAttributions
+            .map(
+              (attribution) =>
+                `${attribution.source} — ${attribution.license}`,
+            )
+            .join(" · ")}
+        </p>
+      )}
+
+      {variant && !mediaUnavailable && !solved && result === null && (
+        <button
+          type="button"
+          aria-pressed={prefersDescription}
+          onClick={() => setPrefersDescription((value) => !value)}
+          className="self-start text-sm font-medium text-muted underline underline-offset-4 transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+        >
+          {prefersDescription
+            ? "Voltar à versão com imagem"
+            : "Responder por descrição"}
+        </button>
+      )}
+
+      {result &&
+        selectedOption !== null &&
+        selectedOption < feedbackOptions.length && (
         <div
           role="status"
           className={cn(
@@ -163,11 +355,9 @@ function ExerciseBlock({
             )}
           </p>
           <p className="text-muted">
-            {exercise.options[selectedOption].feedback}
+            {feedbackOptions[selectedOption].feedback}
           </p>
-          {solved && (
-            <p className="text-muted">{exercise.explanation}</p>
-          )}
+          {solved && <p className="text-muted">{feedbackExplanation}</p>}
         </div>
       )}
 
@@ -307,24 +497,23 @@ export function LessonRunner({
           <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">
             Exercício
           </p>
-          <h2
-            ref={headingRef}
-            tabIndex={-1}
-            id="lesson-runner-title"
-            className="font-display text-xl font-semibold tracking-tight text-foreground focus-visible:outline-none"
-          >
-            {block.exercise.prompt}
-          </h2>
           <ExerciseBlock
+            // Per-step key: transient UI state (load failures, description
+            // preference) is scoped to this step — it can neither leak into
+            // other exercises nor latch permanently across revisits.
+            key={stepIndex}
             exercise={block.exercise}
             selectedOption={snapshot.selectedOption}
             result={snapshot.result}
+            answeredInVariant={snapshot.answeredInVariant}
             onSelect={runner.select}
+            onSelectVariant={runner.selectVariant}
             onAdvance={runner.advance}
             onBack={runner.back}
             canGoBack={snapshot.canGoBack}
             isLastBlock={stepIndex === stepCount - 1}
             finishLabel={copy.finish}
+            headingRef={headingRef}
           />
         </div>
       )}

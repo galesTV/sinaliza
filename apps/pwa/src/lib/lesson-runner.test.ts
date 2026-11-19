@@ -268,3 +268,219 @@ describe("createLessonRunner", () => {
     expect(listener).toHaveBeenCalledTimes(4);
   });
 });
+
+describe("visual exercise gating", () => {
+  const permittedAttribution = {
+    source: "Fonte",
+    license: "Licença",
+    permissionEvidence: "doc-123",
+  };
+  const gatedAttribution = {
+    source: "Fonte",
+    license: "Licença",
+  };
+
+  function visualContent(opts: {
+    permitted: boolean;
+    withVariant: boolean;
+  }): LessonContent {
+    return {
+      intro: "intro",
+      blocks: [
+        {
+          kind: "exercise",
+          exercise: {
+            prompt: "Qual forma aparece?",
+            promptMedia: {
+              media: { type: "image", src: "/m.png", alt: "estímulo" },
+              attribution: opts.permitted
+                ? permittedAttribution
+                : gatedAttribution,
+            },
+            options: [
+              { label: "Certa", feedback: "ok" },
+              { label: "Errada", feedback: "não" },
+            ],
+            correctIndex: 0,
+            explanation: "e",
+            ...(opts.withVariant
+              ? {
+                  descriptionVariant: {
+                    prompt: "Pela descrição, qual forma?",
+                    options: [
+                      { label: "V-errada", feedback: "não" },
+                      { label: "V-certa", feedback: "ok" },
+                    ],
+                    correctIndex: 1,
+                    explanation: "ve",
+                  },
+                }
+              : {}),
+          },
+        },
+      ],
+    };
+  }
+
+  it("ignores select() while the stimulus media is not permitted", () => {
+    const runner = createLessonRunner(
+      visualContent({ permitted: false, withVariant: false }),
+    );
+
+    runner.select(0);
+    const snap = runner.getSnapshot();
+    // The selection is refused: no guessing at a hidden stimulus, so the
+    // exercise can never be marked correct nor the lesson completed.
+    expect(snap.selectedOption).toBeNull();
+    expect(snap.result).toBeNull();
+    expect(snap.solvedExercises).toBe(0);
+
+    runner.advance();
+    expect(runner.getSnapshot().stepIndex).toBe(0);
+    expect(runner.complete()).toBe(false);
+  });
+
+  it("accepts select() when the stimulus media is permitted", () => {
+    const runner = createLessonRunner(
+      visualContent({ permitted: true, withVariant: false }),
+    );
+    runner.select(1);
+    expect(runner.getSnapshot().result).toBe("incorrect");
+    runner.select(0);
+    expect(runner.getSnapshot().result).toBe("correct");
+  });
+
+  it("scores selectVariant() against the variant's correctIndex", () => {
+    const runner = createLessonRunner(
+      visualContent({ permitted: false, withVariant: true }),
+    );
+
+    // Variant option 0 is incorrect per variant.correctIndex (= 1).
+    runner.selectVariant(0);
+    expect(runner.getSnapshot().result).toBe("incorrect");
+
+    runner.selectVariant(1);
+    const snap = runner.getSnapshot();
+    expect(snap.result).toBe("correct");
+    expect(snap.solvedExercises).toBe(1);
+
+    runner.advance();
+    expect(runner.complete()).toBe(true);
+  });
+
+  it("ignores selectVariant() when the exercise has no variant", () => {
+    const runner = createLessonRunner(
+      visualContent({ permitted: false, withVariant: false }),
+    );
+    runner.selectVariant(0);
+    expect(runner.getSnapshot().selectedOption).toBeNull();
+    expect(runner.getSnapshot().result).toBeNull();
+  });
+
+  it("still lets a permitted exercise be answered through its variant", () => {
+    const runner = createLessonRunner(
+      visualContent({ permitted: true, withVariant: true }),
+    );
+    runner.selectVariant(1);
+    expect(runner.getSnapshot().result).toBe("correct");
+  });
+});
+
+describe("answer modality per block", () => {
+  const attribution = {
+    source: "Fonte",
+    license: "Licença",
+    permissionEvidence: "doc-123",
+  };
+
+  const twoExerciseContent: LessonContent = {
+    intro: "intro",
+    blocks: [
+      {
+        kind: "exercise",
+        exercise: {
+          prompt: "A — qual forma aparece?",
+          promptMedia: {
+            media: { type: "image", src: "/a.png", alt: "estímulo A" },
+            attribution,
+          },
+          options: [
+            { label: "A0", feedback: "ok" },
+            { label: "A1", feedback: "não" },
+          ],
+          correctIndex: 0,
+          explanation: "ea",
+          descriptionVariant: {
+            prompt: "A — pela descrição, qual forma?",
+            options: [
+              { label: "AV0", feedback: "não" },
+              { label: "AV1", feedback: "ok" },
+            ],
+            correctIndex: 1,
+            explanation: "vea",
+          },
+        },
+      },
+      {
+        kind: "exercise",
+        exercise: {
+          prompt: "B — qual forma aparece?",
+          promptMedia: {
+            media: { type: "image", src: "/b.png", alt: "estímulo B" },
+            attribution,
+          },
+          options: [
+            { label: "B0", feedback: "ok" },
+            { label: "B1", feedback: "não" },
+          ],
+          correctIndex: 0,
+          explanation: "eb",
+        },
+      },
+    ],
+  };
+
+  it("records the answering modality per block across navigation", () => {
+    const runner = createLessonRunner(twoExerciseContent);
+
+    // A answered by description — modality recorded on A's block state.
+    runner.selectVariant(1);
+    expect(runner.getSnapshot().answeredInVariant).toBe(true);
+    expect(runner.getSnapshot().result).toBe("correct");
+
+    runner.advance();
+    runner.select(0);
+    expect(runner.getSnapshot().answeredInVariant).toBe(false);
+    expect(runner.getSnapshot().result).toBe("correct");
+
+    // Revisiting A restores ITS modality — B's visual answer cannot
+    // reinterpret A's description answer, and vice-versa.
+    runner.back();
+    expect(runner.getSnapshot().answeredInVariant).toBe(true);
+    expect(runner.getSnapshot().selectedOption).toBe(1);
+    expect(runner.getSnapshot().result).toBe("correct");
+
+    runner.advance();
+    expect(runner.getSnapshot().answeredInVariant).toBe(false);
+    expect(runner.getSnapshot().result).toBe("correct");
+  });
+
+  it("records visual modality for select() and variant for selectVariant()", () => {
+    const runner = createLessonRunner(twoExerciseContent);
+    runner.select(0);
+    expect(runner.getSnapshot().answeredInVariant).toBe(false);
+
+    runner.advance();
+    runner.selectVariant(0); // ignored: B has no variant
+    expect(runner.getSnapshot().result).toBeNull();
+    expect(runner.getSnapshot().answeredInVariant).toBe(false);
+  });
+
+  it("clears the recorded modality on restart()", () => {
+    const runner = createLessonRunner(twoExerciseContent);
+    runner.selectVariant(1);
+    runner.restart();
+    expect(runner.getSnapshot().answeredInVariant).toBe(false);
+    expect(runner.getSnapshot().selectedOption).toBeNull();
+  });
+});

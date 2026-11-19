@@ -13,7 +13,11 @@
  * real lessons will pair it with `progress.ts` via the `onComplete` callback.
  */
 
-import type { LessonBlock, LessonContent } from "@/data/lesson-content";
+import {
+  isExerciseVisuallyPermitted,
+  type LessonBlock,
+  type LessonContent,
+} from "@/data/lesson-content";
 
 export type ExerciseResult = "correct" | "incorrect";
 
@@ -28,6 +32,13 @@ export interface LessonRunnerSnapshot {
   selectedOption: number | null;
   /** Result of the last selection on the current exercise. */
   result: ExerciseResult | null;
+  /**
+   * Modality the recorded answer belongs to: `true` when it was scored
+   * against `descriptionVariant`, `false` when against the visual exercise
+   * (or when nothing was answered yet). Part of the answer record, so a
+   * later media failure or view flip can never reinterpret it.
+   */
+  answeredInVariant: boolean;
   /** Whether a previous step exists. */
   canGoBack: boolean;
   solvedExercises: number;
@@ -46,6 +57,7 @@ export interface LessonRunnerDeps {
 interface BlockState {
   selectedOption: number | null;
   result: ExerciseResult | null;
+  answeredInVariant: boolean;
 }
 
 export function createLessonRunner(
@@ -62,6 +74,7 @@ export function createLessonRunner(
   const blockStates: BlockState[] = content.blocks.map(() => ({
     selectedOption: null,
     result: null,
+    answeredInVariant: false,
   }));
 
   let stepIndex = 0;
@@ -96,6 +109,7 @@ export function createLessonRunner(
       block: currentBlock(),
       selectedOption: state?.selectedOption ?? null,
       result: state?.result ?? null,
+      answeredInVariant: state?.answeredInVariant ?? false,
       canGoBack: stepIndex > 0,
       solvedExercises: solvedCount(),
       totalExercises,
@@ -115,12 +129,19 @@ export function createLessonRunner(
    * Records a selection on the current exercise. Ignored on non-exercise
    * steps and once the exercise is already solved — a solved exercise can
    * never flip back, so `solvedExercises` is counted exactly once.
+   *
+   * Guess-proofing: a selection on an exercise whose media stimulus is not
+   * display-permitted is ignored outright — a visual question can never be
+   * answered while its stimulus is hidden. Runtime load failures are a UI
+   * concern (the component disables the inputs); the runner only enforces
+   * the static, data-checkable half.
    */
   function select(optionIndex: number) {
     const block = currentBlock();
     const state = currentState();
     if (!block || !state || block.kind !== "exercise") return;
     if (state.result === "correct") return;
+    if (!isExerciseVisuallyPermitted(block.exercise)) return;
     if (
       optionIndex < 0 ||
       optionIndex >= block.exercise.options.length
@@ -133,6 +154,30 @@ export function createLessonRunner(
       optionIndex === block.exercise.correctIndex
         ? "correct"
         : "incorrect";
+    state.answeredInVariant = false;
+    emit();
+  }
+
+  /**
+   * Records a selection scored against the exercise's description variant
+   * — the text-only path used when the visual stimulus cannot be shown or
+   * when the learner answers from a description. Ignored when the exercise
+   * has no variant, and scored against `variant.correctIndex`, never the
+   * visual exercise's.
+   */
+  function selectVariant(optionIndex: number) {
+    const block = currentBlock();
+    const state = currentState();
+    if (!block || !state || block.kind !== "exercise") return;
+    if (state.result === "correct") return;
+    const variant = block.exercise.descriptionVariant;
+    if (!variant) return;
+    if (optionIndex < 0 || optionIndex >= variant.options.length) return;
+
+    state.selectedOption = optionIndex;
+    state.result =
+      optionIndex === variant.correctIndex ? "correct" : "incorrect";
+    state.answeredInVariant = true;
     emit();
   }
 
@@ -178,6 +223,7 @@ export function createLessonRunner(
     for (const state of blockStates) {
       state.selectedOption = null;
       state.result = null;
+      state.answeredInVariant = false;
     }
     completed = false;
     emit();
@@ -190,6 +236,7 @@ export function createLessonRunner(
     },
     getSnapshot: () => snapshot,
     select,
+    selectVariant,
     advance,
     back,
     complete,

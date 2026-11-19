@@ -25,6 +25,7 @@ const videoBlock: LessonMediaBlock = {
     sourceUrl: "https://example.com/fonte",
     license: "Uso interno em testes",
     licenseUrl: "https://example.com/licenca",
+    permissionEvidence: "Ativo sintético de produção própria para testes.",
   },
 };
 
@@ -86,5 +87,38 @@ describe("LessonMedia", () => {
     expect(html).not.toContain('kind="captions"');
     // Description and attribution still render without tracks.
     expect(html).toContain("Descrição legível sem assistir ao vídeo.");
+  });
+
+  it("does not render the asset without permission evidence (fail-closed)", () => {
+    const gated: LessonMediaBlock = {
+      ...videoBlock,
+      attribution: {
+        source: "Sinaliza — ativo sintético",
+        license: "Uso interno em testes",
+      },
+    };
+    const html = renderToStaticMarkup(<LessonMedia block={gated} />);
+    // The asset itself never renders — no video element and no media URL.
+    expect(html).not.toContain("<video");
+    expect(html).not.toContain("demo-pulse.mp4");
+    // The honest fallback states the media is not yet permitted.
+    expect(html).toContain("em produção");
+    // Attribution and description are preserved in the fallback.
+    expect(html).toContain("Sinaliza — ativo sintético");
+    expect(html).toContain("Uso interno em testes");
+    expect(html).toContain("Descrição legível sem assistir ao vídeo.");
+  });
+
+  it("does not render the asset with blank permission evidence", () => {
+    const gated: LessonMediaBlock = {
+      ...videoBlock,
+      attribution: {
+        ...videoBlock.attribution,
+        permissionEvidence: "   ",
+      },
+    };
+    const html = renderToStaticMarkup(<LessonMedia block={gated} />);
+    expect(html).not.toContain("<video");
+    expect(html).toContain("em produção");
   });
 });
