@@ -55,7 +55,11 @@ publicação por omissão, não para certificar direitos.
 ## Mídia em exercícios
 
 `LessonExercise` aceita mídia opcional em dois pontos, ambos cobertos pelo
-mesmo gate:
+mesmo gate. `promptMedia` aceita imagem ou vídeo; `option.media` é
+restrita a **imagens** (tipo e validação estrutural rejeitam vídeo — uma
+miniatura de vídeo dentro de uma opção de resposta não tem forma
+acessível honesta). Quando alternativas exibem imagens, os créditos
+(fonte + licença) aparecem em texto discreto abaixo das opções.
 
 ```ts
 {
@@ -75,9 +79,15 @@ mesmo gate:
 ```
 
 **Regra central:** um exercício cujo estímulo/opção não pode ser exibido
-(sem permissão ou falha de carregamento) **não é respondível** — o runner
-(`select`) recusa a resposta e a UI desativa as opções. O aluno nunca
-adivinha um estímulo oculto.
+**não é respondível** — o aluno nunca adivinha um estímulo oculto. O
+bloqueio tem duas camadas distintas:
+
+- **Validação do runner:** `select` recusa a resposta quando a permissão
+  registrada falha (`isExerciseVisuallyPermitted`) — a metade estática,
+  verificável nos dados.
+- **Bloqueio da interface:** falhas de carregamento em tempo de execução
+  são tratadas pelo componente, que desativa as opções — o runner não
+  enxerga falhas de rede.
 
 ### Alternativa por descrição
 

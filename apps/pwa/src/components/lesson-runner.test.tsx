@@ -164,6 +164,47 @@ describe("visual exercises", () => {
     );
   });
 
+  it("shows discreet credits for displayed option media, deduplicated", () => {
+    const html = renderToStaticMarkup(
+      <LessonRunner
+        content={contentWith({
+          prompt: "Qual imagem mostra um quadrado?",
+          options: [
+            {
+              label: "Imagem 1",
+              feedback: "não",
+              media: {
+                media: {
+                  type: "image",
+                  src: "/media/fixtures/shape-triangle.svg",
+                  alt: "Demonstração visual da opção 1.",
+                },
+                attribution: permitted,
+              },
+            },
+            {
+              label: "Imagem 2",
+              feedback: "ok",
+              media: {
+                media: {
+                  type: "image",
+                  src: "/media/fixtures/shape-square.svg",
+                  alt: "Demonstração visual da opção 2.",
+                },
+                attribution: permitted,
+              },
+            },
+          ],
+          correctIndex: 1,
+          explanation: "e",
+        })}
+      />,
+    );
+    expect(html).toContain("Créditos das imagens das alternativas:");
+    // Same attribution on both options is rendered once.
+    expect(html.match(/Fonte — Licença/g)?.length).toBe(1);
+  });
+
   it("blocks the exercise when the stimulus is gated and no variant exists", () => {
     const html = renderToStaticMarkup(
       <LessonRunner

@@ -24,12 +24,12 @@ export interface LessonExerciseOption {
   /** Short explanation shown when this option is selected. */
   feedback: string;
   /**
-   * Optional media that presents this option (e.g. a demonstration image
-   * for "which of these is the letter B?"). Subject to the same display
-   * gate as the prompt stimulus: an option whose media cannot be shown
-   * makes the exercise non-answerable.
+   * Optional image that presents this option (e.g. a demonstration photo
+   * for "which of these is the letter B?"). Image-only by type. Subject to
+   * the same display gate as the prompt stimulus: an option whose media
+   * cannot be shown makes the exercise non-answerable.
    */
-  media?: LessonExerciseMedia;
+  media?: LessonExerciseOptionMedia;
 }
 
 /**
@@ -40,6 +40,18 @@ export interface LessonExerciseOption {
  */
 export interface LessonExerciseMedia {
   media: LessonMedia;
+  attribution: LessonMediaAttribution;
+  /** Standalone description shown with the media. */
+  description?: string;
+}
+
+/**
+ * Option media is image-only: a video thumbnail inside a radio option has
+ * no honest accessible form, so the type and the structural validation
+ * both restrict it to `LessonImageMedia`.
+ */
+export interface LessonExerciseOptionMedia {
+  media: LessonImageMedia;
   attribution: LessonMediaAttribution;
   /** Standalone description shown with the media. */
   description?: string;
@@ -293,6 +305,9 @@ function validateExerciseCore(
       if (!allowOptionMedia) {
         problems.push(`option ${j}: media not allowed in description variant`);
       } else {
+        if (option.media.media.type !== "image") {
+          problems.push(`option ${j} media: only image media is supported`);
+        }
         problems.push(
           ...validateExerciseMedia(option.media).map(
             (problem) => `option ${j} media: ${problem}`,
@@ -698,6 +713,25 @@ export const visualExerciseDemo: LessonContent = {
         correctIndex: 1,
         explanation:
           "O quadrado tem quatro lados iguais e quatro ângulos retos; a outra imagem mostra um triângulo.",
+        // Image-only options are not discriminable without sight, so the
+        // exercise always offers a description-based counterpart.
+        descriptionVariant: {
+          prompt:
+            "Pela descrição: a imagem 1 mostra uma forma com três lados e três vértices; a imagem 2 mostra uma forma com quatro lados iguais e quatro ângulos retos. Qual imagem mostra um quadrado?",
+          options: [
+            {
+              label: "Imagem 1",
+              feedback: "Não: a imagem 1 descreve um triângulo.",
+            },
+            {
+              label: "Imagem 2",
+              feedback: "Correto: a imagem 2 descreve um quadrado.",
+            },
+          ],
+          correctIndex: 1,
+          explanation:
+            "A forma com quatro lados iguais e ângulos retos é o quadrado, mostrado na imagem 2.",
+        },
       },
     },
     {

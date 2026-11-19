@@ -32,6 +32,13 @@ export interface LessonRunnerSnapshot {
   selectedOption: number | null;
   /** Result of the last selection on the current exercise. */
   result: ExerciseResult | null;
+  /**
+   * Modality the recorded answer belongs to: `true` when it was scored
+   * against `descriptionVariant`, `false` when against the visual exercise
+   * (or when nothing was answered yet). Part of the answer record, so a
+   * later media failure or view flip can never reinterpret it.
+   */
+  answeredInVariant: boolean;
   /** Whether a previous step exists. */
   canGoBack: boolean;
   solvedExercises: number;
@@ -50,6 +57,7 @@ export interface LessonRunnerDeps {
 interface BlockState {
   selectedOption: number | null;
   result: ExerciseResult | null;
+  answeredInVariant: boolean;
 }
 
 export function createLessonRunner(
@@ -66,6 +74,7 @@ export function createLessonRunner(
   const blockStates: BlockState[] = content.blocks.map(() => ({
     selectedOption: null,
     result: null,
+    answeredInVariant: false,
   }));
 
   let stepIndex = 0;
@@ -100,6 +109,7 @@ export function createLessonRunner(
       block: currentBlock(),
       selectedOption: state?.selectedOption ?? null,
       result: state?.result ?? null,
+      answeredInVariant: state?.answeredInVariant ?? false,
       canGoBack: stepIndex > 0,
       solvedExercises: solvedCount(),
       totalExercises,
@@ -144,6 +154,7 @@ export function createLessonRunner(
       optionIndex === block.exercise.correctIndex
         ? "correct"
         : "incorrect";
+    state.answeredInVariant = false;
     emit();
   }
 
@@ -166,6 +177,7 @@ export function createLessonRunner(
     state.selectedOption = optionIndex;
     state.result =
       optionIndex === variant.correctIndex ? "correct" : "incorrect";
+    state.answeredInVariant = true;
     emit();
   }
 
@@ -211,6 +223,7 @@ export function createLessonRunner(
     for (const state of blockStates) {
       state.selectedOption = null;
       state.result = null;
+      state.answeredInVariant = false;
     }
     completed = false;
     emit();

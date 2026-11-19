@@ -10,6 +10,7 @@ import {
 
 import {
   exerciseMediaList,
+  hasMediaDisplayPermission,
   isExerciseVisuallyPermitted,
   type LessonContent,
   type LessonExercise,
@@ -79,6 +80,7 @@ function ExerciseBlock({
   exercise,
   selectedOption,
   result,
+  answeredInVariant,
   onSelect,
   onSelectVariant,
   onAdvance,
@@ -91,6 +93,8 @@ function ExerciseBlock({
   exercise: LessonExercise;
   selectedOption: number | null;
   result: "correct" | "incorrect" | null;
+  /** Which modality the recorded answer belongs to (runner per-block state). */
+  answeredInVariant: boolean;
   onSelect: (index: number) => void;
   onSelectVariant: (index: number) => void;
   onAdvance: () => void;
@@ -102,19 +106,22 @@ function ExerciseBlock({
 }) {
   const solved = result === "correct";
 
+  const variant = exercise.descriptionVariant;
+
   // Runtime failures: media that passed the static permission gate can
-  // still fail to load — those count as unavailable the same way.
+  // still fail to load — those count as unavailable the same way. This
+  // state lives per step (the parent keys ExerciseBlock by stepIndex), so
+  // a failure in one exercise can never leak into another, and revisiting
+  // a step retries the load exactly once instead of latching forever.
   const [failedSrcs, setFailedSrcs] = useState<ReadonlySet<string>>(
     () => new Set<string>(),
   );
-  const [prefersDescription, setPrefersDescription] = useState(false);
-  // Which modality the last answer was recorded in. An answer's feedback
-  // and option highlighting must always read from that modality's pool —
-  // a media failure after answering can flip the view without changing
-  // what was actually answered.
-  const [answeredMode, setAnsweredMode] = useState<
-    "visual" | "description" | null
-  >(null);
+  // Temporary per-exercise preference: it does not leak to other
+  // exercises, and a revisit starts in the modality the recorded answer
+  // belongs to so the view always matches the answer record.
+  const [prefersDescription, setPrefersDescription] = useState(
+    () => answeredInVariant && Boolean(variant),
+  );
 
   const mediaUnavailable =
     !isExerciseVisuallyPermitted(exercise) ||
@@ -122,7 +129,6 @@ function ExerciseBlock({
       failedSrcs.has(item.media.src),
     );
 
-  const variant = exercise.descriptionVariant;
   const useVariant = Boolean(variant) && (mediaUnavailable || prefersDescription);
   const blocked = mediaUnavailable && !variant;
 
@@ -134,19 +140,47 @@ function ExerciseBlock({
     ? variant!.correctIndex
     : exercise.correctIndex;
 
-  // Feedback and answer styling always follow the modality the answer was
-  // recorded in, not the modality currently displayed.
+  // Feedback, option highlighting and the answer key always follow the
+  // modality the answer was recorded in — never the modality currently on
+  // screen. A media failure after answering may flip the view but cannot
+  // reinterpret the recorded answer.
+  const recordedMode =
+    result === null ? null : answeredInVariant ? "description" : "visual";
   const answeredInShownMode =
-    answeredMode === null ||
-    answeredMode === (useVariant ? "description" : "visual");
+    recordedMode === null ||
+    recordedMode === (useVariant ? "description" : "visual");
   const feedbackOptions =
-    answeredMode === "description" && variant
+    recordedMode === "description" && variant
       ? variant.options
       : exercise.options;
   const feedbackExplanation =
-    answeredMode === "description" && variant
+    recordedMode === "description" && variant
       ? variant.explanation
       : exercise.explanation;
+
+  // Discreet credits for the option thumbnails actually on screen — the
+  // same attribution metadata the media blocks show. Hidden media never
+  // earns a credit line.
+  const optionAttributions = useVariant
+    ? []
+    : Array.from(
+        new Map(
+          options
+            .filter(
+              (option) =>
+                option.media &&
+                hasMediaDisplayPermission(option.media.attribution) &&
+                !failedSrcs.has(option.media.media.src),
+            )
+            .map((option) => {
+              const attribution = option.media!.attribution;
+              return [
+                `${attribution.source} ${attribution.license}`,
+                attribution,
+              ] as const;
+            }),
+        ).values(),
+      );
 
   const markFailed = (src: string) =>
     setFailedSrcs((previous) => {
@@ -157,7 +191,6 @@ function ExerciseBlock({
     });
 
   const handleSelect = (index: number) => {
-    setAnsweredMode(useVariant ? "description" : "visual");
     if (useVariant) onSelectVariant(index);
     else onSelect(index);
   };
@@ -258,11 +291,7 @@ function ExerciseBlock({
                     // eslint-disable-next-line @next/next/no-img-element -- lesson media stays dependency-free; next/image is not used in this app
                     <img
                       src={option.media.media.src}
-                      alt={
-                        option.media.media.type === "image"
-                          ? option.media.media.alt
-                          : ""
-                      }
+                      alt={option.media.media.alt}
                       className="h-16 w-16 shrink-0 rounded-lg border border-border bg-black/40 object-contain"
                       onError={() => markFailed(option.media!.media.src)}
                     />
@@ -274,6 +303,18 @@ function ExerciseBlock({
           );
         })}
       </fieldset>
+
+      {optionAttributions.length > 0 && (
+        <p className="text-[11px] leading-relaxed text-muted">
+          Créditos das imagens das alternativas:{" "}
+          {optionAttributions
+            .map(
+              (attribution) =>
+                `${attribution.source} — ${attribution.license}`,
+            )
+            .join(" · ")}
+        </p>
+      )}
 
       {variant && !mediaUnavailable && !solved && result === null && (
         <button
@@ -457,9 +498,14 @@ export function LessonRunner({
             Exercício
           </p>
           <ExerciseBlock
+            // Per-step key: transient UI state (load failures, description
+            // preference) is scoped to this step — it can neither leak into
+            // other exercises nor latch permanently across revisits.
+            key={stepIndex}
             exercise={block.exercise}
             selectedOption={snapshot.selectedOption}
             result={snapshot.result}
+            answeredInVariant={snapshot.answeredInVariant}
             onSelect={runner.select}
             onSelectVariant={runner.selectVariant}
             onAdvance={runner.advance}

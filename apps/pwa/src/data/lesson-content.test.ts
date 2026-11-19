@@ -15,6 +15,7 @@ import {
   visualExerciseDemo,
   type LessonContent,
   type LessonExercise,
+  type LessonExerciseOption,
   type LessonMediaBlock,
 } from "./lesson-content";
 
@@ -366,6 +367,23 @@ describe("visual exercise validation", () => {
     expect(problems.join()).toContain("missing media src");
     expect(problems.join()).toContain("attribution.source");
     expect(problems.join()).toContain("option 0 media");
+  });
+
+  it("rejects video in option.media — options are image-only", () => {
+    const exercise = visualExercise();
+    // Draft content arrives as data (e.g. JSON): malformed media kinds can
+    // bypass the narrower option type, so structural validation must also
+    // refuse videos in answer options.
+    exercise.options[0].media = {
+      media: { type: "video", src: "/v.mp4" },
+      attribution: { source: "F", license: "L" },
+    } as unknown as LessonExerciseOption["media"];
+    const problems = validateLessonContent(
+      validContent([{ kind: "exercise", exercise }]),
+    );
+    expect(problems.join()).toContain(
+      "option 0 media: only image media is supported",
+    );
   });
 
   it("flags a description variant on a media-free exercise", () => {
