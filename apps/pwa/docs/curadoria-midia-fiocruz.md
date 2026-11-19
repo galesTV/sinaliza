@@ -84,10 +84,12 @@ Patrimonial "Fundação Oswaldo Cruz"; Resolução 3024×4032 pixels; Criado
 2. **Confirmação da versão exata da licença** e do texto legal (link ou
    contato com o acervo).
 3. **Validação linguística da especialista** de cada foto usada.
-4. Registro de `attribution` no `mediaPlan`/espécime com evidência de
-   permissão (URL da licença declarada + documento de confirmação, se
-   obtido) — sem isso, `hasDisplayPermission` continua `false` por
-   desenho.
+4. Registro de `attribution` (`source`, `license`, `licenseUrl`) no bloco
+   de mídia da lição (`LessonMediaBlock`) e no espécime, quando aplicável
+   — o `mediaPlan` do catálogo guarda apenas `summary` e
+   `permissionEvidence` (URL da licença declarada + documento de
+   confirmação, se obtido). Sem evidência de permissão,
+   `hasDisplayPermission` continua `false` por desenho.
 
 ## Alternativa registrada
 

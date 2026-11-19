@@ -5,7 +5,7 @@ Nenhuma aprovação, parceria ou endosso é atribuído pela leitura deste
 documento — as decisões registradas ao final dependem da revisão.
 
 **Lição:** `alfabeto/primeiros-passos/primeiras-letras` — versão
-`draft-2` (rascunho, **não validado**)
+`draft-3` (rascunho, **não validado**)
 **Preparado em:** 19/11/2026
 **Prévia navegável:** `/laboratorio/licoes/alfabeto/primeiros-passos/primeiras-letras`
 (marcada como "Rascunho — conteúdo não validado"; não registra progresso)
@@ -55,9 +55,10 @@ visual depende da mídia prevista no `mediaPlan` (curadoria Fiocruz em
 ## 4. Texto completo proposto
 
 **Introdução:**
-> Nesta lição, você vai conhecer as quatro primeiras letras do alfabeto
-> manual de Libras — B, L, A e I — observando a forma de cada
-> configuração de mão e os cuidados para não confundir letras parecidas.
+> Nesta lição, você vai dar os primeiros passos no alfabeto manual de
+> Libras conhecendo quatro letras — B, L, A e I — observando a forma de
+> cada configuração de mão e os cuidados para não confundir letras
+> parecidas.
 
 **Bloco 1 — "Como observar uma configuração de mão"**
 > Cada letra do alfabeto manual é uma configuração de mão: a posição dos
@@ -108,7 +109,7 @@ cada configuração."
 
 | Alternativa | Correta? | Feedback |
 |---|---|---|
-| A forma dos dedos e do polegar e a orientação em que a mão é apresentada | **Sim** | "Isso: a forma dos dedos e a orientação da mão são o que diferencia uma letra da outra." |
+| A forma dos dedos e do polegar e a orientação em que a mão é apresentada | **Sim** | "Isso: a forma dos dedos e a orientação da mão são traços centrais para distinguir uma letra da outra — em letras com movimento, como a J, o movimento também diferencia." |
 | A velocidade com que a mão se move | Não | "As letras que você viu até aqui são estáticas — o que importa primeiro é a forma e a orientação da mão." |
 | O tamanho da mão de quem demonstra | Não | "O tamanho da mão não muda a letra — a posição dos dedos e a orientação, sim." |
 
@@ -186,6 +187,7 @@ incorporada ao produto, e a decisão de licenciamento é do responsável.
 |---|---|---|
 | Recorte B → L → A → I (provisório) | Aprovado pelo responsável 19/11/2026 | Letra C fora do recorte; sujeito a ajuste pela especialista. |
 | Objetivo alinhado à avaliação textual e cautelas reformuladas como pontos de atenção | Aplicado em `draft-2`, 19/11/2026 | O objetivo não promete reconhecimento visual; A×S, L×G e I×J passaram a pontos de atenção a confirmar. |
+| Introdução reformulada (ordem alfabética) e feedback do exercício 2 com menção a movimento | Aplicado em `draft-3`, 19/11/2026 | O intro não sugere mais que B, L, A e I sejam as quatro primeiras letras do alfabeto; o feedback reconhece que o movimento também distingue letras (I×J). |
 | Lição como 4ª do módulo `primeiros-passos` | Aprovado pelo responsável 19/11/2026 | "Quando a soletração manual é usada" preservada como 3ª. |
 | Sem mídia nesta versão | Aplicado | Fotos Fiocruz em curadoria separada; nada incorporado. |
 | `validationStatus: "draft"`, `reviews: []` | Aplicado | Aguarda reunião de 25/11/2026. |

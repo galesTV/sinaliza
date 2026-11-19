@@ -407,7 +407,7 @@ export const lessonCatalog: LessonCatalogEntry[] = [
       "Exercício: identificar a letra do dedo mínimo estendido",
     ],
     validationStatus: "draft",
-    version: "draft-2",
+    version: "draft-3",
     reviews: [],
     mediaPlan: {
       summary:
@@ -415,7 +415,7 @@ export const lessonCatalog: LessonCatalogEntry[] = [
     },
     draft: {
       intro:
-        "Nesta lição, você vai conhecer as quatro primeiras letras do alfabeto manual de Libras — B, L, A e I — observando a forma de cada configuração de mão e os cuidados para não confundir letras parecidas.",
+        "Nesta lição, você vai dar os primeiros passos no alfabeto manual de Libras conhecendo quatro letras — B, L, A e I — observando a forma de cada configuração de mão e os cuidados para não confundir letras parecidas.",
       blocks: [
         {
           kind: "text",
@@ -480,7 +480,7 @@ export const lessonCatalog: LessonCatalogEntry[] = [
                 label:
                   "A forma dos dedos e do polegar e a orientação em que a mão é apresentada",
                 feedback:
-                  "Isso: a forma dos dedos e a orientação da mão são o que diferencia uma letra da outra.",
+                  "Isso: a forma dos dedos e a orientação da mão são traços centrais para distinguir uma letra da outra — em letras com movimento, como a J, o movimento também diferencia.",
               },
               {
                 label: "A velocidade com que a mão se move",

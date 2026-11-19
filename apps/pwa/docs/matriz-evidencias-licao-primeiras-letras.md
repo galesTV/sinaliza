@@ -1,7 +1,7 @@
 # Matriz de evidências — Lição "Primeiras letras do alfabeto manual"
 
 Relação entre cada afirmação do rascunho
-(`alfabeto/primeiros-passos/primeiras-letras`, versão `draft-2`) e as
+(`alfabeto/primeiros-passos/primeiras-letras`, versão `draft-3`) e as
 fontes consultadas para a preparação da revisão especializada.
 
 **Data da consulta:** 19/11/2026.
@@ -39,7 +39,8 @@ especialista e/ou de mídia licenciada.
 | 10 | Letra I: "apenas o dedo mínimo fica estendido; os outros dedos e o polegar ficam dobrados." | F3, F1 | UFRB registra "mão em letra 'I'" (CM 38) e a variante "mão em letra 'I' com o dedo polegar dobrado" (CM 39). | **Fiel em essência — descrição redigida, pendente de confirmação visual.** | A variante com polegar dobrado documentada no UFRB reforça a necessidade de confirmar a forma canônica. |
 | 11 | "a letra J usa uma forma parecida — um ponto de atenção é que ela costuma envolver movimento, enquanto o I é estático." | F5 | Registro interno da curadoria: "I é estático; J usa a mesma configuração com movimento". | **Reformulada como ponto de atenção a confirmar** (`draft-1` → `draft-2`): convergente com a literatura (J é convencionalmente descrito como I + movimento), mas sem fonte primária extraída nesta consulta. | Pendência para a especialista confirmar. |
 | 12 | Exercícios 1 e 3 — alternativas corretas replicam as descrições dos itens 4 e 10. | — | Descrições rastreadas acima. | **Consistente.** | Explicações registram explicitamente que o exercício verifica o entendimento da descrição, não a identificação visual (cuidado pedagógico aprovado). |
-| 13 | Exercício 2 — "a forma dos dedos e a orientação da mão são o que diferencia uma letra da outra" / "as letras que você viu até aqui são estáticas". | F2, F3, F5 | Orientação como traço distintivo (F2); todas as quatro letras do recorte são configurações estáticas (F5). | **Fiel.** | — |
+| 13 | Exercício 2 — feedback: "a forma dos dedos e a orientação da mão são traços centrais para distinguir uma letra da outra — em letras com movimento, como a J, o movimento também diferencia" / "as letras que você viu até aqui são estáticas". | F2, F3, F5 | Orientação como traço distintivo (F2); todas as quatro letras do recorte são configurações estáticas (F5); o movimento como traço adicional cobre o par I×J. | **Fiel após ajuste.** Em `draft-2` o feedback omitia o movimento como traço distintivo; corrigido em `draft-3` (revisão automatizada do PR). | — |
+| 14 | Intro: "você vai dar os primeiros passos no alfabeto manual de Libras conhecendo quatro letras — B, L, A e I". | — | Redação interna; em `draft-2` o texto dizia "as quatro primeiras letras do alfabeto manual", que lia B, L, A e I como as quatro primeiras em ordem alfabética — incorreto (corrigido em `draft-3`, revisão automatizada do PR). | **Fiel após ajuste.** | — |
 
 ## Alterações aplicadas ao rascunho
 
@@ -55,9 +56,19 @@ antes do push:
    para "pontos de atenção a confirmar nas demonstrações" — a redação
    anterior transmitia certeza maior que a evidência das fontes.
 
+`draft-2` → `draft-3` (19/11/2026), correções da revisão automatizada
+do PR #38:
+
+1. **Introdução:** "as quatro primeiras letras do alfabeto manual"
+   sugeria ordem alfabética — reformulada para "dar os primeiros passos
+   ... conhecendo quatro letras".
+2. **Feedback do exercício 2:** incluído o movimento como traço que
+   também diferencia letras (par I×J), em vez de forma+orientação como
+   únicas distinções.
+
 Demais afirmações mantidas: eram adequadamente fundamentadas ou já
-formuladas com cautela. Próxima versão (`draft-3`) deve incorporar as
-correções que a revisão especializada indicar.
+formuladas com cautela. Próxima versão deve incorporar as correções que
+a revisão especializada indicar.
 
 ## Pendências e dúvidas para a especialista
 
