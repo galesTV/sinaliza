@@ -81,7 +81,7 @@ a revisão especializada indicar.
 - **Orientação da palma por letra:** por decisão pedagógica, nenhuma regra
   universal foi escrita; a descrição da orientação de cada letra deve ser
   adicionada quando houver evidência visual adequada — a especialista pode
-  indicar a formulação correta já para o `draft-2`.
+  indicar a formulação correta na próxima revisão do rascunho.
 - **Distinções A×S, L×G, I×J:** registradas como cautelas; confirmar as
   características que realmente separam cada par (posição do polegar,
   orientação, movimento).
