@@ -91,6 +91,29 @@ Patrimonial "Fundação Oswaldo Cruz"; Resolução 3024×4032 pixels; Criado
    confirmação, se obtido). Sem evidência de permissão,
    `hasDisplayPermission` continua `false` por desenho.
 
+## Uso planejado na lição (draft-4, fase 8C.3)
+
+A lição `primeiras-letras` já declara os slots de demonstração e os
+exercícios visuais que estas fotos alimentariam:
+
+- Caminhos planejados: `/media/alfabeto/primeiros-passos/letra-b.jpg`,
+  `letra-l.jpg`, `letra-a.jpg`, `letra-i.jpg` (convenção
+  `public/media/<trilha>/<modulo>/`). **Os arquivos não existem** — são
+  identificadores reservados.
+- Atribuição já escrita nos slots: autor (Mauro Campello), série e acervo
+  (Fiocruz Imagens / Fundação Oswaldo Cruz), URL do item e licença
+  declarada — com a observação "versão exata a confirmar". Nenhum slot
+  tem `permissionEvidence`: tudo permanece no estado "em produção" até a
+  aprovação da licença.
+- Exercícios dependentes: identificação da letra demonstrada (estímulo
+  da letra B) e escolha da imagem da letra I entre três opções (B, I, A).
+  Ambos têm `descriptionVariant` que hoje carrega a avaliação — quando a
+  mídia chegar, conferir se cada variante descreve fielmente a foto
+  incorporada.
+- Para liberar: aprovar a licença, incorporar os arquivos nos caminhos
+  acima e registrar o `permissionEvidence` (URL da licença + documento
+  de confirmação, se obtido).
+
 ## Alternativa registrada
 
 Produção própria das quatro demonstrações com autorização de imagem por

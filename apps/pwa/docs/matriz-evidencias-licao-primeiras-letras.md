@@ -1,7 +1,7 @@
 # Matriz de evidências — Lição "Primeiras letras do alfabeto manual"
 
 Relação entre cada afirmação do rascunho
-(`alfabeto/primeiros-passos/primeiras-letras`, versão `draft-3`) e as
+(`alfabeto/primeiros-passos/primeiras-letras`, versão `draft-4`) e as
 fontes consultadas para a preparação da revisão especializada.
 
 **Data da consulta:** 19/11/2026.
@@ -11,6 +11,15 @@ especializada prevista para 25/11/2026. As descrições das letras foram
 redigidas a partir das referências, mas **nenhuma imagem das fontes foi
 incorporada** — a confirmação visual de cada configuração depende da
 especialista e/ou de mídia licenciada.
+
+**Nota draft-4:** esta versão integra a infraestrutura visual — slots de
+`LessonMediaBlock` por letra e dois exercícios com `promptMedia`/
+`option.media` — **sem nenhum arquivo de mídia e sem
+`permissionEvidence`**. Todos os slots e exercícios permanecem
+bloqueados pelo gate de exibição e o aprendiz só vê o painel "em
+produção" e as `descriptionVariant`s. Os caminhos `/media/alfabeto/
+primeiros-passos/letra-*.jpg` são identificadores planejados, não
+arquivos existentes.
 
 ## Fontes consultadas
 
@@ -38,9 +47,13 @@ especialista e/ou de mídia licenciada.
 | 9 | "a letra S tem uma forma muito parecida — a posição do polegar é um ponto de atenção a confirmar nas demonstrações." | F5 | Registro interno da curadoria (ambiguidade A×S sinalizada). | **Reformulada como ponto de atenção a confirmar** (`draft-1` → `draft-2`), pelo mesmo motivo do item 7. | Pendência para a especialista: confirmar a distinção A×S (posição do polegar × movimento/orientação). |
 | 10 | Letra I: "apenas o dedo mínimo fica estendido; os outros dedos e o polegar ficam dobrados." | F3, F1 | UFRB registra "mão em letra 'I'" (CM 38) e a variante "mão em letra 'I' com o dedo polegar dobrado" (CM 39). | **Fiel em essência — descrição redigida, pendente de confirmação visual.** | A variante com polegar dobrado documentada no UFRB reforça a necessidade de confirmar a forma canônica. |
 | 11 | "a letra J usa uma forma parecida — um ponto de atenção é que ela costuma envolver movimento, enquanto o I é estático." | F5 | Registro interno da curadoria: "I é estático; J usa a mesma configuração com movimento". | **Reformulada como ponto de atenção a confirmar** (`draft-1` → `draft-2`): convergente com a literatura (J é convencionalmente descrito como I + movimento), mas sem fonte primária extraída nesta consulta. | Pendência para a especialista confirmar. |
-| 12 | Exercícios 1 e 3 — alternativas corretas replicam as descrições dos itens 4 e 10. | — | Descrições rastreadas acima. | **Consistente.** | Explicações registram explicitamente que o exercício verifica o entendimento da descrição, não a identificação visual (cuidado pedagógico aprovado). |
-| 13 | Exercício 2 — feedback: "a forma dos dedos e a orientação da mão são traços centrais para distinguir uma letra da outra — em letras com movimento, como a J, o movimento também diferencia" / "as letras que você viu até aqui são estáticas". | F2, F3, F5 | Orientação como traço distintivo (F2); todas as quatro letras do recorte são configurações estáticas (F5); o movimento como traço adicional cobre o par I×J. | **Fiel após ajuste.** Em `draft-2` o feedback omitia o movimento como traço distintivo; corrigido em `draft-3` (revisão automatizada do PR). | — |
-| 14 | Intro: "você vai dar os primeiros passos no alfabeto manual de Libras conhecendo quatro letras — B, L, A e I". | — | Redação interna; em `draft-2` o texto dizia "as quatro primeiras letras do alfabeto manual", que lia B, L, A e I como as quatro primeiras em ordem alfabética — incorreto (corrigido em `draft-3`, revisão automatizada do PR). | **Fiel após ajuste.** | — |
+| 12 | Exercícios de identificação visual (draft-4): "Qual letra do alfabeto manual está sendo demonstrada na imagem?" e "Qual destas imagens mostra a letra I?" — feedbacks replicam as descrições dos itens 4, 8 e 10. | — | Descrições rastreadas acima. | **Consistente — mas hoje não executáveis visualmente.** Sem `permissionEvidence` nem arquivos, o gate bloqueia o estímulo e as opções visuais; só as `descriptionVariant`s são vistas. | As variantes declaram explicitamente que avaliam a compreensão da descrição, não a identificação visual — não se afirma treino de reconhecimento visual sem mídia. |
+| 13 | `descriptionVariant`s dos exercícios visuais: "a imagem 1 mostra a mão aberta com os quatro dedos juntos; a imagem 2 ... apenas o dedo mínimo estendido; a imagem 3 ... punho fechado com o polegar apoiado ao lado dos dedos". | — | Redação interna coerente com os itens 4, 8 e 10; os rótulos "Imagem 1/2/3" descrevem conteúdo planejado, não material existente. | **Fiel enquanto descrição** — os textos replicam as descrições pedagógicas já rastreadas. | Quando a mídia real chegar, conferir se cada foto corresponde à descrição usada na variante. |
+| 14 | Exercício textual (ex-2 do draft-3, mantido verbatim) — feedback: "a forma dos dedos e a orientação da mão são traços centrais para distinguir uma letra da outra — em letras com movimento, como a J, o movimento também diferencia" / "as letras que você viu até aqui são estáticas". | F2, F3, F5 | Orientação como traço distintivo (F2); todas as quatro letras do recorte são configurações estáticas (F5); o movimento como traço adicional cobre o par I×J. | **Fiel após ajuste** (corrigido em `draft-3`, revisão automatizada do PR). | — |
+| 15 | Blocos de mídia por letra (draft-4): "Demonstração visual da configuração da letra X ... A imagem candidata está em curadoria e só será exibida quando houver licença confirmada e revisão especializada." | — | Estado real do projeto: as imagens Fiocruz são candidatas em curadoria (`docs/curadoria-midia-fiocruz.md`), sem `permissionEvidence` registrado. | **Fiel — estado honesto.** O painel "em produção" exibe descrição + atribuição do candidato (autor, acervo, licença declarada), sem fingir mídia disponível. | A descrição dentro do slot replica a descrição pedagógica da letra — mesma pendência de confirmação visual. |
+| 16 | Texto de comparação (draft-4): "a letra B usa a mão aberta e plana ... a L estende o indicador e abre o polegar; a A fecha a mão em punho; e a I estende somente o dedo mínimo. As quatro são configurações estáticas — nenhuma depende de movimento." | F3, F5 | Consolidação das descrições já rastreadas (itens 4, 6, 8, 10); curadoria registra as quatro como estáticas. | **Fiel.** | Mantém as cautelas S/G/J como "pontos de atenção a confirmar". |
+| 17 | Intro: "As demonstrações visuais de cada letra estão em produção: enquanto elas não chegam, a descrição de cada passo cobre o conteúdo." / Recap: "Quando as demonstrações visuais estiverem licenciadas, os exercícios de identificação passam a mostrar as imagens reais; até lá, a versão por descrição mantém a prática sem fingir avaliar o olhar." | — | Estado real do projeto (nenhum arquivo incorporado; gate bloqueado). | **Fiel — estado honesto.** Não promete reconhecimento visual; o recap distingue explicitamente o que a variante por descrição avalia. | — |
+| 18 | Intro (draft-2/3, mantida): "você vai dar os primeiros passos no alfabeto manual de Libras conhecendo quatro letras — B, L, A e I". | — | Redação interna; corrigida em `draft-3` (revisão automatizada do PR #38) para não sugerir ordem alfabética. | **Fiel após ajuste.** | — |
 
 ## Alterações aplicadas ao rascunho
 
@@ -70,6 +83,26 @@ Demais afirmações mantidas: eram adequadamente fundamentadas ou já
 formuladas com cautela. Próxima versão deve incorporar as correções que
 a revisão especializada indicar.
 
+`draft-3` → `draft-4` (19/11/2026), integração da experiência visual
+(fase 8C.3):
+
+1. **Slots de demonstração por letra:** cada explicação ganhou um
+   `LessonMediaBlock` com caminho planejado, `alt` descritivo e a
+   atribuição do candidato Fiocruz — sem arquivo e sem
+   `permissionEvidence`, portanto sempre no estado "em produção".
+2. **Dois exercícios de identificação visual** (estímulo `promptMedia`
+   da letra B; opções com `option.media` B/I/A) com
+   `descriptionVariant` honesta — o exercício visual fica bloqueado e a
+   variante avalia a compreensão da descrição, sem fingir medir
+   reconhecimento visual.
+3. **Substituição dos exercícios textuais 1 e 3** (descrição da letra B
+   e dedo mínimo da letra I) pelos exercícios visuais com variante — a
+   cobertura textual desses pontos permanece nas variantes e nos textos
+   de explicação.
+4. **Novo texto de comparação** consolidando as quatro configurações e
+   mantendo as cautelas S/G/J; **recapitulação final** declarando que a
+   prática atual é por descrição.
+
 ## Pendências e dúvidas para a especialista
 
 - **Posição exata do polegar em B e A:** descrever "sobre a palma" (B) e
@@ -91,7 +124,12 @@ a revisão especializada indicar.
 - **Mídia:** as imagens Fiocruz (CC BY-NC declarada) estão em curadoria
   separada (`docs/curadoria-midia-fiocruz.md`) — a especialista pode
   avaliar adequação linguística das fotos; a decisão de licenciamento é
-  do responsável.
+  do responsável. Com o draft-4, aprovar a licença e registrar
+  `permissionEvidence` + incorporar os arquivos nos caminhos planejados
+  é o que desbloqueia os exercícios visuais.
+- **Fidelidade descrição × foto:** quando a mídia chegar, conferir se
+  cada `descriptionVariant` descreve de fato a imagem incorporada
+  (itens 12–13).
 
 ## Limitações da pesquisa
 
