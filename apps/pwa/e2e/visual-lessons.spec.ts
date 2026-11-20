@@ -422,15 +422,68 @@ test.describe("draft preview", () => {
       page.getByText("Rascunho", { exact: true }).first(),
     ).toBeVisible();
 
-    // Walk the whole draft (5 texts + 3 exercises; correct options 0, 0, 2).
-    for (let i = 0; i < 5; i += 1) {
+    // Step 1: intro text.
+    await page.getByRole("button", { name: "Continuar" }).click();
+
+    // Steps 2-9: letter explanations alternate with gated media slots.
+    // Each slot must stay in the honest "em produção" state — no image
+    // is fetched because no permission evidence was recorded.
+    for (const letter of ["B", "L", "A", "I"]) {
+      await expect(
+        page.getByRole("heading", {
+          name: new RegExp(`Letra ${letter}`),
+        }),
+      ).toBeVisible();
+      await page.getByRole("button", { name: "Continuar" }).click();
+      await expect(
+        page.getByText("Demonstração visual em produção"),
+      ).toBeVisible();
+      // Candidate attribution is preserved even while the media is
+      // unavailable — but never as a link: the lesson must not point
+      // learners at an unlicensed, unvalidated photo.
+      await expect(page.getByText(/Fiocruz Imagens/)).toBeVisible();
+      await expect(
+        page.locator('a[href*="fiocruzimagens"]'),
+      ).toHaveCount(0);
       await page.getByRole("button", { name: "Continuar" }).click();
     }
-    await page.locator("fieldset label").nth(0).click();
+    await expect(
+      page.locator('img[src^="/media/alfabeto/primeiros-passos/"]'),
+    ).toHaveCount(0);
+
+    // Step 10: comparison text.
+    await expect(
+      page.getByRole("heading", { name: "Comparando as quatro letras" }),
+    ).toBeVisible();
     await page.getByRole("button", { name: "Continuar" }).click();
-    await page.locator("fieldset label").nth(0).click();
+
+    // Step 11: visual exercise — gated prompt media auto-opens the
+    // description variant, honestly labelled as a different assessment.
+    await expect(page.getByText("Versão por descrição")).toBeVisible();
+    await expect(
+      page.getByRole("heading", {
+        name: /Pela descrição: a demonstração mostra a mão aberta/,
+      }),
+    ).toBeVisible();
+    await option(page, "Letra B").click();
+    await expect(page.getByText("Correto!")).toBeVisible();
     await page.getByRole("button", { name: "Continuar" }).click();
-    await page.locator("fieldset label").nth(2).click();
+
+    // Step 12: visual exercise with option media — also description-gated.
+    await expect(page.getByText("Versão por descrição")).toBeVisible();
+    await option(page, "Imagem 2").click();
+    await expect(page.getByText("Correto!")).toBeVisible();
+    await page.getByRole("button", { name: "Continuar" }).click();
+
+    // Step 13: plain textual exercise (no media involved).
+    await option(page, /forma dos dedos/).click();
+    await expect(page.getByText("Correto!")).toBeVisible();
+    await page.getByRole("button", { name: "Continuar" }).click();
+
+    // Step 14: recap text.
+    await expect(
+      page.getByRole("heading", { name: "Recapitulando" }),
+    ).toBeVisible();
     await page.getByRole("button", { name: "Finalizar experiência" }).click();
     await page
       .getByRole("button", { name: "Concluir experiência" })

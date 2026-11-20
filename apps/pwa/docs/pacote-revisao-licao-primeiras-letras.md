@@ -5,7 +5,7 @@ Nenhuma aprovação, parceria ou endosso é atribuído pela leitura deste
 documento — as decisões registradas ao final dependem da revisão.
 
 **Lição:** `alfabeto/primeiros-passos/primeiras-letras` — versão
-`draft-3` (rascunho, **não validado**)
+`draft-4` (rascunho, **não validado**)
 **Preparado em:** 19/11/2026
 **Prévia navegável:** `/laboratorio/licoes/alfabeto/primeiros-passos/primeiras-letras`
 (marcada como "Rascunho — conteúdo não validado"; não registra progresso)
@@ -27,15 +27,19 @@ estática.
 lições anteriores.
 
 **Objetivo declarado:**
-> Identificar, a partir de descrições, características das configurações
-> de mão das letras B, L, A e I, preparando-se para reconhecê-las em
-> demonstrações visuais.
+> Identificar características das configurações de mão das letras B, L,
+> A e I — pela descrição nesta versão e, quando houver mídia licenciada,
+> por identificação visual da letra demonstrada.
 
-**Limitação declarada do objetivo:** nesta versão a lição é textual; os
-exercícios verificam o entendimento das descrições, **não** a capacidade
-de identificar ou reproduzir as letras visualmente. O reconhecimento
-visual depende da mídia prevista no `mediaPlan` (curadoria Fiocruz em
-`docs/curadoria-midia-fiocruz.md` ou produção própria).
+**Limitação declarada do objetivo:** o draft-4 integra a infraestrutura
+visual — slots de demonstração por letra e dois exercícios de
+identificação visual — mas **sem nenhum arquivo de mídia nem
+`permissionEvidence`**: o gate de exibição mantém todos os slots em
+"em produção" e os exercícios visuais só são respondidos pelas
+`descriptionVariant`s. O aprendiz de hoje treina a compreensão das
+descrições; **não se afirma treino de reconhecimento visual**. A mídia
+segue dependente da curadoria Fiocruz (`docs/curadoria-midia-fiocruz.md`)
+ou de produção própria.
 
 ## 3. Cuidados pedagógicos aplicados
 
@@ -51,6 +55,14 @@ visual depende da mídia prevista no `mediaPlan` (curadoria Fiocruz em
 - **Cautelas de confusão registradas:** A×S, L×G, I×J — formuladas como
   "cuidado", sem fechar a descrição diferencial enquanto não houver
   confirmação especializada.
+- **Estado honesto da mídia (draft-4):** os slots de demonstração exibem
+  o painel "Demonstração visual em produção" com descrição + atribuição
+  do candidato em curadoria; os exercícios visuais abrem direto na
+  "Versão por descrição", que declara avaliar a descrição — não a
+  identificação visual. Nenhum caminho de imagem é buscado sem
+  `permissionEvidence`.
+- **Sem mídia artificial:** nenhuma imagem de placeholder, gerada por IA
+  ou de terceiros foi inserida para simular a demonstração.
 
 ## 4. Texto completo proposto
 
@@ -58,7 +70,8 @@ visual depende da mídia prevista no `mediaPlan` (curadoria Fiocruz em
 > Nesta lição, você vai dar os primeiros passos no alfabeto manual de
 > Libras conhecendo quatro letras — B, L, A e I — observando a forma de
 > cada configuração de mão e os cuidados para não confundir letras
-> parecidas.
+> parecidas. As demonstrações visuais de cada letra estão em produção:
+> enquanto elas não chegam, a descrição de cada passo cobre o conteúdo.
 
 **Bloco 1 — "Como observar uma configuração de mão"**
 > Cada letra do alfabeto manual é uma configuração de mão: a posição dos
@@ -72,40 +85,100 @@ visual depende da mídia prevista no `mediaPlan` (curadoria Fiocruz em
 > o polegar dobrado sobre a palma. Observe a mão bem aberta: essa forma
 > de 'mão estendida' aparece em muitos sinais da Libras.
 
-**Bloco 3 — "Letra L — indicador e polegar em 'L'"**
+**Bloco 4 — "Letra L — indicador e polegar em 'L'"**
 > Na letra L, o dedo indicador aponta para cima e o polegar se abre para
 > o lado, enquanto os demais dedos ficam dobrados. A forma lembra a letra
 > 'L' escrita. Cuidado: outras letras, como a G, também usam o indicador
 > estendido — a posição do polegar e a orientação da mão são pontos de
 > atenção a confirmar nas demonstrações.
 
-**Bloco 4 — "Letra A — punho fechado"**
+**Bloco 6 — "Letra A — punho fechado"**
 > Na letra A, a mão fecha em um punho, com os quatro dedos dobrados e o
 > polegar apoiado ao lado deles, por fora. Cuidado: a letra S tem uma
 > forma muito parecida — a posição do polegar é um ponto de atenção a
 > confirmar nas demonstrações.
 
-**Bloco 5 — "Letra I — só o dedo mínimo estendido"**
+**Bloco 8 — "Letra I — só o dedo mínimo estendido"**
 > Na letra I, apenas o dedo mínimo fica estendido; os outros dedos e o
 > polegar ficam dobrados. Cuidado: a letra J usa uma forma parecida — um
 > ponto de atenção é que ela costuma envolver movimento, enquanto o I é
 > estático.
 
+**Blocos de mídia (draft-4):** os blocos 3, 5, 7 e 9 — após cada
+explicação de letra — são slots `LessonMediaBlock`
+"Demonstração da letra X", cuja descrição replica a
+configuração ensinada e cujo estado visível é o painel "Demonstração
+visual em produção" + crédito marcado "Candidato em curadoria" nomeando
+autor, acervo e licença declarada da série Fiocruz — **sem link**: a URL
+do item fica apenas no código e na documentação de curadoria, para que a
+lição nunca direcione o aprendiz a uma foto não licenciada. Caminhos
+planejados:
+`/media/alfabeto/primeiros-passos/letra-{b,l,a,i}.jpg` — **arquivos
+inexistentes, intencionalmente**.
+
+**Bloco 10 — "Comparando as quatro letras" (draft-4)**
+> Recapitulando as formas: a letra B usa a mão aberta e plana, com os
+> quatro dedos juntos; a letra L estende o indicador e abre o polegar; a
+> letra A fecha a mão em punho; e a letra I estende somente o dedo
+> mínimo. As quatro são configurações estáticas — nenhuma depende de
+> movimento. As letras parecidas ficam como ponto de atenção: a letra S
+> se aproxima da A, a G se aproxima da L e a J usa uma forma parecida
+> com a I, mas costuma envolver movimento — as diferenças exatas serão
+> confirmadas nas demonstrações e na revisão especializada.
+
+**Bloco 14 — "Recapitulando" (draft-4)**
+> Você conheceu as configurações de mão de quatro letras do alfabeto
+> manual — B, L, A e I — e aprendeu a observar a forma dos dedos e a
+> orientação da mão. Quando as demonstrações visuais estiverem
+> licenciadas, os exercícios de identificação passam a mostrar as
+> imagens reais; até lá, a versão por descrição mantém a prática sem
+> fingir avaliar o olhar.
+
 ## 5. Exercícios com respostas
 
-**Exercício 1 — "Qual descrição corresponde à configuração da letra B?"**
+O draft-4 tem três exercícios: **dois de identificação visual** (hoje
+respondidos apenas pela versão por descrição, pois a mídia está
+bloqueada) e **um textual** (mantido do draft-3). Para cada exercício
+visual, a versão principal (com imagem) e a `descriptionVariant` têm
+gabaritos e feedbacks próprios.
+
+**Exercício 1 (visual) — "Qual letra do alfabeto manual está sendo demonstrada na imagem?"**
+
+Estímulo: `promptMedia` = demonstração da letra B (mesmo slot bloqueado;
+sem `permissionEvidence` a imagem nunca é exibida).
+
+Versão com imagem (hoje inacessível):
 
 | Alternativa | Correta? | Feedback |
 |---|---|---|
-| Mão aberta e estendida, quatro dedos juntos e polegar dobrado sobre a palma | **Sim** | "Isso mesmo: a letra B usa a mão aberta e plana, com os dedos unidos." |
-| Indicador estendido e polegar aberto, formando um 'L' | Não | "Essa é a letra L — no B, os quatro dedos ficam estendidos juntos." |
-| Mão fechada em punho, com o polegar apoiado ao lado dos dedos | Não | "Essa é a letra A — no B, a mão permanece aberta." |
+| Letra B | **Sim** | "Isso mesmo: a imagem mostra a mão aberta e plana, com os quatro dedos juntos — a configuração da letra B." |
+| Letra L | Não | "Não: na letra L, o indicador fica estendido e o polegar aberto — a imagem mostra a mão aberta com os quatro dedos juntos." |
+| Letra A | Não | "Não: a letra A é um punho fechado — a imagem mostra a mão aberta." |
+| Letra I | Não | "Não: na letra I, só o dedo mínimo fica estendido — a imagem mostra os quatro dedos juntos." |
 
-Explicação: "Este exercício verifica o entendimento da descrição da letra
-B — o reconhecimento visual se desenvolve observando as demonstrações de
-cada configuração."
+Versão por descrição (a que o aprendiz vê hoje) — "Pela descrição: a
+demonstração mostra a mão aberta e estendida, com os quatro dedos
+juntos e o polegar dobrado sobre a palma. Qual letra é essa?" — mesmas
+quatro alternativas, gabarito **Letra B**; explicação: "Esta versão
+avalia a compreensão da descrição da letra B — não a identificação
+visual da configuração."
 
-**Exercício 2 — "Ao observar a demonstração de uma letra do alfabeto manual pela primeira vez, o que merece atenção primeiro?"**
+**Exercício 2 (visual) — "Qual destas imagens mostra a letra I?"**
+
+Opções com `option.media`: Imagem 1 = letra B, Imagem 2 = letra I
+(**correta**), Imagem 3 = letra A — todas bloqueadas pelo gate.
+
+Versão com imagem (hoje inacessível): gabarito **Imagem 2** — "a imagem
+2 mostra somente o dedo mínimo estendido — a configuração da letra I."
+
+Versão por descrição (a que o aprendiz vê hoje): descreve cada imagem
+("a imagem 1 mostra a mão aberta com os quatro dedos juntos; a imagem 2
+... apenas o dedo mínimo estendido; a imagem 3 ... punho fechado com o
+polegar apoiado ao lado dos dedos"); gabarito **Imagem 2**; explicação:
+"Esta versão avalia a compreensão das descrições das imagens — não a
+identificação visual das configurações."
+
+**Exercício 3 (textual, mantido do draft-3) — "Ao observar a demonstração de uma letra do alfabeto manual pela primeira vez, o que merece atenção primeiro?"**
 
 | Alternativa | Correta? | Feedback |
 |---|---|---|
@@ -115,18 +188,6 @@ cada configuração."
 
 Explicação: "Observar a forma dos dedos e a orientação da mão é o caminho
 para distinguir letras parecidas, como A e S ou L e G."
-
-**Exercício 3 — "Qual destas letras usa somente o dedo mínimo estendido?"**
-
-| Alternativa | Correta? | Feedback |
-|---|---|---|
-| Letra B | Não | "Não: na letra B, os quatro dedos ficam estendidos juntos, com o polegar dobrado sobre a palma." |
-| Letra L | Não | "Não: na letra L, quem fica estendido é o dedo indicador, junto com o polegar aberto." |
-| Letra I | **Sim** | "Isso mesmo: na letra I, só o dedo mínimo fica estendido e os demais dedos ficam dobrados." |
-
-Explicação: "Este exercício verifica o entendimento da descrição da letra
-I — a identificação visual das letras se desenvolve com a observação das
-demonstrações."
 
 ## 6. Referências utilizadas
 
@@ -172,12 +233,16 @@ incorporada ao produto, e a decisão de licenciamento é do responsável.
 5. Há variações regionais ou variantes canônicas das quatro letras que
    devam ser mencionadas já neste nível (o UFRB documenta "B com polegar
    destacado" e "I com polegar dobrado")?
-6. Os exercícios textuais estão adequados como verificação de
-   entendimento das descrições, sem prometer identificação visual?
+6. Os exercícios e as `descriptionVariant`s estão adequados como
+   verificação de entendimento das descrições, sem prometer
+   identificação visual? Os textos das variantes descrevem corretamente
+   o que cada imagem planejada mostrará?
 7. As fotos da série Fiocruz (curadoria em
    `docs/curadoria-midia-fiocruz.md`) são linguísticamente adequadas —
    configuração, orientação e enquadramento corretos — caso o licenciamento
-   seja aprovado?
+   seja aprovado? Em caso afirmativo, basta registrar o
+   `permissionEvidence` e incorporar os arquivos nos caminhos
+   planejados para que os exercícios visuais passem a exibir as imagens.
 8. Esta lição deve preceder ou suceder o aprendizado das letras por
    espécime (`/laboratorio/alfabeto/<letra>`) na jornada?
 
@@ -189,6 +254,7 @@ incorporada ao produto, e a decisão de licenciamento é do responsável.
 | Objetivo alinhado à avaliação textual e cautelas reformuladas como pontos de atenção | Aplicado em `draft-2`, 19/11/2026 | O objetivo não promete reconhecimento visual; A×S, L×G e I×J passaram a pontos de atenção a confirmar. |
 | Introdução reformulada (ordem alfabética) e feedback do exercício 2 com menção a movimento | Aplicado em `draft-3`, 19/11/2026 | O intro não sugere mais que B, L, A e I sejam as quatro primeiras letras do alfabeto; o feedback reconhece que o movimento também distingue letras (I×J). |
 | Lição como 4ª do módulo `primeiros-passos` | Aprovado pelo responsável 19/11/2026 | "Quando a soletração manual é usada" preservada como 3ª. |
-| Sem mídia nesta versão | Aplicado | Fotos Fiocruz em curadoria separada; nada incorporado. |
+| Sem mídia incorporada (draft-4 adiciona slots bloqueados) | Aplicado | Slots e exercícios visuais existem, mas sem arquivo nem `permissionEvidence` — sempre no estado "em produção"; fotos Fiocruz seguem em curadoria separada. |
 | `validationStatus: "draft"`, `reviews: []` | Aplicado | Aguarda reunião de 25/11/2026. |
 | Prévia no laboratório, sem registro de progresso | Verificado | `/laboratorio/licoes/alfabeto/primeiros-passos/primeiras-letras` exibe o aviso de rascunho e não grava progresso. |
+| Integração da experiência visual na lição C | Aplicado em `draft-4`, 19/11/2026 | Fase 8C.3: infraestrutura existente reutilizada (sem novo motor de lição); objetivos visual × descrição distintos em código e documentação. |
