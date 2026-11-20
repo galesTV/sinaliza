@@ -24,6 +24,7 @@ import {
   IconArrowLeft,
   IconArrowRight,
   IconCheck,
+  IconExternalLink,
   IconGraduationCap,
   IconRefresh,
   IconX,
@@ -478,6 +479,65 @@ export function LessonRunner({
             {block.title}
           </h2>
           <LessonMedia key={block.media.src} block={block} />
+          <div className="flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={runner.advance}
+              className="btn-primary"
+            >
+              {stepIndex === stepCount - 1 ? copy.finish : "Continuar"}
+              <IconArrowRight className="h-4 w-4" />
+            </button>
+            <BackButton onBack={runner.back} visible={snapshot.canGoBack} />
+          </div>
+        </div>
+      )}
+
+      {block?.kind === "resources" && (
+        <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-2.5">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">
+              Para saber mais
+            </p>
+            <h2
+              ref={headingRef}
+              tabIndex={-1}
+              id="lesson-runner-title"
+              className="font-display text-xl font-semibold tracking-tight text-foreground focus-visible:outline-none"
+            >
+              {block.heading}
+            </h2>
+            <p className="max-w-2xl text-base leading-relaxed text-muted">
+              {block.body}
+            </p>
+          </div>
+          <ul className="flex flex-col gap-3">
+            {block.items.map((item) => (
+              <li
+                key={item.url}
+                className="flex flex-col gap-1.5 rounded-xl border border-border bg-white/[0.025] p-4"
+              >
+                <a
+                  href={item.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 self-start rounded text-sm font-semibold text-accent underline-offset-4 transition-colors hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                >
+                  {item.title}
+                  <IconExternalLink className="h-3.5 w-3.5" />
+                  <span className="sr-only">
+                    (abre em nova aba, site externo)
+                  </span>
+                </a>
+                <p className="text-xs font-medium text-muted">
+                  {item.source} · site externo — abre em nova aba
+                </p>
+                <p className="text-sm leading-relaxed text-muted">
+                  {item.description}
+                </p>
+              </li>
+            ))}
+          </ul>
           <div className="flex flex-wrap gap-3">
             <button
               type="button"

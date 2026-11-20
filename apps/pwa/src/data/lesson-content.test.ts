@@ -251,6 +251,74 @@ describe("validateLessonContent", () => {
   });
 });
 
+describe("resources block validation", () => {
+  function makeResourcesBlock(
+    overrides: Partial<
+      Extract<LessonContent["blocks"][number], { kind: "resources" }>
+    > = {},
+  ) {
+    return {
+      kind: "resources" as const,
+      heading: "Recursos complementares",
+      body: "Links externos opcionais.",
+      items: [
+        {
+          title: "Publicação oficial do alfabeto manual",
+          source: "Instituição X",
+          url: "https://example.org/alfabeto",
+          description: "Por que este link ajuda.",
+        },
+      ],
+      ...overrides,
+    };
+  }
+
+  it("accepts a well-formed resources block", () => {
+    expect(
+      validateLessonContent(validContent([makeResourcesBlock()])),
+    ).toEqual([]);
+  });
+
+  it("flags missing heading, body and empty items", () => {
+    const problems = validateLessonContent(
+      validContent([
+        makeResourcesBlock({ heading: " ", body: "", items: [] }),
+      ]),
+    );
+    expect(problems.join()).toContain("missing heading");
+    expect(problems.join()).toContain("missing body");
+    expect(problems.join()).toContain("no resources");
+  });
+
+  it("flags malformed items and non-https or relative urls", () => {
+    const problems = validateLessonContent(
+      validContent([
+        makeResourcesBlock({
+          items: [
+            {
+              title: " ",
+              source: "",
+              url: "/interna",
+              description: " ",
+            },
+            {
+              title: "ok",
+              source: "ok",
+              url: "http://inseguro.example",
+              description: "ok",
+            },
+          ],
+        }),
+      ]),
+    );
+    expect(problems.join()).toContain("resource 0: missing title");
+    expect(problems.join()).toContain("resource 0: missing source");
+    expect(problems.join()).toContain("resource 0: url must be an external https link");
+    expect(problems.join()).toContain("resource 0: missing description");
+    expect(problems.join()).toContain("resource 1: url must be an external https link");
+  });
+});
+
 describe("media permission gate", () => {
   const baseAttribution = {
     source: "Fonte",

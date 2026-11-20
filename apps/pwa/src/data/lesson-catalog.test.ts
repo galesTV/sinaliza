@@ -319,14 +319,14 @@ describe("validateCatalogEntry", () => {
   });
 });
 
-describe("primeiras-letras draft-4", () => {
+describe("primeiras-letras draft-5", () => {
   const entry = getCatalogEntry(
     "alfabeto/primeiros-passos/primeiras-letras",
   )!;
 
   it("stays a draft: never publishable, never in the lesson registry", () => {
     expect(entry.validationStatus).toBe("draft");
-    expect(entry.version).toBe("draft-4");
+    expect(entry.version).toBe("draft-5");
     expect(isPublishable(entry)).toBe(false);
     expect(lessonContents[entry.lessonKey]).toBeUndefined();
     expect(validateCatalogEntry(entry)).toEqual([]);
@@ -361,6 +361,24 @@ describe("primeiras-letras draft-4", () => {
     for (const exercise of visual) {
       expect(isExerciseVisuallyPermitted(exercise)).toBe(false);
       expect(exercise.descriptionVariant).toBeDefined();
+    }
+  });
+
+  it("ends with an optional external-resources block of safe links", () => {
+    const blocks = entry.draft!.blocks;
+    const last = blocks[blocks.length - 1];
+    expect(last.kind).toBe("resources");
+    if (last.kind !== "resources") throw new Error("fixture");
+
+    expect(last.heading).toBe("Recursos complementares");
+    expect(last.items.length).toBeGreaterThan(0);
+    for (const item of last.items) {
+      // Every resource is a plain https link — no media, no embed, no
+      // relative path — with a named source and a why-it-helps note.
+      expect(item.url).toMatch(/^https:\/\//);
+      expect(item.title.trim().length).toBeGreaterThan(0);
+      expect(item.source.trim().length).toBeGreaterThan(0);
+      expect(item.description.trim().length).toBeGreaterThan(0);
     }
   });
 

@@ -167,10 +167,42 @@ export interface LessonMediaBlock {
   attribution: LessonMediaAttribution;
 }
 
+/**
+ * One link in a `LessonResourcesBlock`: an external website the learner
+ * may visit for extra reference or practice. Links only — a lesson never
+ * embeds, copies or depends on third-party media, and a resource being
+ * unreachable must never affect the lesson.
+ */
+export interface LessonExternalResource {
+  /** Descriptive link label that makes sense out of context. */
+  title: string;
+  /** Institution or site responsible for the resource. */
+  source: string;
+  /** External page the link opens — https required. */
+  url: string;
+  /** Why the resource may help with this lesson's content. */
+  description: string;
+}
+
+/**
+ * Optional block of complementary external resources. It frames a list of
+ * outside links clearly as not-Sinaliza content, advances freely like a
+ * text step, never blocks completion and records nothing — the runner
+ * treats it as a non-exercise step.
+ */
+export interface LessonResourcesBlock {
+  kind: "resources";
+  heading: string;
+  /** Framing paragraph: what these links are and what they are not. */
+  body: string;
+  items: LessonExternalResource[];
+}
+
 export type LessonBlock =
   | LessonTextBlock
   | LessonExerciseBlock
-  | LessonMediaBlock;
+  | LessonMediaBlock
+  | LessonResourcesBlock;
 
 /**
  * Display gate shared by lesson media blocks and exercise media: an asset
@@ -249,6 +281,13 @@ export function validateLessonContent(content: LessonContent): string[] {
           ...validateMediaBlock(block).map((problem) => `${at}: ${problem}`),
         );
         break;
+      case "resources":
+        problems.push(
+          ...validateResourcesBlock(block).map(
+            (problem) => `${at}: ${problem}`,
+          ),
+        );
+        break;
     }
   });
 
@@ -273,6 +312,24 @@ function validateAttribution(attribution: LessonMediaAttribution): string[] {
   // the runtime display gate (`hasMediaDisplayPermission`) is what stops
   // the asset from rendering. Validating the evidence itself is a human
   // review task anyway.
+  return problems;
+}
+
+function validateResourcesBlock(block: LessonResourcesBlock): string[] {
+  const problems: string[] = [];
+  if (!block.heading.trim()) problems.push("missing heading");
+  if (!block.body.trim()) problems.push("missing body");
+  if (block.items.length === 0) problems.push("no resources");
+  block.items.forEach((item, i) => {
+    const at = `resource ${i}`;
+    if (!item.title.trim()) problems.push(`${at}: missing title`);
+    if (!item.source.trim()) problems.push(`${at}: missing source`);
+    // Learner-facing external links must be absolute TLS URLs — a
+    // relative path or insecure link can never ship as a resource.
+    if (!/^https:\/\//.test(item.url))
+      problems.push(`${at}: url must be an external https link`);
+    if (!item.description.trim()) problems.push(`${at}: missing description`);
+  });
   return problems;
 }
 

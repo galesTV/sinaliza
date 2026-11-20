@@ -484,6 +484,31 @@ test.describe("draft preview", () => {
     await expect(
       page.getByRole("heading", { name: "Recapitulando" }),
     ).toBeVisible();
+    await page.getByRole("button", { name: "Continuar" }).click();
+
+    // Step 15: optional external resources — plain safe links, clearly
+    // marked as external and never blocking completion.
+    await expect(
+      page.getByRole("heading", { name: "Recursos complementares" }),
+    ).toBeVisible();
+    const ines = page.getByRole("link", {
+      name: /^Alfabeto de Libras e Configuração de Mãos/,
+    });
+    await expect(ines).toBeVisible();
+    await expect(ines).toHaveAttribute("target", "_blank");
+    await expect(ines).toHaveAttribute("rel", /noopener noreferrer/);
+    const unesp = page.getByRole("link", {
+      name: /^Videoaula 1 — alfabeto/,
+    });
+    await expect(unesp).toHaveAttribute(
+      "href",
+      "https://acervodigital.unesp.br/handle/unesp/222981",
+    );
+    await expect(unesp).toHaveAttribute("target", "_blank");
+    await expect(page.getByText(/site externo/).first()).toBeVisible();
+    await expect(
+      page.getByText(/não passaram pela revisão da especialista/),
+    ).toBeVisible();
     await page.getByRole("button", { name: "Finalizar experiência" }).click();
     await page
       .getByRole("button", { name: "Concluir experiência" })
