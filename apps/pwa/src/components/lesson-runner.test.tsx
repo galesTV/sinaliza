@@ -205,6 +205,42 @@ describe("visual exercises", () => {
     expect(html.match(/Fonte — Licença/g)?.length).toBe(1);
   });
 
+  it("renders a resources block with safe external links", () => {
+    const html = renderToStaticMarkup(
+      <LessonRunner
+        content={{
+          intro: "Intro.",
+          blocks: [
+            {
+              kind: "resources",
+              heading: "Recursos complementares",
+              body: "Links externos opcionais — não são conteúdo do Sinaliza.",
+              items: [
+                {
+                  title: "Publicação oficial do alfabeto manual",
+                  source: "Instituição X",
+                  url: "https://example.org/alfabeto",
+                  description: "Cartaz com todas as letras para consulta.",
+                },
+              ],
+            },
+          ],
+        }}
+      />,
+    );
+    expect(html).toContain("Recursos complementares");
+    expect(html).toContain("Instituição X");
+    expect(html).toContain("Cartaz com todas as letras");
+    // Safe external link: new tab, no opener/referrer, and the external
+    // nature is announced both visually and to assistive tech.
+    expect(html).toContain('href="https://example.org/alfabeto"');
+    expect(html).toContain('target="_blank"');
+    expect(html).toContain('rel="noopener noreferrer"');
+    expect(html).toContain("site externo");
+    expect(html).toContain("abre em nova aba");
+    expect(html).toContain("não são conteúdo do Sinaliza");
+  });
+
   it("blocks the exercise when the stimulus is gated and no variant exists", () => {
     const html = renderToStaticMarkup(
       <LessonRunner

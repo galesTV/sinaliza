@@ -201,6 +201,55 @@ describe("createLessonRunner", () => {
     expect(runner.complete()).toBe(true);
   });
 
+  it("advances past resources steps freely and never counts them as exercises", () => {
+    const runner = createLessonRunner({
+      intro: "intro",
+      blocks: [
+        {
+          kind: "resources",
+          heading: "Recursos complementares",
+          body: "Links externos.",
+          items: [
+            {
+              title: "Fonte externa",
+              source: "Instituição",
+              url: "https://example.org/x",
+              description: "Ajuda a revisar.",
+            },
+          ],
+        },
+        {
+          kind: "exercise",
+          exercise: {
+            prompt: "Pergunta",
+            options: [
+              { label: "A", feedback: "f" },
+              { label: "B", feedback: "f" },
+            ],
+            correctIndex: 1,
+            explanation: "e",
+          },
+        },
+      ],
+    });
+
+    const snap = runner.getSnapshot();
+    expect(snap.stepCount).toBe(2);
+    expect(snap.totalExercises).toBe(1);
+    expect(snap.block?.kind).toBe("resources");
+
+    // Resources never gate progress: advancing requires nothing, and a
+    // stray select() on the step is ignored.
+    runner.select(0);
+    expect(runner.getSnapshot().selectedOption).toBeNull();
+    runner.advance();
+    expect(runner.getSnapshot().block?.kind).toBe("exercise");
+
+    runner.select(1);
+    runner.advance();
+    expect(runner.complete()).toBe(true);
+  });
+
   it("navigates backward freely and restores each step's answer state", () => {
     const runner = createLessonRunner(makeContent());
     expect(runner.getSnapshot().canGoBack).toBe(false);
