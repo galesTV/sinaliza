@@ -5,8 +5,8 @@ Nenhuma aprovação, parceria ou endosso é atribuído pela leitura deste
 documento — as decisões registradas ao final dependem da revisão.
 
 **Lição:** `alfabeto/primeiros-passos/primeiras-letras` — versão
-`draft-4` (rascunho, **não validado**)
-**Preparado em:** 19/11/2026
+`draft-5` (rascunho, **não validado**)
+**Preparado em:** 19/11/2026 (atualizado em 20/11/2026 para `draft-5`)
 **Prévia navegável:** `/laboratorio/licoes/alfabeto/primeiros-passos/primeiras-letras`
 (marcada como "Rascunho — conteúdo não validado"; não registra progresso)
 
@@ -126,13 +126,32 @@ inexistentes, intencionalmente**.
 > com a I, mas costuma envolver movimento — as diferenças exatas serão
 > confirmadas nas demonstrações e na revisão especializada.
 
-**Bloco 14 — "Recapitulando" (draft-4)**
+**Bloco 14 — "Recapitulando"**
 > Você conheceu as configurações de mão de quatro letras do alfabeto
 > manual — B, L, A e I — e aprendeu a observar a forma dos dedos e a
 > orientação da mão. Quando as demonstrações visuais estiverem
 > licenciadas, os exercícios de identificação passam a mostrar as
 > imagens reais; até lá, a versão por descrição mantém a prática sem
 > fingir avaliar o olhar.
+
+**Bloco 15 — "Recursos complementares" (draft-5):** último passo do
+rascunho, um `LessonResourcesBlock` com dois links externos https —
+INES (página oficial da publicação *Alfabeto de Libras e Configuração
+de Mãos*, gov.br) e Unesp (videoaula 1 do Acervo Digital, CC BY-NC-SA
+4.0, que inclui o alfabeto). O texto de abertura declara que são sites
+externos, opcionais, **não são conteúdo do Sinaliza e ainda não
+passaram pela revisão da especialista**; cada item exibe fonte,
+descrição do motivo de ajuda e indicação "site externo — abre em nova
+aba". São apenas links: nenhum material de terceiros é baixado,
+copiado ou embutido, e a indisponibilidade de um site não afeta a
+lição. Candidato descartado: WikiLibras — dicionário de sinais lexicais
+sem caminho verificado para as configurações do alfabeto manual.
+> Texto de abertura: "Os links abaixo levam a sites externos de
+> instituições que publicam materiais sobre o alfabeto manual de
+> Libras. Eles são opcionais: servem para você continuar observando as
+> configurações de mão depois da lição. Não são conteúdo do Sinaliza e
+> ainda não passaram pela revisão da especialista — se um site estiver
+> fora do ar, a lição continua completa sem ele."
 
 ## 5. Exercícios com respostas
 
@@ -204,6 +223,12 @@ para distinguir letras parecidas, como A e S ou L e G."
 
 Matriz afirmação × evidência: `docs/matriz-evidencias-licao-primeiras-letras.md`.
 
+**Links externos exibidos ao aprendiz (draft-5, bloco "Recursos
+complementares"):** apenas hiperlinks para as páginas da publicação do
+INES e da videoaula da Unesp — distintos dos links de curadoria abaixo;
+nenhum conteúdo é copiado, e a seção declara que os recursos não foram
+revisados pela especialista.
+
 **Links externos para consulta da especialista (não são aprovação de
 licença nem validação pedagógica):**
 
@@ -245,6 +270,10 @@ incorporada ao produto, e a decisão de licenciamento é do responsável.
    planejados para que os exercícios visuais passem a exibir as imagens.
 8. Esta lição deve preceder ou suceder o aprendizado das letras por
    espécime (`/laboratorio/alfabeto/<letra>`) na jornada?
+9. A seção "Recursos complementares" (draft-5) é adequada como indicação
+   de consulta externa opcional? As fontes INES e Unesp são apropriadas
+   para iniciantes, ou há recomendação melhor a substituir? A redação
+   deixa claro o suficiente que são recursos não revisados?
 
 ## 8. Registro de decisões
 
@@ -258,3 +287,4 @@ incorporada ao produto, e a decisão de licenciamento é do responsável.
 | `validationStatus: "draft"`, `reviews: []` | Aplicado | Aguarda reunião de 25/11/2026. |
 | Prévia no laboratório, sem registro de progresso | Verificado | `/laboratorio/licoes/alfabeto/primeiros-passos/primeiras-letras` exibe o aviso de rascunho e não grava progresso. |
 | Integração da experiência visual na lição C | Aplicado em `draft-4`, 19/11/2026 | Fase 8C.3: infraestrutura existente reutilizada (sem novo motor de lição); objetivos visual × descrição distintos em código e documentação. |
+| Seção "Recursos complementares" com links externos (INES, Unesp) | Aplicado em `draft-5`, 20/11/2026 | Fase 8D.3: novo `LessonResourcesBlock` opcional ao fim do rascunho; apenas hiperlinks https, sem mídia de terceiros; WikiLibras descartado por não demonstrar o alfabeto manual de forma localizável. |

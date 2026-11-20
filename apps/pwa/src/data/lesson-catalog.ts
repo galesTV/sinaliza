@@ -474,13 +474,14 @@ export const lessonCatalog: LessonCatalogEntry[] = [
       "Exercício visual: qual imagem mostra a letra I (alternativa por descrição)",
       "Exercício textual: o que observar primeiro em uma demonstração",
       "Recapitulação final",
+      "Recursos complementares: links externos opcionais para estudo",
     ],
     validationStatus: "draft",
-    version: "draft-4",
+    version: "draft-5",
     reviews: [],
     mediaPlan: {
       summary:
-        "O draft-4 adiciona slots de demonstração das letras B, L, A e I (`LessonMediaBlock`, caminhos planejados `/media/alfabeto/primeiros-passos/letra-*.jpg`) e dois exercícios de identificação visual — todos sem `permissionEvidence`, portanto bloqueados pelo gate de exibição até haver licença confirmada. Nenhum arquivo foi incorporado. Candidatas em curadoria: série 'Alfabeto em Língua Brasileira de Sinais (Libras)' do acervo Fiocruz Imagens (autoria de Mauro Campello, licença declarada 'Uso não comercial (by-nc)', itens 127847/127848/127856/127859), aguardando aprovação separada da curadoria e validação da especialista. Alternativa planejada: produção própria com autorização de imagem por escrito.",
+        "O draft-5 mantém os slots de demonstração das letras B, L, A e I (`LessonMediaBlock`, caminhos planejados `/media/alfabeto/primeiros-passos/letra-*.jpg`) e os dois exercícios de identificação visual — todos sem `permissionEvidence`, portanto bloqueados pelo gate de exibição até haver licença confirmada — e adiciona a seção opcional 'Recursos complementares' (`LessonResourcesBlock`): apenas links externos https para INES e Unesp, sem mídia de terceiros incorporada, baixada ou embutida. Nenhum arquivo foi incorporado. Candidatas em curadoria: série 'Alfabeto em Língua Brasileira de Sinais (Libras)' do acervo Fiocruz Imagens (autoria de Mauro Campello, licença declarada 'Uso não comercial (by-nc)', itens 127847/127848/127856/127859), aguardando aprovação separada da curadoria e validação da especialista. Alternativa planejada: produção própria com autorização de imagem por escrito.",
     },
     draft: {
       intro:
@@ -691,6 +692,30 @@ export const lessonCatalog: LessonCatalogEntry[] = [
           kind: "text",
           heading: "Recapitulando",
           body: "Você conheceu as configurações de mão de quatro letras do alfabeto manual — B, L, A e I — e aprendeu a observar a forma dos dedos e a orientação da mão. Quando as demonstrações visuais estiverem licenciadas, os exercícios de identificação passam a mostrar as imagens reais; até lá, a versão por descrição mantém a prática sem fingir avaliar o olhar.",
+        },
+        {
+          kind: "resources",
+          heading: "Recursos complementares",
+          body: "Os links abaixo levam a sites externos de instituições que publicam materiais sobre o alfabeto manual de Libras. Eles são opcionais: servem para você continuar observando as configurações de mão depois da lição. Não são conteúdo do Sinaliza e ainda não passaram pela revisão da especialista — se um site estiver fora do ar, a lição continua completa sem ele.",
+          items: [
+            {
+              title:
+                "Alfabeto de Libras e Configuração de Mãos — publicação oficial",
+              source: "Instituto Nacional de Educação de Surdos (INES) — gov.br",
+              url: "https://www.gov.br/ines/pt-br/central-de-conteudos/publicacoes-1/todas-as-publicacoes/alfabeto-manual-e-configuracao-de-maos",
+              description:
+                "Página oficial do INES com a publicação do alfabeto manual: um cartaz com a configuração de mão de todas as letras, incluindo B, L, A e I, para consulta e revisão visual.",
+            },
+            {
+              title:
+                "Videoaula 1 — alfabeto, numerais e primeiros conteúdos de Libras",
+              source:
+                "Universidade Estadual Paulista (Unesp) — Acervo Digital / Univesp TV",
+              url: "https://acervodigital.unesp.br/handle/unesp/222981",
+              description:
+                "Videoaula universitária aberta (CC BY-NC-SA 4.0) que apresenta o alfabeto de Libras junto de numerais, pronomes e parâmetros dos sinais — útil para ver as configurações de mão demonstradas com sinais e legendas.",
+            },
+          ],
         },
       ],
     },

@@ -1,7 +1,7 @@
 # Matriz de evidências — Lição "Primeiras letras do alfabeto manual"
 
 Relação entre cada afirmação do rascunho
-(`alfabeto/primeiros-passos/primeiras-letras`, versão `draft-4`) e as
+(`alfabeto/primeiros-passos/primeiras-letras`, versão `draft-5`) e as
 fontes consultadas para a preparação da revisão especializada.
 
 **Data da consulta:** 19/11/2026.
@@ -21,6 +21,14 @@ produção" e as `descriptionVariant`s. Os caminhos `/media/alfabeto/
 primeiros-passos/letra-*.jpg` são identificadores planejados, não
 arquivos existentes.
 
+**Nota draft-5 (20/11/2026):** nenhuma afirmação pedagógica nova — a
+versão apenas acrescenta o bloco final "Recursos complementares": dois
+hiperlinks https para páginas de terceiros (ver linha 19 e fonte F7).
+Nenhum conteúdo externo foi copiado, baixado ou embutido, e a seção
+declara explicitamente que os recursos não passaram por revisão
+especializada — os links não alteram a evidência das afirmações
+anteriores.
+
 ## Fontes consultadas
 
 | Código | Fonte | URL | Observação |
@@ -31,6 +39,7 @@ arquivos existentes.
 | F4 | ENAP — *Apostila em Libras — Curso Básico* (2019, 79 p.) | https://repositorio.enap.gov.br/bitstream/1/4121/4/Apostila%20em%20LIBRAS%20-%20Curso%20B%C3%A1sico%20ENAP%202019.pdf | Seção "Alfabeto manual e ou datilologia" (pp. 8–14). |
 | F5 | Documento interno — `docs/curadoria-alfabeto.md` | — | Matriz de curadoria das cinco letras candidatas (complexidade técnica e ambiguidades registradas); estimativas técnicas, não linguísticas. |
 | F6 | UFSC — *Gramática da Libras (V.1)*, Quadros, R. M. de et al. (repositório institucional, 2023) | https://repositorio.ufsc.br/handle/123456789/262318 | Fundamentação dos parâmetros de formação dos sinais; item do repositório confirmado, conteúdo integral não extraído. |
+| F7 | Unesp, Acervo Digital — "Conteúdos e didática de Libras - Alfabeto, numerais, pronomes, advérbios de tempo, dias da semana, meses, cores, cumprimentos e parâmetros dos sinais" (Unesp/NEaD/Univesp TV, 2014) | https://acervodigital.unesp.br/handle/unesp/222981 | Videoaula (~50 min), licença "Uso livre. CC BY-NC-SA 4.0". Apenas hiperlink no bloco "Recursos complementares" (draft-5) — sem cópia, download ou embed. |
 
 ## Matriz afirmação × evidência
 
@@ -54,6 +63,7 @@ arquivos existentes.
 | 16 | Texto de comparação (draft-4): "a letra B usa a mão aberta e plana ... a L estende o indicador e abre o polegar; a A fecha a mão em punho; e a I estende somente o dedo mínimo. As quatro são configurações estáticas — nenhuma depende de movimento." | F3, F5 | Consolidação das descrições já rastreadas (itens 4, 6, 8, 10); curadoria registra as quatro como estáticas. | **Fiel.** | Mantém as cautelas S/G/J como "pontos de atenção a confirmar". |
 | 17 | Intro: "As demonstrações visuais de cada letra estão em produção: enquanto elas não chegam, a descrição de cada passo cobre o conteúdo." / Recap: "Quando as demonstrações visuais estiverem licenciadas, os exercícios de identificação passam a mostrar as imagens reais; até lá, a versão por descrição mantém a prática sem fingir avaliar o olhar." | — | Estado real do projeto (nenhum arquivo incorporado; gate bloqueado). | **Fiel — estado honesto.** Não promete reconhecimento visual; o recap distingue explicitamente o que a variante por descrição avalia. | — |
 | 18 | Intro (draft-2/3, mantida): "você vai dar os primeiros passos no alfabeto manual de Libras conhecendo quatro letras — B, L, A e I". | — | Redação interna; corrigida em `draft-3` (revisão automatizada do PR #38) para não sugerir ordem alfabética. | **Fiel após ajuste.** | — |
+| 19 | Bloco "Recursos complementares" (draft-5): "Os links abaixo levam a sites externos ... Não são conteúdo do Sinaliza e ainda não passaram pela revisão da especialista — se um site estiver fora do ar, a lição continua completa sem ele." | F1, F7 | Estado real: são apenas hiperlinks https, opcionais, marcados como externos e não revisados; INES (F1) publica o alfabeto manual oficial; a videoaula Unesp (F7) apresenta o alfabeto entre outros conteúdos introdutórios. | **Fiel — estado honesto.** Nenhum conteúdo externo é reproduzido; a indisponibilidade dos sites não afeta a lição. | Candidato descartado: WikiLibras — dicionário de sinais lexicais sem caminho verificado para as configurações do alfabeto manual; a regra é não descrever recurso como demonstração de letras específicas sem verificação. |
 
 ## Alterações aplicadas ao rascunho
 
@@ -82,6 +92,15 @@ do PR #38:
 Demais afirmações mantidas: eram adequadamente fundamentadas ou já
 formuladas com cautela. Próxima versão deve incorporar as correções que
 a revisão especializada indicar.
+
+`draft-4` → `draft-5` (20/11/2026), recursos complementares externos
+(fase 8D.3):
+
+1. **Novo último bloco** `LessonResourcesBlock` "Recursos
+   complementares": dois links externos https (INES, Unesp) com fonte,
+   descrição do motivo de ajuda e indicação de "site externo — abre em
+   nova aba"; opcional, não bloqueia a conclusão e não registra
+   progresso.
 
 `draft-3` → `draft-4` (19/11/2026), integração da experiência visual
 (fase 8C.3):
