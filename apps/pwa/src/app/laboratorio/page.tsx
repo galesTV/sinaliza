@@ -47,7 +47,7 @@ const DEMO_JOURNEY: readonly DemoEntry[] = [
     href: "/laboratorio/maos",
     title: "Detecção e posicionamento de mãos",
     description:
-      "Visão computacional no navegador: 21 pontos de referência da mão e prática guiada de posicionamento. Não reconhece sinais de Libras.",
+      "Visão computacional no navegador: 21 pontos de referência da mão e prática guiada de posicionamento. Não reconhece sinais de Libras nem avalia correção linguística.",
     status: "Prova técnica, sem reconhecimento de sinais",
   },
 ];
@@ -143,8 +143,9 @@ export default function LaboratorioPage() {
             <li className="flex gap-2.5">
               <span aria-hidden="true" className="mt-2 h-1 w-1 shrink-0 rounded-full bg-accent" />
               Nenhuma demonstração reconhece sinais de Libras nem avalia a
-              produção de quem usa — os experimentos de câmera detectam apenas
-              a posição geométrica das mãos.
+              correção linguística de quem usa — os experimentos de câmera
+              com MediaPipe detectam pontos de referência (landmarks) e
+              características geométricas das mãos.
             </li>
             <li className="flex gap-2.5">
               <span aria-hidden="true" className="mt-2 h-1 w-1 shrink-0 rounded-full bg-accent" />
