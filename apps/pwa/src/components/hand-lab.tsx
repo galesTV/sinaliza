@@ -129,6 +129,42 @@ function createLandmarkerForPage(): Promise<HandLandmarkerLike> {
   return createHandLandmarker();
 }
 
+/**
+ * Positions the target-zone overlay exactly over the zone's area in video
+ * coordinates. The <video>/<canvas> pair uses `object-contain` and a mirrored
+ * -scale-x-100 transform, so the zone rect must be computed from the video's
+ * real rendered rect (letterboxing + mirroring), not the container's.
+ */
+function updateZoneOverlay(
+  video: HTMLVideoElement | null,
+  zone: HTMLElement | null,
+) {
+  if (!video || !zone) return;
+  const containerWidth = video.clientWidth;
+  const containerHeight = video.clientHeight;
+  const videoWidth = video.videoWidth;
+  const videoHeight = video.videoHeight;
+  if (!containerWidth || !containerHeight || !videoWidth || !videoHeight) {
+    zone.style.display = "none";
+    return;
+  }
+  const scale = Math.min(
+    containerWidth / videoWidth,
+    containerHeight / videoHeight,
+  );
+  const displayWidth = videoWidth * scale;
+  const displayHeight = videoHeight * scale;
+  const offsetX = (containerWidth - displayWidth) / 2;
+  const offsetY = (containerHeight - displayHeight) / 2;
+  // The video is horizontally mirrored: normalized x maps to (1 - x) on
+  // screen, so the zone's left edge comes from its xMax boundary.
+  zone.style.display = "";
+  zone.style.left = `${offsetX + (1 - GUIDANCE_TARGET_ZONE.xMax) * displayWidth}px`;
+  zone.style.top = `${offsetY + GUIDANCE_TARGET_ZONE.yMin * displayHeight}px`;
+  zone.style.width = `${(GUIDANCE_TARGET_ZONE.xMax - GUIDANCE_TARGET_ZONE.xMin) * displayWidth}px`;
+  zone.style.height = `${(GUIDANCE_TARGET_ZONE.yMax - GUIDANCE_TARGET_ZONE.yMin) * displayHeight}px`;
+}
+
 async function createHandLandmarker() {
   const vision = await import("@mediapipe/tasks-vision");
   const fileset = await vision.FilesetResolver.forVisionTasks(
@@ -147,6 +183,7 @@ async function createHandLandmarker() {
 export function HandLab() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const zoneRef = useRef<HTMLDivElement>(null);
   const trackerRef = useRef<HandTracker | null>(null);
   const guidanceRef = useRef<HandGuidance | null>(null);
   const [snapshot, setSnapshot] = useState(IDLE_SNAPSHOT);
@@ -181,6 +218,25 @@ export function HandLab() {
     () => window.isSecureContext,
     () => true,
   );
+
+  // Keep the zone overlay glued to the video's rendered rect: layout
+  // resizes (ResizeObserver) and stream resolution changes
+  // (loadedmetadata → videoWidth/videoHeight).
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    const update = () => updateZoneOverlay(video, zoneRef.current);
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(video);
+    video.addEventListener("loadedmetadata", update);
+    video.addEventListener("resize", update);
+    return () => {
+      observer.disconnect();
+      video.removeEventListener("loadedmetadata", update);
+      video.removeEventListener("resize", update);
+    };
+  }, []);
 
   // The guided attempt follows the camera lifecycle: it only runs while the
   // camera is active, and stopping the camera cancels it (and its timer).
@@ -254,22 +310,19 @@ export function HandLab() {
             aria-hidden="true"
             className="absolute inset-0 h-full w-full -scale-x-100 object-contain"
           />
-          {cameraOn && (
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute rounded-xl border-2 border-dashed border-accent/80"
-              style={{
-                left: `${GUIDANCE_TARGET_ZONE.xMin * 100}%`,
-                top: `${GUIDANCE_TARGET_ZONE.yMin * 100}%`,
-                width: `${(GUIDANCE_TARGET_ZONE.xMax - GUIDANCE_TARGET_ZONE.xMin) * 100}%`,
-                height: `${(GUIDANCE_TARGET_ZONE.yMax - GUIDANCE_TARGET_ZONE.yMin) * 100}%`,
-              }}
-            >
-              <span className="absolute -top-5 left-0 text-[10px] font-semibold uppercase tracking-[0.12em] text-accent">
-                Área de posicionamento
-              </span>
-            </div>
-          )}
+          <div
+            ref={zoneRef}
+            data-testid="guidance-zone"
+            aria-hidden="true"
+            className={cn(
+              "pointer-events-none absolute rounded-xl border-2 border-dashed border-accent/80",
+              !cameraOn && "hidden",
+            )}
+          >
+            <span className="absolute -top-5 left-0 text-[10px] font-semibold uppercase tracking-[0.12em] text-accent">
+              Área de posicionamento
+            </span>
+          </div>
           {!cameraOn && (
             <div className="absolute inset-0 grid place-items-center">
               <p className="max-w-xs px-6 text-center text-sm leading-relaxed text-muted">

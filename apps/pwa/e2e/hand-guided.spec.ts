@@ -102,6 +102,56 @@ test.describe("guided hand practice", () => {
     ).toBeVisible({ timeout: 8_000 });
   });
 
+  test("aligns the positioning zone with the mirrored video frame", async ({
+    page,
+  }) => {
+    await page.goto("/laboratorio/maos");
+    await page.getByRole("button", { name: "Ativar câmera" }).click();
+    await expect(page.getByText("Câmera ativa")).toBeVisible();
+    await page.waitForFunction(
+      () => (document.querySelector("video")?.videoWidth ?? 0) > 0,
+    );
+
+    // The overlay must sit exactly where normalized coordinates land after
+    // object-contain letterboxing and the -scale-x-100 mirror — recomputed
+    // independently here rather than trusting the component's own math.
+    const metrics = await page.evaluate(() => {
+      const video = document.querySelector("video");
+      const zone = document.querySelector('[data-testid="guidance-zone"]');
+      if (!video || !zone) return null;
+      const scale = Math.min(
+        video.clientWidth / video.videoWidth,
+        video.clientHeight / video.videoHeight,
+      );
+      const displayWidth = video.videoWidth * scale;
+      const displayHeight = video.videoHeight * scale;
+      const offsetX = (video.clientWidth - displayWidth) / 2;
+      const offsetY = (video.clientHeight - displayHeight) / 2;
+      const videoBox = video.getBoundingClientRect();
+      const zoneBox = zone.getBoundingClientRect();
+      return {
+        zone: {
+          left: zoneBox.left - videoBox.left,
+          top: zoneBox.top - videoBox.top,
+          width: zoneBox.width,
+          height: zoneBox.height,
+        },
+        expected: {
+          // Mirrored: normalized x maps to (1 - x), so left comes from xMax.
+          left: offsetX + (1 - 0.65) * displayWidth,
+          top: offsetY + 0.3 * displayHeight,
+          width: 0.3 * displayWidth,
+          height: 0.4 * displayHeight,
+        },
+      };
+    });
+    expect(metrics).not.toBeNull();
+    expect(metrics!.zone.left).toBeCloseTo(metrics!.expected.left, 0);
+    expect(metrics!.zone.top).toBeCloseTo(metrics!.expected.top, 0);
+    expect(metrics!.zone.width).toBeCloseTo(metrics!.expected.width, 0);
+    expect(metrics!.zone.height).toBeCloseTo(metrics!.expected.height, 0);
+  });
+
   test("reports lost detection when the hand disappears mid-hold", async ({
     page,
   }) => {

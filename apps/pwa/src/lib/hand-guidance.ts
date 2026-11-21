@@ -39,6 +39,9 @@ export const GUIDANCE_STABILITY_MS = 2_000;
  * Maximum silence between two valid observations for them to count as one
  * continuous run. Generous enough for ~2 FPS inference, strict enough to
  * discard long pauses.
+ *
+ * PROVISIONAL: chosen before real-device testing; revisit once the flow has
+ * been exercised on real hardware at its actual inference cadence.
  */
 export const GUIDANCE_MAX_OBSERVATION_GAP_MS = 500;
 
