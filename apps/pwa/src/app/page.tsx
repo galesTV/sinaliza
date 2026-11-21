@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ActivitySummary } from "@/components/activity-panel";
 import { ConstellationFigure } from "@/components/constellation";
 import { Eyebrow } from "@/components/eyebrow";
-import { IconFlask } from "@/components/icons";
+import { IconArrowRight, IconFlask } from "@/components/icons";
 import { PathCard } from "@/components/path-card";
 import { ResumeCta } from "@/components/resume-cta";
 import { getLearningPaths } from "@/data/learning-paths";
@@ -62,42 +62,6 @@ export default function Home() {
         </div>
       </section>
 
-      <section aria-labelledby="paths-title" className="flex flex-col gap-7">
-        <div className="flex flex-col gap-2">
-          <h2
-            id="paths-title"
-            className="font-display text-2xl font-semibold tracking-tight text-foreground"
-          >
-            Trilhas de aprendizagem
-          </h2>
-          <p className="max-w-xl text-sm leading-relaxed text-muted">
-            Cada trilha organiza um bloco do seu aprendizado em módulos curtos.
-          </p>
-        </div>
-        <ul className="grid gap-5 sm:grid-cols-2">
-          {paths.map((path) => (
-            <li key={path.slug} className="h-full">
-              <PathCard path={path} />
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <section aria-labelledby="activity-title" className="flex flex-col gap-6">
-        <div className="flex flex-col gap-2">
-          <h2
-            id="activity-title"
-            className="font-display text-2xl font-semibold tracking-tight text-foreground"
-          >
-            Sua atividade
-          </h2>
-          <p className="max-w-xl text-sm leading-relaxed text-muted">
-            As lições que você concluir aparecem aqui — só progresso real.
-          </p>
-        </div>
-        <ActivitySummary />
-      </section>
-
       <section aria-labelledby="lab-title" className="flex flex-col gap-6">
         <div className="flex flex-col gap-2">
           <Eyebrow>Laboratório experimental</Eyebrow>
@@ -113,25 +77,35 @@ export default function Home() {
           </p>
         </div>
         <ul className="grid gap-5 sm:grid-cols-2">
-          <li>
+          <li className="sm:col-span-2">
             <Link
               href="/laboratorio/experiencia"
-              className="group flex h-full items-start gap-3.5 rounded-2xl border border-dashed border-border bg-surface/50 p-5 transition-colors duration-200 hover:border-accent/40 hover:bg-surface"
+              className="group flex h-full flex-col gap-5 rounded-2xl border border-accent/30 bg-surface-elevated p-6 transition-colors duration-200 hover:border-accent/50 sm:flex-row sm:items-center sm:justify-between sm:p-7"
             >
-              <span
-                aria-hidden="true"
-                className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-border bg-surface-elevated text-muted transition-colors duration-200 group-hover:text-accent"
-              >
-                <IconFlask className="h-5 w-5" />
+              <span className="flex min-w-0 items-start gap-3.5">
+                <span
+                  aria-hidden="true"
+                  className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-accent/40 bg-accent/10 text-accent"
+                >
+                  <IconFlask className="h-5 w-5" />
+                </span>
+                <span className="flex min-w-0 flex-col gap-1.5">
+                  <span className="font-display text-lg font-semibold tracking-tight text-foreground">
+                    Experimente o Sinaliza
+                  </span>
+                  <span className="max-w-lg text-sm leading-relaxed text-muted">
+                    Conheça uma demonstração interativa do funcionamento das
+                    atividades, com exercícios e feedback.
+                  </span>
+                  <span className="text-xs leading-relaxed text-muted/80">
+                    Experiência experimental — ainda não é uma lição validada de
+                    Libras.
+                  </span>
+                </span>
               </span>
-              <span className="flex min-w-0 flex-col gap-1.5">
-                <span className="text-sm font-semibold text-foreground">
-                  Experiência guiada
-                </span>
-                <span className="text-sm leading-relaxed text-muted">
-                  Fluxo completo de uma atividade de aprendizagem — sem
-                  registrar progresso.
-                </span>
+              <span className="btn-primary shrink-0 self-start sm:self-center">
+                Iniciar demonstração
+                <IconArrowRight aria-hidden="true" className="h-4 w-4" />
               </span>
             </Link>
           </li>
@@ -181,6 +155,43 @@ export default function Home() {
           </li>
         </ul>
       </section>
+
+      <section aria-labelledby="paths-title" className="flex flex-col gap-7">
+        <div className="flex flex-col gap-2">
+          <h2
+            id="paths-title"
+            className="font-display text-2xl font-semibold tracking-tight text-foreground"
+          >
+            Trilhas de aprendizagem
+          </h2>
+          <p className="max-w-xl text-sm leading-relaxed text-muted">
+            Cada trilha organiza um bloco do seu aprendizado em módulos curtos.
+          </p>
+        </div>
+        <ul className="grid gap-5 sm:grid-cols-2">
+          {paths.map((path) => (
+            <li key={path.slug} className="h-full">
+              <PathCard path={path} />
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section aria-labelledby="activity-title" className="flex flex-col gap-6">
+        <div className="flex flex-col gap-2">
+          <h2
+            id="activity-title"
+            className="font-display text-2xl font-semibold tracking-tight text-foreground"
+          >
+            Sua atividade
+          </h2>
+          <p className="max-w-xl text-sm leading-relaxed text-muted">
+            As lições que você concluir aparecem aqui — só progresso real.
+          </p>
+        </div>
+        <ActivitySummary />
+      </section>
+
     </div>
   );
 }
