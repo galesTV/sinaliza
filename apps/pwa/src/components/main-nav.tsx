@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 import { BottomNavAuth } from "./auth-nav";
-import { IconHome, IconRoute } from "./icons";
+import { IconFlask, IconHome, IconRoute } from "./icons";
 
 interface NavItem {
   href: string;
@@ -27,6 +27,13 @@ const NAV_ITEMS: NavItem[] = [
     label: "Trilhas",
     icon: IconRoute,
     isActive: (pathname) => pathname === "/trilhas" || pathname.startsWith("/trilhas/"),
+  },
+  {
+    href: "/laboratorio",
+    label: "Laboratório",
+    icon: IconFlask,
+    isActive: (pathname) =>
+      pathname === "/laboratorio" || pathname.startsWith("/laboratorio/"),
   },
 ];
 

@@ -9,11 +9,13 @@ import { Eyebrow } from "@/components/eyebrow";
 import { HonestNote } from "@/components/honest-note";
 import { ModuleCard } from "@/components/module-card";
 import { PathProgressLine } from "@/components/path-progress-line";
+import { PublicationBadge } from "@/components/publication-badge";
 import {
   getLearningPath,
   getLearningPaths,
   getPathStats,
 } from "@/data/learning-paths";
+import { getPathPublicationSummary } from "@/data/path-publication";
 
 interface PathPageProps {
   params: Promise<{ slug: string }>;
@@ -51,6 +53,7 @@ async function PathContent({ params }: PathPageProps) {
   if (!path) notFound();
 
   const stats = getPathStats(path);
+  const publication = getPathPublicationSummary(path);
 
   return (
     <>
@@ -75,9 +78,14 @@ async function PathContent({ params }: PathPageProps) {
           {path.goal}
         </p>
         <div className="flex flex-wrap items-center gap-2.5">
-          <Badge tone="accent">Aberta</Badge>
+          <PublicationBadge summary={publication} />
+          {publication.inReview > 0 && (
+            <Badge tone="accent">{publication.inReview} em revisão</Badge>
+          )}
+          {publication.planned > 0 && (
+            <Badge>{publication.planned} planejadas</Badge>
+          )}
           <Badge>{stats.moduleCount} módulos</Badge>
-          <Badge>{stats.lessonCount} lições</Badge>
           <PathProgressLine pathSlug={path.slug} />
         </div>
       </header>
