@@ -2396,3 +2396,735 @@ a {
     width: 190px;
   }
 }
+
+/* ========================================
+   EXPERIENCE PROTOTYPE (/experience-prototype)
+   Hero 3D com narrativa em dois estados;
+   --xp (0→1) é o progresso do scroll, escrito
+   pelo ExperienceScene direto no elemento.
+   ======================================== */
+
+.xp-skip {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 30;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: var(--surface-elevated);
+  color: var(--foreground);
+  font-size: 13px;
+  transform: translateY(-200%);
+  transition: transform 160ms ease;
+}
+
+.xp-skip:focus-visible {
+  transform: translateY(0);
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.xp-stage {
+  position: relative;
+  height: 640vh;
+  background: #0b1122;
+}
+
+.xp-sticky {
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(
+      ellipse 90% 70% at 78% 42%,
+      rgba(105, 87, 232, 0.14),
+      transparent 62%
+    ),
+    radial-gradient(
+      ellipse 55% 45% at 85% 70%,
+      rgba(53, 201, 232, 0.07),
+      transparent 60%
+    ),
+    #0b1122;
+}
+
+.xp-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.xp-canvas canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.xp-fallback-figure {
+  position: absolute;
+  top: 50%;
+  right: 6%;
+  width: min(46vw, 480px);
+  transform: translateY(-52%);
+  opacity: 0.85;
+}
+
+/* scrim editorial — prato de leitura no rodapé; o dossel fica limpo */
+.xp-sticky::before {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    180deg,
+    rgba(11, 17, 34, 0.4) 0%,
+    rgba(11, 17, 34, 0.02) 30%,
+    rgba(11, 17, 34, 0.12) 62%,
+    rgba(11, 17, 34, 0.9) 94%
+  );
+  content: "";
+  pointer-events: none;
+}
+
+.xp-header {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 3;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 26px clamp(20px, 5vw, 56px);
+}
+
+.xp-brand {
+  font-family: var(--font-display), sans-serif;
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+}
+
+.xp-brand-tag {
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.xp-copy {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.xp-copy-block {
+  position: absolute;
+  left: clamp(20px, 6vw, 72px);
+  max-width: 560px;
+}
+
+.xp-copy-01 {
+  top: 50%;
+  transform: translateY(-52%);
+  opacity: clamp(0, calc(1 - (var(--xp, 0) - 0.12) * 7), 1);
+  translate: 0 calc(var(--xp, 0) * -56px);
+}
+
+/* O fio de sinal do V2 saiu: dentro do espaço, a ponte texto↔cena é a
+   palavra monumental renderizada na própria cena (ver ExperienceScene). */
+
+.xp-copy-02 {
+  top: 50%;
+  transform: translateY(-52%);
+  opacity: calc(
+    clamp(0, calc((var(--xp, 0) - 0.3) * 6), 1) *
+      clamp(0, calc(1 - (var(--xp, 0) - 0.52) * 7), 1)
+  );
+  translate: 0 calc((0.5 - var(--xp, 0)) * 80px);
+}
+
+.xp-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 22px;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.xp-state-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(53, 201, 232, 0.35);
+  border-radius: 50%;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.xp-title {
+  margin: 0;
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(38px, 4.8vw, 62px);
+  font-weight: 650;
+  line-height: 1.1;
+  letter-spacing: -0.055em;
+}
+
+.xp-title-02 {
+  font-size: clamp(34px, 4.2vw, 54px);
+}
+
+.xp-lead {
+  margin-top: 22px;
+  color: var(--muted);
+  font-size: 15.5px;
+  line-height: 1.8;
+}
+
+.xp-caption {
+  margin-top: 30px;
+  color: #93a0bd;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  line-height: 1.65;
+}
+
+.xp-scroll-hint {
+  position: absolute;
+  bottom: 34px;
+  left: 50%;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  transform: translateX(-50%);
+  opacity: clamp(0, calc(1 - var(--xp, 0) * 4), 1);
+}
+
+.xp-scroll-hint-line {
+  width: 26px;
+  height: 1px;
+  background: var(--accent);
+}
+
+/* Coreografia de entrada do texto — atrasada para depois da convergência */
+@media (prefers-reduced-motion: no-preference) {
+  .xp-copy-01 > * {
+    opacity: 0;
+    transform: translateY(18px);
+    animation: xp-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  .xp-copy-01 > *:nth-child(1) {
+    animation-delay: 1.5s;
+  }
+
+  .xp-copy-01 > *:nth-child(2) {
+    animation-delay: 1.68s;
+  }
+
+  .xp-copy-01 > *:nth-child(3) {
+    animation-delay: 1.86s;
+  }
+
+  .xp-copy-01 > *:nth-child(4) {
+    animation-delay: 2.3s;
+  }
+
+  .xp-header,
+  .xp-scroll-hint {
+    opacity: 0;
+    animation: xp-fade 0.8s ease forwards;
+    animation-delay: 2.1s;
+  }
+
+  @keyframes xp-rise {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes xp-fade {
+    to {
+      opacity: 1;
+    }
+  }
+}
+
+/* O hint tem opacidade própria; a animação de entrada não deve brigá-la */
+@media (prefers-reduced-motion: no-preference) {
+  .xp-scroll-hint {
+    animation-name: xp-hint-in;
+  }
+
+  @keyframes xp-hint-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: clamp(0, calc(1 - var(--xp, 0) * 4), 1);
+    }
+  }
+}
+
+.xp-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+  padding: 72px 24px;
+  border-top: 1px solid var(--border);
+  background: var(--background);
+  text-align: center;
+}
+
+.xp-footer p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* ---------- mobile: cena recua, texto assume o protagonismo ---------- */
+@media (max-width: 760px) {
+  .xp-stage {
+    height: 520vh;
+  }
+
+  .xp-sticky::before {
+    background: linear-gradient(
+      180deg,
+      rgba(11, 17, 34, 0.62) 0%,
+      rgba(11, 17, 34, 0.42) 42%,
+      rgba(11, 17, 34, 0.92) 78%
+    );
+  }
+
+  .xp-canvas {
+    opacity: 0.8;
+  }
+
+  .xp-copy-block {
+    top: auto;
+    right: 20px;
+    bottom: 92px;
+    left: 20px;
+    max-width: none;
+    transform: none;
+  }
+
+  .xp-copy-01 {
+    opacity: clamp(0, calc(1 - (var(--xp, 0) - 0.12) * 7), 1);
+    translate: 0 calc(var(--xp, 0) * -30px);
+  }
+
+  .xp-copy-02 {
+    opacity: calc(
+      clamp(0, calc((var(--xp, 0) - 0.3) * 6), 1) *
+        clamp(0, calc(1 - (var(--xp, 0) - 0.52) * 7), 1)
+    );
+    translate: 0 calc((0.5 - var(--xp, 0)) * 60px);
+  }
+
+  .xp-title {
+    font-size: clamp(32px, 9vw, 42px);
+  }
+
+  .xp-title-02 {
+    font-size: clamp(28px, 8vw, 36px);
+  }
+
+  .xp-lead {
+    font-size: 14.5px;
+  }
+
+  .xp-fallback-figure {
+    top: 22%;
+    right: 50%;
+    width: 74vw;
+    transform: translateX(50%);
+  }
+
+  .xp-brand-tag {
+    display: none;
+  }
+}
+
+/* ---------- tablet: scrim inferior reforçado na zona de leitura ---------- */
+@media (min-width: 761px) and (max-width: 1100px) {
+  .xp-sticky::before {
+    background: linear-gradient(
+      180deg,
+      rgba(11, 17, 34, 0.42) 0%,
+      rgba(11, 17, 34, 0.08) 32%,
+      rgba(11, 17, 34, 0.2) 60%,
+      rgba(11, 17, 34, 0.92) 92%
+    );
+  }
+
+  .xp-copy-block {
+    max-width: 480px;
+  }
+}
+
+/* ---------- EXPERIENCE — Ato 1 (direção híbrida) ---------- */
+.xp-title-01 {
+  font-size: clamp(42px, 5.8vw, 80px);
+  line-height: 1.02;
+  letter-spacing: -0.06em;
+  max-width: 14ch;
+  text-shadow: 0 2px 40px rgba(11, 17, 34, 0.9);
+}
+
+.xp-period {
+  color: var(--highlight, #f0a848);
+}
+
+/* a cópia do ato 1 vira prato de leitura no rodapé — o espaço fica livre
+   para a palavra monumental dentro da cena */
+.xp-copy-01 {
+  top: auto;
+  bottom: 9vh;
+  max-width: 640px;
+  transform: none;
+}
+
+.xp-copy-02 {
+  top: auto;
+  bottom: 10vh;
+  transform: none;
+}
+
+@media (max-width: 760px) {
+  .xp-copy-01 {
+    top: auto;
+    bottom: 92px;
+    max-width: none;
+  }
+
+  .xp-copy-02 {
+    top: auto;
+    bottom: 96px;
+  }
+
+  .xp-title-01 {
+    font-size: clamp(40px, 11.5vw, 54px);
+    max-width: 14ch;
+  }
+}
+
+/* ---------- EXPERIENCE — Ato 3: a abertura para o produto ----------
+   A estrutura expande para fora do quadro (ver poseC na cena); aqui o
+   palco DOM: quadro do produto à direita, cópia à esquerda */
+.xp-copy-03 {
+  top: 50%;
+  bottom: auto;
+  max-width: 400px;
+  transform: translateY(-52%);
+  opacity: calc(
+    clamp(0, calc((var(--xp, 0) - 0.7) * 6), 1) *
+      clamp(0, calc(1 - (var(--xp, 0) - 0.82) * 10), 1)
+  );
+  translate: 0 calc(clamp(0, calc(1 - (var(--xp, 0) - 0.7) * 6), 1) * 40px);
+}
+
+.xp-title-03 {
+  font-size: clamp(30px, 3.6vw, 46px);
+}
+
+/* o quadro principal ancora à direita; os mini-quadros costuram a
+   composição para dentro do espaço 3D — entrada escalonada por --xp */
+.xp-product {
+  position: absolute;
+  top: 50%;
+  right: clamp(16px, 3.5vw, 56px);
+  z-index: 2;
+  width: min(52vw, 760px);
+  margin: 0;
+  transform: translateY(-50%);
+}
+
+.xp-product-frame {
+  position: relative;
+}
+
+.xp-product-frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid rgba(105, 87, 232, 0.4);
+  border-radius: 14px;
+  background: #0d1430;
+  box-shadow:
+    0 30px 90px rgba(0, 0, 0, 0.55),
+    0 0 80px rgba(105, 87, 232, 0.14);
+}
+
+.xp-product-main {
+  width: 82%;
+  margin-left: auto;
+  opacity: calc(
+    clamp(0, calc((var(--xp, 0) - 0.7) * 6), 1) *
+      clamp(0, calc(1 - (var(--xp, 0) - 0.82) * 10), 1)
+  );
+  translate: 0 calc(clamp(0, calc(1 - (var(--xp, 0) - 0.7) * 6), 1) * 34px);
+}
+
+.xp-product-a {
+  position: absolute;
+  bottom: -14%;
+  left: -6%;
+  width: 44%;
+  opacity: calc(
+    clamp(0, calc((var(--xp, 0) - 0.76) * 6), 1) *
+      clamp(0, calc(1 - (var(--xp, 0) - 0.82) * 10), 1)
+  );
+  translate: 0 calc(clamp(0, calc(1 - (var(--xp, 0) - 0.76) * 6), 1) * 26px);
+}
+
+.xp-product-b {
+  position: absolute;
+  top: -9%;
+  left: 8%;
+  width: 38%;
+  opacity: calc(
+    clamp(0, calc((var(--xp, 0) - 0.8) * 6), 1) *
+      clamp(0, calc(1 - (var(--xp, 0) - 0.82) * 10), 1)
+  );
+  translate: 0 calc(clamp(0, calc(1 - (var(--xp, 0) - 0.8) * 6), 1) * 20px);
+}
+
+.xp-product-tag {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 10px 4px 5px;
+  border: 1px solid rgba(53, 201, 232, 0.3);
+  border-radius: 999px;
+  background: rgba(11, 17, 34, 0.78);
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  backdrop-filter: blur(6px);
+}
+
+.xp-product-tag i {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(53, 201, 232, 0.16);
+  color: var(--accent);
+  font-style: normal;
+  font-variant-numeric: tabular-nums;
+}
+
+.xp-product-caption {
+  position: absolute;
+  top: calc(100% + 66px);
+  right: 0;
+  left: 0;
+  color: #93a0bd;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  line-height: 1.65;
+  opacity: calc(
+    clamp(0, calc((var(--xp, 0) - 0.84) * 6), 1) *
+      clamp(0, calc(1 - (var(--xp, 0) - 0.82) * 10), 1)
+  );
+}
+
+@media (max-width: 760px) {
+  .xp-copy-03 {
+    top: auto;
+    right: 20px;
+    bottom: 96px;
+    left: 20px;
+    max-width: none;
+    transform: none;
+  }
+
+  .xp-title-03 {
+    font-size: clamp(26px, 7.5vw, 34px);
+  }
+
+  /* composição mobile: specimen vertical — quadro principal no topo,
+     minis lado a lado embaixo, cópia no rodapé */
+  .xp-product {
+    top: 11%;
+    right: 50%;
+    width: 88vw;
+    transform: translateX(50%);
+  }
+
+  .xp-product-main {
+    width: 100%;
+  }
+
+  .xp-product-a {
+    bottom: auto;
+    top: calc(100% + 10px);
+    left: 0;
+    width: 49%;
+  }
+
+  .xp-product-b {
+    top: calc(100% + 10px);
+    right: 0;
+    left: auto;
+    width: 49%;
+  }
+
+  .xp-product-caption {
+    display: none;
+  }
+}
+
+@media (min-width: 761px) and (max-width: 1100px) {
+  .xp-copy-03 {
+    max-width: 340px;
+  }
+
+  .xp-product {
+    width: 52vw;
+  }
+}
+
+/* ---------- EXPERIENCE — Ato 4: o laboratório ----------
+   O esqueleto de 21 landmarks se recompõe na cena (poseD); aqui o vídeo
+   real do PoC como evidência central com etiquetas de anotação */
+.xp-copy-04 {
+  top: 50%;
+  bottom: auto;
+  max-width: 420px;
+  transform: translateY(-52%);
+  opacity: clamp(0, calc((var(--xp, 0) - 0.9) * 10), 1);
+  translate: 0 calc(clamp(0, calc(1 - (var(--xp, 0) - 0.82) * 10), 1) * 34px);
+}
+
+.xp-title-04 {
+  font-size: clamp(30px, 3.8vw, 48px);
+}
+
+.xp-lab {
+  position: absolute;
+  top: 50%;
+  right: clamp(16px, 3.5vw, 56px);
+  z-index: 2;
+  width: min(48vw, 680px);
+  margin: 0;
+  transform: translateY(-50%);
+  opacity: clamp(0, calc((var(--xp, 0) - 0.9) * 10), 1);
+  scale: calc(0.95 + clamp(0, calc((var(--xp, 0) - 0.9) * 10), 1) * 0.05);
+  pointer-events: auto;
+}
+
+.xp-lab-frame {
+  position: relative;
+}
+
+.xp-lab-video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border: 1px solid rgba(240, 168, 72, 0.35);
+  border-radius: 14px;
+  background: #0d1430;
+  box-shadow:
+    0 30px 90px rgba(0, 0, 0, 0.55),
+    0 0 80px rgba(240, 168, 72, 0.1);
+}
+
+/* anotações do laboratório — etiquetas fora do quadro, não sobre ele */
+.xp-lab-tag-1 {
+  top: -14px;
+  right: 18px;
+  bottom: auto;
+  left: auto;
+}
+
+.xp-lab-tag-2 {
+  top: 38%;
+  right: auto;
+  bottom: auto;
+  left: -18px;
+}
+
+.xp-lab-tag-3 {
+  right: auto;
+  bottom: -14px;
+  left: 18px;
+}
+
+.xp-lab-caption {
+  position: static;
+  margin-top: 14px;
+  text-align: right;
+}
+
+@media (max-width: 760px) {
+  .xp-copy-04 {
+    top: auto;
+    right: 20px;
+    bottom: 96px;
+    left: 20px;
+    max-width: none;
+    transform: none;
+  }
+
+  .xp-title-04 {
+    font-size: clamp(26px, 7.5vw, 34px);
+  }
+
+  /* laboratório mobile: vídeo no topo, cópia no rodapé */
+  .xp-lab {
+    top: 11%;
+    right: 50%;
+    width: 88vw;
+    transform: translateX(50%);
+  }
+
+  .xp-lab-tag-2 {
+    left: 6px;
+  }
+}
+
+@media (min-width: 761px) and (max-width: 1100px) {
+  .xp-copy-04 {
+    max-width: 300px;
+  }
+
+  .xp-title-04 {
+    font-size: clamp(26px, 3.4vw, 38px);
+  }
+
+  .xp-lab {
+    width: 46vw;
+  }
+
+  .xp-lab-tag-2 {
+    left: 4px;
+  }
+}
