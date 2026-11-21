@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { PWA_URL } from "../../lib/site";
+import { PWA_LAB_URL, PWA_URL } from "../../lib/site";
 import { Reveal } from "../ui/Reveal";
 
 export function Hero() {
@@ -39,9 +39,14 @@ export function Hero() {
             <span aria-hidden="true">→</span>
           </a>
 
-          <a href="#demonstracao" className="hero-secondary-button">
+          <a
+            href={PWA_LAB_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hero-secondary-button"
+          >
             Conheça a demonstração
-            <span aria-hidden="true">→</span>
+            <span aria-hidden="true">↗</span>
           </a>
         </div>
 
