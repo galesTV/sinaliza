@@ -113,6 +113,42 @@ describe("identity-scoped snapshots", () => {
   });
 });
 
+describe("completions during the loading window", () => {
+  it("defers a completion until identity resolves — never writes to guest", async () => {
+    const { storage, map } = makeStorage();
+    const remote = makeRemote();
+    const orch = createProgressOrchestrator({ storage, remote });
+
+    // Identity still loading: nothing may be attributed to any bucket.
+    expect(orch.markCompleted(K1)).toBe(true);
+    expect(map.has(PROGRESS_STORAGE_KEY)).toBe(false);
+    expect(map.has(progressStorageKey(ALICE))).toBe(false);
+    expect(remote.upsert).not.toHaveBeenCalled();
+
+    orch.setIdentity(user(ALICE));
+    await vi.waitFor(() =>
+      expect(orch.getSyncSnapshot(user(ALICE)).pending).toBe(0),
+    );
+    // Deferred mark now belongs to the resolved account, locally + remote.
+    expect(orch.getCompletedSnapshot(user(ALICE)).completed.has(K1)).toBe(true);
+    expect(remote.upsert).toHaveBeenCalledWith(ALICE, K1);
+    // Guest bucket still clean.
+    expect(orch.getCompletedSnapshot(GUEST).completed.has(K1)).toBe(false);
+  });
+
+  it("a deferred completion lands in the guest bucket when the session resolves as guest", () => {
+    const { storage } = makeStorage();
+    const remote = makeRemote();
+    const orch = createProgressOrchestrator({ storage, remote });
+
+    orch.markCompleted(K1);
+    orch.setIdentity(GUEST);
+
+    expect(orch.getCompletedSnapshot(GUEST).completed.has(K1)).toBe(true);
+    expect(remote.upsert).not.toHaveBeenCalled();
+  });
+});
+
 describe("remote hydration", () => {
   it("merges remote keys into the account store without duplicates", async () => {
     const { storage, map } = makeStorage();
@@ -248,6 +284,47 @@ describe("idempotent remote writes", () => {
   });
 });
 
+describe("hydration reconciliation of pre-existing completions", () => {
+  it("reconciles local completions never enqueued (offline session/pre-queue data)", async () => {
+    const { storage, map } = makeStorage();
+    // A completion persisted in the account bucket without any queue entry
+    // — e.g. written before sync existed or during an offline session.
+    map.set(
+      progressStorageKey(ALICE),
+      JSON.stringify({ version: 1, completed: [K1] }),
+    );
+    const remote = makeRemote(); // server knows nothing
+    const orch = createProgressOrchestrator({ storage, remote });
+    orch.setIdentity(user(ALICE));
+
+    await vi.waitFor(() =>
+      expect(orch.getSyncSnapshot(user(ALICE)).pending).toBe(0),
+    );
+    expect(remote.upsert).toHaveBeenCalledWith(ALICE, K1);
+    // Local store untouched — still complete.
+    expect(orch.getCompletedSnapshot(user(ALICE)).completed.has(K1)).toBe(true);
+  });
+
+  it("does not enqueue local completions the server already has", async () => {
+    const { storage, map } = makeStorage();
+    map.set(
+      progressStorageKey(ALICE),
+      JSON.stringify({ version: 1, completed: [K1] }),
+    );
+    const remote = makeRemote();
+    remote.fetchKeys.mockResolvedValue([K1]);
+    const orch = createProgressOrchestrator({ storage, remote });
+    orch.setIdentity(user(ALICE));
+
+    await vi.waitFor(() =>
+      expect(orch.getSyncSnapshot(user(ALICE)).hydrated).toBe(true),
+    );
+    await settle();
+    expect(remote.upsert).not.toHaveBeenCalled();
+    expect(orch.getSyncSnapshot(user(ALICE)).pending).toBe(0);
+  });
+});
+
 describe("retry and reconciliation", () => {
   it("failed upserts stay pending and are retried on reconnect", async () => {
     const { storage } = makeStorage();
@@ -269,7 +346,7 @@ describe("retry and reconciliation", () => {
     expect(remote.upsert).toHaveBeenCalledTimes(2);
   });
 
-  it("retries are bounded by MAX_SYNC_ATTEMPTS", async () => {
+  it("retries are bounded: one attempt per entry per flush cycle, no background retries", async () => {
     const { storage, map } = makeStorage();
     const remote = makeRemote();
     remote.upsert.mockRejectedValue(new Error("always fails"));
@@ -281,16 +358,53 @@ describe("retry and reconciliation", () => {
     await vi.waitFor(() =>
       expect(orch.getSyncSnapshot(user(ALICE)).pending).toBe(1),
     );
-    for (let i = 0; i < MAX_SYNC_ATTEMPTS + 2; i += 1) {
+    // Each reconnect event is one bounded flush cycle: one attempt per
+    // pending entry, never an unbounded loop of retries on its own.
+    for (let i = 0; i < MAX_SYNC_ATTEMPTS - 1; i += 1) {
       orch.handleOnline();
-      await vi.waitFor(() => expect(remote.upsert).toHaveBeenCalled());
+      await settle();
     }
-    expect(remote.upsert.mock.calls.length).toBeLessThanOrEqual(MAX_SYNC_ATTEMPTS);
+    expect(remote.upsert.mock.calls.length).toBe(MAX_SYNC_ATTEMPTS);
     expect(orch.getSyncSnapshot(user(ALICE)).failed).toBe(1);
+    // No background job pushes on its own: without another explicit event,
+    // the call count stays put and the entry keeps its retry budget spent.
+    await settle();
+    expect(remote.upsert.mock.calls.length).toBe(MAX_SYNC_ATTEMPTS);
     // Entry is retained in the durable queue — never silently discarded.
     const raw = map.get(syncStorageKey(ALICE));
     expect(raw).toBeDefined();
     expect(raw).toContain(K1);
+  });
+
+  it("a reconnect revives exhausted entries — valid progress is never stranded", async () => {
+    const { storage, map } = makeStorage();
+    const remote = makeRemote();
+    // Fail exactly MAX_SYNC_ATTEMPTS times, then recover.
+    for (let i = 0; i < MAX_SYNC_ATTEMPTS; i += 1) {
+      remote.upsert.mockRejectedValueOnce(new Error(`down ${i}`));
+    }
+    const orch = createProgressOrchestrator({ storage, remote });
+    orch.setIdentity(user(ALICE));
+    await settle();
+
+    orch.markCompleted(K1);
+    // markCompleted's push + (MAX-1) explicit flushes exhaust the budget.
+    for (let i = 0; i < MAX_SYNC_ATTEMPTS - 1; i += 1) {
+      orch.handleOnline();
+      await settle();
+    }
+    expect(remote.upsert.mock.calls.length).toBe(MAX_SYNC_ATTEMPTS);
+    expect(orch.getSyncSnapshot(user(ALICE)).failed).toBe(1);
+
+    // Connectivity is back: the durable entry gets a fresh budget and
+    // completes — it was never dropped.
+    orch.handleOnline();
+    await vi.waitFor(() =>
+      expect(orch.getSyncSnapshot(user(ALICE)).pending).toBe(0),
+    );
+    expect(orch.getSyncSnapshot(user(ALICE)).failed).toBe(0);
+    expect(map.get(syncStorageKey(ALICE))).toContain('"pending":[]');
+    expect(remote.upsert).toHaveBeenCalledWith(ALICE, K1);
   });
 
   it("re-login reconciles pending writes without refetching", async () => {

@@ -85,6 +85,13 @@ export interface SyncQueue {
   confirm(key: string): void;
   /** Record one failed push attempt; returns the updated entry. */
   recordAttempt(key: string, error: unknown): SyncQueueEntry;
+  /**
+   * Reset the retry budget of every exhausted entry so a fresh flush can
+   * try them again. Entries stay durable — a temporary outage can never
+   * strand valid progress permanently; this is the explicit recovery path.
+   * Returns the keys whose budget was reset.
+   */
+  resetExhausted(): string[];
 }
 
 function errorMessage(error: unknown): string {
@@ -167,6 +174,19 @@ export function createSyncQueue(deps: {
       entry.lastError = errorMessage(error).slice(0, 300);
       persist(pending);
       return { ...entry };
+    },
+    resetExhausted() {
+      const pending = load();
+      const revived: string[] = [];
+      for (const entry of pending) {
+        if (entry.attempts >= MAX_SYNC_ATTEMPTS) {
+          entry.attempts = 0;
+          entry.lastError = null;
+          revived.push(entry.key);
+        }
+      }
+      if (revived.length > 0) persist(pending);
+      return revived;
     },
   };
 }

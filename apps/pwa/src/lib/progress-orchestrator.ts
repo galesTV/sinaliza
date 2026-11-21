@@ -20,8 +20,9 @@
  *   belong to, so a late answer still lands in the right bucket.
  * - `status === "loading"` never exposes any store: callers see
  *   `EMPTY_PROGRESS`, so no identity's progress flashes before the session
- *   resolves. A completion recorded in that window lands in the guest
- *   bucket — local-first, never silently dropped.
+ *   resolves. A completion recorded in that window is deferred in memory
+ *   and attributed to whichever identity resolves — never silently
+ *   attributed to the guest bucket.
  */
 
 import {
@@ -114,6 +115,9 @@ export function createProgressOrchestrator(
   let identity: ProgressIdentity = { status: "loading" };
   let inflight = 0;
   const syncCache = new Map<string, ProgressSyncSnapshot>();
+  // Completions recorded before the session resolves, waiting for the
+  // first non-loading identity to own them.
+  const deferredMarks = new Set<string>();
 
   function emit() {
     for (const listener of listeners) listener();
@@ -235,8 +239,19 @@ export function createProgressOrchestrator(
     emit();
     try {
       const keys = await deps.remote.fetchKeys(userId);
-      storeFor(progressStorageKey(userId)).merge(keys);
+      const store = storeFor(progressStorageKey(userId));
+      store.merge(keys);
       hydratedUsers.add(userId);
+      // Reconcile completions already in the account's local bucket that
+      // the server does not know yet — e.g. written while offline before
+      // the queue existed, or an enqueued write that never persisted. They
+      // are eligible (they were only ever recorded through the published
+      // path) so they join the same bounded-retry queue.
+      const remoteKeys = new Set(keys);
+      const queue = queueFor(userId);
+      for (const key of store.getSnapshot().completed) {
+        if (!remoteKeys.has(key)) queue.enqueue(key);
+      }
       inflight -= 1;
       emit();
       if (activeUserId() === userId) await flushPending(userId);
@@ -246,6 +261,19 @@ export function createProgressOrchestrator(
       inflight -= 1;
       emit();
     }
+  }
+
+  /** Write one completion against the ACTIVE identity's store and remote. */
+  function recordCompletion(key: string): boolean {
+    const store = storeFor(storageKeyFor(identity));
+    const changed = store.markCompleted(key);
+    if (!changed) return false;
+    const userId = activeUserId();
+    if (userId === null || !deps.remote) return true;
+    queueFor(userId).enqueue(key);
+    emit();
+    void push(userId, key);
+    return true;
   }
 
   return {
@@ -271,6 +299,12 @@ export function createProgressOrchestrator(
           (previous.status === "user" && previous.userId === next.userId));
       if (sameIdentity) return;
       identity = next;
+      // Release completions deferred during the loading window to the
+      // identity that actually resolved.
+      if (next.status !== "loading" && deferredMarks.size > 0) {
+        for (const key of deferredMarks) recordCompletion(key);
+        deferredMarks.clear();
+      }
       emit();
       if (next.status === "user" && deps.remote) {
         void hydrate(next.userId);
@@ -278,20 +312,15 @@ export function createProgressOrchestrator(
     },
 
     markCompleted(key) {
-      // Loading falls back to the guest bucket: local-first and honest —
-      // the write can never be attributed to an account before the session
-      // resolves, and it stays claimable by the explicit guest→account
-      // claim step (deferred; never automatic).
-      const store = storeFor(storageKeyFor(identity));
-      const changed = store.markCompleted(key);
-      if (!changed) return false;
-      const userId = activeUserId();
-      if (userId === null || !deps.remote) return true;
-      const queue = queueFor(userId);
-      queue.enqueue(key);
-      emit();
-      void push(userId, key);
-      return true;
+      // While the session is still resolving there is no correct bucket:
+      // hold the completion in memory instead of silently attributing it
+      // to the guest bucket. It is written once the identity resolves.
+      if (identity.status === "loading") {
+        const wasNew = !deferredMarks.has(key);
+        deferredMarks.add(key);
+        return wasNew;
+      }
+      return recordCompletion(key);
     },
 
     handleOnline() {
@@ -300,6 +329,10 @@ export function createProgressOrchestrator(
       if (!hydratedUsers.has(userId)) {
         void hydrate(userId);
       } else {
+        // Reconnect is the explicit recovery path: give exhausted entries
+        // a fresh budget and flush. They stay in the queue until a write
+        // is confirmed — durable, never stranded.
+        queueFor(userId).resetExhausted();
         void flushPending(userId);
       }
     },

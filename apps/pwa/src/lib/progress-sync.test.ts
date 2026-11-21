@@ -104,6 +104,25 @@ describe("createSyncQueue", () => {
     expect(queue.list()).toHaveLength(0);
   });
 
+  it("resetExhausted revives only entries past the retry budget", () => {
+    const queue = createSyncQueue({
+      storage: makeStorage(),
+      storageKey: syncStorageKey(UID),
+    });
+    queue.enqueue(KEY);
+    queue.enqueue("alfabeto/letras-a-e/letra-b");
+    for (let i = 0; i < 5; i += 1) queue.recordAttempt(KEY, new Error("x"));
+    queue.recordAttempt("alfabeto/letras-a-e/letra-b", new Error("y"));
+
+    expect(queue.resetExhausted()).toEqual([KEY]);
+    const [revived, kept] = queue.list();
+    expect(revived).toMatchObject({ key: KEY, attempts: 0, lastError: null });
+    expect(kept).toMatchObject({
+      key: "alfabeto/letras-a-e/letra-b",
+      attempts: 1,
+    });
+  });
+
   it("drops malformed pending entries but keeps valid ones", () => {
     const storage = makeStorage();
     storage.map.set(
