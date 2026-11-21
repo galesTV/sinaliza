@@ -303,6 +303,40 @@ describe("remote hydration", () => {
     // Bob was untouched.
     expect(orch.getCompletedSnapshot(user(BOB)).completed.has(K1)).toBe(false);
   });
+
+  it("a response answered under a switched session does not mark the account hydrated", async () => {
+    const { storage } = makeStorage();
+    const remote = makeRemote();
+    const resolvers = new Map<string, ((keys: string[]) => void)[]>();
+    remote.fetchKeys.mockImplementation(
+      (userId) =>
+        new Promise((resolve) => {
+          const list = resolvers.get(userId) ?? [];
+          list.push(resolve);
+          resolvers.set(userId, list);
+        }),
+    );
+    const orch = createProgressOrchestrator({ storage, remote });
+
+    orch.setIdentity(user(ALICE));
+    orch.setIdentity(user(BOB));
+    // Alice's fetch resolves after the session moved on — under Bob's
+    // session its answer cannot be trusted, so Alice stays unhydrated.
+    resolvers.get(ALICE)![0]([]);
+    resolvers.get(BOB)![0]([]);
+    await settle();
+
+    orch.setIdentity(GUEST);
+    orch.setIdentity(user(ALICE));
+    resolvers.get(ALICE)![1]([]);
+    await vi.waitFor(() =>
+      expect(orch.getSyncSnapshot(user(ALICE)).hydrated).toBe(true),
+    );
+    // Alice was fetched twice: the stale answer never counted.
+    expect(
+      remote.fetchKeys.mock.calls.filter(([uid]) => uid === ALICE),
+    ).toHaveLength(2);
+  });
 });
 
 describe("idempotent remote writes", () => {

@@ -149,6 +149,7 @@ export function createSyncQueue(deps: {
   const volatile = new Set<string>();
 
   function mergeStored() {
+    if (!deps.storage) return; // memory is all we have — nothing to merge
     const stored = load();
     const storedKeys = new Set(stored.map((entry) => entry.key));
     pending = pending.filter(
@@ -164,8 +165,14 @@ export function createSyncQueue(deps: {
   }
 
   function persist() {
+    if (!deps.storage) {
+      // No storage at all: every entry is memory-only — a later merge must
+      // never read their absence from storage as "confirmed remotely".
+      for (const entry of pending) volatile.add(entry.key);
+      return;
+    }
     try {
-      deps.storage?.setItem(
+      deps.storage.setItem(
         deps.storageKey,
         JSON.stringify({ version: 1, pending }),
       );

@@ -272,7 +272,10 @@ export function createProgressOrchestrator(
       const keys = await deps.remote.fetchKeys(userId);
       const store = storeFor(progressStorageKey(userId));
       store.merge(keys);
-      hydratedUsers.add(userId);
+      // Only trust the response while its account is still the active
+      // session — a fetch answered under a different session could be
+      // empty. Unmarked users are re-fetched when they sign back in.
+      if (activeUserId() === userId) hydratedUsers.add(userId);
       // Reconcile completions already in the account's local bucket that
       // the server does not know yet — e.g. written while offline before
       // the queue existed, or an enqueued write that never persisted. They
@@ -293,7 +296,12 @@ export function createProgressOrchestrator(
       emit();
     } finally {
       hydratingUsers.delete(userId);
-      if (hydrateAgain.delete(userId)) void hydrate(userId);
+      // Skip the trailing re-run when the session already moved on: the
+      // retry would run under the wrong session and its empty answer
+      // could mask the real hydration when this account returns.
+      if (hydrateAgain.delete(userId) && activeUserId() === userId) {
+        void hydrate(userId);
+      }
     }
   }
 
