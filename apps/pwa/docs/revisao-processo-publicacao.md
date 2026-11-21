@@ -62,7 +62,11 @@ mesmo que os testes não rodem. As rotas de laboratório não passam por
   `lessonContents`/`getLessonContent` foi eliminado, então não existe
   segunda fonte capaz de divergir do rascunho revisado. O teste de
   identidade em `lesson-page.test.tsx` comprova que o runner recebe o
-  próprio objeto `entry.draft`.
+  próprio objeto `entry.draft`. **Condição:** `isPublishable` confere o
+  identificador da versão, não o conteúdo — qualquer edição em
+  `entry.draft` exige um novo `version`; sem o bump, as revisões
+  antigas seriam reaproveitadas para material novo. O versionamento é
+  a disciplina que sustenta a garantia.
 - **Páginas estáticas:** a guarda é avaliada em build; uma alteração de
   dados exige rebuild/deploy — comportamento idêntico ao de hoje.
 - A suíte de testes segue como segunda barreira, agora cobrindo também
