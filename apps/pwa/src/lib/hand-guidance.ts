@@ -115,6 +115,31 @@ export function isInsideGuidanceZone(center: HandCenter): boolean {
   );
 }
 
+/**
+ * With several hands in frame, judge the best-positioned one: a hand
+ * inside the zone wins; otherwise track the center nearest the zone so
+ * the "center your hand" hint refers to the closest candidate.
+ */
+function selectGuidanceCenter(
+  hands: readonly (readonly NormalizedLandmarkLike[])[],
+): HandCenter | null {
+  const zoneX = (GUIDANCE_TARGET_ZONE.xMin + GUIDANCE_TARGET_ZONE.xMax) / 2;
+  const zoneY = (GUIDANCE_TARGET_ZONE.yMin + GUIDANCE_TARGET_ZONE.yMax) / 2;
+  let nearest: HandCenter | null = null;
+  let nearestDistance = Infinity;
+  for (const landmarks of hands) {
+    const center = guidanceHandCenter(landmarks);
+    if (!center) continue;
+    if (isInsideGuidanceZone(center)) return center;
+    const distance = Math.hypot(center.x - zoneX, center.y - zoneY);
+    if (distance < nearestDistance) {
+      nearest = center;
+      nearestDistance = distance;
+    }
+  }
+  return nearest;
+}
+
 export interface HandGuidanceDeps {
   /** Called whenever the public snapshot changes (progress bucketed at 5%). */
   onChange?(snapshot: HandGuidanceSnapshot): void;
@@ -242,9 +267,9 @@ export function createHandGuidance(deps: HandGuidanceDeps = {}) {
       return;
     }
 
-    const landmarks = result?.landmarks?.[0];
-    const center = landmarks ? guidanceHandCenter(landmarks) : null;
-    if (landmarks && landmarks.length > 0) handSeen = true;
+    const hands = result?.landmarks ?? [];
+    if (hands.some((landmarks) => landmarks.length > 0)) handSeen = true;
+    const center = selectGuidanceCenter(hands);
 
     if (center) {
       if (isInsideGuidanceZone(center)) {

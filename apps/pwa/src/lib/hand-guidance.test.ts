@@ -89,6 +89,29 @@ describe("createHandGuidance", () => {
     expect(guidance.getSnapshot().handSeen).toBe(true);
   });
 
+  it("tracks the best-positioned hand when several are detected", () => {
+    const { guidance, setClock } = makeGuidance();
+    guidance.start();
+
+    const inside = Array.from({ length: 21 }, () => ({ x: 0.5, y: 0.5, z: 0 }));
+    const outside = Array.from({ length: 21 }, () => ({ x: 0.1, y: 0.1, z: 0 }));
+    const twoHands: HandLandmarkerResultLike = {
+      landmarks: [outside, inside],
+      handedness: [[{ categoryName: "Left" }], [{ categoryName: "Right" }]],
+    };
+
+    // The inside-zone hand is the candidate even though it is not first.
+    guidance.observe(twoHands, 0);
+    expect(statusOf(guidance)).toBe("holding");
+
+    guidance.observe(twoHands, 300);
+    setClock(1500);
+    guidance.observe(twoHands, 1500);
+    setClock(2100);
+    guidance.observe(twoHands, 2100);
+    expect(statusOf(guidance)).toBe("completed");
+  });
+
   it("reports progress between 0 and 1 while holding", () => {
     const { guidance, setClock } = makeGuidance();
     guidance.start();
