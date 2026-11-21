@@ -123,6 +123,18 @@ describe("createSyncQueue", () => {
     });
   });
 
+  it("keeps entries pending with no storage at all and confirms them after send", () => {
+    // Mirrors getOrchestrator's path when `window.localStorage` itself is
+    // inaccessible: the queue is memory-only for the session but must
+    // never report a memory entry as confirmed or drop it early.
+    const queue = createSyncQueue({ storageKey: "k", storage: undefined });
+    queue.enqueue(KEY);
+    expect(queue.list().map((entry) => entry.key)).toEqual([KEY]);
+
+    queue.confirm(KEY);
+    expect(queue.list()).toEqual([]);
+  });
+
   it("keeps pending entries in memory when setItem throws", () => {
     const queue = createSyncQueue({
       storage: {

@@ -319,12 +319,19 @@ describe("remote hydration", () => {
     const orch = createProgressOrchestrator({ storage, remote });
 
     orch.setIdentity(user(ALICE));
+    // A reconnect queued while Alice is still active schedules a trailing
+    // re-run — which must NOT fire after the session moved on.
+    orch.handleOnline();
     orch.setIdentity(user(BOB));
     // Alice's fetch resolves after the session moved on — under Bob's
     // session its answer cannot be trusted, so Alice stays unhydrated.
     resolvers.get(ALICE)![0]([]);
     resolvers.get(BOB)![0]([]);
     await settle();
+    // No re-run for Alice while Bob holds the session.
+    expect(
+      remote.fetchKeys.mock.calls.filter(([uid]) => uid === ALICE),
+    ).toHaveLength(1);
 
     orch.setIdentity(GUEST);
     orch.setIdentity(user(ALICE));
