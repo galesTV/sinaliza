@@ -25,7 +25,6 @@ import {
   getLessonDraftUrl,
   isPublishable,
 } from "@/data/lesson-catalog";
-import { getLessonContent } from "@/data/lesson-content";
 import { lessonKey } from "@/lib/progress";
 
 interface LessonPageProps {
@@ -141,7 +140,6 @@ async function LessonContent({ params }: LessonPageProps) {
         </h2>
         <LessonContentArea
           status={lesson.status}
-          content={getLessonContent(path.slug, module.slug, lesson.slug)}
           lessonKey={key}
           draftHref={
             catalogEntry?.draft && !isPublishable(catalogEntry)

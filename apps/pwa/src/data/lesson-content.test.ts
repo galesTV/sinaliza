@@ -1,16 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { parseLessonKey } from "@/lib/progress";
-
-import { getLessonContext, getLearningPaths } from "./learning-paths";
+import { lessonCatalog } from "./lesson-catalog";
 import {
   blockedExerciseDemo,
   demoLesson,
-  getLessonContent,
   guidedExperience,
   hasMediaDisplayPermission,
   isExerciseVisuallyPermitted,
-  lessonContents,
   validateLessonContent,
   visualExerciseDemo,
   type LessonContent,
@@ -50,60 +46,6 @@ function validContent(blocks: LessonContent["blocks"]): LessonContent {
   return { intro: "intro", blocks };
 }
 
-describe("lessonContents registry", () => {
-  it("only registers real lessons published as available", () => {
-    for (const key of Object.keys(lessonContents)) {
-      const parsed = parseLessonKey(key);
-      expect(parsed, `malformed lesson key "${key}"`).not.toBeNull();
-
-      const context = getLessonContext(
-        parsed!.pathSlug,
-        parsed!.moduleSlug,
-        parsed!.lessonSlug,
-      );
-      expect(context, `no lesson matches "${key}"`).toBeDefined();
-      expect(
-        context!.lesson.status,
-        `"${key}" has content but its lesson is not "available"`,
-      ).toBe("available");
-    }
-  });
-
-  it("contains only well-formed, completable lesson content", () => {
-    for (const [key, content] of Object.entries(lessonContents)) {
-      expect(validateLessonContent(content), key).toEqual([]);
-    }
-  });
-});
-
-describe("getLessonContent", () => {
-  it("returns the registered content for every registry key", () => {
-    for (const [key, content] of Object.entries(lessonContents)) {
-      const parsed = parseLessonKey(key)!;
-      expect(
-        getLessonContent(parsed.pathSlug, parsed.moduleSlug, parsed.lessonSlug),
-      ).toBe(content);
-    }
-  });
-
-  it("returns undefined for unknown or content-less lessons", () => {
-    expect(getLessonContent("nao", "existe", "aqui")).toBeUndefined();
-    // Lessons without a registry entry stay on the honest pending states.
-    const planned = getLearningPaths().flatMap((path) =>
-      path.modules.flatMap((mod) =>
-        mod.lessons
-          .filter((lesson) => lesson.status === "planned")
-          .map((lesson) => ({ path, mod, lesson })),
-      ),
-    );
-    for (const { path, mod, lesson } of planned) {
-      expect(
-        getLessonContent(path.slug, mod.slug, lesson.slug),
-      ).toBeUndefined();
-    }
-  });
-});
-
 describe("demoLesson", () => {
   it("exercises every block kind the runner supports", () => {
     const kinds = new Set(demoLesson.blocks.map((block) => block.kind));
@@ -125,12 +67,11 @@ describe("guidedExperience", () => {
     expect(validateLessonContent(guidedExperience)).toEqual([]);
   });
 
-  it("is laboratory content, never registered as a published lesson", () => {
-    // The guided experience lives outside `lessonContents`: no lesson key
-    // points at it, so completing it can never record real progress.
-    expect(Object.values(lessonContents)).not.toContain(guidedExperience);
-    for (const key of Object.keys(lessonContents)) {
-      expect(lessonContents[key]).not.toBe(guidedExperience);
+  it("is laboratory content, never used as a published lesson draft", () => {
+    // The guided experience lives outside the catalog: no entry's draft is
+    // this content, so completing it can never record real progress.
+    for (const entry of lessonCatalog) {
+      expect(entry.draft).not.toBe(guidedExperience);
     }
   });
 

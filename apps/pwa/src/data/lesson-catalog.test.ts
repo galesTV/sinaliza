@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { parseLessonKey } from "@/lib/progress";
+import { lessonKey, parseLessonKey } from "@/lib/progress";
 import { createLessonRunner } from "@/lib/lesson-runner";
 
 import {
@@ -14,12 +14,11 @@ import {
   VALIDATION_STATUS_ORDER,
   type LessonCatalogEntry,
 } from "./lesson-catalog";
-import { lessonContents } from "./lesson-content";
 import {
   hasMediaDisplayPermission,
   isExerciseVisuallyPermitted,
 } from "./lesson-content";
-import { getLessonContext } from "./learning-paths";
+import { getLessonContext, getLearningPaths } from "./learning-paths";
 
 function makeEntry(
   overrides: Partial<LessonCatalogEntry> = {},
@@ -112,36 +111,47 @@ describe("lessonCatalog", () => {
 });
 
 describe("publication safety", () => {
-  it("keeps provisional content out of the published registry", () => {
-    // Nothing in lessonContents may be backed by an unvalidated entry, and
-    // no unvalidated entry may point at an already-published lesson.
+  it("keeps lessons without a publishable entry unavailable", () => {
+    // A non-publishable entry may never back an "available" lesson:
+    // flipping the status alone cannot publish content.
     for (const entry of lessonCatalog) {
-      const published = lessonContents[entry.lessonKey];
-      if (published) {
-        expect(
-          entry.validationStatus,
-          `"${entry.lessonKey}" is published but its catalog entry is "${entry.validationStatus}"`,
-        ).toBe("expert-validated");
-      }
-      if (entry.draft && entry.validationStatus !== "expert-validated") {
-        expect(
-          lessonContents[entry.lessonKey],
-          `provisional draft "${entry.lessonKey}" leaked into lessonContents`,
-        ).toBeUndefined();
-      }
+      if (isPublishable(entry)) continue;
+      const parsed = parseLessonKey(entry.lessonKey)!;
+      const context = getLessonContext(
+        parsed.pathSlug,
+        parsed.moduleSlug,
+        parsed.lessonSlug,
+      )!;
+      expect(
+        context.lesson.status,
+        `"${entry.lessonKey}" is available but its entry is "${entry.validationStatus}"`,
+      ).not.toBe("available");
     }
   });
 
-  it("requires a publishable catalog entry for every published lesson", () => {
-    // Mirror direction: anything that reaches lessonContents must be backed
-    // by a catalog entry carrying the full review evidence.
-    for (const key of Object.keys(lessonContents)) {
-      const entry = getCatalogEntry(key);
-      expect(entry, `published "${key}" has no catalog entry`).toBeDefined();
-      expect(
-        isPublishable(entry!),
-        `published "${key}" lacks expert validation evidence`,
-      ).toBe(true);
+  it("requires a publishable catalog entry for every available lesson", () => {
+    // Mirror direction: an available lesson must be backed by a catalog
+    // entry carrying the full review evidence. The page renders
+    // `entry.draft` itself, so the published content is by construction
+    // the version the reviewers approved — there is no second source.
+    for (const path of getLearningPaths()) {
+      for (const courseModule of path.modules) {
+        for (const lesson of courseModule.lessons) {
+          if (lesson.status !== "available") continue;
+          const key = lessonKey(path.slug, courseModule.slug, lesson.slug);
+          const entry = getCatalogEntry(key);
+          expect(
+            entry,
+            `available "${key}" has no catalog entry`,
+          ).toBeDefined();
+          expect(
+            isPublishable(entry!),
+            `available "${key}" lacks expert validation evidence`,
+          ).toBe(true);
+          // The rendered content is the reviewed draft — not a copy.
+          expect(entry!.draft).toBeDefined();
+        }
+      }
     }
   });
 
@@ -324,11 +334,15 @@ describe("primeiras-letras draft-5", () => {
     "alfabeto/primeiros-passos/primeiras-letras",
   )!;
 
-  it("stays a draft: never publishable, never in the lesson registry", () => {
+  it("stays a draft: never publishable, lesson never available", () => {
     expect(entry.validationStatus).toBe("draft");
     expect(entry.version).toBe("draft-5");
     expect(isPublishable(entry)).toBe(false);
-    expect(lessonContents[entry.lessonKey]).toBeUndefined();
+    const parsed = parseLessonKey(entry.lessonKey)!;
+    expect(
+      getLessonContext(parsed.pathSlug, parsed.moduleSlug, parsed.lessonSlug)!
+        .lesson.status,
+    ).toBe("planned");
     expect(validateCatalogEntry(entry)).toEqual([]);
   });
 

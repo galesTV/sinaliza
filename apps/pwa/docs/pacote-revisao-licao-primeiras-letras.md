@@ -277,6 +277,8 @@ incorporada ao produto, e a decisão de licenciamento é do responsável.
 
 ## 8. Registro de decisões
 
+Decisões internas já tomadas (para contexto da reunião):
+
 | Decisão | Status | Observação |
 |---|---|---|
 | Recorte B → L → A → I (provisório) | Aprovado pelo responsável 19/11/2026 | Letra C fora do recorte; sujeito a ajuste pela especialista. |
@@ -288,3 +290,20 @@ incorporada ao produto, e a decisão de licenciamento é do responsável.
 | Prévia no laboratório, sem registro de progresso | Verificado | `/laboratorio/licoes/alfabeto/primeiros-passos/primeiras-letras` exibe o aviso de rascunho e não grava progresso. |
 | Integração da experiência visual na lição C | Aplicado em `draft-4`, 19/11/2026 | Fase 8C.3: infraestrutura existente reutilizada (sem novo motor de lição); objetivos visual × descrição distintos em código e documentação. |
 | Seção "Recursos complementares" com links externos (INES, Unesp) | Aplicado em `draft-5`, 20/11/2026 | Fase 8D.3: novo `LessonResourcesBlock` opcional ao fim do rascunho; apenas hiperlinks https, sem mídia de terceiros; WikiLibras descartado por não demonstrar o alfabeto manual de forma localizável. |
+
+### Decisões da revisão especializada (preencher em 25/11)
+
+Cada decisão registrada aqui alimenta a atualização do catálogo
+(`reviews[]` com tipo, data e versão).
+
+| Data | Revisor(a) | Recomendação | Decisão | Versão resultante |
+|---|---|---|---|---|
+| _/_/_ |  |  |  |  |
+| _/_/_ |  |  |  |  |
+| _/_/_ |  |  |  |  |
+
+**Observações livres da revisão:**
+
+```
+(espaço para anotações da especialista)
+```

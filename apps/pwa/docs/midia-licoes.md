@@ -141,9 +141,10 @@ em lições reais.
 ## Regras de validação
 
 `validateLessonContent(content)` (exportada de `lesson-content.ts`) retorna a
-lista de problemas de um material. O teste do registry aplica essas regras a
-toda entrada de `lessonContents`, portanto **metadados obrigatórios ausentes
-não passam em silêncio**: título, descrição, `src`, `attribution.source`,
+lista de problemas de um material. O teste do catálogo aplica essas regras a
+todo `entry.draft` — e `isPublishable` as exige novamente na hora da
+publicação — portanto **metadados obrigatórios ausentes não passam em
+silêncio**: título, descrição, `src`, `attribution.source`,
 `attribution.license`, `alt` (imagem) e campos de legenda são verificados.
 
 ## Atribuição e permissão
@@ -163,15 +164,18 @@ Em caso de dúvida, **não use o ativo** e registre a pendência.
 
 ## Como testar uma lição antes de publicar
 
-1. Adicione a entrada em `lessonContents` e rode `npx vitest run
-   src/data/lesson-content.test.ts` — a validação de integridade roda sobre
-   toda entrada.
-2. Suba `npm run dev` e abra a lição (preview antes de mudar `status` para
-   `"available"`): confira poster, legendas, descrição, atribuição e o
-   estado de erro (renomeie o `src` temporariamente para ver o fallback).
+1. Adicione o material em `entry.draft` no catálogo e rode `npx vitest run`
+   — a validação de integridade roda sobre todo draft (`validateCatalogEntry`
+   + `validateLessonContent`).
+2. Suba `npm run dev` e abra a prévia `/laboratorio/licoes/<chave>` (rascunho
+   marcado como não validado, sem registro de progresso): confira poster,
+   legendas, descrição, atribuição e o estado de erro (renomeie o `src`
+   temporariamente para ver o fallback).
 3. Navegue por teclado (Tab até o player e o botão Continuar) e teste em
    viewport mobile ~390px.
-4. Só então mude `status` para `"available"` em `learning-paths.ts`.
+4. Só então, com a entrada `expert-validated` e a cadeia de revisões na
+   versão atual, mude `status` para `"available"` em `learning-paths.ts` —
+   a página passa a renderizar o próprio `entry.draft` aprovado.
 
 ## Limitações atuais
 

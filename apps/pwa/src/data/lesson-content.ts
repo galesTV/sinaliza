@@ -429,31 +429,14 @@ export function validateLessonMedia(media: LessonMedia): string[] {
 }
 
 /**
- * Registry of validated lesson material, keyed by the same
- * `trilha/modulo/licao` identifier the progress store uses.
- *
- * Empty today: no lesson material has passed pedagogical/linguistic
- * validation yet. Publishing a lesson is a data change only — add its
- * `LessonContent` here and flip its `LessonStatus` to `"available"` in
- * `learning-paths.ts`; the lesson page then renders the runner and records
- * real completion automatically. `lesson-content.test.ts` guards that
- * entries here only point at real, available lessons and that every
- * exercise is well-formed enough to be completable.
+ * Published lesson content has no dedicated registry by design: the
+ * lesson page renders the catalog entry's own `draft` once the entry is
+ * publishable (expert-validated with the full review chain covering the
+ * current `version`), so the content shown to the learner is always the
+ * exact draft the reviewers approved — a second source could diverge
+ * unnoticed. Publishing a lesson is therefore a single data change:
+ * flip its `LessonStatus` to `"available"` in `learning-paths.ts`.
  */
-export const lessonContents: Record<string, LessonContent> = {};
-
-/**
- * Content seam, mirroring `getLessonContext` in `learning-paths.ts`: pages
- * read through this getter so the local registry can later become a backend
- * fetch without touching the UI layer.
- */
-export function getLessonContent(
-  pathSlug: string,
-  moduleSlug: string,
-  lessonSlug: string,
-): LessonContent | undefined {
-  return lessonContents[`${pathSlug}/${moduleSlug}/${lessonSlug}`];
-}
 
 export const demoLesson: LessonContent = {
   intro:

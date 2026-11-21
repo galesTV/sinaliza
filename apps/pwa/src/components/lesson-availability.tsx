@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-import type { LessonContent } from "@/data/lesson-content";
 import { getCatalogEntry, isPublishable } from "@/data/lesson-catalog";
 import type { LessonStatus } from "@/data/learning-paths";
 
@@ -20,27 +19,26 @@ export function LessonStatusBadge({ status }: { status: LessonStatus }) {
 /**
  * The main instructional-content slot of a lesson page. Until validated
  * material exists (status "planned"), it renders an honest pending panel.
- * An "available" lesson without `content` is a data gap — it also gets an
- * honest fallback instead of a blank area.
+ * An "available" lesson whose catalog entry is missing or not publishable
+ * is a data gap — it also gets an honest fallback instead of a blank area.
  *
  * Publication guard: the runner mounts only when the lesson's catalog entry
  * is publishable — `expert-validated` with the full review chain covering
  * the current content version. A manually flipped `status`, a missing
  * catalog entry or an incomplete review chain falls back to the honest
  * note, and `lessonKey` — the only path that records progress — never
- * reaches the runner. The guard validates the catalog entry; it does not
- * prove `content` matches the reviewed draft (documented residual risk in
- * docs/revisao-processo-publicacao.md).
+ * reaches the runner. The rendered content is `catalogEntry.draft` itself,
+ * so what the learner sees is by construction the exact draft the review
+ * chain covered at `entry.version` — there is no second content source to
+ * diverge from.
  */
 export function LessonContentArea({
   status,
-  content,
   lessonKey,
   draftHref,
   specimenHref,
 }: {
   status: LessonStatus;
-  content?: LessonContent;
   lessonKey?: string;
   /** Link to the unvalidated draft preview, when the catalog holds one. */
   draftHref?: string;
@@ -50,11 +48,10 @@ export function LessonContentArea({
   const catalogEntry = lessonKey ? getCatalogEntry(lessonKey) : undefined;
   if (
     status === "available" &&
-    content &&
-    catalogEntry &&
+    catalogEntry?.draft &&
     isPublishable(catalogEntry)
   ) {
-    return <LessonRunner content={content} lessonKey={lessonKey} />;
+    return <LessonRunner content={catalogEntry.draft} lessonKey={lessonKey} />;
   }
   if (status === "available") {
     return (
