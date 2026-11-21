@@ -8,16 +8,19 @@
  * of MediaPipe Models under the Apache License 2.0.
  * Source: https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task
  * Docs: https://ai.google.dev/edge/mediapipe/solutions/vision/hand_landmarker
+ *
+ * The model and WASM runtime are self-hosted under public/mediapipe/ so the
+ * hand lab has no external CDN dependency. See public/mediapipe/README.md
+ * for provenance, checksums and the update procedure.
  */
 
 export const HAND_LANDMARK_COUNT = 21;
 
-export const HAND_LANDMARKER_MODEL_URL =
-  "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task";
+export const HAND_LANDMARKER_MODEL_URL = "/mediapipe/models/hand_landmarker.task";
 
 export const TASKS_VISION_VERSION = "0.10.21";
 
-export const TASKS_VISION_WASM_URL = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${TASKS_VISION_VERSION}/wasm`;
+export const TASKS_VISION_WASM_URL = "/mediapipe/wasm";
 
 /** Skeleton edges between the 21 hand landmarks (MediaPipe topology). */
 export const HAND_CONNECTIONS: ReadonlyArray<readonly [number, number]> = [

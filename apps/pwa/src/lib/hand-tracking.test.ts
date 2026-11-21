@@ -1,8 +1,14 @@
+import { existsSync, readFileSync } from "node:fs";
+import path from "node:path";
+
 import { describe, expect, it, vi } from "vitest";
 
 import {
   HAND_CONNECTIONS,
   HAND_LANDMARK_COUNT,
+  HAND_LANDMARKER_MODEL_URL,
+  TASKS_VISION_VERSION,
+  TASKS_VISION_WASM_URL,
   createHandTracker,
   type HandLandmarkerResultLike,
 } from "./hand-tracking";
@@ -430,5 +436,45 @@ describe("createHandTracker", () => {
     // live one.
     expect(track.stop).toHaveBeenCalled();
     expect(second.track.stop).not.toHaveBeenCalled();
+  });
+});
+
+describe("self-hosted MediaPipe assets", () => {
+  const publicDir = path.join(process.cwd(), "public");
+
+  it("loads the model and WASM runtime from the PWA domain, not external CDNs", () => {
+    expect(HAND_LANDMARKER_MODEL_URL).toBe("/mediapipe/models/hand_landmarker.task");
+    expect(TASKS_VISION_WASM_URL).toBe("/mediapipe/wasm");
+    for (const url of [HAND_LANDMARKER_MODEL_URL, TASKS_VISION_WASM_URL]) {
+      expect(url).not.toContain("http");
+      expect(url).not.toContain("cdn.jsdelivr.net");
+      expect(url).not.toContain("storage.googleapis.com");
+    }
+  });
+
+  it("ships every file the landmarker resolves from those URLs", () => {
+    const wasmDir = path.join(publicDir, ...TASKS_VISION_WASM_URL.split("/").filter(Boolean));
+    for (const file of [
+      "vision_wasm_internal.js",
+      "vision_wasm_internal.wasm",
+      "vision_wasm_nosimd_internal.js",
+      "vision_wasm_nosimd_internal.wasm",
+    ]) {
+      expect(existsSync(path.join(wasmDir, file))).toBe(true);
+    }
+    const modelPath = path.join(
+      publicDir,
+      ...HAND_LANDMARKER_MODEL_URL.split("/").filter(Boolean),
+    );
+    expect(existsSync(modelPath)).toBe(true);
+  });
+
+  it("keeps TASKS_VISION_VERSION aligned with the installed package", () => {
+    const pkgPath = path.join(
+      process.cwd(),
+      "node_modules/@mediapipe/tasks-vision/package.json",
+    );
+    const pkg = JSON.parse(readFileSync(pkgPath, "utf8")) as { version: string };
+    expect(TASKS_VISION_VERSION).toBe(pkg.version);
   });
 });
