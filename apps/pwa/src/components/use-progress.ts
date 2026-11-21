@@ -1,44 +1,117 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 
 import {
   EMPTY_PROGRESS,
-  createProgressStore,
   type ProgressSnapshot,
-  type ProgressStore,
 } from "@/lib/progress";
+import {
+  EMPTY_SYNC,
+  createProgressOrchestrator,
+  type ProgressIdentity,
+  type ProgressOrchestrator,
+  type ProgressSyncSnapshot,
+} from "@/lib/progress-orchestrator";
+import { createSupabaseProgressRemote } from "@/lib/progress-sync";
+import { createClient } from "@/lib/supabase/client";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
+
+import { useAuthSession } from "./use-auth-session";
 
 /**
- * Singleton real-lesson progress store, created lazily so SSR never touches
- * `window`. `useSyncExternalStore` serves `EMPTY_PROGRESS` on the server and
- * swaps in the real snapshot after hydration — no mismatch, no flash of fake
- * progress.
+ * Singleton progress orchestrator, created lazily so SSR never touches
+ * `window` or the Supabase client. Owns one local store per storage identity
+ * (guest vs `u_<userId>`), hydrates an account's completions from
+ * `lesson_completions` when its session starts, and pushes completions
+ * remotely through a bounded-retry queue — all without ever merging guest
+ * progress into an account (ADR 0004, D4).
  */
-let store: ProgressStore | null = null;
+let orchestrator: ProgressOrchestrator | null = null;
 
-function getStore(): ProgressStore | null {
+function getOrchestrator(): ProgressOrchestrator | null {
   if (typeof window === "undefined") return null;
-  if (!store) {
+  if (!orchestrator) {
+    let storage: Storage | undefined;
     try {
-      store = createProgressStore({ storage: window.localStorage });
+      storage = window.localStorage;
     } catch {
       // Browsers can throw SecurityError on the `localStorage` getter itself
-      // (blocked storage): fall back to in-memory progress for the session.
-      store = createProgressStore();
+      // (blocked storage): progress degrades to in-memory for the session.
+      storage = undefined;
     }
+    const remote = isSupabaseConfigured()
+      ? createSupabaseProgressRemote(createClient())
+      : undefined;
+    orchestrator = createProgressOrchestrator({ storage, remote });
   }
-  return store;
+  return orchestrator;
+}
+
+function identityOf(
+  status: "unconfigured" | "loading" | "guest" | "user",
+  userId: string | undefined,
+): ProgressIdentity {
+  if (status === "loading") return { status: "loading" };
+  if (status === "user" && userId) return { status: "user", userId };
+  return { status: "guest" };
+}
+
+/**
+ * Wires the auth session into the orchestrator and returns the snapshot for
+ * the identity the component rendered with — `EMPTY_PROGRESS` while the
+ * session resolves, so no identity's progress flashes beforehand.
+ */
+function useOrchestratedProgress<T>(
+  getSnapshot: (
+    orchestrator: ProgressOrchestrator,
+    identity: ProgressIdentity,
+  ) => T,
+  empty: T,
+): T {
+  const { status, user } = useAuthSession();
+  const identity = identityOf(status, user?.id);
+  const identityKey =
+    identity.status === "user" ? `u:${identity.userId}` : identity.status;
+
+  useEffect(() => {
+    const orch = getOrchestrator();
+    if (!orch) return;
+    orch.setIdentity(identity);
+    const onOnline = () => orch.handleOnline();
+    window.addEventListener("online", onOnline);
+    return () => window.removeEventListener("online", onOnline);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- identityKey is the serialized form of identity
+  }, [identityKey]);
+
+  return useSyncExternalStore(
+    (onStoreChange) =>
+      getOrchestrator()?.subscribe(onStoreChange) ?? (() => {}),
+    () => {
+      const orch = getOrchestrator();
+      // Render-time identity: a session switch can never surface another
+      // account's set for a frame, and "loading" yields the empty snapshot.
+      return orch ? getSnapshot(orch, identity) : empty;
+    },
+    () => empty,
+  );
 }
 
 export function useProgressSnapshot(): ProgressSnapshot {
-  return useSyncExternalStore(
-    (onStoreChange) => getStore()?.subscribe(onStoreChange) ?? (() => {}),
-    () => getStore()?.getSnapshot() ?? EMPTY_PROGRESS,
-    () => EMPTY_PROGRESS,
+  return useOrchestratedProgress(
+    (orch, identity) => orch.getCompletedSnapshot(identity),
+    EMPTY_PROGRESS,
+  );
+}
+
+/** Remote synchronization bookkeeping — never a completion record itself. */
+export function useProgressSyncState(): ProgressSyncSnapshot {
+  return useOrchestratedProgress(
+    (orch, identity) => orch.getSyncSnapshot(identity),
+    EMPTY_SYNC,
   );
 }
 
 export function markLessonCompleted(key: string): boolean {
-  return getStore()?.markCompleted(key) ?? false;
+  return getOrchestrator()?.markCompleted(key) ?? false;
 }

@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
 import { Eyebrow } from "@/components/eyebrow";
+import { ProgressSyncNote } from "@/components/progress-sync-note";
 import { SignOutButton } from "@/components/sign-out-button";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
@@ -64,9 +65,12 @@ async function AccountPanel() {
           <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
             Progresso
           </dt>
-          <dd className="text-sm leading-relaxed text-muted">
-            O progresso que você acumulou sem conta continua neste dispositivo.
-            A sincronização com a sua conta chega em uma próxima etapa.
+          <dd className="flex flex-col gap-1.5">
+            <ProgressSyncNote />
+            <p className="text-sm leading-relaxed text-muted">
+              O progresso acumulado sem conta continua neste dispositivo,
+              separado do progresso da sua conta.
+            </p>
           </dd>
         </div>
       </dl>

@@ -198,3 +198,49 @@ describe("createProgressStore", () => {
     expect(listener).toHaveBeenCalledTimes(1);
   });
 });
+
+describe("createProgressStore.merge", () => {
+  const OTHER = "alfabeto/letras-a-e/letra-b";
+
+  it("merges remote keys into the store and persists them", () => {
+    const storage = makeStorage();
+    const store = createProgressStore({ storage });
+    store.markCompleted(KEY);
+
+    expect(store.merge([OTHER])).toBe(true);
+    expect(store.getSnapshot().completed).toEqual(new Set([KEY, OTHER]));
+    const parsed = JSON.parse(storage.map.get(PROGRESS_STORAGE_KEY)!);
+    expect(parsed.completed).toEqual(expect.arrayContaining([KEY, OTHER]));
+  });
+
+  it("is a no-op when every key is already present", () => {
+    const store = createProgressStore({ storage: makeStorage() });
+    store.markCompleted(KEY);
+    const listener = vi.fn();
+    store.subscribe(listener);
+
+    expect(store.merge([KEY])).toBe(false);
+    expect(listener).not.toHaveBeenCalled();
+  });
+
+  it("never drops existing completions while merging", () => {
+    const store = createProgressStore({ storage: makeStorage() });
+    store.markCompleted(KEY);
+    store.merge([OTHER]);
+    store.merge([]);
+
+    expect(store.isCompleted(KEY)).toBe(true);
+    expect(store.isCompleted(OTHER)).toBe(true);
+  });
+
+  it("re-reads storage so entries added by another instance survive", () => {
+    const storage = makeStorage();
+    const tabA = createProgressStore({ storage });
+    const tabB = createProgressStore({ storage });
+    tabB.markCompleted(OTHER);
+
+    tabA.merge([KEY]);
+    expect(tabA.isCompleted(OTHER)).toBe(true);
+    expect(tabA.isCompleted(KEY)).toBe(true);
+  });
+});

@@ -127,6 +127,18 @@ export function createProgressStore(deps: ProgressDeps = {}) {
       emit();
       return true;
     },
+    /**
+     * Union external keys (e.g. remote completions fetched on sign-in) into
+     * this store in a single persist+emit. Returns true when the set grew.
+     */
+    merge(keys: Iterable<string>): boolean {
+      const next = new Set([...load(), ...completed, ...keys]);
+      if (next.size === completed.size) return false;
+      completed = next;
+      persist(completed);
+      emit();
+      return true;
+    },
     reset() {
       completed = new Set();
       persist(completed);
