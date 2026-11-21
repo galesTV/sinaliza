@@ -41,7 +41,7 @@ export function describeAuthError(error: unknown): string {
 /** Messages shown for `?erro=` values set by internal redirects. */
 const NOTICE_MESSAGES: Record<string, string> = {
   "link-invalido":
-    "O link de confirmação é inválido ou já expirou. Entre na sua conta ou solicite um novo e-mail.",
+    "O link de confirmação é inválido, expirou ou já foi usado. Se você acabou de confirmar o e-mail em outro navegador, sua conta já pode estar ativa — tente entrar. Caso contrário, solicite um novo e-mail.",
 };
 
 export function resolveAuthNotice(code: unknown): string | null {
