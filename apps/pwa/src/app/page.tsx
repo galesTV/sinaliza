@@ -103,7 +103,7 @@ export default function Home() {
                   </span>
                 </span>
               </span>
-              <span className="btn-primary shrink-0 self-start sm:self-center">
+              <span className="btn-secondary shrink-0 self-start sm:self-center">
                 Iniciar demonstração
                 <IconArrowRight aria-hidden="true" className="h-4 w-4" />
               </span>

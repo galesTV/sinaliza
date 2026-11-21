@@ -7,8 +7,9 @@ describe("home page", () => {
   const html = renderToStaticMarkup(<HomePage />);
 
   it("offers a highlighted CTA to the guided lab experience", () => {
-    expect(html).toContain('href="/laboratorio/experiencia"');
-    expect(html).toContain("Iniciar demonstração");
+    expect(html).toMatch(
+      /href="\/laboratorio\/experiencia"[\s\S]{0,2500}Iniciar demonstração/,
+    );
   });
 
   it("shows the lab section before the learning paths", () => {
