@@ -115,6 +115,11 @@ export function createProgressOrchestrator(
   let identity: ProgressIdentity = { status: "loading" };
   let inflight = 0;
   const syncCache = new Map<string, ProgressSyncSnapshot>();
+  // In-flight dedupe: one hydrate and one flush per account at a time, so
+  // a burst of triggers (several components, online + re-login) can never
+  // run duplicate remote round-trips.
+  const hydratingUsers = new Set<string>();
+  const flushingUsers = new Set<string>();
   // Completions recorded before the session resolves, waiting for the
   // first non-loading identity to own them.
   const deferredMarks = new Set<string>();
@@ -209,14 +214,26 @@ export function createProgressOrchestrator(
     }
   }
 
-  /** Flush the account's pending queue, bounded per entry. */
+  /**
+   * Flush the account's pending queue, bounded per entry and deduped so
+   * concurrent triggers run a single pass. Each explicit flush cycle is
+   * also the recovery path: exhausted entries get a fresh attempt budget
+   * first — a temporary outage can never strand valid progress.
+   */
   async function flushPending(userId: string) {
-    for (const entry of queueFor(userId).list()) {
-      // Stale ownership check per item: stop pushing as soon as the active
-      // account is no longer this queue's owner.
-      if (activeUserId() !== userId) return;
-      if (entry.attempts >= MAX_SYNC_ATTEMPTS) continue;
-      await push(userId, entry.key);
+    if (flushingUsers.has(userId)) return;
+    flushingUsers.add(userId);
+    try {
+      queueFor(userId).resetExhausted();
+      for (const entry of queueFor(userId).list()) {
+        // Stale ownership check per item: stop pushing as soon as the
+        // active account is no longer this queue's owner.
+        if (activeUserId() !== userId) return;
+        if (entry.attempts >= MAX_SYNC_ATTEMPTS) continue;
+        await push(userId, entry.key);
+      }
+    } finally {
+      flushingUsers.delete(userId);
     }
   }
 
@@ -235,6 +252,8 @@ export function createProgressOrchestrator(
       if (activeUserId() === userId) await flushPending(userId);
       return;
     }
+    if (hydratingUsers.has(userId)) return;
+    hydratingUsers.add(userId);
     inflight += 1;
     emit();
     try {
@@ -260,6 +279,8 @@ export function createProgressOrchestrator(
       // false, and pending entries keep their retry budget.
       inflight -= 1;
       emit();
+    } finally {
+      hydratingUsers.delete(userId);
     }
   }
 
@@ -329,10 +350,6 @@ export function createProgressOrchestrator(
       if (!hydratedUsers.has(userId)) {
         void hydrate(userId);
       } else {
-        // Reconnect is the explicit recovery path: give exhausted entries
-        // a fresh budget and flush. They stay in the queue until a write
-        // is confirmed — durable, never stranded.
-        queueFor(userId).resetExhausted();
         void flushPending(userId);
       }
     },

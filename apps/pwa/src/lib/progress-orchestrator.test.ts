@@ -206,6 +206,52 @@ describe("remote hydration", () => {
     expect(orch.getCompletedSnapshot(user(ALICE)).completed.has(K1)).toBe(true);
   });
 
+  it("dedupes concurrent triggers into a single remote hydration", async () => {
+    const { storage } = makeStorage();
+    const remote = makeRemote();
+    let resolveFetch!: (keys: string[]) => void;
+    remote.fetchKeys.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveFetch = resolve;
+        }),
+    );
+    const orch = createProgressOrchestrator({ storage, remote });
+
+    orch.setIdentity(user(ALICE));
+    orch.setIdentity(user(ALICE));
+    orch.handleOnline();
+    orch.handleOnline();
+    resolveFetch([]);
+    await settle();
+
+    expect(remote.fetchKeys).toHaveBeenCalledTimes(1);
+  });
+
+  it("the first reconnect after an offline restart revives exhausted entries", async () => {
+    const { storage } = makeStorage();
+    // App reopened with an already-exhausted durable queue from before.
+    storage.setItem(
+      syncStorageKey(ALICE),
+      JSON.stringify({
+        version: 1,
+        pending: [{ key: K1, attempts: MAX_SYNC_ATTEMPTS, lastError: "x" }],
+      }),
+    );
+    const remote = makeRemote();
+    const orch = createProgressOrchestrator({ storage, remote });
+
+    // Session starts (still "offline") then connectivity returns: the
+    // hydration-driven flush itself revives the budget — no second event
+    // is needed for progress to reach the server.
+    orch.setIdentity(user(ALICE));
+    await vi.waitFor(() =>
+      expect(orch.getSyncSnapshot(user(ALICE)).pending).toBe(0),
+    );
+    expect(remote.upsert).toHaveBeenCalledWith(ALICE, K1);
+    expect(orch.getSyncSnapshot(user(ALICE)).failed).toBe(0);
+  });
+
   it("a late hydration response still merges into the correct account bucket", async () => {
     const { storage } = makeStorage();
     const remote = makeRemote();

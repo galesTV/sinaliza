@@ -44,6 +44,12 @@ function getOrchestrator(): ProgressOrchestrator | null {
       ? createSupabaseProgressRemote(createClient())
       : undefined;
     orchestrator = createProgressOrchestrator({ storage, remote });
+    // One reconnect trigger for the whole app — not one per mounted
+    // component. The orchestrator dedupes in-flight hydration/flushes, so
+    // a single listener is both necessary and sufficient.
+    window.addEventListener("online", () =>
+      orchestrator?.handleOnline(),
+    );
   }
   return orchestrator;
 }
@@ -78,9 +84,6 @@ function useOrchestratedProgress<T>(
     const orch = getOrchestrator();
     if (!orch) return;
     orch.setIdentity(identity);
-    const onOnline = () => orch.handleOnline();
-    window.addEventListener("online", onOnline);
-    return () => window.removeEventListener("online", onOnline);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- identityKey is the serialized form of identity
   }, [identityKey]);
 

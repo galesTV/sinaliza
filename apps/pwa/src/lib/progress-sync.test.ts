@@ -123,6 +123,37 @@ describe("createSyncQueue", () => {
     });
   });
 
+  it("keeps pending entries in memory when setItem throws", () => {
+    const queue = createSyncQueue({
+      storage: {
+        getItem: () => null,
+        setItem: () => {
+          throw new Error("quota");
+        },
+      },
+      storageKey: syncStorageKey(UID),
+    });
+    queue.enqueue(KEY);
+    queue.recordAttempt(KEY, new Error("x"));
+
+    // A failed persist can never strand pending work: the entry lives in
+    // memory for the session and would land on the next successful write.
+    expect(queue.has(KEY)).toBe(true);
+    expect(queue.list()).toEqual([
+      { key: KEY, attempts: 1, lastError: "x" },
+    ]);
+  });
+
+  it("sees entries persisted by a sibling instance", () => {
+    const storage = makeStorage();
+    const first = createSyncQueue({ storage, storageKey: syncStorageKey(UID) });
+    const second = createSyncQueue({ storage, storageKey: syncStorageKey(UID) });
+    second.enqueue(KEY);
+
+    expect(first.has(KEY)).toBe(true);
+    expect(first.list().map((e) => e.key)).toEqual([KEY]);
+  });
+
   it("drops malformed pending entries but keeps valid ones", () => {
     const storage = makeStorage();
     storage.map.set(

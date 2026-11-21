@@ -140,31 +140,56 @@ export function createSyncQueue(deps: {
     }
   }
 
-  function persist(pending: SyncQueueEntry[]) {
+  // In-memory source of truth, seeded from storage once. Mutations union
+  // in whatever a sibling instance persisted before writing back, so a
+  // failed setItem can never silently drop pending work — the entry stays
+  // in memory for the session and survives into the next persist.
+  let pending = load();
+
+  function mergeStored() {
+    const seen = new Map(pending.map((entry) => [entry.key, entry]));
+    for (const entry of load()) {
+      if (!seen.has(entry.key)) {
+        pending.push(entry);
+        seen.set(entry.key, entry);
+      }
+    }
+  }
+
+  function persist() {
     try {
       deps.storage?.setItem(
         deps.storageKey,
         JSON.stringify({ version: 1, pending }),
       );
     } catch {
-      // Storage unavailable or full: keep the in-memory record via callers'
-      // fresh load() on the next operation.
+      // Storage unavailable or full: the in-memory `pending` list still
+      // holds every entry for this session.
     }
   }
 
   return {
-    list: () => load(),
-    has: (key) => load().some((entry) => entry.key === key),
+    list: () => {
+      mergeStored();
+      return pending.map((entry) => ({ ...entry }));
+    },
+    has: (key) => {
+      mergeStored();
+      return pending.some((entry) => entry.key === key);
+    },
     enqueue(key) {
-      const pending = load();
+      mergeStored();
       if (pending.some((entry) => entry.key === key)) return;
-      persist([...pending, { key, attempts: 0, lastError: null }]);
+      pending.push({ key, attempts: 0, lastError: null });
+      persist();
     },
     confirm(key) {
-      persist(load().filter((entry) => entry.key !== key));
+      mergeStored();
+      pending = pending.filter((entry) => entry.key !== key);
+      persist();
     },
     recordAttempt(key, error) {
-      const pending = load();
+      mergeStored();
       let entry = pending.find((item) => item.key === key);
       if (!entry) {
         entry = { key, attempts: 0, lastError: null };
@@ -172,11 +197,11 @@ export function createSyncQueue(deps: {
       }
       entry.attempts += 1;
       entry.lastError = errorMessage(error).slice(0, 300);
-      persist(pending);
+      persist();
       return { ...entry };
     },
     resetExhausted() {
-      const pending = load();
+      mergeStored();
       const revived: string[] = [];
       for (const entry of pending) {
         if (entry.attempts >= MAX_SYNC_ATTEMPTS) {
@@ -185,7 +210,7 @@ export function createSyncQueue(deps: {
           revived.push(entry.key);
         }
       }
-      if (revived.length > 0) persist(pending);
+      if (revived.length > 0) persist();
       return revived;
     },
   };
