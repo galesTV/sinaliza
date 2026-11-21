@@ -1,9 +1,10 @@
 import Link from "next/link";
 
 import { getPathStats, type LearningPath } from "@/data/learning-paths";
+import { getPathPublicationSummary } from "@/data/path-publication";
 
-import { Badge } from "./badge";
 import { IconArrowRight, IconChat, IconType } from "./icons";
+import { PublicationBadge } from "./publication-badge";
 
 const PATH_ICONS = {
   alphabet: IconType,
@@ -19,6 +20,7 @@ export function PathCard({
   startMarker?: boolean;
 }) {
   const stats = getPathStats(path);
+  const publication = getPathPublicationSummary(path);
   const Icon = PATH_ICONS[path.icon];
 
   return (
@@ -33,7 +35,7 @@ export function PathCard({
         >
           <Icon className="h-5 w-5" />
         </span>
-        <Badge tone="accent">Aberta</Badge>
+        <PublicationBadge summary={publication} />
       </div>
 
       <div className="flex flex-col gap-2">
