@@ -104,9 +104,13 @@ describe("createHandGuidance", () => {
     guidance.observe(twoHands, 0);
     expect(statusOf(guidance)).toBe("holding");
 
-    guidance.observe(twoHands, 300);
+    guidance.observe(twoHands, 500);
+    setClock(1000);
+    guidance.observe(twoHands, 1000);
     setClock(1500);
     guidance.observe(twoHands, 1500);
+    setClock(2000);
+    guidance.observe(twoHands, 2000);
     setClock(2100);
     guidance.observe(twoHands, 2100);
     expect(statusOf(guidance)).toBe("completed");
