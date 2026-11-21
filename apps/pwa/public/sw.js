@@ -14,7 +14,7 @@
  *   until it closes, so a new worker never controls an old-build page.
  */
 
-const VERSION = "v3";
+const VERSION = "v4";
 const CACHE_PREFIX = "sinaliza-";
 
 const CRITICAL_CACHE = `sinaliza-critical-${VERSION}`;
@@ -22,7 +22,7 @@ const PAGES_CACHE = `sinaliza-pages-${VERSION}`;
 const STATIC_CACHE = `sinaliza-static-${VERSION}`;
 const MEDIA_CACHE = `sinaliza-media-${VERSION}`;
 const BRAND_CACHE = `sinaliza-brand-${VERSION}`;
-const EXTERNAL_CACHE = `sinaliza-external-${VERSION}`;
+const MEDIAPIPE_CACHE = `sinaliza-mediapipe-${VERSION}`;
 
 const KNOWN_CACHES = [
   CRITICAL_CACHE,
@@ -30,7 +30,7 @@ const KNOWN_CACHES = [
   STATIC_CACHE,
   MEDIA_CACHE,
   BRAND_CACHE,
-  EXTERNAL_CACHE,
+  MEDIAPIPE_CACHE,
 ];
 
 // Paths reserved for authenticated flows (auth callbacks, account pages,
@@ -51,9 +51,9 @@ const OFFLINE_URL = "/offline.html";
 const PAGES_LIMIT = 50;
 const MEDIA_LIMIT = 64;
 const BRAND_LIMIT = 30;
-// Entry-count cap, not a byte budget: the allowlisted MediaPipe set is a
-// few files (~10 MB: 8 MB model + WASM loader), so counting bounds it.
-const EXTERNAL_LIMIT = 20;
+// Entry-count cap, not a byte budget: the self-hosted MediaPipe set is
+// five files (~27 MB: model + WASM loaders), so counting bounds it.
+const MEDIAPIPE_LIMIT = 8;
 
 // Failure to cache any of these fails install so the browser retries later.
 const CRITICAL_ASSETS = [
@@ -75,22 +75,9 @@ const CORE_BRAND_ASSETS = [
   "/brand/sinaliza-monocromatico.svg",
 ];
 
-// Mirrors the exact CDN assets loaded by src/lib/hand-tracking.ts: the
-// wasm directory of the pinned @mediapipe/tasks-vision version (covers
-// the SIMD and nosimd loader variants MediaPipe picks at runtime) and
-// the hand_landmarker float16 model. Anything else is network-only.
-const MEDIAPIPE_WASM_PREFIX = "/npm/@mediapipe/tasks-vision@0.10.21/wasm/";
-const MEDIAPIPE_MODEL_PATH =
-  "/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task";
-
-function isAllowedExternal(url) {
-  return (
-    (url.host === "cdn.jsdelivr.net" &&
-      url.pathname.startsWith(MEDIAPIPE_WASM_PREFIX)) ||
-    (url.host === "storage.googleapis.com" &&
-      url.pathname === MEDIAPIPE_MODEL_PATH)
-  );
-}
+// The hand lab serves its MediaPipe runtime and model from the app
+// itself (public/mediapipe/) so they land under this same-origin prefix.
+const MEDIAPIPE_PREFIX = "/mediapipe/";
 
 // Shared store predicate: every strategy validates status, response type
 // (basic for same-origin, cors allowed only where opted in) and the
@@ -222,12 +209,8 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(request.url);
 
-  if (url.origin !== self.location.origin) {
-    if (isAllowedExternal(url)) {
-      event.respondWith(cacheFirst(request, EXTERNAL_CACHE, EXTERNAL_LIMIT));
-    }
-    return;
-  }
+  // All remaining external requests are network-only.
+  if (url.origin !== self.location.origin) return;
 
   // Auth/account paths: network only, no interception — see the declaration
   // above. Leaving respondWith uncalled lets the request hit the network
@@ -258,6 +241,11 @@ self.addEventListener("fetch", (event) => {
 
   if (url.pathname.startsWith("/_next/image")) {
     event.respondWith(staleWhileRevalidate(request, MEDIA_CACHE, MEDIA_LIMIT, event));
+    return;
+  }
+
+  if (url.pathname.startsWith(MEDIAPIPE_PREFIX)) {
+    event.respondWith(cacheFirst(request, MEDIAPIPE_CACHE, MEDIAPIPE_LIMIT));
     return;
   }
 
