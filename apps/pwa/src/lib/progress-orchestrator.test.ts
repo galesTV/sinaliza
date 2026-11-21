@@ -228,6 +228,34 @@ describe("remote hydration", () => {
     expect(remote.fetchKeys).toHaveBeenCalledTimes(1);
   });
 
+  it("a reconnect during an in-flight hydration is not dropped — it re-runs once", async () => {
+    const { storage } = makeStorage();
+    const remote = makeRemote();
+    let rejectFetch!: (error: unknown) => void;
+    remote.fetchKeys
+      .mockImplementationOnce(
+        () =>
+          new Promise((_, reject) => {
+            rejectFetch = reject;
+          }),
+      )
+      .mockResolvedValue([K1]);
+    const orch = createProgressOrchestrator({ storage, remote });
+
+    orch.setIdentity(user(ALICE));
+    // Reconnect lands mid-flight: it is queued as a trailing re-run, not
+    // discarded — so a failed first attempt still gets retried.
+    orch.handleOnline();
+    rejectFetch(new Error("flaky"));
+    await vi.waitFor(() =>
+      expect(remote.fetchKeys).toHaveBeenCalledTimes(2),
+    );
+    await vi.waitFor(() =>
+      expect(orch.getSyncSnapshot(user(ALICE)).hydrated).toBe(true),
+    );
+    expect(orch.getCompletedSnapshot(user(ALICE)).completed.has(K1)).toBe(true);
+  });
+
   it("the first reconnect after an offline restart revives exhausted entries", async () => {
     const { storage } = makeStorage();
     // App reopened with an already-exhausted durable queue from before.

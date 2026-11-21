@@ -154,6 +154,20 @@ describe("createSyncQueue", () => {
     expect(first.list().map((e) => e.key)).toEqual([KEY]);
   });
 
+  it("drops keys a sibling instance confirmed", () => {
+    const storage = makeStorage();
+    const first = createSyncQueue({ storage, storageKey: syncStorageKey(UID) });
+    const second = createSyncQueue({ storage, storageKey: syncStorageKey(UID) });
+    first.enqueue(KEY);
+    second.confirm(KEY); // sibling's remote write confirmed
+
+    expect(first.has(KEY)).toBe(false);
+    expect(first.list()).toHaveLength(0);
+    // And the next mutation does not resurrect the confirmed key.
+    first.enqueue("alfabeto/letras-a-e/letra-b");
+    expect(first.has(KEY)).toBe(false);
+  });
+
   it("drops malformed pending entries but keeps valid ones", () => {
     const storage = makeStorage();
     storage.map.set(

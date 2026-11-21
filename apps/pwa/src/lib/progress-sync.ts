@@ -140,15 +140,22 @@ export function createSyncQueue(deps: {
     }
   }
 
-  // In-memory source of truth, seeded from storage once. Mutations union
-  // in whatever a sibling instance persisted before writing back, so a
-  // failed setItem can never silently drop pending work — the entry stays
-  // in memory for the session and survives into the next persist.
+  // In-memory source of truth, seeded from storage once and reconciled on
+  // every operation: entries a sibling instance persisted are adopted, and
+  // entries a sibling confirmed (removed from storage) are dropped —
+  // except keys kept memory-only because a persist failed, which a missing
+  // storage row can never mean "confirmed" for.
   let pending = load();
+  const volatile = new Set<string>();
 
   function mergeStored() {
+    const stored = load();
+    const storedKeys = new Set(stored.map((entry) => entry.key));
+    pending = pending.filter(
+      (entry) => storedKeys.has(entry.key) || volatile.has(entry.key),
+    );
     const seen = new Map(pending.map((entry) => [entry.key, entry]));
-    for (const entry of load()) {
+    for (const entry of stored) {
       if (!seen.has(entry.key)) {
         pending.push(entry);
         seen.set(entry.key, entry);
@@ -162,9 +169,11 @@ export function createSyncQueue(deps: {
         deps.storageKey,
         JSON.stringify({ version: 1, pending }),
       );
+      volatile.clear();
     } catch {
-      // Storage unavailable or full: the in-memory `pending` list still
-      // holds every entry for this session.
+      // Storage unavailable or full: current entries become memory-only
+      // for this session — a later merge must not treat them as confirmed.
+      for (const entry of pending) volatile.add(entry.key);
     }
   }
 

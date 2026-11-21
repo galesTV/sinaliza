@@ -115,11 +115,14 @@ export function createProgressOrchestrator(
   let identity: ProgressIdentity = { status: "loading" };
   let inflight = 0;
   const syncCache = new Map<string, ProgressSyncSnapshot>();
-  // In-flight dedupe: one hydrate and one flush per account at a time, so
-  // a burst of triggers (several components, online + re-login) can never
-  // run duplicate remote round-trips.
+  // In-flight dedupe with a trailing edge: one hydrate and one flush per
+  // account at a time, and a trigger that arrives mid-flight is not
+  // dropped — it schedules one re-run after the current operation
+  // finishes, so a reconnect can never be silently ignored.
   const hydratingUsers = new Set<string>();
+  const hydrateAgain = new Set<string>();
   const flushingUsers = new Set<string>();
+  const flushAgain = new Set<string>();
   // Completions recorded before the session resolves, waiting for the
   // first non-loading identity to own them.
   const deferredMarks = new Set<string>();
@@ -221,7 +224,10 @@ export function createProgressOrchestrator(
    * first — a temporary outage can never strand valid progress.
    */
   async function flushPending(userId: string) {
-    if (flushingUsers.has(userId)) return;
+    if (flushingUsers.has(userId)) {
+      flushAgain.add(userId);
+      return;
+    }
     flushingUsers.add(userId);
     try {
       queueFor(userId).resetExhausted();
@@ -234,6 +240,9 @@ export function createProgressOrchestrator(
       }
     } finally {
       flushingUsers.delete(userId);
+      if (flushAgain.delete(userId) && activeUserId() === userId) {
+        void flushPending(userId);
+      }
     }
   }
 
@@ -252,7 +261,10 @@ export function createProgressOrchestrator(
       if (activeUserId() === userId) await flushPending(userId);
       return;
     }
-    if (hydratingUsers.has(userId)) return;
+    if (hydratingUsers.has(userId)) {
+      hydrateAgain.add(userId);
+      return;
+    }
     hydratingUsers.add(userId);
     inflight += 1;
     emit();
@@ -281,6 +293,7 @@ export function createProgressOrchestrator(
       emit();
     } finally {
       hydratingUsers.delete(userId);
+      if (hydrateAgain.delete(userId)) void hydrate(userId);
     }
   }
 
