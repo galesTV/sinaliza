@@ -52,6 +52,12 @@ const SYNTHETIC_PATH: LearningPath = {
           status: "planned",
           objective: "",
         },
+        {
+          slug: "aprovada-nao-liberada",
+          title: "Aprovada, não liberada",
+          status: "planned",
+          objective: "",
+        },
       ],
     },
   ],
@@ -138,16 +144,19 @@ describe("getPathPublicationSummary", () => {
   it("counts a synthetic published lesson under the same page rule", () => {
     // publicada: available + publishable entry -> published
     // em-revisao: available + non-publishable draft -> inReview (not published)
+    // aprovada-nao-liberada: publishable entry but status planned -> inReview,
+    //   NOT published (proves the availability check is load-bearing)
     // planejada: planned + no catalog entry -> planned
     lessonCatalog.push(
       publishableEntry("sintetica/modulo/publicada"),
+      publishableEntry("sintetica/modulo/aprovada-nao-liberada"),
       makeCatalogEntry("sintetica/modulo/em-revisao", { draft: testContent }),
     );
 
     const summary = getPathPublicationSummary(SYNTHETIC_PATH);
-    expect(summary.total).toBe(3);
+    expect(summary.total).toBe(4);
     expect(summary.published).toBe(1);
-    expect(summary.inReview).toBe(1);
+    expect(summary.inReview).toBe(2);
     expect(summary.planned).toBe(1);
   });
 
@@ -171,8 +180,8 @@ describe("getPathPublicationSummary", () => {
     const summary = getPathPublicationSummary(SYNTHETIC_PATH);
     expect(summary.published).toBe(0);
     // The stale-reviewed entry still has a draft: it counts as in review.
-    // The other two lessons have no catalog entry: they count as planned.
+    // The other three lessons have no catalog entry: they count as planned.
     expect(summary.inReview).toBe(1);
-    expect(summary.planned).toBe(2);
+    expect(summary.planned).toBe(3);
   });
 });
