@@ -389,18 +389,23 @@ export function HandLab() {
         </p>
 
         {guidance.status === "holding" && (
-          <div
-            role="progressbar"
-            aria-valuenow={Math.round(guidance.progress * 100)}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-label="Progresso da estabilidade"
-            className="h-1.5 w-full overflow-hidden rounded-full bg-surface-elevated"
-          >
+          <div className="flex items-center gap-3">
             <div
-              className="h-full rounded-full bg-success transition-[width] duration-200 motion-reduce:transition-none"
-              style={{ width: `${Math.round(guidance.progress * 100)}%` }}
-            />
+              role="progressbar"
+              aria-valuenow={Math.round(guidance.progress * 100)}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label="Progresso da estabilidade"
+              className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface-elevated"
+            >
+              <div
+                className="h-full w-full origin-left rounded-full bg-success transition-transform duration-200 motion-reduce:transition-none"
+                style={{ transform: `scaleX(${guidance.progress})` }}
+              />
+            </div>
+            <span className="text-xs font-medium tabular-nums text-muted">
+              {Math.round(guidance.progress * 100)}%
+            </span>
           </div>
         )}
 
