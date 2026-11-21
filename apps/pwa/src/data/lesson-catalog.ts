@@ -3,16 +3,16 @@
  *
  * Every lesson planned for production gets a catalog entry recording what it
  * teaches, which sources ground it, what media it intends to reuse, and how
- * far validation has progressed. The catalog is separate from
- * `lessonContents` in `lesson-content.ts`: that registry only holds material
- * that has been published (lesson `status: "available"`), while the catalog
- * tracks the whole lifecycle — including drafts that may be previewed but
- * must never be presented as validated.
+ * far validation has progressed. The catalog tracks the whole lifecycle —
+ * including drafts that may be previewed but must never be presented as
+ * validated — and is also the single source of published content: once an
+ * entry is publishable, the lesson page renders its `draft` directly, so
+ * what the learner sees is by construction the reviewed version.
  *
- * Promotion rule (enforced by `lesson-catalog.test.ts`): a lesson may only
- * enter `lessonContents` after its catalog entry reaches
- * `"expert-validated"` — and that status is only legitimate when an expert
- * review is recorded. Technical integrity is not linguistic validation.
+ * Promotion rule (enforced by `lesson-catalog.test.ts`): an entry only
+ * publishes — its draft rendered by the lesson page — after reaching
+ * `"expert-validated"` with the full review chain on the current version.
+ * Technical integrity is not linguistic validation.
  */
 
 import type {
@@ -87,7 +87,7 @@ export interface LessonMediaPlan {
 export interface LessonCatalogEntry {
   /** Stable catalog identifier, independent of slugs. */
   id: string;
-  /** `trilha/modulo/licao` key shared with progress and `lessonContents`. */
+  /** `trilha/modulo/licao` key shared with progress. */
   lessonKey: string;
   title: string;
   objective: string;
@@ -108,8 +108,8 @@ export interface LessonCatalogEntry {
   mediaPlan?: LessonMediaPlan;
   /**
    * Prepared content awaiting validation. Previewable through the draft
-   * routes under `/laboratorio/licoes`; never copied into `lessonContents`
-   * while the entry is not `expert-validated`.
+   * routes under `/laboratorio/licoes`; rendered by the lesson page itself
+   * only once the entry is `expert-validated` and publishable.
    */
   draft?: LessonContent;
 }
@@ -766,10 +766,11 @@ export function hasCurrentReview(
 }
 
 /**
- * A draft is publishable into `lessonContents` only when the entry reached
- * `expert-validated` AND the full review chain (research, technical, expert)
- * covers the current content version — a bare status or a stale review is
- * never enough. The draft itself must exist and be well-formed.
+ * An entry is publishable — its draft rendered by the lesson page — only
+ * when it reached `expert-validated` AND the full review chain (research,
+ * technical, expert) covers the current content version — a bare status or
+ * a stale review is never enough. The draft itself must exist and be
+ * well-formed.
  */
 export function isPublishable(entry: LessonCatalogEntry): boolean {
   return (

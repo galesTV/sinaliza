@@ -147,8 +147,27 @@ A matriz afirmação × evidência completa está em
 
 ## 8. Registro de decisões
 
+Decisões internas já tomadas (para contexto da reunião):
+
 | Decisão | Status | Observação |
 |---|---|---|
 | Conteúdo `draft-1` mantido sem alterações | Aplicado | Auditoria não encontrou erro comprovado; inferências didáticas registradas como dúvidas. |
 | Lição permanece `draft`, `reviews: []` | Aplicado | Nenhuma revisão registrada; aguarda reunião de 25/11/2026. |
 | Sem mídia nesta versão | Mantido | `mediaPlan` documenta que demonstrações visuais dependem de licença/produção própria. |
+
+### Decisões da revisão especializada (preencher em 25/11)
+
+Cada decisão registrada aqui alimenta a atualização do catálogo
+(`reviews[]` com tipo, data e versão).
+
+| Data | Revisor(a) | Recomendação | Decisão | Versão resultante |
+|---|---|---|---|---|
+| _/_/_ |  |  |  |  |
+| _/_/_ |  |  |  |  |
+| _/_/_ |  |  |  |  |
+
+**Observações livres da revisão:**
+
+```
+(espaço para anotações da especialista)
+```

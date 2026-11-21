@@ -137,11 +137,7 @@ describe("LessonContentArea", () => {
   it("renders the lesson runner for a publishable catalog entry", () => {
     lessonCatalog.push(publishableEntry());
     const html = renderToStaticMarkup(
-      <LessonContentArea
-        status="available"
-        lessonKey={TEST_LESSON_KEY}
-        content={testContent}
-      />,
+      <LessonContentArea status="available" lessonKey={TEST_LESSON_KEY} />,
     );
     expect(html).toContain("Passo único");
     expect(html).toContain("Passo 1 de 1");
@@ -150,15 +146,31 @@ describe("LessonContentArea", () => {
   it("renders the lesson introduction before the first block", () => {
     lessonCatalog.push(publishableEntry());
     const html = renderToStaticMarkup(
-      <LessonContentArea
-        status="available"
-        lessonKey={TEST_LESSON_KEY}
-        content={testContent}
-      />,
+      <LessonContentArea status="available" lessonKey={TEST_LESSON_KEY} />,
     );
     expect(html).toContain("Introdução da lição.");
     // The intro is a lead-in, not a step: one block still means step 1 of 1.
     expect(html).toContain("Passo 1 de 1");
+  });
+
+  it("renders exactly the reviewed draft — no second content source", () => {
+    // The runner receives `entry.draft` itself (object identity), so the
+    // content a published lesson shows can never diverge from the version
+    // the review chain covered.
+    const entry = publishableEntry();
+    lessonCatalog.push(entry);
+    const element = LessonContentArea({
+      status: "available",
+      lessonKey: TEST_LESSON_KEY,
+    });
+    const runner = findElement(element, LessonRunner);
+    expect(runner).not.toBeNull();
+    expect((runner!.props as { content?: unknown }).content).toBe(
+      entry.draft,
+    );
+    expect((runner!.props as { lessonKey?: string }).lessonKey).toBe(
+      TEST_LESSON_KEY,
+    );
   });
 
   it("shows an honest fallback for an available lesson without content", () => {
@@ -174,7 +186,6 @@ describe("LessonContentArea publication guard", () => {
       <LessonContentArea
         status="available"
         lessonKey="trilha/modulo/sem-catalogo"
-        content={testContent}
       />,
     );
     expectUnavailableFallback(html);
@@ -182,7 +193,7 @@ describe("LessonContentArea publication guard", () => {
 
   it("blocks content when no lesson key reaches the area", () => {
     const html = renderToStaticMarkup(
-      <LessonContentArea status="available" content={testContent} />,
+      <LessonContentArea status="available" />,
     );
     expectUnavailableFallback(html);
   });
@@ -190,11 +201,7 @@ describe("LessonContentArea publication guard", () => {
   it("blocks content whose catalog entry is still a draft", () => {
     lessonCatalog.push(makeCatalogEntry({ draft: testContent }));
     const html = renderToStaticMarkup(
-      <LessonContentArea
-        status="available"
-        lessonKey={TEST_LESSON_KEY}
-        content={testContent}
-      />,
+      <LessonContentArea status="available" lessonKey={TEST_LESSON_KEY} />,
     );
     expectUnavailableFallback(html);
   });
@@ -207,11 +214,7 @@ describe("LessonContentArea publication guard", () => {
       }),
     );
     const html = renderToStaticMarkup(
-      <LessonContentArea
-        status="available"
-        lessonKey={TEST_LESSON_KEY}
-        content={testContent}
-      />,
+      <LessonContentArea status="available" lessonKey={TEST_LESSON_KEY} />,
     );
     expectUnavailableFallback(html);
   });
@@ -226,11 +229,17 @@ describe("LessonContentArea publication guard", () => {
       }),
     );
     const html = renderToStaticMarkup(
-      <LessonContentArea
-        status="available"
-        lessonKey={TEST_LESSON_KEY}
-        content={testContent}
-      />,
+      <LessonContentArea status="available" lessonKey={TEST_LESSON_KEY} />,
+    );
+    expectUnavailableFallback(html);
+  });
+
+  it("blocks a publishable-looking entry whose draft is malformed", () => {
+    lessonCatalog.push(
+      publishableEntry({ draft: { intro: "", blocks: [] } }),
+    );
+    const html = renderToStaticMarkup(
+      <LessonContentArea status="available" lessonKey={TEST_LESSON_KEY} />,
     );
     expectUnavailableFallback(html);
   });
@@ -238,11 +247,7 @@ describe("LessonContentArea publication guard", () => {
   it("renders the runner for a fully validated lesson", () => {
     lessonCatalog.push(publishableEntry());
     const html = renderToStaticMarkup(
-      <LessonContentArea
-        status="available"
-        lessonKey={TEST_LESSON_KEY}
-        content={testContent}
-      />,
+      <LessonContentArea status="available" lessonKey={TEST_LESSON_KEY} />,
     );
     expect(html).toContain("Passo 1 de 1");
     expect(html).toContain("Finalizar lição");

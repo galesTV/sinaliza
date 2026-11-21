@@ -3,12 +3,13 @@
  *
  * Counts are derived from the catalog and the publication gates — never
  * hardcoded. A lesson only counts as published under the same rule the
- * lesson page applies (`LessonContentArea`): status "available", catalog
- * entry publishable (expert-validated with the full review chain on the
- * current version) and material present in `lessonContents`.
+ * lesson page applies (`LessonContentArea`): status "available" plus a
+ * catalog entry that is publishable (expert-validated with the full
+ * review chain on the current version and an intact draft). The
+ * publishable draft itself is what the page renders — there is no
+ * separate published-content registry.
  */
 import { getCatalogEntry, isPublishable } from "./lesson-catalog";
-import { getLessonContent } from "./lesson-content";
 import { lessonKey } from "@/lib/progress";
 import type { LearningPath } from "./learning-paths";
 
@@ -41,10 +42,7 @@ export function getPathPublicationSummary(
       const published =
         lesson.status === "available" &&
         Boolean(entry) &&
-        isPublishable(entry!) &&
-        Boolean(
-          getLessonContent(path.slug, courseModule.slug, lesson.slug),
-        );
+        isPublishable(entry!);
 
       if (published) {
         summary.published += 1;
