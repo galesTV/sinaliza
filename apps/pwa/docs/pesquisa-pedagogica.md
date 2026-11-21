@@ -32,8 +32,8 @@ vigente do Portal da Legislação do Planalto.
 | Norma | URL oficial | Dispositivos relevantes |
 |---|---|---|
 | Lei nº 10.436/2002 — reconhecimento da Libras | https://www.planalto.gov.br/ccivil_03/leis/2002/l10436.htm | Art. 1º (reconhecimento como meio legal de comunicação; parágrafo único: sistema linguístico visual-motor com estrutura gramatical própria); art. 2º (apoio institucional ao uso e difusão); art. 4º (ensino de Libras na formação de professores). |
-| Decreto nº 5.626/2005 — regulamentação | https://www.planalto.gov.br/ccivil_03/_ato_2004-2006/2005/decreto/d5626.htm | Art. 2º (definição de pessoa surda); arts. 3º–6º (Libras como disciplina e formação de docentes/instrutores); art. 24 (acessibilidade em cursos a distância — janela de intérprete e legendas). |
-| Lei nº 13.146/2015 — Lei Brasileira de Inclusão | https://www.planalto.gov.br/ccivil_03/_ato_2015-2018/2015/lei/l13146.htm | Art. 3º, V (comunicação inclui a Libras); art. 27 (educação como direito); art. 28, IV (educação bilíngue: Libras como primeira língua, português escrito como segunda). |
+| Decreto nº 5.626/2005 — regulamentação | https://www.planalto.gov.br/ccivil_03/_ato2004-2006/2005/decreto/d5626.htm | Art. 2º (definição de pessoa surda); arts. 3º–6º (Libras como disciplina e formação de docentes/instrutores); art. 24 (acessibilidade em cursos a distância — janela de intérprete e legendas). |
+| Lei nº 13.146/2015 — Lei Brasileira de Inclusão | https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2015/lei/l13146.htm | Art. 3º, V (comunicação inclui a Libras); art. 27 (educação como direito); art. 28, IV (educação bilíngue: Libras como primeira língua, português escrito como segunda). |
 
 ## Conteúdos preparados
 
