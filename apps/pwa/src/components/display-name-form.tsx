@@ -121,7 +121,14 @@ export function DisplayNameForm({ userId, savedName }: DisplayNameFormProps) {
           </p>
         )}
       </div>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
+      {/* method="post": a native (pre-hydration) submit must not leak the
+          display name into the URL/history via a GET query string. */}
+      <form
+        method="post"
+        onSubmit={handleSubmit}
+        className="flex flex-col gap-4"
+        noValidate
+      >
         <AuthField
           id="nome-exibicao"
           label="Nome de exibição"

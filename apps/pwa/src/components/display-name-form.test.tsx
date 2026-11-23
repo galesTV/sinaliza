@@ -37,6 +37,13 @@ describe("DisplayNameForm (SSR)", () => {
     expect(html).toContain('value=""');
   });
 
+  it("submits via POST so a native submit never leaks the name in the URL", () => {
+    const html = renderToStaticMarkup(
+      <DisplayNameForm userId="user-1" savedName="Ana" />,
+    );
+    expect(html).toContain('method="post"');
+  });
+
   it("renders no error or success state on first paint", () => {
     const html = renderToStaticMarkup(
       <DisplayNameForm userId="user-1" savedName="Ana" />,
