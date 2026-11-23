@@ -596,6 +596,10 @@
     font-size: 15.5px;
   }
 
+  .v4c-actBridge .v4c-bridgeTitle {
+    font-size: clamp(36px, 14vw, 52px);
+  }
+
   .v4c-note {
     font-size: 12px;
   }
