@@ -1,7 +1,8 @@
-/* Phase C — cinematic hero vertical slice (/experience-v4/cinematic).
+/* Phase C — cinematic experience, Acts 1–2 (/experience-v4/cinematic).
    Default rules are the static composition (no JS, no WebGL, reduced motion).
-   Scroll choreography only applies under [data-mode="live"], and every value
-   derives from the single --v4c-p progress written by CinematicHero. */
+   Scroll choreography only applies under [data-mode="live"]: one scene layer
+   stays pinned behind both acts, and the Act 1 overlay derives every value
+   from the single --v4c-p progress written by CinematicHero. */
 
 .v4c-page {
   color: #f4f6fc;
@@ -9,17 +10,20 @@
   overflow-x: clip;
 }
 
+/* The static fallback re-anchors the scroll itself when the layout changes. */
 .v4c {
-  position: relative;
-}
-
-.v4c-stage {
   --v4c-p: 0.5;
   position: relative;
+  overflow-anchor: none;
 }
 
-.v4c-viewport {
-  position: relative;
+/* Background, poster and the one canvas shared by both acts. */
+.v4c-scene {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  left: 0;
+  right: 0;
   height: 100vh;
   height: 100dvh;
   min-height: 560px;
@@ -30,15 +34,35 @@
     #0b1020;
 }
 
+.v4c-stage,
+.v4c-act {
+  position: relative;
+  z-index: 1;
+}
+
+.v4c-viewport {
+  position: relative;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 560px;
+  overflow: hidden;
+}
+
 .v4c[data-mode="live"] .v4c-stage {
   height: 560vh;
 }
 
-/* Pinned, so it must never be taller than the window. */
+/* Pinned, so they must never be taller than the window. */
+.v4c[data-mode="live"] .v4c-scene,
 .v4c[data-mode="live"] .v4c-viewport {
   position: sticky;
   top: 0;
   min-height: 0;
+}
+
+.v4c[data-mode="live"] .v4c-scene {
+  margin-bottom: -100vh;
+  margin-bottom: -100dvh;
 }
 
 /* ---------- 3D layer ---------- */
@@ -315,45 +339,104 @@
   transform: scaleX(var(--in, 1));
 }
 
-/* ---------- Next section placeholder ---------- */
+/* ---------- Act 2: A Conexão (normal document flow) ---------- */
 
-.v4c-next {
-  position: relative;
-  z-index: 1;
+.v4c-actInner {
   display: grid;
-  align-content: center;
-  gap: 18px;
-  min-height: 100vh;
-  min-height: 100dvh;
-  padding: clamp(48px, 9vh, 120px) clamp(20px, 5.5vw, 88px);
-  background: #0e1528;
-  border-top: 1px dashed rgba(244, 246, 252, 0.22);
+  gap: clamp(150px, 34vh, 380px);
+  padding: clamp(110px, 24vh, 260px) clamp(20px, 5.5vw, 88px)
+    clamp(90px, 18vh, 200px);
 }
 
-.v4c-nextTag {
+.v4c-actIntro,
+.v4c-actBlock {
+  width: min(620px, 46vw);
+}
+
+.v4c-actTitle {
   margin: 0;
-  color: #35c9e8;
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(40px, 4.9vw, 78px);
+  font-weight: 600;
+  line-height: 0.98;
+  letter-spacing: -0.04em;
+  text-wrap: balance;
+}
+
+.v4c-actHeading {
+  margin: 0;
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(28px, 2.9vw, 46px);
+  font-weight: 600;
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.v4c-actText {
+  max-width: 46ch;
+  margin: 26px 0 0;
+  color: rgba(244, 246, 252, 0.78);
+  font-size: clamp(16px, 1.25vw, 19px);
+  line-height: 1.6;
+}
+
+.v4c-actBlock {
+  padding-top: 26px;
+  border-top: 1px solid rgba(53, 201, 232, 0.4);
+}
+
+.v4c-actClosing {
+  max-width: 17ch;
+  margin: 0;
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(38px, 6vw, 96px);
+  font-weight: 600;
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+  text-wrap: balance;
+}
+
+.v4c-actBridge {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+}
+
+/* Blocks rise as they enter the window; visible by default everywhere else. */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .v4c[data-mode="live"] .v4c-reveal {
+      animation: v4c-reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 28%;
+    }
+  }
+}
+
+@keyframes v4c-reveal {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 44px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.v4c-end {
+  padding: 28px clamp(20px, 5.5vw, 88px);
+  border-top: 1px solid rgba(244, 246, 252, 0.12);
+  color: rgba(244, 246, 252, 0.6);
   font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.18em;
+  font-weight: 600;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
 }
 
-.v4c-nextTitle {
+.v4c-end p {
   margin: 0;
-  font-family: var(--font-display), sans-serif;
-  font-size: clamp(40px, 6.4vw, 104px);
-  font-weight: 600;
-  line-height: 0.95;
-  letter-spacing: -0.045em;
-}
-
-.v4c-nextBody {
-  max-width: 52ch;
-  margin: 0;
-  color: rgba(244, 246, 252, 0.72);
-  font-size: clamp(15px, 1.15vw, 18px);
-  line-height: 1.55;
 }
 
 /* ---------- Debug HUD (?debug) ---------- */
@@ -376,7 +459,7 @@
 /* ---------- Tablet & mobile: hand above, type below ---------- */
 
 @media (max-width: 1023px) {
-  .v4c-viewport::after {
+  .v4c-scene::after {
     content: "";
     position: absolute;
     z-index: 1;
@@ -442,6 +525,32 @@
     display: flex;
     --in: clamp(0, calc((var(--v4c-p) - 0.6) / 0.06), 1);
   }
+
+  .v4c-actInner {
+    gap: clamp(120px, 26vh, 260px);
+  }
+
+  .v4c-actIntro,
+  .v4c-actBlock {
+    width: auto;
+    max-width: 640px;
+  }
+
+  .v4c-actTitle {
+    font-size: clamp(34px, 7.4vw, 60px);
+  }
+
+  .v4c-actHeading {
+    font-size: clamp(26px, 5vw, 40px);
+  }
+
+  .v4c-actText {
+    font-size: 16px;
+  }
+
+  .v4c-actClosing {
+    font-size: clamp(34px, 8.6vw, 72px);
+  }
 }
 
 @media (max-width: 599px) {
@@ -475,6 +584,20 @@
 
   .v4c-birthLine {
     font-size: 30px;
+  }
+
+  .v4c-actTitle {
+    font-size: clamp(31px, 9.2vw, 40px);
+    line-height: 1.02;
+  }
+
+  .v4c-actText {
+    margin-top: 18px;
+    font-size: 15.5px;
+  }
+
+  .v4c-actBridge .v4c-bridgeTitle {
+    font-size: clamp(36px, 14vw, 52px);
   }
 
   .v4c-note {
