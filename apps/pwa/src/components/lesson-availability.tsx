@@ -1,7 +1,8 @@
 import Link from "next/link";
 
-import { getCatalogEntry, isPublishable } from "@/data/lesson-catalog";
+import { getCatalogEntry } from "@/data/lesson-catalog";
 import type { LessonStatus } from "@/data/learning-paths";
+import { isLessonCompletable } from "@/data/path-publication";
 
 import { Badge, PlannedBadge } from "./badge";
 import { HonestNote } from "./honest-note";
@@ -22,15 +23,16 @@ export function LessonStatusBadge({ status }: { status: LessonStatus }) {
  * An "available" lesson whose catalog entry is missing or not publishable
  * is a data gap — it also gets an honest fallback instead of a blank area.
  *
- * Publication guard: the runner mounts only when the lesson's catalog entry
- * is publishable — `expert-validated` with the full review chain covering
- * the current content version. A manually flipped `status`, a missing
- * catalog entry or an incomplete review chain falls back to the honest
- * note, and `lessonKey` — the only path that records progress — never
- * reaches the runner. The rendered content is `catalogEntry.draft` itself,
- * so what the learner sees is by construction the exact draft the review
- * chain covered at `entry.version` — there is no second content source to
- * diverge from.
+ * Publication guard: the runner mounts only when the lesson is completable
+ * (`isLessonCompletable`) — `status === "available"` AND a publishable
+ * catalog entry: `expert-validated` with the full review chain covering
+ * the current content version and a well-formed draft. A manually flipped
+ * `status`, a missing catalog entry or an incomplete review chain falls
+ * back to the honest note, and `lessonKey` — the only path that records
+ * progress — never reaches the runner. The rendered content is
+ * `catalogEntry.draft` itself, so what the learner sees is by construction
+ * the exact draft the review chain covered at `entry.version` — there is
+ * no second content source to diverge from.
  */
 export function LessonContentArea({
   status,
@@ -47,9 +49,9 @@ export function LessonContentArea({
 }) {
   const catalogEntry = lessonKey ? getCatalogEntry(lessonKey) : undefined;
   if (
-    status === "available" &&
+    lessonKey &&
     catalogEntry?.draft &&
-    isPublishable(catalogEntry)
+    isLessonCompletable(lessonKey, status)
   ) {
     return <LessonRunner content={catalogEntry.draft} lessonKey={lessonKey} />;
   }

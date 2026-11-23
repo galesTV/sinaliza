@@ -11,7 +11,26 @@
  */
 import { getCatalogEntry, isPublishable } from "./lesson-catalog";
 import { lessonKey } from "@/lib/progress";
-import type { LearningPath } from "./learning-paths";
+import type { LearningPath, LessonStatus } from "./learning-paths";
+
+/**
+ * The single eligibility rule every consumer must agree on: a lesson can
+ * be completed — and therefore counted in progress — only when the path
+ * marks it `available` AND its catalog entry is publishable
+ * (expert-validated, the full review chain on the current version, and a
+ * well-formed draft). This is the rule `LessonContentArea` applies before
+ * mounting the runner; sharing it keeps progress denominators, resume
+ * targets and the publication summary below from promising a lesson the
+ * learner cannot actually complete.
+ */
+export function isLessonCompletable(
+  key: string,
+  status: LessonStatus,
+): boolean {
+  if (status !== "available") return false;
+  const entry = getCatalogEntry(key);
+  return entry !== undefined && isPublishable(entry);
+}
 
 export interface PathPublicationSummary {
   /** Lessons in the path, in any lifecycle stage. */
@@ -38,15 +57,11 @@ export function getPathPublicationSummary(
     for (const lesson of courseModule.lessons) {
       summary.total += 1;
       const key = lessonKey(path.slug, courseModule.slug, lesson.slug);
-      const entry = getCatalogEntry(key);
-      const published =
-        lesson.status === "available" &&
-        Boolean(entry) &&
-        isPublishable(entry!);
+      const published = isLessonCompletable(key, lesson.status);
 
       if (published) {
         summary.published += 1;
-      } else if (entry?.draft) {
+      } else if (getCatalogEntry(key)?.draft) {
         summary.inReview += 1;
       } else {
         summary.planned += 1;
