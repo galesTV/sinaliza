@@ -13,8 +13,14 @@ import {
 
 const REDUCED_MOTION_PROGRESS = 0.5;
 const SMOOTHING = 9;
-// Progress per second: a fling still plays every intermediate state.
+// Timeline units per second: a fling still plays every intermediate state.
 const MAX_SPEED = 1.8;
+const FRAME_SAMPLES = 120;
+
+function percentile(sorted: number[], fraction: number) {
+  if (sorted.length === 0) return 0;
+  return sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * fraction))];
+}
 
 function layoutFor(width: number): CinematicLayout {
   if (width < 600) return "mobile";
@@ -22,23 +28,49 @@ function layoutFor(width: number): CinematicLayout {
   return "desktop";
 }
 
-export function CinematicHero({ children }: { children: ReactNode }) {
+interface CinematicHeroProps {
+  // Decorative layer drawn behind the canvas.
+  backdrop?: ReactNode;
+  // Act 1 overlay, pinned while the hero plays.
+  children: ReactNode;
+  // Act 2, in normal document flow over the same canvas.
+  connection: ReactNode;
+}
+
+export function CinematicHero({
+  backdrop,
+  children,
+  connection,
+}: CinematicHeroProps) {
   const rootRef = useRef<HTMLDivElement>(null);
+  const sceneRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLElement>(null);
-  const viewportRef = useRef<HTMLDivElement>(null);
+  const actRef = useRef<HTMLElement>(null);
   const hostRef = useRef<HTMLDivElement>(null);
   const hudRef = useRef<HTMLPreElement>(null);
 
   useEffect(() => {
     const root = rootRef.current;
+    const sceneLayer = sceneRef.current;
     const stage = stageRef.current;
-    const viewport = viewportRef.current;
+    const act = actRef.current;
     const host = hostRef.current;
-    if (!root || !stage || !viewport || !host) return;
+    if (!root || !sceneLayer || !stage || !act || !host) return;
 
+    // The static layout is much shorter than the live one. Keep the reader
+    // where they were: at the hero if it was pinned, else on the same text.
     const fail = () => {
+      const wasLive = root.dataset.mode === "live";
+      const pinned = wasLive && stage.getBoundingClientRect().bottom > 0;
+      const before = act.getBoundingClientRect().top;
       root.dataset.mode = "static";
       root.dataset.canvas = "failed";
+      if (!wasLive) return;
+      if (pinned) {
+        window.scrollBy(0, stage.getBoundingClientRect().top);
+      } else {
+        window.scrollBy(0, act.getBoundingClientRect().top - before);
+      }
     };
 
     // Probe first: constructing WebGLRenderer without WebGL logs an error.
@@ -97,8 +129,10 @@ export function CinematicHero({ children }: { children: ReactNode }) {
     let target = reducedMotion ? REDUCED_MOTION_PROGRESS : 0;
     let current = target;
     let lastTime = performance.now();
+    let lastFrame = lastTime;
     let frameMs = 16.7;
     let workMs = 0;
+    const frameTimes: number[] = [];
     let loadMs = 0;
     const loadStart = performance.now();
 
@@ -107,12 +141,21 @@ export function CinematicHero({ children }: { children: ReactNode }) {
       ? String(renderer.getContext().getParameter(debugInfo.UNMASKED_RENDERER_WEBGL))
       : "unknown";
 
+    // One timeline for both acts, derived only from the scroll position:
+    // [0, 1] plays Act 1 while its stage is pinned, [1, 2] follows Act 2
+    // scrolling through the window.
     const readTarget = () => {
       if (reducedMotion) return REDUCED_MOTION_PROGRESS;
-      const travel = stage.offsetHeight - viewport.offsetHeight;
+      const windowHeight = sceneLayer.offsetHeight;
+      const travel = stage.offsetHeight - windowHeight;
       if (travel <= 0) return 0;
-      const offset = -stage.getBoundingClientRect().top;
-      return Math.min(1, Math.max(0, offset / travel));
+      const hero = -stage.getBoundingClientRect().top / travel;
+      const next =
+        (windowHeight - act.getBoundingClientRect().top) /
+        Math.max(1, act.offsetHeight);
+      return (
+        Math.min(1, Math.max(0, hero)) + Math.min(1, Math.max(0, next))
+      );
     };
 
     const resize = () => {
@@ -141,12 +184,16 @@ export function CinematicHero({ children }: { children: ReactNode }) {
         .find((item) => item.name.endsWith(HAND_ASSET_URL)) as
         | PerformanceResourceTiming
         | undefined;
+      const sorted = [...frameTimes].sort((a, b) => a - b);
       const stats = {
         p: Number(current.toFixed(4)),
         target: Number(target.toFixed(4)),
         stage: stageAt(current),
         layout,
         frameMs: Number(frameMs.toFixed(2)),
+        frameMedianMs: Number(percentile(sorted, 0.5).toFixed(2)),
+        frameP95Ms: Number(percentile(sorted, 0.95).toFixed(2)),
+        frameSamples: sorted.length,
         workMs: Number(workMs.toFixed(2)),
         drawCalls: info.render.calls,
         triangles: info.render.triangles,
@@ -172,7 +219,7 @@ export function CinematicHero({ children }: { children: ReactNode }) {
       hand.update(current, layout, camera, viewWidth, viewHeight);
       renderer.render(scene, camera);
       workMs += (performance.now() - start - workMs) * 0.2;
-      stage.style.setProperty("--v4c-p", current.toFixed(4));
+      root.style.setProperty("--v4c-p", Math.min(1, current).toFixed(4));
       root.dataset.stage = stageAt(current);
       writeHud();
     };
@@ -181,6 +228,7 @@ export function CinematicHero({ children }: { children: ReactNode }) {
     const schedule = () => {
       if (disposed || frame || !running || !visible) return;
       lastTime = performance.now();
+      lastFrame = lastTime;
       frame = window.requestAnimationFrame(tick);
     };
 
@@ -191,6 +239,11 @@ export function CinematicHero({ children }: { children: ReactNode }) {
       const delta = Math.min(0.1, (now - lastTime) / 1000);
       lastTime = now;
       frameMs += (delta * 1000 - frameMs) * 0.1;
+      if (debug) {
+        frameTimes.push(now - lastFrame);
+        if (frameTimes.length > FRAME_SAMPLES) frameTimes.shift();
+      }
+      lastFrame = now;
 
       target = readTarget();
       const gap = target - current;
@@ -219,7 +272,7 @@ export function CinematicHero({ children }: { children: ReactNode }) {
         schedule();
       }
     });
-    visibilityObserver.observe(stage);
+    visibilityObserver.observe(root);
 
     const onContextLost = (event: Event) => {
       event.preventDefault();
@@ -274,22 +327,26 @@ export function CinematicHero({ children }: { children: ReactNode }) {
       renderer.domElement.remove();
       delete root.dataset.mode;
       delete root.dataset.canvas;
+      delete root.dataset.stage;
+      root.style.removeProperty("--v4c-p");
     };
   }, []);
 
   return (
     <div ref={rootRef} className="v4c">
-      <section
-        ref={stageRef}
-        className="v4c-stage"
-        aria-labelledby="v4c-title"
-      >
-        <div ref={viewportRef} className="v4c-viewport">
-          <div className="v4c-poster" aria-hidden="true" />
-          <div ref={hostRef} className="v4c-canvasHost" />
-          {children}
-          <pre ref={hudRef} className="v4c-hud" hidden aria-hidden="true" />
-        </div>
+      <div ref={sceneRef} className="v4c-scene" aria-hidden="true">
+        {backdrop}
+        <div className="v4c-poster" />
+        <div ref={hostRef} className="v4c-canvasHost" />
+        <pre ref={hudRef} className="v4c-hud" hidden />
+      </div>
+
+      <section className="v4c-stage" ref={stageRef} aria-labelledby="v4c-title">
+        <div className="v4c-viewport">{children}</div>
+      </section>
+
+      <section className="v4c-act" ref={actRef} aria-labelledby="v4c-act2-title">
+        {connection}
       </section>
     </div>
   );

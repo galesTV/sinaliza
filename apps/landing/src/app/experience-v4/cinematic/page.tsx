@@ -4,20 +4,66 @@ import "../Cinematic.css";
 import { CinematicHero } from "../CinematicHero";
 
 export const metadata: Metadata = {
-  title: "Sinaliza — V4 cinematic hero",
+  title: "Sinaliza — V4 cinematic experience",
   description:
-    "Fatia vertical isolada do hero cinematográfico: nascimento, materialização, gesto e transição da mão anatômica, dirigidos pelo scroll nativo.",
+    "Estudo isolado da experiência cinematográfica: o hero da mão anatômica (Ato 1) e A Conexão (Ato 2), dirigidos pelo scroll nativo.",
   robots: { index: false, follow: false },
 };
 
 export default function Page() {
   return (
     <main className="v4c-page">
-      <CinematicHero>
-        <p className="v4c-ghost" aria-hidden="true">
-          Libras
-        </p>
+      <CinematicHero
+        backdrop={<p className="v4c-ghost">Libras</p>}
+        connection={
+          <div className="v4c-actInner">
+            <header className="v4c-actIntro v4c-reveal">
+              <p className="v4c-eyebrow">Ato 2 · A Conexão</p>
+              <h2 id="v4c-act2-title" className="v4c-actTitle">
+                Uma língua.{" "}
+                <span className="v4c-titleAccent">
+                  Novas possibilidades de conexão.
+                </span>
+              </h2>
+              <p className="v4c-actText">
+                A Língua Brasileira de Sinais tem estrutura e gramática
+                próprias. É vivida todos os dias pela comunidade surda
+                brasileira — e aprender Libras é um jeito de chegar mais perto.
+              </p>
+            </header>
 
+            <div className="v4c-actBlock v4c-reveal">
+              <h3 className="v4c-actHeading">Começar nem sempre é simples.</h3>
+              <p className="v4c-actText">
+                Quem quer aprender nem sempre encontra por onde começar, um
+                percurso organizado ou um espaço para praticar no próprio
+                ritmo.
+              </p>
+            </div>
+
+            <div className="v4c-actBlock v4c-reveal">
+              <h3 className="v4c-actHeading">
+                Uma língua não se aprende apenas memorizando.
+              </h3>
+              <p className="v4c-actText">
+                Aprender Libras pede contexto, contato e prática. Nenhuma
+                plataforma substitui professores, intérpretes ou a convivência
+                com pessoas surdas.
+              </p>
+            </div>
+
+            <p className="v4c-actClosing v4c-reveal">
+              O Sinaliza nasce para apoiar esse começo.
+            </p>
+
+            <p className="v4c-actBridge v4c-reveal">
+              <span className="v4c-bridgeLabel">A seguir</span>
+              <span className="v4c-bridgeTitle">O Aprendizado</span>
+              <span className="v4c-bridgeRule" aria-hidden="true" />
+            </p>
+          </div>
+        }
+      >
         <header className="v4c-bar">
           <Image
             src="/brand/sinaliza-horizontal.svg"
@@ -68,17 +114,11 @@ export default function Page() {
         </div>
       </CinematicHero>
 
-      <section className="v4c-next" aria-labelledby="v4c-next-title">
-        <p className="v4c-nextTag">Placeholder temporário · fora do escopo</p>
-        <h2 id="v4c-next-title" className="v4c-nextTitle">
-          Ato 2 — A Conexão
-        </h2>
-        <p className="v4c-nextBody">
-          Esta seção ainda não foi implementada. A fatia vertical da Fase C
-          termina aqui; o conteúdo real do próximo ato será definido após a
-          aprovação do hero.
+      <footer className="v4c-end">
+        <p>
+          Estudo em andamento · os atos 3 a 5 ainda não foram implementados.
         </p>
-      </section>
+      </footer>
     </main>
   );
 }
