@@ -71,6 +71,24 @@ export function describeProfileError(error: unknown): string {
   return "Não foi possível salvar o nome de exibição agora. Tente novamente.";
 }
 
+/** A synchronous re-entrancy flag (e.g. a React `useRef`). */
+export interface SubmitGuard {
+  current: boolean;
+}
+
+/**
+ * Claims a synchronous submit guard: returns true and sets the flag when
+ * free, false when a submission is already in flight. Unlike React state
+ * (which only applies on the next render), a claimed ref blocks a second
+ * submit fired in the same task — release it with `guard.current = false`
+ * in a `finally` block so failures never leave it held.
+ */
+export function claimSubmit(guard: SubmitGuard): boolean {
+  if (guard.current) return false;
+  guard.current = true;
+  return true;
+}
+
 export interface SaveDisplayNameResult {
   ok: boolean;
   /** The normalized name submitted (echoed for UI state on success). */

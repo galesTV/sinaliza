@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { describe, expect, it, vi } from "vitest";
 
 import {
+  claimSubmit,
   describeProfileError,
   planDisplayNameSave,
   saveDisplayName,
@@ -110,6 +111,22 @@ function stubClient(error: unknown = null) {
   const from = vi.fn().mockReturnValue({ upsert });
   return { client: { from } as unknown as SupabaseClient, from, upsert };
 }
+
+describe("claimSubmit", () => {
+  it("rejects a second claim while a submission is in flight", () => {
+    const guard = { current: false };
+    expect(claimSubmit(guard)).toBe(true);
+    expect(claimSubmit(guard)).toBe(false);
+    expect(claimSubmit(guard)).toBe(false);
+  });
+
+  it("accepts a new claim once released", () => {
+    const guard = { current: false };
+    expect(claimSubmit(guard)).toBe(true);
+    guard.current = false;
+    expect(claimSubmit(guard)).toBe(true);
+  });
+});
 
 describe("saveDisplayName", () => {
   it("upserts the trimmed name scoped to the session user id", async () => {

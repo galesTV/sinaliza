@@ -1,10 +1,11 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import {
   DISPLAY_NAME_MAX_LENGTH,
+  claimSubmit,
   describeProfileError,
   planDisplayNameSave,
   saveDisplayName,
@@ -41,6 +42,11 @@ export function DisplayNameForm({ userId, savedName }: DisplayNameFormProps) {
   const [formError, setFormError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  // Synchronous re-entrancy guard: React state only applies after the next
+  // render, so two submits fired in the same task could both pass a
+  // `pending`-only check. The ref is claimed before the request starts and
+  // released in `finally` (errors included).
+  const submitGuard = useRef(false);
 
   function handleChange(next: string) {
     setValue(next);
@@ -69,6 +75,8 @@ export function DisplayNameForm({ userId, savedName }: DisplayNameFormProps) {
       return;
     }
 
+    if (!claimSubmit(submitGuard)) return;
+
     setFieldError(null);
     setFormError(null);
     setNotice(null);
@@ -89,6 +97,7 @@ export function DisplayNameForm({ userId, savedName }: DisplayNameFormProps) {
     } catch (error) {
       setFormError(describeProfileError(error));
     } finally {
+      submitGuard.current = false;
       setPending(false);
     }
   }
