@@ -1,13 +1,72 @@
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { getLessonUrl } from "@/data/learning-paths";
+import {
+  lessonCatalog,
+  type LessonCatalogEntry,
+  type LessonReview,
+} from "@/data/lesson-catalog";
+import type { LessonContent } from "@/data/lesson-content";
 import { getPathProgress, getResumeLesson } from "@/lib/progression";
 import { lessonKey } from "@/lib/progress";
 
 import { ModuleLessonChip } from "./module-lesson-chip";
 import { PathProgressLineView } from "./path-progress-line";
 import { ResumeCtaView } from "./resume-cta";
+
+/**
+ * Synthetic entries pushed by these tests are appended to the catalog and
+ * rolled back after each test, so the live catalog is never mutated.
+ */
+let catalogLength = lessonCatalog.length;
+beforeEach(() => {
+  catalogLength = lessonCatalog.length;
+});
+afterEach(() => {
+  lessonCatalog.length = catalogLength;
+});
+
+const testContent: LessonContent = {
+  intro: "Introdução da lição.",
+  blocks: [{ kind: "text", heading: "Passo único", body: "texto" }],
+};
+
+function makeReview(type: LessonReview["type"]): LessonReview {
+  return {
+    reviewer: `Revisor ${type}`,
+    type,
+    date: "2026-11-18",
+    version: "draft-1",
+  };
+}
+
+/** A catalog entry that satisfies every publication gate. */
+function publishableEntry(key: string): LessonCatalogEntry {
+  return {
+    id: `teste-${key}`,
+    lessonKey: key,
+    title: "Lição de teste",
+    objective: "Objetivo de teste",
+    references: [
+      {
+        institution: "Instituição de teste",
+        url: "https://example.org/fonte",
+        purpose: "Testar",
+        consultedAt: "2026-11-18",
+      },
+    ],
+    plannedOutline: ["passo"],
+    validationStatus: "expert-validated",
+    version: "draft-1",
+    reviews: [
+      makeReview("research"),
+      makeReview("technical"),
+      makeReview("expert"),
+    ],
+    draft: testContent,
+  };
+}
 
 describe("ModuleLessonChip", () => {
   const href = getLessonUrl("alfabeto", "letras-a-e", "letra-a");
@@ -101,6 +160,7 @@ describe("PathProgressLineView", () => {
         },
       ],
     };
+    lessonCatalog.push(publishableEntry("p/m/a"), publishableEntry("p/m/b"));
     const completed = new Set([lessonKey("p", "m", "a")]);
     const html = renderToStaticMarkup(
       <PathProgressLineView progress={getPathProgress(path, completed)} />,
@@ -150,6 +210,7 @@ describe("ResumeCtaView", () => {
   };
 
   it("says 'Começar' when the learner has no progress yet", () => {
+    lessonCatalog.push(publishableEntry("alfabeto/m/letra-a"));
     const resume = getResumeLesson([pathWithLesson], new Set());
     const html = renderToStaticMarkup(
       <ResumeCtaView
@@ -166,6 +227,7 @@ describe("ResumeCtaView", () => {
   });
 
   it("says 'Continuar' once the learner has completed a lesson", () => {
+    lessonCatalog.push(publishableEntry("alfabeto/m/letra-a"));
     const resume = getResumeLesson(
       [pathWithLesson],
       new Set([lessonKey("alfabeto", "m", "letra-b")]),

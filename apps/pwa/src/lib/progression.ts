@@ -3,9 +3,12 @@
  *
  * No React, no storage: callers pass the `completed` key set from the
  * progress store (`ReadonlySet<string>` of `trilha/modulo/licao` keys).
- * Only `status === "available"` lessons are actionable — planned lessons
- * are never suggested, counted as resumable, or included in progress
- * ratios, so unpublished material can never produce misleading numbers.
+ * Only completable lessons are actionable — those `status === "available"`
+ * AND backed by a publishable catalog entry (`isLessonCompletable`, the
+ * same rule the lesson page applies before mounting the runner). Planned
+ * or not-yet-publishable lessons are never suggested, counted as
+ * resumable, or included in progress ratios, so unpublished material can
+ * never produce misleading numbers.
  */
 
 import {
@@ -14,23 +17,29 @@ import {
   type LearningPath,
   type Lesson,
 } from "@/data/learning-paths";
+import { isLessonCompletable } from "@/data/path-publication";
 import { lessonKey } from "@/lib/progress";
 
 export interface PathProgress {
   /**
-   * Available lessons in this path recorded as completed. A recorded key
-   * for a `planned` lesson is stale (it could never have been completed)
-   * and is ignored like any unknown key, so completedCount can never
-   * exceed availableCount.
+   * Completable lessons in this path recorded as completed. A recorded
+   * key for a lesson that is `planned` or not publishable is stale (it
+   * could never have been completed through the runner) and is ignored
+   * like any unknown key, so completedCount can never exceed
+   * availableCount.
    */
   completedCount: number;
-  /** Lessons published (`status === "available"`) in this path. */
+  /**
+   * Lessons the learner can actually complete in this path —
+   * `status === "available"` plus a publishable catalog entry, the same
+   * rule `LessonContentArea` applies (`isLessonCompletable`).
+   */
   availableCount: number;
   /** Total lessons in the path, including planned ones. */
   lessonCount: number;
   /**
    * `completedCount / availableCount`, or `null` when the path has no
-   * available lessons — a ratio over unpublished material would be
+   * completable lessons — a ratio over unpublished material would be
    * meaningless, so callers must render the honest fallback instead.
    */
   ratio: number | null;
@@ -60,14 +69,14 @@ function keyOf(path: LearningPath, entry: LessonEntry): string {
   return lessonKey(path.slug, entry.module.slug, entry.lesson.slug);
 }
 
-function isAvailable(entry: LessonEntry): boolean {
-  return entry.lesson.status === "available";
+function isCompletable(path: LearningPath, entry: LessonEntry): boolean {
+  return isLessonCompletable(keyOf(path, entry), entry.lesson.status);
 }
 
 /**
- * Progress within one path. Only keys matching real, available lessons of
- * this path count — unknown, malformed, foreign-path, and stale
- * (now-planned) keys are ignored.
+ * Progress within one path. Only keys matching real, completable lessons
+ * of this path count — unknown, malformed, foreign-path, and stale
+ * (planned or not publishable) keys are ignored.
  */
 export function getPathProgress(
   path: LearningPath,
@@ -79,7 +88,7 @@ export function getPathProgress(
 
   for (const entry of iterateLessons(path)) {
     lessonCount += 1;
-    if (!isAvailable(entry)) continue;
+    if (!isCompletable(path, entry)) continue;
     availableCount += 1;
     if (completed.has(keyOf(path, entry))) completedCount += 1;
   }
@@ -93,17 +102,18 @@ export function getPathProgress(
 }
 
 /**
- * First available, not-yet-completed lesson in the path's learning order
- * (module order, then lesson order inside each module). Returns
- * `undefined` when every available lesson is completed or none is
- * published — callers must not resume into planned lessons.
+ * First completable, not-yet-completed lesson in the path's learning
+ * order (module order, then lesson order inside each module). Returns
+ * `undefined` when every completable lesson is completed or none is
+ * published — callers must not resume into planned or non-publishable
+ * lessons.
  */
 export function getNextLesson(
   path: LearningPath,
   completed: ReadonlySet<string>,
 ): ResumeTarget | undefined {
   for (const entry of iterateLessons(path)) {
-    if (!isAvailable(entry)) continue;
+    if (!isCompletable(path, entry)) continue;
     if (completed.has(keyOf(path, entry))) continue;
     return {
       path,
@@ -118,7 +128,7 @@ export function getNextLesson(
 /**
  * Resume target across paths, in array order (the same convention that
  * makes `learningPaths[0]` the designated starting path): the first path
- * with an available incomplete lesson wins.
+ * with a completable incomplete lesson wins.
  */
 export function getResumeLesson(
   paths: readonly LearningPath[],

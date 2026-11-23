@@ -1,7 +1,17 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import type { LearningPath, Lesson } from "@/data/learning-paths";
 import { getLearningPaths } from "@/data/learning-paths";
+import {
+  lessonCatalog,
+  type LessonCatalogEntry,
+  type LessonReview,
+} from "@/data/lesson-catalog";
+import type { LessonContent } from "@/data/lesson-content";
+import {
+  getPathPublicationSummary,
+  isLessonCompletable,
+} from "@/data/path-publication";
 
 import { createProgressStore, lessonKey } from "./progress";
 import {
@@ -9,6 +19,88 @@ import {
   getPathProgress,
   getResumeLesson,
 } from "./progression";
+
+/**
+ * Synthetic entries pushed by these tests are appended to the catalog and
+ * rolled back after each test, so the live catalog is never mutated.
+ */
+let catalogLength = lessonCatalog.length;
+beforeEach(() => {
+  catalogLength = lessonCatalog.length;
+});
+afterEach(() => {
+  lessonCatalog.length = catalogLength;
+});
+
+const testContent: LessonContent = {
+  intro: "Introdução da lição.",
+  blocks: [{ kind: "text", heading: "Passo único", body: "texto" }],
+};
+
+function makeReview(type: LessonReview["type"]): LessonReview {
+  return {
+    reviewer: `Revisor ${type}`,
+    type,
+    date: "2026-11-18",
+    version: "draft-1",
+  };
+}
+
+function makeCatalogEntry(
+  key: string,
+  overrides: Partial<LessonCatalogEntry> = {},
+): LessonCatalogEntry {
+  return {
+    id: `teste-${key}`,
+    lessonKey: key,
+    title: "Lição de teste",
+    objective: "Objetivo de teste",
+    references: [
+      {
+        institution: "Instituição de teste",
+        url: "https://example.org/fonte",
+        purpose: "Testar",
+        consultedAt: "2026-11-18",
+      },
+    ],
+    plannedOutline: ["passo"],
+    validationStatus: "draft",
+    version: "draft-1",
+    reviews: [],
+    ...overrides,
+  };
+}
+
+function publishableEntry(key: string): LessonCatalogEntry {
+  return makeCatalogEntry(key, {
+    validationStatus: "expert-validated",
+    reviews: [
+      makeReview("research"),
+      makeReview("technical"),
+      makeReview("expert"),
+    ],
+    draft: testContent,
+  });
+}
+
+/**
+ * Push a publishable catalog entry for every `available` lesson of `path`,
+ * so those lessons are completable under the shared rule.
+ */
+function publishAll(path: LearningPath): LearningPath {
+  for (const courseModule of path.modules) {
+    for (const lesson of courseModule.lessons) {
+      if (lesson.status === "available") {
+        lessonCatalog.push(
+          publishableEntry(
+            lessonKey(path.slug, courseModule.slug, lesson.slug),
+          ),
+        );
+      }
+    }
+  }
+  return path;
+}
 
 const planned = (slug: string): Lesson => ({
   slug,
@@ -55,9 +147,14 @@ const KEY_L2 = lessonKey("alfabeto-teste", "mod-um", "l2");
 const KEY_L3 = lessonKey("alfabeto-teste", "mod-um", "l3");
 const KEY_L4 = lessonKey("alfabeto-teste", "mod-dois", "l4");
 
+/** Fixture path whose available lessons are all catalog-publishable. */
+function publishedPath(): LearningPath {
+  return publishAll(makePath());
+}
+
 describe("getPathProgress", () => {
   it("reports zero completions with no progress", () => {
-    const progress = getPathProgress(makePath(), new Set());
+    const progress = getPathProgress(publishedPath(), new Set());
     expect(progress).toEqual({
       completedCount: 0,
       availableCount: 3,
@@ -72,13 +169,13 @@ describe("getPathProgress", () => {
       lessonKey("outra-trilha", "mod", "l1"), // foreign path: ignored
       "lixo-sem-formato", // malformed: ignored
     ]);
-    const progress = getPathProgress(makePath(), completed);
+    const progress = getPathProgress(publishedPath(), completed);
     expect(progress.completedCount).toBe(1);
     expect(progress.ratio).toBeCloseTo(1 / 3);
   });
 
   it("ignores a planned lesson even when its key is recorded", () => {
-    const progress = getPathProgress(makePath(), new Set([KEY_L3]));
+    const progress = getPathProgress(publishedPath(), new Set([KEY_L3]));
     expect(progress.completedCount).toBe(0);
     expect(progress.availableCount).toBe(3);
   });
@@ -102,7 +199,7 @@ describe("getPathProgress", () => {
 
   it("reaches ratio 1 when every available lesson is completed", () => {
     const progress = getPathProgress(
-      makePath(),
+      publishedPath(),
       new Set([KEY_L1, KEY_L2, KEY_L4]),
     );
     expect(progress.completedCount).toBe(3);
@@ -112,32 +209,32 @@ describe("getPathProgress", () => {
 
 describe("getNextLesson", () => {
   it("returns the first available lesson when nothing is completed", () => {
-    const target = getNextLesson(makePath(), new Set());
+    const target = getNextLesson(publishedPath(), new Set());
     expect(target?.lesson.slug).toBe("l1");
     expect(target?.module.slug).toBe("mod-um");
     expect(target?.url).toBe("/trilhas/alfabeto-teste/mod-um/l1");
   });
 
   it("skips completed lessons in path order", () => {
-    const target = getNextLesson(makePath(), new Set([KEY_L1]));
+    const target = getNextLesson(publishedPath(), new Set([KEY_L1]));
     expect(target?.lesson.slug).toBe("l2");
   });
 
   it("moves to the next module after completing the previous one", () => {
-    const target = getNextLesson(makePath(), new Set([KEY_L1, KEY_L2]));
+    const target = getNextLesson(publishedPath(), new Set([KEY_L1, KEY_L2]));
     expect(target?.lesson.slug).toBe("l4");
     expect(target?.module.slug).toBe("mod-dois");
   });
 
   it("never resumes into a planned lesson", () => {
     // l1 and l2 done; l3 is planned and must be skipped for l4.
-    const target = getNextLesson(makePath(), new Set([KEY_L1, KEY_L2]));
+    const target = getNextLesson(publishedPath(), new Set([KEY_L1, KEY_L2]));
     expect(target?.lesson.slug).not.toBe("l3");
   });
 
   it("returns undefined when every available lesson is completed", () => {
     const target = getNextLesson(
-      makePath(),
+      publishedPath(),
       new Set([KEY_L1, KEY_L2, KEY_L4]),
     );
     expect(target).toBeUndefined();
@@ -152,7 +249,7 @@ describe("getNextLesson", () => {
 
   it("ignores unknown or foreign keys entirely", () => {
     const target = getNextLesson(
-      makePath(),
+      publishedPath(),
       new Set(["a/b/c", lessonKey("alfabeto-teste", "mod-um", "fantasma")]),
     );
     expect(target?.lesson.slug).toBe("l1");
@@ -161,8 +258,8 @@ describe("getNextLesson", () => {
 
 describe("getResumeLesson", () => {
   it("resumes in the first path that still has an incomplete lesson", () => {
-    const first = makePath();
-    const second: LearningPath = {
+    const first = publishedPath();
+    const second: LearningPath = publishAll({
       ...makePath(),
       slug: "vocabulario-teste",
       modules: [
@@ -173,7 +270,7 @@ describe("getResumeLesson", () => {
           lessons: [available("v-l1")],
         },
       ],
-    };
+    });
 
     // First path fully done → resume lands on the second path.
     const target = getResumeLesson(
@@ -197,9 +294,128 @@ describe("getResumeLesson", () => {
     };
     const store = createProgressStore({ storage });
     const target = getResumeLesson(
-      [makePath()],
+      [publishedPath()],
       store.getSnapshot().completed,
     );
     expect(target?.lesson.slug).toBe("l4");
+  });
+});
+
+/**
+ * Publication gating: `status === "available"` alone never makes a lesson
+ * completable — the catalog entry must be publishable too. These fixtures
+ * cover the transition states the current all-planned catalog cannot.
+ */
+describe("publication gating", () => {
+  it("does not count an available lesson with no catalog entry", () => {
+    const path = makePath();
+    const progress = getPathProgress(path, new Set());
+    expect(progress.availableCount).toBe(0);
+    expect(progress.ratio).toBeNull();
+    expect(getNextLesson(path, new Set())).toBeUndefined();
+  });
+
+  it("does not count an available lesson whose entry is still a draft", () => {
+    lessonCatalog.push(makeCatalogEntry(KEY_L1, { draft: testContent }));
+    const progress = getPathProgress(makePath(), new Set());
+    expect(progress.availableCount).toBe(0);
+    expect(progress.ratio).toBeNull();
+  });
+
+  it("does not count an available lesson with an incomplete review chain", () => {
+    lessonCatalog.push(
+      makeCatalogEntry(KEY_L1, {
+        validationStatus: "expert-validated",
+        reviews: [makeReview("research")], // technical + expert missing
+        draft: testContent,
+      }),
+    );
+    const progress = getPathProgress(makePath(), new Set());
+    expect(progress.availableCount).toBe(0);
+  });
+
+  it("does not count an available lesson with malformed draft content", () => {
+    lessonCatalog.push(
+      makeCatalogEntry(KEY_L1, {
+        validationStatus: "expert-validated",
+        reviews: [
+          makeReview("research"),
+          makeReview("technical"),
+          makeReview("expert"),
+        ],
+        draft: { intro: "", blocks: [] },
+      }),
+    );
+    const progress = getPathProgress(makePath(), new Set());
+    expect(progress.availableCount).toBe(0);
+  });
+
+  it("ignores a recorded completion for a lesson that is not completable", () => {
+    // KEY_L1 was recorded but its catalog entry is still a draft: no
+    // valid progress may be claimed for it.
+    lessonCatalog.push(makeCatalogEntry(KEY_L1, { draft: testContent }));
+    const progress = getPathProgress(makePath(), new Set([KEY_L1]));
+    expect(progress.availableCount).toBe(0);
+    expect(progress.completedCount).toBe(0);
+    expect(progress.ratio).toBeNull();
+  });
+
+  it("counts mixed states correctly and keeps resume on completable lessons", () => {
+    // l1 available + draft-only entry (in review), l2 completable,
+    // l3 planned, l4 available + no entry.
+    lessonCatalog.push(
+      makeCatalogEntry(KEY_L1, { draft: testContent }),
+      publishableEntry(KEY_L2),
+    );
+    const path = makePath();
+
+    const progress = getPathProgress(path, new Set([KEY_L1, KEY_L2]));
+    expect(progress.availableCount).toBe(1);
+    expect(progress.completedCount).toBe(1);
+    expect(progress.ratio).toBe(1);
+
+    // Resume skips the non-publishable l1 and lands on l2.
+    const target = getNextLesson(path, new Set());
+    expect(target?.lesson.slug).toBe("l2");
+  });
+});
+
+describe("consistency with the publication rule", () => {
+  it("counts exactly the lessons the publication summary publishes", () => {
+    lessonCatalog.push(
+      publishableEntry(KEY_L1),
+      makeCatalogEntry(KEY_L2, { draft: testContent }),
+      publishableEntry(KEY_L4),
+    );
+    const path = makePath();
+
+    const expected = path.modules
+      .flatMap((courseModule) =>
+        courseModule.lessons.filter((lesson) =>
+          isLessonCompletable(
+            lessonKey(path.slug, courseModule.slug, lesson.slug),
+            lesson.status,
+          ),
+        ),
+      ).length;
+
+    const progress = getPathProgress(path, new Set());
+    const summary = getPathPublicationSummary(path);
+    expect(expected).toBe(2);
+    expect(progress.availableCount).toBe(expected);
+    expect(summary.published).toBe(expected);
+    // The resume target satisfies the same rule the page applies.
+    const target = getNextLesson(path, new Set());
+    expect(target).toBeDefined();
+    expect(
+      isLessonCompletable(
+        lessonKey(
+          target!.path.slug,
+          target!.module.slug,
+          target!.lesson.slug,
+        ),
+        target!.lesson.status,
+      ),
+    ).toBe(true);
   });
 });

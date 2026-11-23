@@ -7,7 +7,7 @@ import {
   type LessonReview,
 } from "./lesson-catalog";
 import type { LessonContent } from "./lesson-content";
-import { getPathPublicationSummary } from "./path-publication";
+import { getPathPublicationSummary, isLessonCompletable } from "./path-publication";
 
 /**
  * Synthetic entries pushed by these tests are appended to the catalog and
@@ -109,6 +109,75 @@ function publishableEntry(key: string): LessonCatalogEntry {
     draft: testContent,
   });
 }
+
+describe("isLessonCompletable", () => {
+  const KEY = "sintetica/modulo/publicada";
+
+  it("is false for a planned lesson even with a publishable entry", () => {
+    lessonCatalog.push(
+      publishableEntry("sintetica/modulo/aprovada-nao-liberada"),
+    );
+    expect(
+      isLessonCompletable("sintetica/modulo/aprovada-nao-liberada", "planned"),
+    ).toBe(false);
+  });
+
+  it("is false for an available lesson with no catalog entry", () => {
+    expect(isLessonCompletable(KEY, "available")).toBe(false);
+  });
+
+  it("is false for an available lesson whose entry is still a draft", () => {
+    lessonCatalog.push(makeCatalogEntry(KEY, { draft: testContent }));
+    expect(isLessonCompletable(KEY, "available")).toBe(false);
+  });
+
+  it("is false for an available lesson with an incomplete review chain", () => {
+    lessonCatalog.push(
+      makeCatalogEntry(KEY, {
+        validationStatus: "expert-validated",
+        reviews: [makeReview("research")], // technical + expert missing
+        draft: testContent,
+      }),
+    );
+    expect(isLessonCompletable(KEY, "available")).toBe(false);
+  });
+
+  it("is false for an available lesson with reviews on a stale version", () => {
+    lessonCatalog.push(
+      makeCatalogEntry(KEY, {
+        validationStatus: "expert-validated",
+        version: "draft-2",
+        reviews: [
+          { ...makeReview("research"), version: "draft-1" },
+          { ...makeReview("technical"), version: "draft-1" },
+          { ...makeReview("expert"), version: "draft-1" },
+        ],
+        draft: testContent,
+      }),
+    );
+    expect(isLessonCompletable(KEY, "available")).toBe(false);
+  });
+
+  it("is false for an available lesson whose draft fails content validation", () => {
+    lessonCatalog.push(
+      makeCatalogEntry(KEY, {
+        validationStatus: "expert-validated",
+        reviews: [
+          makeReview("research"),
+          makeReview("technical"),
+          makeReview("expert"),
+        ],
+        draft: { intro: "", blocks: [] },
+      }),
+    );
+    expect(isLessonCompletable(KEY, "available")).toBe(false);
+  });
+
+  it("is true for an available lesson with a publishable entry", () => {
+    lessonCatalog.push(publishableEntry(KEY));
+    expect(isLessonCompletable(KEY, "available")).toBe(true);
+  });
+});
 
 describe("getPathPublicationSummary", () => {
   it("accounts for every lesson in each path", () => {
