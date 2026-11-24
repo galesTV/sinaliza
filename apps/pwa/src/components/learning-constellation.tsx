@@ -284,7 +284,7 @@ export function ConstellationLegendAndAlt({
       </div>
 
       <details className="group">
-        <summary className="w-fit cursor-pointer text-xs font-medium text-muted underline decoration-border underline-offset-4 transition-colors duration-200 hover:text-foreground">
+        <summary className="flex min-h-11 w-fit cursor-pointer items-center text-xs font-medium text-muted underline decoration-border underline-offset-4 transition-colors duration-200 hover:text-foreground">
           {CONSTELLATION_TEXT_TOGGLE}
         </summary>
         <div className="mt-3 flex flex-col gap-4 rounded-xl border border-border bg-surface-elevated/50 p-5">
@@ -292,16 +292,16 @@ export function ConstellationLegendAndAlt({
             <div key={group.pathSlug} className="flex flex-col gap-2">
               <Link
                 href={group.pathHref}
-                className="text-sm font-semibold text-foreground transition-colors duration-200 hover:text-accent"
+                className="flex min-h-11 w-fit items-center text-sm font-semibold text-foreground transition-colors duration-200 hover:text-accent"
               >
                 {group.pathTitle}
               </Link>
-              <ul className="flex flex-col gap-1.5">
+              <ul className="flex flex-col gap-2">
                 {group.stars.map((star) => (
                   <li key={star.key}>
                     <a
                       href={star.href}
-                      className="text-sm text-muted transition-colors duration-200 hover:text-foreground"
+                      className="flex min-h-11 items-center text-sm text-muted transition-colors duration-200 hover:text-foreground"
                     >
                       {star.title}
                       <span className="text-muted/70">
