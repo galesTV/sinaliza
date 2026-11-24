@@ -128,7 +128,12 @@ await page.waitForLoadState("networkidle");
 check("home: star navigates to module anchor", page.url().includes("#"), `(${page.url()})`);
 const anchorSlug = firstHref.split("#")[1];
 const cardBox = await page.locator(`li#${anchorSlug}`).boundingBox();
-check("path: module card visible below header", !!cardBox && cardBox.y > 80, `y=${cardBox?.y?.toFixed(0)}`);
+const vh = page.viewportSize()?.height ?? 0;
+check(
+  "path: module card visible below header",
+  !!cardBox && cardBox.y > 80 && cardBox.y < vh,
+  `y=${cardBox?.y?.toFixed(0)} vh=${vh}`,
+);
 await shot(page, "p7h-path-anchor-landing");
 await ctx.close();
 
@@ -182,4 +187,6 @@ await ctx.close();
 
 await browser.close();
 console.log(results.join("\n"));
-console.log(results.some((r) => r.startsWith("FAIL")) ? "HAS FAILURES" : "ALL PASS");
+const failed = results.some((r) => r.startsWith("FAIL"));
+console.log(failed ? "HAS FAILURES" : "ALL PASS");
+if (failed) process.exitCode = 1;
