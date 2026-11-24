@@ -5,9 +5,13 @@ import { Suspense } from "react";
 import { AtlasProgressProvider } from "@/components/atlas-progress";
 import { Badge } from "@/components/badge";
 import { Breadcrumb } from "@/components/breadcrumb";
-import { ConstellationFigure } from "@/components/constellation";
 import { Eyebrow } from "@/components/eyebrow";
 import { HonestNote } from "@/components/honest-note";
+import {
+  CONSTELLATION_PATH_SUBTITLE,
+  CONSTELLATION_PATH_TITLE,
+  LearningConstellationSection,
+} from "@/components/learning-constellation-section";
 import { ModuleCard } from "@/components/module-card";
 import { PathProgressLine } from "@/components/path-progress-line";
 import { PathResumeCta } from "@/components/path-resume-cta";
@@ -67,7 +71,6 @@ async function PathContent({ params }: PathPageProps) {
       />
 
       <header className="relative flex flex-col gap-5">
-        <ConstellationFigure className="pointer-events-none absolute -top-8 right-0 hidden w-52 opacity-70 sm:block lg:w-64" />
         <Eyebrow>Atlas de Aprendizagem</Eyebrow>
         <h1 className="max-w-2xl font-display text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
           {path.title}
@@ -92,6 +95,14 @@ async function PathContent({ params }: PathPageProps) {
         </div>
         <PathResumeCta path={path} />
       </header>
+
+      <LearningConstellationSection
+        paths={[path]}
+        eyebrow="Atlas de Aprendizagem"
+        title={CONSTELLATION_PATH_TITLE}
+        subtitle={CONSTELLATION_PATH_SUBTITLE}
+        titleAs="h2"
+      />
 
       <section
         aria-labelledby="modules-title"
