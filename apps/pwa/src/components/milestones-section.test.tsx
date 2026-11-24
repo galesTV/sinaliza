@@ -142,6 +142,20 @@ describe("MilestonesView", () => {
     const html = renderToStaticMarkup(<MilestonesView milestones={milestones} />);
     expect(html).toContain("2 de 3 marcos disponíveis alcançados");
   });
+
+  it("renders the title as h3 by default and h2 as a peer section", () => {
+    const milestones = [milestone({ id: "base", status: "unavailable" })];
+    const nested = renderToStaticMarkup(
+      <MilestonesView milestones={milestones} />,
+    );
+    expect(nested).toContain("<h3");
+    expect(nested).not.toContain("<h2");
+    const peer = renderToStaticMarkup(
+      <MilestonesView milestones={milestones} titleAs="h2" />,
+    );
+    expect(peer).toContain("<h2");
+    expect(peer).not.toContain("<h3");
+  });
 });
 
 describe("progressLabel", () => {

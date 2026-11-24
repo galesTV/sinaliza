@@ -146,7 +146,7 @@ async function AccountPanel() {
           separado do progresso da sua conta.
         </p>
       </section>
-      <MilestonesSection />
+      <MilestonesSection titleAs="h2" />
       <section
         aria-labelledby="conta-historico"
         className="flex flex-col gap-3"

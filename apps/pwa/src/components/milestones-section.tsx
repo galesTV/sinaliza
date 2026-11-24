@@ -124,8 +124,11 @@ function MilestoneRow({ milestone }: { milestone: Milestone }) {
  */
 export function MilestonesView({
   milestones,
+  titleAs: Title = "h3",
 }: {
   milestones: readonly Milestone[];
+  /** h3 nested under "Sua atividade" (home); h2 as a peer section (/conta). */
+  titleAs?: "h2" | "h3";
 }) {
   const summary = summarizeMilestones(milestones);
   const allUnavailable = summary.reachable === 0;
@@ -137,12 +140,12 @@ export function MilestonesView({
     >
       <div className="flex flex-col gap-2.5">
         <Eyebrow>{MILESTONES_EYEBROW}</Eyebrow>
-        <h3
+        <Title
           id="journey-milestones-title"
           className="font-display text-lg font-semibold tracking-tight text-foreground"
         >
           {MILESTONES_TITLE}
-        </h3>
+        </Title>
         <p className="max-w-xl text-sm leading-relaxed text-muted">
           {MILESTONES_SUBTITLE}
         </p>
@@ -192,7 +195,11 @@ export function MilestonesView({
  * the honest local picture renders — locally recorded participation
  * already counts toward milestones.
  */
-export function MilestonesSection() {
+export function MilestonesSection({
+  titleAs,
+}: {
+  titleAs?: "h2" | "h3";
+} = {}) {
   const { status } = useAuthSession();
   const snapshot = useProgressSnapshot();
   const sync = useProgressSyncState();
@@ -206,6 +213,7 @@ export function MilestonesSection() {
   return (
     <MilestonesView
       milestones={deriveMilestones(getLearningPaths(), snapshot.completed)}
+      titleAs={titleAs}
     />
   );
 }
