@@ -141,14 +141,21 @@ export interface ProgressOrchestrator {
    * Explicit claim: persist the intent, enqueue the eligible guest keys
    * into THIS account's queue and kick the sync. Never called implicitly
    * — login, signup and hydration never transfer guest progress (ADR
-   * 0004, D4). The guest bucket is never modified.
+   * 0004, D4). The guest bucket is never modified. `offered` bounds the
+   * claim to the set the UI presented; omitting it claims every key
+   * currently eligible.
    */
-  claimGuestProgress(userId: string): GuestClaimResult;
+  claimGuestProgress(
+    userId: string,
+    offered?: ReadonlySet<string>,
+  ): GuestClaimResult;
   /**
    * "Keep separate": dismiss the offerable guest keys for this account,
-   * persisted per userId. Other accounts' consent is unaffected.
+   * persisted per userId. Other accounts' consent is unaffected. As with
+   * `claimGuestProgress`, `offered` bounds the dismissal to the set the
+   * UI presented.
    */
-  dismissGuestClaim(userId: string): void;
+  dismissGuestClaim(userId: string, offered?: ReadonlySet<string>): void;
 }
 
 function storageKeyFor(identity: ProgressIdentity): string {
@@ -431,6 +438,14 @@ export function createProgressOrchestrator(
     inflight += 1;
     emit();
     try {
+      // Restore locally-owned transferred keys before any network work:
+      // an authorized (initiated) claim belongs to this account's store
+      // even when the remote cannot confirm it yet.
+      if (activeUserId() === userId) {
+        storeFor(progressStorageKey(userId)).merge(
+          markerFor(userId).snapshot().initiated,
+        );
+      }
       const keys = await deps.remote.fetchKeys(userId);
       const store = storeFor(progressStorageKey(userId));
       store.merge(keys);
@@ -464,10 +479,6 @@ export function createProgressOrchestrator(
         for (const key of orphaned) {
           if (!remoteKeys.has(key)) queue.enqueue(key);
         }
-        // The authorized set belongs to the account's local store too —
-        // a resumed intent must surface in progress views just like a
-        // fresh claim does.
-        store.merge(orphaned);
       }
       inflight -= 1;
       emit();
@@ -567,15 +578,20 @@ export function createProgressOrchestrator(
       return claimSnapshotFor(id);
     },
 
-    claimGuestProgress(userId) {
+    claimGuestProgress(userId, offered) {
       if (!deps.remote) return "unavailable";
       // The explicit consent button is the only caller; double-check the
       // targeted account is still the active identity before mutating
       // its bookkeeping — a claim can never be recorded for a stale id.
       if (activeUserId() !== userId) return "wrong-identity";
       const { eligible } = claimSnapshotFor(identity);
-      if (eligible.size === 0) return "no-eligible";
-      const keys = [...eligible];
+      // Claim only the set the UI presented: a key a sibling tab records
+      // after the offer renders was never consented to and stays
+      // offerable for a later prompt.
+      const keys = [...eligible].filter(
+        (key) => !offered || offered.has(key),
+      );
+      if (keys.length === 0) return "no-eligible";
       // Persist the consent-driven intent BEFORE any network work: the
       // marker survives a tab close or reload, and the queue carries the
       // durable retry path. Neither step touches the guest bucket.
@@ -593,11 +609,14 @@ export function createProgressOrchestrator(
       return "started";
     },
 
-    dismissGuestClaim(userId) {
+    dismissGuestClaim(userId, offered) {
       if (activeUserId() !== userId) return;
       const { eligible } = claimSnapshotFor(identity);
-      if (eligible.size === 0) return;
-      markerFor(userId).addDismissed(eligible);
+      const keys = new Set(
+        [...eligible].filter((key) => !offered || offered.has(key)),
+      );
+      if (keys.size === 0) return;
+      markerFor(userId).addDismissed(keys);
       emit();
     },
   };

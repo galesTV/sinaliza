@@ -136,13 +136,22 @@ export function useGuestClaimState(): GuestClaimSnapshot {
 
 /**
  * Explicit claim action — only ever called from the consent card. The
- * guest bucket is never modified by a claim.
+ * guest bucket is never modified by a claim. `offered` is the set the
+ * card displayed: nothing outside of it is ever transferred.
  */
-export function claimGuestProgress(userId: string): GuestClaimResult {
-  return getOrchestrator()?.claimGuestProgress(userId) ?? "unavailable";
+export function claimGuestProgress(
+  userId: string,
+  offered: ReadonlySet<string>,
+): GuestClaimResult {
+  return (
+    getOrchestrator()?.claimGuestProgress(userId, offered) ?? "unavailable"
+  );
 }
 
-/** "Keep separate": persist this account's dismissal of the current offer. */
-export function dismissGuestClaim(userId: string): void {
-  getOrchestrator()?.dismissGuestClaim(userId);
+/** "Keep separate": persist this account's dismissal of the shown offer. */
+export function dismissGuestClaim(
+  userId: string,
+  offered: ReadonlySet<string>,
+): void {
+  getOrchestrator()?.dismissGuestClaim(userId, offered);
 }

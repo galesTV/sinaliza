@@ -697,4 +697,89 @@ describe("guest → account claim", () => {
       new Set([K1, K3]),
     );
   });
+
+  it("claims only the keys the offer presented", async () => {
+    const { storage, map } = makeStorage();
+    seedGuest(map, [K1]);
+    const rows = new Map<string, Set<string>>();
+    const orch = createProgressOrchestrator({
+      storage,
+      remote: makeRemote(rows),
+    });
+
+    orch.setIdentity(user(ALICE));
+    await settle();
+    const offered = new Set(
+      orch.getClaimSnapshot(user(ALICE)).eligible,
+    );
+    // A sibling tab completes K3 between the render and the click: it
+    // was never shown, so the click must not transfer it.
+    seedGuest(map, [K1, K3]);
+
+    expect(orch.claimGuestProgress(ALICE, offered)).toBe("started");
+    await settle();
+
+    expect(rows.get(ALICE)).toEqual(new Set([K1]));
+    expect(
+      orch.getCompletedSnapshot(user(ALICE)).completed.has(K3),
+    ).toBe(false);
+    // K3 stays offerable for a fresh consent.
+    expect(orch.getClaimSnapshot(user(ALICE)).eligible).toEqual(
+      new Set([K3]),
+    );
+  });
+
+  it("'keep separate' only dismisses the keys the offer presented", async () => {
+    const { storage, map } = makeStorage();
+    seedGuest(map, [K1]);
+    const orch = createProgressOrchestrator({
+      storage,
+      remote: makeRemote(new Map()),
+    });
+
+    orch.setIdentity(user(ALICE));
+    await settle();
+    const offered = new Set(
+      orch.getClaimSnapshot(user(ALICE)).eligible,
+    );
+    seedGuest(map, [K1, K3]);
+
+    orch.dismissGuestClaim(ALICE, offered);
+
+    // Only the shown key is dismissed; the late one stays offerable.
+    expect(orch.getClaimSnapshot(user(ALICE)).eligible).toEqual(
+      new Set([K3]),
+    );
+  });
+
+  it("restores an authorized transfer locally even when the remote is down", async () => {
+    const { storage, map } = makeStorage();
+    seedGuest(map, [K1]);
+    // A persisted intent with no store merge and no queue entry yet.
+    map.set(
+      claimStorageKey(ALICE),
+      JSON.stringify({
+        version: 1,
+        dismissed: [],
+        initiated: [K1],
+        confirmed: [],
+      }),
+    );
+    const remote = makeRemote(new Map());
+    remote.fetchKeys.mockRejectedValue(new Error("offline"));
+    remote.upsert.mockRejectedValue(new Error("offline"));
+    const orch = createProgressOrchestrator({ storage, remote });
+
+    orch.setIdentity(user(ALICE));
+    await settle();
+
+    // The authorized key belongs to the account's local store even
+    // though the remote never answered — local-first resume.
+    expect(
+      orch.getCompletedSnapshot(user(ALICE)).completed.has(K1),
+    ).toBe(true);
+    const claim = orch.getClaimSnapshot(user(ALICE));
+    expect(claim.initiated).toEqual(new Set([K1]));
+    expect(claim.confirmed.size).toBe(0);
+  });
 });

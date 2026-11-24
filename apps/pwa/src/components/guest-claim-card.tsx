@@ -103,7 +103,7 @@ export function GuestClaimCard({
     if (!claimSubmit(submitGuard)) return;
     setBusy(true);
     try {
-      claimGuestProgress(userId);
+      claimGuestProgress(userId, claim.eligible);
     } finally {
       submitGuard.current = false;
       setBusy(false);
@@ -113,7 +113,7 @@ export function GuestClaimCard({
   function handleDismiss() {
     if (!claimSubmit(submitGuard)) return;
     try {
-      dismissGuestClaim(userId);
+      dismissGuestClaim(userId, claim.eligible);
     } finally {
       submitGuard.current = false;
     }
