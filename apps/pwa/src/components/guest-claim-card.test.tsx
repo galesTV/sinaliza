@@ -12,12 +12,15 @@ import {
 
 describe("claim card copy", () => {
   it("names the device and the destination account in the offer", () => {
-    const text = claimOfferLeadCopy(3, "ana@example.com");
-    expect(text).toContain("3 atividades");
-    expect(text).toContain("neste dispositivo");
-    expect(text).toContain("ana@example.com");
-    expect(claimOfferLeadCopy(1, null)).toContain("1 atividade");
-    expect(claimOfferLeadCopy(1, null)).toContain("a sua conta");
+    // Exact matches: a duplicated count ("3 3 atividades") must fail.
+    expect(claimOfferLeadCopy(3, "ana@example.com")).toBe(
+      "3 atividades foram marcadas como concluídas neste dispositivo " +
+        "sem uma conta. Você pode transferi-las para ana@example.com.",
+    );
+    expect(claimOfferLeadCopy(1, null)).toBe(
+      "1 atividade foi marcada como concluída neste dispositivo " +
+        "sem uma conta. Você pode transferi-las para a sua conta.",
+    );
   });
 
   it("warns that the activities may belong to someone else on this device", () => {

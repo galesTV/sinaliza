@@ -30,7 +30,7 @@ export function claimOfferLeadCopy(
   eligible: number,
   email: string | null,
 ): string {
-  const count = plural(eligible, "1 atividade foi", `${eligible} atividades foram`);
+  const count = plural(eligible, "atividade foi", "atividades foram");
   const destination = email
     ? ` Você pode transferi-las para ${email}.`
     : " Você pode transferi-las para a sua conta.";

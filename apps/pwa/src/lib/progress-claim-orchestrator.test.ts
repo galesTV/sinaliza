@@ -602,4 +602,99 @@ describe("guest → account claim", () => {
       new Set([K1, K2]),
     );
   });
+
+  it("claimed keys enter the account's local store on consent", async () => {
+    const { storage, map } = makeStorage();
+    seedGuest(map, [K1]);
+    const orch = createProgressOrchestrator({
+      storage,
+      remote: makeRemote(new Map()),
+    });
+
+    orch.setIdentity(user(ALICE));
+    await settle();
+    orch.claimGuestProgress(ALICE);
+
+    // Consented keys belong to the account's progress immediately —
+    // activity and trails never show transferred lessons as undone.
+    expect(
+      orch.getCompletedSnapshot(user(ALICE)).completed.has(K1),
+    ).toBe(true);
+    await settle();
+    expect(
+      orch.getCompletedSnapshot(user(ALICE)).completed.has(K1),
+    ).toBe(true);
+  });
+
+  it("verifies the claim after a flush deferred by a busy queue", async () => {
+    const { storage, map } = makeStorage();
+    seedGuest(map, [K1]);
+    // An unrelated pending write keeps the flush busy when the claim lands.
+    map.set(
+      syncStorageKey(ALICE),
+      JSON.stringify({
+        version: 1,
+        pending: [{ key: K9, attempts: 0, lastError: null }],
+      }),
+    );
+    const rows = new Map<string, Set<string>>();
+    const remote = makeRemote(rows);
+    const resolvers: (() => void)[] = [];
+    remote.upsert.mockImplementation(
+      (userId, key) =>
+        new Promise<void>((resolve) =>
+          resolvers.push(() => {
+            let set = rows.get(userId);
+            if (!set) rows.set(userId, (set = new Set()));
+            set.add(key);
+            resolve();
+          }),
+        ),
+    );
+    const orch = createProgressOrchestrator({ storage, remote });
+
+    orch.setIdentity(user(ALICE));
+    await settle();
+    // Hydration's flush is parked on the pending K9 write.
+    orch.claimGuestProgress(ALICE);
+    await settle();
+
+    // The claim's own verify pass ran before the deferred flush: K1 was
+    // not remote yet, so it stays initiated — but must not get stuck.
+    expect(orch.getClaimSnapshot(user(ALICE)).initiated).toEqual(
+      new Set([K1]),
+    );
+
+    for (const resolve of resolvers.splice(0)) resolve();
+    await settle();
+    for (const resolve of resolvers.splice(0)) resolve();
+    await settle();
+
+    expect(rows.get(ALICE)).toEqual(new Set([K9, K1]));
+    expect(orch.getClaimSnapshot(user(ALICE)).confirmed).toEqual(
+      new Set([K1]),
+    );
+  });
+
+  it("offers guest keys a sibling tab recorded after this session started", async () => {
+    const { storage, map } = makeStorage();
+    seedGuest(map, [K1]);
+    const orch = createProgressOrchestrator({
+      storage,
+      remote: makeRemote(new Map()),
+    });
+
+    orch.setIdentity(user(ALICE));
+    await settle();
+    expect(orch.getClaimSnapshot(user(ALICE)).eligible).toEqual(
+      new Set([K1]),
+    );
+
+    // Another tab completes K3: the shared record grows while this
+    // store's in-memory snapshot stays stale — the offer must see both.
+    seedGuest(map, [K1, K3]);
+    expect(orch.getClaimSnapshot(user(ALICE)).eligible).toEqual(
+      new Set([K1, K3]),
+    );
+  });
 });

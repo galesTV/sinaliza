@@ -29,6 +29,7 @@ import {
   EMPTY_PROGRESS,
   PROGRESS_STORAGE_KEY,
   createProgressStore,
+  loadCompleted,
   progressStorageKey,
   type ProgressSnapshot,
   type ProgressStorage,
@@ -281,7 +282,12 @@ export function createProgressOrchestrator(
     const userId = userIdOf(id);
     if (userId === null || !deps.remote) return EMPTY_CLAIM;
     const marker = markerFor(userId).snapshot();
-    const guest = storeFor(PROGRESS_STORAGE_KEY).getSnapshot().completed;
+    // Union this session's in-memory guest set with a fresh storage read:
+    // a sibling tab may have recorded completions this store never saw.
+    const guest = new Set([
+      ...storeFor(PROGRESS_STORAGE_KEY).getSnapshot().completed,
+      ...loadCompleted(deps.storage, PROGRESS_STORAGE_KEY),
+    ]);
     const eligible = new Set(
       [...guest].filter(
         (key) =>
@@ -392,7 +398,9 @@ export function createProgressOrchestrator(
     } finally {
       flushingUsers.delete(userId);
       if (flushAgain.delete(userId) && activeUserId() === userId) {
-        void flushPending(userId);
+        // A deferred pass that pushed claim keys still needs the
+        // post-flush verification — verifyClaims is a no-op otherwise.
+        void flushPending(userId).then(() => void verifyClaims(userId));
       }
     }
   }
@@ -452,9 +460,14 @@ export function createProgressOrchestrator(
         // (persisted intent outlived its queue entry): re-enqueue ONLY
         // keys already in `initiated` — never new ones, never anything
         // the remote already covers.
-        for (const key of markerFor(userId).snapshot().initiated) {
+        const orphaned = markerFor(userId).snapshot().initiated;
+        for (const key of orphaned) {
           if (!remoteKeys.has(key)) queue.enqueue(key);
         }
+        // The authorized set belongs to the account's local store too —
+        // a resumed intent must surface in progress views just like a
+        // fresh claim does.
+        store.merge(orphaned);
       }
       inflight -= 1;
       emit();
@@ -569,6 +582,10 @@ export function createProgressOrchestrator(
       markerFor(userId).addInitiated(keys);
       const queue = queueFor(userId);
       for (const key of keys) queue.enqueue(key);
+      // The consented keys belong to this account now: record them in
+      // its local store so activity/trails reflect them immediately —
+      // local-first, like any completion awaiting a confirmed write.
+      storeFor(progressStorageKey(userId)).merge(keys);
       emit();
       // Sync respects the existing ownership/retry rules; when the pass
       // finishes, verify the exact key set against the remote rows.
