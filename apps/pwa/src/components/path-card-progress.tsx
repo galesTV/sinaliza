@@ -3,9 +3,8 @@
 import type { LearningPath } from "@/data/learning-paths";
 import { getPathProgress, type PathProgress } from "@/lib/progression";
 
+import { useAtlasProgress } from "./atlas-progress";
 import { IconArrowRight, IconClock } from "./icons";
-import { useAuthSession } from "./use-auth-session";
-import { useProgressSnapshot, useProgressSyncState } from "./use-progress";
 
 /**
  * Personal progress layer of a PathCard — a client island so the card
@@ -68,17 +67,11 @@ export function PathCardProgressView({
 }
 
 export function PathCardProgress({ path }: { path: LearningPath }) {
-  const { status } = useAuthSession();
-  const snapshot = useProgressSnapshot();
-  const sync = useProgressSyncState();
-
-  const loading =
-    status === "loading" ||
-    (status === "user" && sync.configured && !sync.hydrated && sync.syncing);
+  const { completed, loading } = useAtlasProgress();
 
   return (
     <PathCardProgressView
-      progress={getPathProgress(path, snapshot.completed)}
+      progress={getPathProgress(path, completed)}
       loading={loading}
     />
   );

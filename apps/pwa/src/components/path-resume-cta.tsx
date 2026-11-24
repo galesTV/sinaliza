@@ -9,9 +9,8 @@ import {
   type ResumeTarget,
 } from "@/lib/progression";
 
+import { useAtlasProgress } from "./atlas-progress";
 import { IconArrowRight } from "./icons";
-import { useAuthSession } from "./use-auth-session";
-import { useProgressSnapshot, useProgressSyncState } from "./use-progress";
 
 /**
  * Path-scoped resume affordance — the learning recommendation for this
@@ -69,16 +68,10 @@ export function PathPreparationNote() {
 }
 
 export function PathResumeCta({ path }: { path: LearningPath }) {
-  const { status } = useAuthSession();
-  const snapshot = useProgressSnapshot();
-  const sync = useProgressSyncState();
+  const { completed, loading } = useAtlasProgress();
 
-  const loading =
-    status === "loading" ||
-    (status === "user" && sync.configured && !sync.hydrated && sync.syncing);
-
-  const progress = getPathProgress(path, snapshot.completed);
-  const resume = getNextLesson(path, snapshot.completed);
+  const progress = getPathProgress(path, completed);
+  const resume = getNextLesson(path, completed);
 
   // No completable lesson: no fake CTA — the editorial preparation state
   // is a catalog fact and renders even while the identity resolves.

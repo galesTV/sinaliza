@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { AtlasProgressProvider } from "@/components/atlas-progress";
 import { ConstellationFigure } from "@/components/constellation";
 import { Eyebrow } from "@/components/eyebrow";
 import { HonestNote } from "@/components/honest-note";
@@ -29,16 +30,18 @@ export default function PathsPage() {
         </p>
       </header>
 
-      <ul
-        className="grid gap-5 sm:grid-cols-2"
-        aria-label="Trilhas disponíveis"
-      >
-        {paths.map((path, index) => (
-          <li key={path.slug} className="h-full">
-            <PathCard path={path} startMarker={index === 0} />
-          </li>
-        ))}
-      </ul>
+      <AtlasProgressProvider>
+        <ul
+          className="grid gap-5 sm:grid-cols-2"
+          aria-label="Trilhas disponíveis"
+        >
+          {paths.map((path, index) => (
+            <li key={path.slug} className="h-full">
+              <PathCard path={path} startMarker={index === 0} />
+            </li>
+          ))}
+        </ul>
+      </AtlasProgressProvider>
 
       <HonestNote>
         Novas trilhas — exercícios interativos e prática experimental com

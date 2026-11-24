@@ -8,10 +8,9 @@ import {
   type PathProgress,
 } from "@/lib/progression";
 
+import { useAtlasProgress } from "./atlas-progress";
 import { Badge } from "./badge";
 import { IconCheck, IconClock } from "./icons";
-import { useAuthSession } from "./use-auth-session";
-import { useProgressSnapshot, useProgressSyncState } from "./use-progress";
 
 const STATE_TONE: Record<ModuleState, "neutral" | "accent" | "success"> = {
   preparation: "accent",
@@ -89,20 +88,14 @@ export function ModuleStateBadge({
   pathSlug: string;
   module: CourseModule;
 }) {
-  const { status } = useAuthSession();
-  const snapshot = useProgressSnapshot();
-  const sync = useProgressSyncState();
+  const { completed, loading } = useAtlasProgress();
 
   const path = getLearningPath(pathSlug);
   if (!path) return null;
 
-  const loading =
-    status === "loading" ||
-    (status === "user" && sync.configured && !sync.hydrated && sync.syncing);
-
   return (
     <ModuleStateBadgeView
-      progress={getModuleProgress(path, module, snapshot.completed)}
+      progress={getModuleProgress(path, module, completed)}
       loading={loading}
     />
   );

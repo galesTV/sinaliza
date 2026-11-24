@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { ActivitySummary } from "@/components/activity-panel";
+import { AtlasProgressProvider } from "@/components/atlas-progress";
 import { ConstellationFigure } from "@/components/constellation";
 import { Eyebrow } from "@/components/eyebrow";
 import { IconArrowRight, IconFlask } from "@/components/icons";
@@ -169,13 +170,15 @@ export default function Home() {
             Cada trilha organiza um bloco do seu aprendizado em módulos curtos.
           </p>
         </div>
-        <ul className="grid gap-5 sm:grid-cols-2">
-          {paths.map((path) => (
-            <li key={path.slug} className="h-full">
-              <PathCard path={path} />
-            </li>
-          ))}
-        </ul>
+        <AtlasProgressProvider>
+          <ul className="grid gap-5 sm:grid-cols-2">
+            {paths.map((path) => (
+              <li key={path.slug} className="h-full">
+                <PathCard path={path} />
+              </li>
+            ))}
+          </ul>
+        </AtlasProgressProvider>
       </section>
 
       <section aria-labelledby="activity-title" className="flex flex-col gap-6">

@@ -6,8 +6,8 @@ import type { LessonStatus } from "@/data/learning-paths";
 import { isLessonCompletable } from "@/data/path-publication";
 import { cn } from "@/lib/utils";
 
+import { useAtlasProgress } from "./atlas-progress";
 import { IconCheck } from "./icons";
-import { useProgressSnapshot } from "./use-progress";
 
 export type LessonChipState = "completed" | "pending" | "actionable";
 
@@ -46,10 +46,10 @@ export function ModuleLessonChip({
   status: LessonStatus;
   lessonKey: string;
 }) {
-  const snapshot = useProgressSnapshot();
+  const { completed: completedKeys } = useAtlasProgress();
   const state = lessonChipState(
     isLessonCompletable(lessonKey, status),
-    snapshot.completed.has(lessonKey),
+    completedKeys.has(lessonKey),
   );
   const completed = state === "completed";
   const pending = state === "pending";

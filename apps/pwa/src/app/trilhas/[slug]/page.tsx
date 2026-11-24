@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
+import { AtlasProgressProvider } from "@/components/atlas-progress";
 import { Badge } from "@/components/badge";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { ConstellationFigure } from "@/components/constellation";
@@ -57,7 +58,7 @@ async function PathContent({ params }: PathPageProps) {
   const publication = getPathPublicationSummary(path);
 
   return (
-    <>
+    <AtlasProgressProvider>
       <Breadcrumb
         items={[
           { label: "Trilhas", href: "/trilhas" },
@@ -125,6 +126,6 @@ async function PathContent({ params }: PathPageProps) {
       </section>
 
       <HonestNote>{path.contentNote}</HonestNote>
-    </>
+    </AtlasProgressProvider>
   );
 }
