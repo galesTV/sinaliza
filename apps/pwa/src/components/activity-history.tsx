@@ -281,65 +281,69 @@ function ActivityHistoryInner({
 
   const hasRemote = groups.length > 0;
   const hasPending = pendingItems.length > 0;
-  if (!hasRemote && !hasPending) {
-    // Manual refresh stays available: a learner awaiting their first
-    // record must be able to re-query without reloading the page.
-    return (
-      <div className="flex flex-col gap-2">
+
+  // One stable tree shape: the refresh button always occupies the same
+  // child slot, so it is never remounted when the empty state fills in
+  // — keyboard focus on it survives the refresh that adds records.
+  return (
+    <div className="flex flex-col gap-4">
+      {!hasRemote && !hasPending ? (
         <p className="text-sm leading-relaxed text-muted">
           {HISTORY_EMPTY_COPY}
         </p>
-        <HistoryRefreshButton />
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex flex-col gap-4">
-      {hasPending && (
-        // Polite live region: queue→remote transitions (label swaps,
-        // items leaving/entering) are announced as they happen.
-        <section aria-label={transientGroupLabel(pendingItems)} aria-live="polite">
-          <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
-            {transientGroupLabel(pendingItems)}
-          </h3>
-          <ul className="mt-2 flex flex-col gap-2">
-            {pendingItems.map((item) => (
-              <HistoryItem
-                key={item.lessonKey}
-                lessonKey={item.lessonKey}
-                meta={stateMeta(item.state)}
-                variant={item.state}
-              />
-            ))}
-          </ul>
-        </section>
-      )}
-      {hasRemote && (
-        // New day groups/records arriving after a refresh are announced
-        // politely — ProgressSyncNote only covers the queue's own state.
-        <div className="flex flex-col gap-4" aria-live="polite">
-          {groups.map((group) => (
-            <section key={group.dayKey} aria-label={group.label}>
+      ) : (
+        <>
+          {hasPending && (
+            // Polite live region: queue→remote transitions (label
+            // swaps, items leaving/entering) are announced as they
+            // happen.
+            <section
+              aria-label={transientGroupLabel(pendingItems)}
+              aria-live="polite"
+            >
               <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
-                {group.label}
+                {transientGroupLabel(pendingItems)}
               </h3>
               <ul className="mt-2 flex flex-col gap-2">
-                {group.entries.map((entry) => (
+                {pendingItems.map((item) => (
                   <HistoryItem
-                    key={entry.lessonKey}
-                    lessonKey={entry.lessonKey}
-                    meta={`Registrado às ${entry.timeLabel}`}
+                    key={item.lessonKey}
+                    lessonKey={item.lessonKey}
+                    meta={stateMeta(item.state)}
+                    variant={item.state}
                   />
                 ))}
               </ul>
             </section>
-          ))}
-          <p className="text-xs leading-relaxed text-muted">
-            {HISTORY_NOTE_COPY}
-            {truncated ? ` ${HISTORY_TRUNCATED_COPY}` : ""}
-          </p>
-        </div>
+          )}
+          {hasRemote && (
+            // New day groups/records arriving after a refresh are
+            // announced politely — ProgressSyncNote only covers the
+            // queue's own state.
+            <div className="flex flex-col gap-4" aria-live="polite">
+              {groups.map((group) => (
+                <section key={group.dayKey} aria-label={group.label}>
+                  <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
+                    {group.label}
+                  </h3>
+                  <ul className="mt-2 flex flex-col gap-2">
+                    {group.entries.map((entry) => (
+                      <HistoryItem
+                        key={entry.lessonKey}
+                        lessonKey={entry.lessonKey}
+                        meta={`Registrado às ${entry.timeLabel}`}
+                      />
+                    ))}
+                  </ul>
+                </section>
+              ))}
+              <p className="text-xs leading-relaxed text-muted">
+                {HISTORY_NOTE_COPY}
+                {truncated ? ` ${HISTORY_TRUNCATED_COPY}` : ""}
+              </p>
+            </div>
+          )}
+        </>
       )}
       <HistoryRefreshButton />
     </div>

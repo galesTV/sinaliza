@@ -179,6 +179,27 @@ describe("ActivityHistory (SSR)", () => {
     expect(html).toContain(HISTORY_REFRESH_COPY);
   });
 
+  it("keeps the refresh button in the same trailing slot when populated", () => {
+    harness.auth = { status: "user", user: { id: "user-1", email: null } };
+    const html = renderToStaticMarkup(
+      <ActivityHistory
+        userId="user-1"
+        rows={[
+          { lessonKey: REAL_KEY, completedAt: "2026-11-24T12:00:00Z" },
+        ]}
+        truncated={false}
+        snapshotId="s1"
+      />,
+    );
+    // The button is the last element in every render state, so React
+    // keeps the same instance across the empty→populated transition
+    // and keyboard focus on it survives the refresh.
+    expect(html).toContain(HISTORY_REFRESH_COPY);
+    expect(html.indexOf(HISTORY_REFRESH_COPY)).toBeGreaterThan(
+      html.indexOf("Registrado às"),
+    );
+  });
+
   it("announces transient and remote changes in polite live regions", () => {
     harness.auth = { status: "user", user: { id: "user-1", email: null } };
     harness.sync.pendingKeys = [REAL_KEY];
