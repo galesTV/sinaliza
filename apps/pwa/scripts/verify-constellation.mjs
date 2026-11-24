@@ -120,6 +120,7 @@ await page
         parseFloat(getComputedStyle(ring).opacity) > 0.9
       );
     },
+    undefined,
     { timeout: 3000, polling: 100 },
   )
   .catch(() => null);
