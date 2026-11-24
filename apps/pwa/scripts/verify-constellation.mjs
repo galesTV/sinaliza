@@ -107,15 +107,31 @@ for (let i = 0; i < 60; i++) {
   if (onStar) break;
   await page.keyboard.press("Tab");
 }
-await page.waitForTimeout(350);
+// The ring fades in via CSS transition — poll until it settles instead of
+// sampling at a fixed delay (a mid-fade sample flakes below 0.9).
+await page
+  .waitForFunction(
+    () => {
+      const a = document.activeElement;
+      const ring = a?.querySelector('[class*="opacity-0"]');
+      return (
+        a?.matches(":focus-visible") &&
+        ring &&
+        parseFloat(getComputedStyle(ring).opacity) > 0.9
+      );
+    },
+    { timeout: 3000, polling: 100 },
+  )
+  .catch(() => null);
 const focusRing = await page.evaluate(() => {
   const a = document.activeElement;
   if (!a?.matches(":focus-visible")) return { ok: false, why: "no :focus-visible" };
   const outline = getComputedStyle(a).outlineStyle;
   const ring = a.querySelector('[class*="opacity-0"]');
+  const opacity = ring ? parseFloat(getComputedStyle(ring).opacity) : 0;
   return {
-    ok: ring && parseFloat(getComputedStyle(ring).opacity) > 0.9 && outline === "none",
-    why: `outline=${outline} ring=${ring ? getComputedStyle(ring).opacity : "none"}`,
+    ok: opacity > 0.9 && outline === "none",
+    why: `outline=${outline} ring=${ring ? opacity : "none"}`,
   };
 });
 check("home: drawn ring visible, no rectangular outline", focusRing.ok === true, focusRing.why);
