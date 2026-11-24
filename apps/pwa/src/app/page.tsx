@@ -5,6 +5,11 @@ import { AtlasProgressProvider } from "@/components/atlas-progress";
 import { ConstellationFigure } from "@/components/constellation";
 import { Eyebrow } from "@/components/eyebrow";
 import { IconArrowRight, IconFlask } from "@/components/icons";
+import {
+  CONSTELLATION_HOME_SUBTITLE,
+  CONSTELLATION_HOME_TITLE,
+  LearningConstellationSection,
+} from "@/components/learning-constellation-section";
 import { MilestonesSection } from "@/components/milestones-section";
 import { PathCard } from "@/components/path-card";
 import { ResumeCta } from "@/components/resume-cta";
@@ -158,19 +163,19 @@ export default function Home() {
         </ul>
       </section>
 
-      <section aria-labelledby="paths-title" className="flex flex-col gap-7">
-        <div className="flex flex-col gap-2">
-          <h2
-            id="paths-title"
-            className="font-display text-2xl font-semibold tracking-tight text-foreground"
-          >
-            Trilhas de aprendizagem
-          </h2>
-          <p className="max-w-xl text-sm leading-relaxed text-muted">
-            Cada trilha organiza um bloco do seu aprendizado em módulos curtos.
-          </p>
-        </div>
-        <AtlasProgressProvider>
+      <AtlasProgressProvider>
+        <section aria-labelledby="paths-title" className="flex flex-col gap-7">
+          <div className="flex flex-col gap-2">
+            <h2
+              id="paths-title"
+              className="font-display text-2xl font-semibold tracking-tight text-foreground"
+            >
+              Trilhas de aprendizagem
+            </h2>
+            <p className="max-w-xl text-sm leading-relaxed text-muted">
+              Cada trilha organiza um bloco do seu aprendizado em módulos curtos.
+            </p>
+          </div>
           <ul className="grid gap-5 sm:grid-cols-2">
             {paths.map((path) => (
               <li key={path.slug} className="h-full">
@@ -178,24 +183,30 @@ export default function Home() {
               </li>
             ))}
           </ul>
-        </AtlasProgressProvider>
-      </section>
+        </section>
 
-      <section aria-labelledby="activity-title" className="flex flex-col gap-6">
-        <div className="flex flex-col gap-2">
-          <h2
-            id="activity-title"
-            className="font-display text-2xl font-semibold tracking-tight text-foreground"
-          >
-            Sua atividade
-          </h2>
-          <p className="max-w-xl text-sm leading-relaxed text-muted">
-            As lições que você concluir aparecem aqui — só progresso real.
-          </p>
-        </div>
-        <ActivitySummary />
-        <MilestonesSection />
-      </section>
+        <section aria-labelledby="activity-title" className="flex flex-col gap-6">
+          <div className="flex flex-col gap-2">
+            <h2
+              id="activity-title"
+              className="font-display text-2xl font-semibold tracking-tight text-foreground"
+            >
+              Sua atividade
+            </h2>
+            <p className="max-w-xl text-sm leading-relaxed text-muted">
+              As lições que você concluir aparecem aqui — só progresso real.
+            </p>
+          </div>
+          <ActivitySummary />
+          <LearningConstellationSection
+            paths={paths}
+            eyebrow="Observatório Pessoal"
+            title={CONSTELLATION_HOME_TITLE}
+            subtitle={CONSTELLATION_HOME_SUBTITLE}
+          />
+          <MilestonesSection />
+        </section>
+      </AtlasProgressProvider>
 
     </div>
   );
