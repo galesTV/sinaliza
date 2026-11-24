@@ -5,6 +5,7 @@ import { Suspense } from "react";
 
 import { DisplayNameForm } from "@/components/display-name-form";
 import { Eyebrow } from "@/components/eyebrow";
+import { GuestClaimCard } from "@/components/guest-claim-card";
 import { ProgressSyncNote } from "@/components/progress-sync-note";
 import { SignOutButton } from "@/components/sign-out-button";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
@@ -107,6 +108,7 @@ async function AccountPanel() {
           Atividade e sincronização
         </h2>
         <ProgressSyncNote />
+        <GuestClaimCard userId={userId} email={email} />
         <p className="text-sm leading-relaxed text-muted">
           O progresso acumulado sem conta continua neste dispositivo,
           separado do progresso da sua conta.
