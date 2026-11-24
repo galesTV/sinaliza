@@ -65,7 +65,12 @@ async function checkViewport(page, label) {
 }
 
 // ---------- Desktop home ----------
-let ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+// reducedMotion so fragment navigation scrolls instantly: under CDP,
+// scroll-behavior:smooth never runs and the anchor check would wait forever.
+let ctx = await browser.newContext({
+  viewport: { width: 1440, height: 900 },
+  reducedMotion: "reduce",
+});
 let page = await ctx.newPage();
 await page.goto(BASE + "/", { waitUntil: "networkidle" });
 
