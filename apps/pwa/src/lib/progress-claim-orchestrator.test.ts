@@ -76,6 +76,24 @@ async function settle() {
   await new Promise((resolve) => setTimeout(resolve, 0));
 }
 
+type Orch = ReturnType<typeof createProgressOrchestrator>;
+
+// Claim/dismiss everything currently offerable — the test-side stand-in
+// for the card passing its rendered `eligible` set.
+function claimAll(orch: Orch, userId: string) {
+  return orch.claimGuestProgress(
+    userId,
+    orch.getClaimSnapshot(user(userId)).eligible,
+  );
+}
+
+function dismissAll(orch: Orch, userId: string) {
+  orch.dismissGuestClaim(
+    userId,
+    orch.getClaimSnapshot(user(userId)).eligible,
+  );
+}
+
 describe("guest → account claim", () => {
   it("login without consent never transfers guest progress", async () => {
     const { storage, map } = makeStorage();
@@ -118,7 +136,7 @@ describe("guest → account claim", () => {
 
     orch.setIdentity(user(ALICE));
     await settle();
-    expect(orch.claimGuestProgress(ALICE)).toBe("started");
+    expect(claimAll(orch, ALICE)).toBe("started");
 
     // Intent is persisted before any network work completes.
     expect(map.get(claimStorageKey(ALICE))).toContain(K1);
@@ -148,7 +166,7 @@ describe("guest → account claim", () => {
 
     orch.setIdentity(user(ALICE));
     await settle();
-    orch.claimGuestProgress(ALICE);
+    claimAll(orch, ALICE);
     await settle();
 
     expect(rows.get(ALICE)).toEqual(new Set([K1, K2]));
@@ -162,11 +180,11 @@ describe("guest → account claim", () => {
 
     orch.setIdentity(user(ALICE));
     await settle();
-    orch.claimGuestProgress(ALICE);
+    claimAll(orch, ALICE);
     await settle();
     const calls = remote.upsert.mock.calls.length;
 
-    expect(orch.claimGuestProgress(ALICE)).toBe("no-eligible");
+    expect(claimAll(orch, ALICE)).toBe("no-eligible");
     await settle();
     expect(remote.upsert.mock.calls.length).toBe(calls);
   });
@@ -181,7 +199,7 @@ describe("guest → account claim", () => {
 
     orch.setIdentity(user(ALICE));
     await settle();
-    orch.claimGuestProgress(ALICE);
+    claimAll(orch, ALICE);
     await settle();
     expect(orch.getClaimSnapshot(user(ALICE)).eligible.size).toBe(0);
 
@@ -206,7 +224,7 @@ describe("guest → account claim", () => {
 
     orch.setIdentity(user(ALICE));
     await settle();
-    orch.dismissGuestClaim(ALICE);
+    dismissAll(orch, ALICE);
     expect(orch.getClaimSnapshot(user(ALICE)).eligible.size).toBe(0);
     expect(rows.has(ALICE)).toBe(false);
 
@@ -230,7 +248,7 @@ describe("guest → account claim", () => {
 
     orch.setIdentity(user(ALICE));
     await settle();
-    orch.dismissGuestClaim(ALICE);
+    dismissAll(orch, ALICE);
 
     orch.setIdentity(user(BOB));
     await settle();
@@ -247,7 +265,7 @@ describe("guest → account claim", () => {
 
     orch.setIdentity(user(ALICE));
     await settle();
-    orch.claimGuestProgress(ALICE);
+    claimAll(orch, ALICE);
     await settle();
 
     // Nothing reached the remote; the intent and the guest data stand.
@@ -272,7 +290,7 @@ describe("guest → account claim", () => {
     const first = createProgressOrchestrator({ storage, remote: failing });
     first.setIdentity(user(ALICE));
     await settle();
-    first.claimGuestProgress(ALICE);
+    claimAll(first, ALICE);
     await settle();
     expect(rows.has(ALICE)).toBe(false);
 
@@ -305,7 +323,7 @@ describe("guest → account claim", () => {
 
     orch.setIdentity(user(ALICE));
     await settle();
-    orch.claimGuestProgress(ALICE);
+    claimAll(orch, ALICE);
     // The account changes while the first write is in flight.
     orch.setIdentity(user(BOB));
     resolveUpsert!();
@@ -334,8 +352,8 @@ describe("guest → account claim", () => {
     tabA.setIdentity(user(ALICE));
     tabB.setIdentity(user(ALICE));
     await settle();
-    tabA.claimGuestProgress(ALICE);
-    tabB.claimGuestProgress(ALICE);
+    claimAll(tabA, ALICE);
+    claimAll(tabB, ALICE);
     await settle();
 
     expect(rows.get(ALICE)).toEqual(new Set([K1]));
@@ -358,7 +376,7 @@ describe("guest → account claim", () => {
 
     orch.setIdentity(user(ALICE));
     await settle();
-    orch.claimGuestProgress(ALICE);
+    claimAll(orch, ALICE);
     await settle();
 
     const claim = orch.getClaimSnapshot(user(ALICE));
@@ -389,7 +407,7 @@ describe("guest → account claim", () => {
 
     orch.setIdentity(user(ALICE));
     await settle();
-    orch.claimGuestProgress(ALICE);
+    claimAll(orch, ALICE);
     await settle();
 
     const claim = orch.getClaimSnapshot(user(ALICE));
@@ -408,7 +426,7 @@ describe("guest → account claim", () => {
 
     orch.setIdentity(user(ALICE));
     await settle();
-    orch.claimGuestProgress(ALICE);
+    claimAll(orch, ALICE);
     await settle();
     // The claim's first flush already spent one attempt; MAX-1 more
     // online events exhaust the budget (a further flush would reset it).
@@ -429,7 +447,7 @@ describe("guest → account claim", () => {
 
     orch.setIdentity(user(ALICE));
     expect(orch.getClaimSnapshot(user(ALICE))).toBe(EMPTY_CLAIM);
-    expect(orch.claimGuestProgress(ALICE)).toBe("unavailable");
+    expect(claimAll(orch, ALICE)).toBe("unavailable");
   });
 
   it("shows nothing offerable when the guest bucket is empty", async () => {
@@ -441,7 +459,7 @@ describe("guest → account claim", () => {
     orch.setIdentity(user(ALICE));
     await settle();
     expect(orch.getClaimSnapshot(user(ALICE)).eligible.size).toBe(0);
-    expect(orch.claimGuestProgress(ALICE)).toBe("no-eligible");
+    expect(claimAll(orch, ALICE)).toBe("no-eligible");
   });
 
   it("rejects claims from a guest or loading identity", () => {
@@ -452,9 +470,9 @@ describe("guest → account claim", () => {
       remote: makeRemote(new Map()),
     });
     orch.setIdentity(GUEST);
-    expect(orch.claimGuestProgress(ALICE)).toBe("wrong-identity");
+    expect(claimAll(orch, ALICE)).toBe("wrong-identity");
     orch.setIdentity(LOADING);
-    expect(orch.claimGuestProgress(ALICE)).toBe("wrong-identity");
+    expect(claimAll(orch, ALICE)).toBe("wrong-identity");
     // The claim can only target the account actually signed in.
   });
 
@@ -465,7 +483,7 @@ describe("guest → account claim", () => {
     const orch = createProgressOrchestrator({ storage, remote });
     orch.setIdentity(user(ALICE));
     await settle();
-    expect(orch.claimGuestProgress(BOB)).toBe("wrong-identity");
+    expect(claimAll(orch, BOB)).toBe("wrong-identity");
     expect(map.has(claimStorageKey(BOB))).toBe(false);
     expect(remote.upsert).not.toHaveBeenCalledWith(BOB, K1);
   });
@@ -490,7 +508,7 @@ describe("guest → account claim", () => {
     expect(orch.getCompletedSnapshot(user(BOB)).completed.has(K1)).toBe(
       false,
     );
-    expect(orch.claimGuestProgress(BOB)).toBe("no-eligible");
+    expect(claimAll(orch, BOB)).toBe("no-eligible");
     expect(rows.has(BOB)).toBe(false);
   });
 
@@ -613,7 +631,7 @@ describe("guest → account claim", () => {
 
     orch.setIdentity(user(ALICE));
     await settle();
-    orch.claimGuestProgress(ALICE);
+    claimAll(orch, ALICE);
 
     // Consented keys belong to the account's progress immediately —
     // activity and trails never show transferred lessons as undone.
@@ -656,7 +674,7 @@ describe("guest → account claim", () => {
     orch.setIdentity(user(ALICE));
     await settle();
     // Hydration's flush is parked on the pending K9 write.
-    orch.claimGuestProgress(ALICE);
+    claimAll(orch, ALICE);
     await settle();
 
     // The claim's own verify pass ran before the deferred flush: K1 was

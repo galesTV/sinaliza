@@ -141,13 +141,13 @@ export interface ProgressOrchestrator {
    * Explicit claim: persist the intent, enqueue the eligible guest keys
    * into THIS account's queue and kick the sync. Never called implicitly
    * — login, signup and hydration never transfer guest progress (ADR
-   * 0004, D4). The guest bucket is never modified. `offered` bounds the
-   * claim to the set the UI presented; omitting it claims every key
-   * currently eligible.
+   * 0004, D4). The guest bucket is never modified. `offered` is required
+   * and bounds the claim to the set the UI presented — a key added after
+   * the offer renders is never transferred unseen.
    */
   claimGuestProgress(
     userId: string,
-    offered?: ReadonlySet<string>,
+    offered: ReadonlySet<string>,
   ): GuestClaimResult;
   /**
    * "Keep separate": dismiss the offerable guest keys for this account,
@@ -155,7 +155,7 @@ export interface ProgressOrchestrator {
    * `claimGuestProgress`, `offered` bounds the dismissal to the set the
    * UI presented.
    */
-  dismissGuestClaim(userId: string, offered?: ReadonlySet<string>): void;
+  dismissGuestClaim(userId: string, offered: ReadonlySet<string>): void;
 }
 
 function storageKeyFor(identity: ProgressIdentity): string {
@@ -588,9 +588,7 @@ export function createProgressOrchestrator(
       // Claim only the set the UI presented: a key a sibling tab records
       // after the offer renders was never consented to and stays
       // offerable for a later prompt.
-      const keys = [...eligible].filter(
-        (key) => !offered || offered.has(key),
-      );
+      const keys = [...eligible].filter((key) => offered.has(key));
       if (keys.length === 0) return "no-eligible";
       // Persist the consent-driven intent BEFORE any network work: the
       // marker survives a tab close or reload, and the queue carries the
@@ -613,7 +611,7 @@ export function createProgressOrchestrator(
       if (activeUserId() !== userId) return;
       const { eligible } = claimSnapshotFor(identity);
       const keys = new Set(
-        [...eligible].filter((key) => !offered || offered.has(key)),
+        [...eligible].filter((key) => offered.has(key)),
       );
       if (keys.size === 0) return;
       markerFor(userId).addDismissed(keys);
