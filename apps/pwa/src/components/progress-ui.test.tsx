@@ -85,7 +85,7 @@ describe("ModuleLessonChip", () => {
     expect(html).toContain("Letra A");
   });
 
-  it("marks planned lessons as unavailable in text and style", () => {
+  it("marks planned lessons as in preparation in text and style", () => {
     const html = renderToStaticMarkup(
       <ModuleLessonChip
         href={href}
@@ -94,8 +94,37 @@ describe("ModuleLessonChip", () => {
         lessonKey={key}
       />,
     );
-    expect(html).toContain("(em breve)");
+    expect(html).toContain("(em preparação)");
     expect(html).toContain("border-dashed");
+  });
+
+  it("marks an 'available' lesson without publishable content as in preparation", () => {
+    // The link stays informational — the lesson page explains the state —
+    // but the chip must not look actionable without a completable lesson.
+    const html = renderToStaticMarkup(
+      <ModuleLessonChip
+        href={href}
+        title="Letra A"
+        status="available"
+        lessonKey={key}
+      />,
+    );
+    expect(html).toContain("(em preparação)");
+    expect(html).toContain("border-dashed");
+  });
+
+  it("renders a completable lesson as actionable", () => {
+    lessonCatalog.push(publishableEntry(key));
+    const html = renderToStaticMarkup(
+      <ModuleLessonChip
+        href={href}
+        title="Letra A"
+        status="available"
+        lessonKey={key}
+      />,
+    );
+    expect(html).not.toContain("(em preparação)");
+    expect(html).not.toContain("border-dashed");
   });
 
   it("renders no completion check on the server (store is client-only)", () => {
@@ -165,7 +194,7 @@ describe("PathProgressLineView", () => {
     const html = renderToStaticMarkup(
       <PathProgressLineView progress={getPathProgress(path, completed)} />,
     );
-    expect(html).toContain("1 de 2 lições disponíveis concluídas");
+    expect(html).toContain("1 de 2 atividades publicadas percorridas");
     expect(html).not.toContain("de 3");
   });
 });

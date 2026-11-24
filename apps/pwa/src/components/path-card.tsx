@@ -3,7 +3,8 @@ import Link from "next/link";
 import { getPathStats, type LearningPath } from "@/data/learning-paths";
 import { getPathPublicationSummary } from "@/data/path-publication";
 
-import { IconArrowRight, IconChat, IconType } from "./icons";
+import { IconChat, IconType } from "./icons";
+import { PathCardProgress } from "./path-card-progress";
 import { PublicationBadge } from "./publication-badge";
 
 const PATH_ICONS = {
@@ -68,10 +69,7 @@ export function PathCard({
             {stats.moduleCount} módulos · {stats.lessonCount} lições
           </span>
         </div>
-        <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary-soft transition-colors duration-200 group-hover:text-accent">
-          Ver trilha
-          <IconArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
-        </span>
+        <PathCardProgress path={path} />
       </div>
     </Link>
   );

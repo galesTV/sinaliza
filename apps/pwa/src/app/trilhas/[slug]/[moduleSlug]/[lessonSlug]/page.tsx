@@ -99,7 +99,7 @@ async function LessonContent({ params }: LessonPageProps) {
           {lesson.title}
         </h1>
         <div className="flex flex-wrap items-center gap-2.5">
-          <LessonStatusBadge status={lesson.status} />
+          <LessonStatusBadge status={lesson.status} lessonKey={key} />
           <LessonCompletionBadge
             lessonKey={lessonKey(path.slug, module.slug, lesson.slug)}
           />

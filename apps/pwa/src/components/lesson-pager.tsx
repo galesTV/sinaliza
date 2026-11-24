@@ -1,9 +1,18 @@
 import Link from "next/link";
 
 import { getLessonUrl, type LessonContext } from "@/data/learning-paths";
+import { isLessonCompletable } from "@/data/path-publication";
+import { lessonKey } from "@/lib/progress";
 
 import { IconArrowLeft, IconArrowRight } from "./icons";
 
+/**
+ * Editorial navigation within the current module — it walks the planned
+ * sequence, so it is deliberately NOT the learning recommendation (that
+ * lives in `PathResumeCta`). A destination that is not completable is
+ * labeled "Em preparação" instead of being presented as the next
+ * available learning activity.
+ */
 function PagerLink({
   context,
   lesson,
@@ -14,6 +23,10 @@ function PagerLink({
   direction: "previous" | "next";
 }) {
   const isPrevious = direction === "previous";
+  const completable = isLessonCompletable(
+    lessonKey(context.path.slug, context.module.slug, lesson.slug),
+    lesson.status,
+  );
   return (
     <Link
       href={getLessonUrl(context.path.slug, context.module.slug, lesson.slug)}
@@ -24,10 +37,15 @@ function PagerLink({
       )}
       <span className="flex min-w-0 flex-col">
         <span className="text-[11px] font-medium uppercase tracking-[0.1em] text-muted">
-          {isPrevious ? "Lição anterior" : "Próxima lição"}
+          {isPrevious
+            ? "Conteúdo anterior do percurso"
+            : "Próximo conteúdo do percurso"}
         </span>
         <span className="truncate font-semibold text-foreground">
           {lesson.title}
+          {!completable && (
+            <span className="font-normal text-muted"> · Em preparação</span>
+          )}
         </span>
       </span>
       {!isPrevious && (

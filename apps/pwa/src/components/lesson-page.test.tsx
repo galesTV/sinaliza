@@ -125,6 +125,24 @@ describe("LessonStatusBadge", () => {
       renderToStaticMarkup(<LessonStatusBadge status="available" />),
     ).toContain("Disponível");
   });
+
+  it("never shows 'Disponível' for an available lesson that is not completable", () => {
+    // status "available" without a publishable catalog entry: the badge
+    // must not promise the learnability the content area will refuse.
+    const html = renderToStaticMarkup(
+      <LessonStatusBadge status="available" lessonKey={TEST_LESSON_KEY} />,
+    );
+    expect(html).not.toContain("Disponível");
+    expect(html).toContain("Em breve");
+  });
+
+  it("shows 'Disponível' only when the lesson is completable", () => {
+    lessonCatalog.push(publishableEntry());
+    const html = renderToStaticMarkup(
+      <LessonStatusBadge status="available" lessonKey={TEST_LESSON_KEY} />,
+    );
+    expect(html).toContain("Disponível");
+  });
 });
 
 describe("LessonContentArea", () => {
@@ -276,8 +294,17 @@ describe("LessonPager", () => {
 
     expect(html).toContain("/trilhas/vocabulario/saudacoes/bom-dia");
     expect(html).toContain("/trilhas/vocabulario/saudacoes/boa-noite");
-    expect(html).toContain("Lição anterior");
-    expect(html).toContain("Próxima lição");
+    expect(html).toContain("Conteúdo anterior do percurso");
+    expect(html).toContain("Próximo conteúdo do percurso");
+  });
+
+  it("labels non-completable destinations as 'Em preparação' instead of implying availability", () => {
+    // Every catalog lesson is planned today, so both destinations carry
+    // the preparation hint — the pager is editorial navigation, not the
+    // learning recommendation.
+    const context = getLessonContext("vocabulario", "saudacoes", "boa-tarde")!;
+    const html = renderToStaticMarkup(<LessonPager context={context} />);
+    expect(html).toContain("Em preparação");
   });
 
   it("renders no previous link on the first lesson and no next link on the last", () => {
@@ -287,12 +314,12 @@ describe("LessonPager", () => {
       "libras-e-uma-lingua",
     )!;
     const firstHtml = renderToStaticMarkup(<LessonPager context={first} />);
-    expect(firstHtml).not.toContain("Lição anterior");
+    expect(firstHtml).not.toContain("Conteúdo anterior do percurso");
     expect(firstHtml).toContain("/trilhas/alfabeto/primeiros-passos/o-que-e");
 
     const last = getLessonContext("alfabeto", "letras-u-z", "letra-z")!;
     const lastHtml = renderToStaticMarkup(<LessonPager context={last} />);
-    expect(lastHtml).not.toContain("Próxima lição");
+    expect(lastHtml).not.toContain("Próximo conteúdo do percurso");
     expect(lastHtml).toContain("/trilhas/alfabeto/letras-u-z/letra-y");
   });
 });

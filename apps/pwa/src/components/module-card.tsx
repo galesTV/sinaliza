@@ -2,8 +2,8 @@ import { getLessonUrl, type CourseModule } from "@/data/learning-paths";
 import { lessonKey } from "@/lib/progress";
 import { cn } from "@/lib/utils";
 
-import { PlannedBadge } from "./badge";
 import { ModuleLessonChip } from "./module-lesson-chip";
+import { ModuleStateBadge } from "./module-state-badge";
 
 /**
  * One module in the path's learning trajectory: a numbered node on the
@@ -55,7 +55,7 @@ export function ModuleCard({
               </span>
               {module.title}
             </h3>
-            <PlannedBadge />
+            <ModuleStateBadge pathSlug={pathSlug} module={module} />
           </div>
           <p className="text-sm leading-relaxed text-muted">
             {module.description}

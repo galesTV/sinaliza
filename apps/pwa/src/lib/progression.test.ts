@@ -15,6 +15,8 @@ import {
 
 import { createProgressStore, lessonKey } from "./progress";
 import {
+  deriveModuleState,
+  getModuleProgress,
   getNextLesson,
   getPathProgress,
   getResumeLesson,
@@ -417,5 +419,100 @@ describe("consistency with the publication rule", () => {
         target!.lesson.status,
       ),
     ).toBe(true);
+  });
+});
+
+describe("getModuleProgress", () => {
+  it("scopes the available denominator to the module", () => {
+    const path = publishAll(makePath());
+    const [modUm, modDois] = path.modules;
+    expect(getModuleProgress(path, modUm, new Set())).toEqual({
+      completedCount: 0,
+      availableCount: 2,
+      lessonCount: 3,
+      ratio: 0,
+    });
+    expect(getModuleProgress(path, modDois, new Set()).availableCount).toBe(1);
+  });
+
+  it("ignores planned lessons, unknown keys and foreign-path keys", () => {
+    const path = publishAll(makePath());
+    const modUm = path.modules[0];
+    const completed = new Set([
+      lessonKey(path.slug, "mod-um", "l3"), // planned — never counts
+      "outra-trilha/x/y",
+      "alfa-beta",
+    ]);
+    const progress = getModuleProgress(path, modUm, completed);
+    expect(progress.completedCount).toBe(0);
+    expect(progress.availableCount).toBe(2);
+  });
+
+  it("never lets completedCount exceed availableCount", () => {
+    const path = publishAll(makePath());
+    const modUm = path.modules[0];
+    const completed = new Set([
+      lessonKey(path.slug, "mod-um", "l1"),
+      lessonKey(path.slug, "mod-um", "l2"),
+      lessonKey(path.slug, "mod-dois", "l4"), // foreign module
+      lessonKey(path.slug, "mod-um", "l3"),
+    ]);
+    const progress = getModuleProgress(path, modUm, completed);
+    expect(progress.completedCount).toBe(2);
+    expect(progress.ratio).toBe(1);
+  });
+
+  it("reports a null ratio and zero denominators with no completable lessons", () => {
+    const path = makePath();
+    const modUm = path.modules[0];
+    // Nothing published: the "available" statuses have no catalog entry.
+    const progress = getModuleProgress(path, modUm, new Set());
+    expect(progress.availableCount).toBe(0);
+    expect(progress.ratio).toBeNull();
+    expect(deriveModuleState(progress)).toBe("preparation");
+  });
+});
+
+describe("deriveModuleState", () => {
+  it("maps each derived state from the progress figures", () => {
+    const base = { lessonCount: 5, ratio: null };
+    expect(
+      deriveModuleState({ ...base, completedCount: 0, availableCount: 0 }),
+    ).toBe("preparation");
+    expect(
+      deriveModuleState({
+        ...base,
+        completedCount: 0,
+        availableCount: 3,
+        ratio: 0,
+      }),
+    ).toBe("available");
+    expect(
+      deriveModuleState({
+        ...base,
+        completedCount: 2,
+        availableCount: 3,
+        ratio: 2 / 3,
+      }),
+    ).toBe("in_progress");
+    expect(
+      deriveModuleState({
+        ...base,
+        completedCount: 3,
+        availableCount: 3,
+        ratio: 1,
+      }),
+    ).toBe("walked");
+  });
+
+  it("a module without completable lessons is never 'walked'", () => {
+    // Even with foreign keys in the set, no eligible lesson means the
+    // module stays in preparation — not completion.
+    const path = makePath();
+    const modUm = path.modules[0];
+    const completed = new Set([lessonKey(path.slug, "mod-um", "l1")]);
+    const progress = getModuleProgress(path, modUm, completed);
+    expect(progress.availableCount).toBe(0);
+    expect(deriveModuleState(progress)).toBe("preparation");
   });
 });

@@ -35,7 +35,10 @@ describe("ModuleCard", () => {
     expect(html).toContain('id="saudacoes"');
   });
 
-  it("communicates the planned state in text, not color alone", () => {
+  it("communicates the preparation state in text, not color alone", () => {
+    // The real catalog has no completable lessons today: every module is
+    // in the derived "preparation" state — a catalog fact rendered even
+    // while the identity resolves.
     const html = renderToStaticMarkup(
       <ModuleCard
         module={firstModule}
@@ -44,7 +47,7 @@ describe("ModuleCard", () => {
         pathSlug="vocabulario"
       />,
     );
-    expect(html).toContain("Em breve");
+    expect(html).toContain("Em preparação");
   });
 
   it("states the module's position in the sequence for screen readers", () => {

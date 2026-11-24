@@ -9,6 +9,7 @@ import { Eyebrow } from "@/components/eyebrow";
 import { HonestNote } from "@/components/honest-note";
 import { ModuleCard } from "@/components/module-card";
 import { PathProgressLine } from "@/components/path-progress-line";
+import { PathResumeCta } from "@/components/path-resume-cta";
 import { PublicationBadge } from "@/components/publication-badge";
 import {
   getLearningPath,
@@ -66,7 +67,7 @@ async function PathContent({ params }: PathPageProps) {
 
       <header className="relative flex flex-col gap-5">
         <ConstellationFigure className="pointer-events-none absolute -top-8 right-0 hidden w-52 opacity-70 sm:block lg:w-64" />
-        <Eyebrow>Trilha</Eyebrow>
+        <Eyebrow>Atlas de Aprendizagem</Eyebrow>
         <h1 className="max-w-2xl font-display text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
           {path.title}
         </h1>
@@ -88,6 +89,7 @@ async function PathContent({ params }: PathPageProps) {
           <Badge>{stats.moduleCount} módulos</Badge>
           <PathProgressLine pathSlug={path.slug} />
         </div>
+        <PathResumeCta path={path} />
       </header>
 
       <section

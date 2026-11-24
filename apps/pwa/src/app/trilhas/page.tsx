@@ -19,7 +19,7 @@ export default function PathsPage() {
     <div className="flex flex-col gap-10">
       <header className="relative flex flex-col gap-5">
         <ConstellationFigure className="pointer-events-none absolute -top-8 right-0 hidden w-52 opacity-70 sm:block lg:w-64" />
-        <Eyebrow>Aprendizagem</Eyebrow>
+        <Eyebrow>Atlas de Aprendizagem</Eyebrow>
         <h1 className="max-w-2xl font-display text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
           Trilhas de aprendizagem
         </h1>
