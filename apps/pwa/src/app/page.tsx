@@ -4,6 +4,7 @@ import { ActivitySummary } from "@/components/activity-panel";
 import { ConstellationFigure } from "@/components/constellation";
 import { Eyebrow } from "@/components/eyebrow";
 import { IconArrowRight, IconFlask } from "@/components/icons";
+import { MilestonesSection } from "@/components/milestones-section";
 import { PathCard } from "@/components/path-card";
 import { ResumeCta } from "@/components/resume-cta";
 import { getLearningPaths } from "@/data/learning-paths";
@@ -190,6 +191,7 @@ export default function Home() {
           </p>
         </div>
         <ActivitySummary />
+        <MilestonesSection />
       </section>
 
     </div>

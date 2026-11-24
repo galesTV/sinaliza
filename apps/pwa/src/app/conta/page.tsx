@@ -10,6 +10,7 @@ import {
 import { DisplayNameForm } from "@/components/display-name-form";
 import { Eyebrow } from "@/components/eyebrow";
 import { GuestClaimCard } from "@/components/guest-claim-card";
+import { MilestonesSection } from "@/components/milestones-section";
 import { ProgressSyncNote } from "@/components/progress-sync-note";
 import { SignOutButton } from "@/components/sign-out-button";
 import {
@@ -145,6 +146,7 @@ async function AccountPanel() {
           separado do progresso da sua conta.
         </p>
       </section>
+      <MilestonesSection titleAs="h2" />
       <section
         aria-labelledby="conta-historico"
         className="flex flex-col gap-3"

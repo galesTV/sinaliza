@@ -148,6 +148,35 @@ export function IconExternalLink(props: IconProps) {
   );
 }
 
+export function IconLayers(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="m12 3 9 4.5-9 4.5-9-4.5L12 3z" />
+      <path d="m3 12 9 4.5 9-4.5" />
+      <path d="m3 16.5 9 4.5 9-4.5" />
+    </Svg>
+  );
+}
+
+export function IconFlag(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M6 21V4" />
+      <path d="M6 5h11l-2.5 4L17 13H6" />
+    </Svg>
+  );
+}
+
+export function IconMap(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M9 4.5 3.5 6.3v13.2L9 17.7l6 1.8 5.5-1.8V4.5L15 6.3 9 4.5z" />
+      <path d="M9 4.5v13.2" />
+      <path d="M15 6.3v13.2" />
+    </Svg>
+  );
+}
+
 export function IconGraduationCap(props: IconProps) {
   return (
     <Svg {...props}>
