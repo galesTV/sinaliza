@@ -3,7 +3,10 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
-import { ActivityHistory } from "@/components/activity-history";
+import {
+  ActivityHistory,
+  HistoryErrorNote,
+} from "@/components/activity-history";
 import { DisplayNameForm } from "@/components/display-name-form";
 import { Eyebrow } from "@/components/eyebrow";
 import { GuestClaimCard } from "@/components/guest-claim-card";
@@ -143,15 +146,15 @@ async function AccountPanel() {
           Histórico de atividades
         </h2>
         {historyError ? (
-          <p role="status" className="text-sm leading-relaxed text-muted">
-            Não foi possível carregar seu histórico agora — seus dados
-            continuam seguros. Recarregue a página para tentar novamente.
-          </p>
+          <HistoryErrorNote />
         ) : (
           <ActivityHistory
             userId={userId}
             rows={history}
             truncated={historyTruncated}
+            // Emitted once per successful query: a delivered snapshot is
+            // provable evidence — an array-reference change alone is not.
+            snapshotId={crypto.randomUUID()}
           />
         )}
       </section>

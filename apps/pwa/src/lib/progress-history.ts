@@ -173,11 +173,22 @@ export function groupHistoryByDay(
  *
  * `drainedEpoch` bumps whenever keys leave the queue, letting the
  * component schedule ONE debounced router.refresh() per drain instead
- * of one per push. Reconciliation on a NEW remote snapshot: an
- * "updating" key still uncovered is dropped — queue.confirm already
- * proved its remote write, and a capped window may legitimately omit
- * it; it must not linger as a fake pending entry. A refresh that fails
- * (rows unchanged) keeps entries waiting, with no false success.
+ * of one per push.
+ *
+ * Reconciliation keys on `snapshotId` — a token the server emits ONLY
+ * when the history query succeeded: a changed array reference alone
+ * never counts as a delivery, and a successful query returning
+ * identical content still does. On a newly delivered snapshot an
+ * "updating" key still uncovered is dropped: queue.confirm already
+ * proved its remote write and a capped window may legitimately omit
+ * it — it must not linger as a fake pending entry. A failed query
+ * delivers no new token, so transient entries survive untouched (the
+ * page swaps to the error state) — never a false success.
+ *
+ * Ordering caveat: a delivered snapshot may reflect a fetch that began
+ * before the drain — it simply records what the remote showed then;
+ * the debounced refresh for that drain is still scheduled and covers
+ * the key on the next delivery.
  */
 export interface HistoryTracker {
   /** Queue keys observed at the last advance. */
@@ -186,15 +197,15 @@ export interface HistoryTracker {
   awaiting: ReadonlySet<string>;
   /** Bumped whenever keys leave the queue — drives one batched refresh. */
   drainedEpoch: number;
-  /** Remote rows already reconciled against (reference-compared). */
-  rowsSeen: readonly HistoryRow[] | null;
+  /** Id of the last delivered (successful) remote snapshot. */
+  snapshotSeen: string | null;
 }
 
 export const INITIAL_HISTORY_TRACKER: HistoryTracker = {
   pending: new Set<string>(),
   awaiting: new Set<string>(),
   drainedEpoch: 0,
-  rowsSeen: null,
+  snapshotSeen: null,
 };
 
 function sameKeys(a: ReadonlySet<string>, b: ReadonlySet<string>): boolean {
@@ -207,17 +218,18 @@ export function advanceHistoryTracker(
   prev: HistoryTracker,
   pendingKeys: readonly string[],
   remoteRows: readonly HistoryRow[],
+  snapshotId: string,
 ): HistoryTracker {
   const pending = new Set(pendingKeys);
   const remoteKeys = new Set(remoteRows.map((row) => row.lessonKey));
   // First observation is never "a fresh snapshot" — mount only.
-  const rowsChanged =
-    prev.rowsSeen !== null && prev.rowsSeen !== remoteRows;
+  const snapshotDelivered =
+    prev.snapshotSeen !== null && prev.snapshotSeen !== snapshotId;
 
   const awaiting = new Set<string>();
   for (const key of prev.awaiting) {
     if (remoteKeys.has(key)) continue; // covered — became a record
-    if (rowsChanged && !pending.has(key)) continue; // outside the window
+    if (snapshotDelivered && !pending.has(key)) continue; // outside window
     awaiting.add(key);
   }
   let drained = 0;
@@ -230,7 +242,7 @@ export function advanceHistoryTracker(
 
   if (
     drained === 0 &&
-    prev.rowsSeen === remoteRows &&
+    prev.snapshotSeen === snapshotId &&
     sameKeys(prev.pending, pending) &&
     sameKeys(prev.awaiting, awaiting)
   ) {
@@ -241,7 +253,7 @@ export function advanceHistoryTracker(
     pending,
     awaiting,
     drainedEpoch: drained > 0 ? prev.drainedEpoch + 1 : prev.drainedEpoch,
-    rowsSeen: remoteRows,
+    snapshotSeen: snapshotId,
   };
 }
 

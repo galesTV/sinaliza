@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 
 import { getLessonContext } from "@/data/learning-paths";
 import { isLessonCompletable } from "@/data/path-publication";
@@ -48,6 +48,16 @@ export const HISTORY_PENDING_LABEL = "Aguardando sincronização";
 export const HISTORY_UPDATING_COPY = "Atualizando histórico";
 
 export const HISTORY_FAILED_COPY = "Nova tentativa ao reconectar";
+
+export const HISTORY_REFRESH_COPY = "Atualizar histórico";
+
+export const HISTORY_REFRESH_BUSY_COPY = "Atualizando…";
+
+export const HISTORY_RETRY_COPY = "Tentar novamente";
+
+export const HISTORY_ERROR_COPY =
+  "Não foi possível carregar seu histórico agora — seus dados " +
+  "continuam seguros.";
 
 export interface ResolvedHistoryTitle {
   title: string;
@@ -111,6 +121,57 @@ function stateMeta(state: PendingItemState): string | undefined {
   return undefined;
 }
 
+/**
+ * The transient group's heading reflects what it actually holds: once
+ * every entry has left the queue and only awaits the next snapshot,
+ * "Aguardando sincronização" would mislabel them — the group reads
+ * "Atualizando histórico" instead.
+ */
+export function transientGroupLabel(
+  items: readonly { state: PendingItemState }[],
+): string {
+  return items.every((item) => item.state === "updating")
+    ? HISTORY_UPDATING_COPY
+    : HISTORY_PENDING_LABEL;
+}
+
+/**
+ * Manual refresh affordance — the recovery path when a fetch fails or
+ * the list looks stale. One click, one router.refresh(): no polling,
+ * no automatic retries.
+ */
+export function HistoryRefreshButton({
+  label = HISTORY_REFRESH_COPY,
+}: {
+  label?: string;
+}) {
+  const router = useRouter();
+  const [busy, startTransition] = useTransition();
+  return (
+    <button
+      type="button"
+      disabled={busy}
+      onClick={() => startTransition(() => router.refresh())}
+      className="inline-flex items-center gap-1.5 text-xs font-medium text-accent transition-colors duration-200 hover:text-primary-soft disabled:cursor-wait disabled:opacity-60"
+    >
+      <IconRefresh aria-hidden="true" className="h-3.5 w-3.5" />
+      {busy ? HISTORY_REFRESH_BUSY_COPY : label}
+    </button>
+  );
+}
+
+/** Error state for the history section — copy plus manual recovery. */
+export function HistoryErrorNote() {
+  return (
+    <div className="flex flex-col gap-2">
+      <p role="status" className="text-sm leading-relaxed text-muted">
+        {HISTORY_ERROR_COPY}
+      </p>
+      <HistoryRefreshButton label={HISTORY_RETRY_COPY} />
+    </div>
+  );
+}
+
 function HistoryItem({
   lessonKey,
   meta,
@@ -162,10 +223,12 @@ function ActivityHistoryInner({
   userId,
   rows,
   truncated,
+  snapshotId,
 }: {
   userId: string;
   rows: HistoryRow[];
   truncated: boolean;
+  snapshotId: string;
 }) {
   const { status, user } = useAuthSession();
   const sync = useProgressSyncState();
@@ -186,6 +249,7 @@ function ActivityHistoryInner({
     tracker,
     isOwner ? sync.pendingKeys : [],
     rows,
+    snapshotId,
   );
   if (nextTracker !== tracker) setTracker(nextTracker);
 
@@ -228,9 +292,9 @@ function ActivityHistoryInner({
   return (
     <div className="flex flex-col gap-4">
       {hasPending && (
-        <section aria-label={HISTORY_PENDING_LABEL}>
+        <section aria-label={transientGroupLabel(pendingItems)}>
           <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
-            {HISTORY_PENDING_LABEL}
+            {transientGroupLabel(pendingItems)}
           </h3>
           <ul className="mt-2 flex flex-col gap-2">
             {pendingItems.map((item) => (
@@ -268,6 +332,7 @@ function ActivityHistoryInner({
           </p>
         </div>
       )}
+      <HistoryRefreshButton />
     </div>
   );
 }
@@ -286,14 +351,23 @@ export function ActivityHistory({
   userId,
   rows,
   truncated,
+  snapshotId,
 }: {
   userId: string;
   rows: HistoryRow[];
   truncated: boolean;
+  /** Token emitted once per successful history query — pairs with `rows`. */
+  snapshotId: string;
 }) {
   const { status, user } = useAuthSession();
   if (status !== "user" || user?.id !== userId) return null;
   return (
-    <ActivityHistoryInner key={userId} userId={userId} rows={rows} truncated={truncated} />
+    <ActivityHistoryInner
+      key={userId}
+      userId={userId}
+      rows={rows}
+      truncated={truncated}
+      snapshotId={snapshotId}
+    />
   );
 }

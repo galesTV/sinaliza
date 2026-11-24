@@ -192,7 +192,8 @@ describe("advanceHistoryTracker", () => {
     prev: HistoryTracker,
     pendingKeys: readonly string[],
     remote: readonly HistoryRow[],
-  ) => advanceHistoryTracker(prev, pendingKeys, remote);
+    snapshotId = "s1",
+  ) => advanceHistoryTracker(prev, pendingKeys, remote, snapshotId);
 
   it("observes queue keys as pending without touching awaiting", () => {
     const t = advance(INITIAL_HISTORY_TRACKER, [K1, K2], []);
@@ -221,9 +222,9 @@ describe("advanceHistoryTracker", () => {
     let t = advance(INITIAL_HISTORY_TRACKER, [K1], []);
     t = advance(t, [], []);
     const refreshed = rows(row(K1, "2026-11-24T12:00:00Z"));
-    const next = advance(t, [], refreshed);
+    const next = advance(t, [], refreshed, "s2");
     expect(next.awaiting.size).toBe(0);
-    expect(next.rowsSeen).toBe(refreshed);
+    expect(next.snapshotSeen).toBe("s2");
   });
 
   it("drops an awaiting key a fresh snapshot truncates out of view", () => {
@@ -233,19 +234,54 @@ describe("advanceHistoryTracker", () => {
     let t = advance(INITIAL_HISTORY_TRACKER, [K1], []);
     t = advance(t, [], []);
     const unrelated = rows(row(K2, "2026-11-24T12:00:00Z"));
-    const next = advance(t, [], unrelated);
+    const next = advance(t, [], unrelated, "s2");
     expect(next.awaiting.size).toBe(0);
   });
 
-  it("keeps awaiting keys when the refresh fails (rows unchanged)", () => {
-    // No false success: the same rows reference means the snapshot did
-    // not move — the drained key stays "atualizando", not "registrado".
+  it("treats identical content with a new snapshot id as delivered", () => {
+    // A successful query that returns byte-identical rows still proves
+    // the remote has nothing new for the key — the transient marker is
+    // honestly retired, not stuck "atualizando" forever.
+    let t = advance(INITIAL_HISTORY_TRACKER, [K1], []);
+    t = advance(t, [], []);
+    const next = advance(t, [], [], "s2"); // same content, new token
+    expect(next.awaiting.size).toBe(0);
+  });
+
+  it("does not count a mere new array reference as a delivered snapshot", () => {
+    // Same snapshot id + fresh rows array ≠ a new successful query —
+    // churn of references alone must never retire transient entries.
+    let t = advance(INITIAL_HISTORY_TRACKER, [K1], []);
+    t = advance(t, [], []);
+    const next = advance(t, [], [], "s1"); // new [], same token
+    expect(next.awaiting.has(K1)).toBe(true);
+    expect(next.snapshotSeen).toBe("s1");
+  });
+
+  it("keeps awaiting keys when no new snapshot arrives (failed fetch)", () => {
+    // A failed query emits no new token — transient entries wait for
+    // manual recovery instead of being dropped or faking a record.
     const remote = rows(row(K2, "2026-11-24T12:00:00Z"));
     let t = advance(INITIAL_HISTORY_TRACKER, [K1], remote);
     t = advance(t, [], remote);
-    t = advance(t, [], remote); // "refresh" delivered nothing new
+    t = advance(t, [], remote); // no new snapshot delivered
     expect(t.awaiting.has(K1)).toBe(true);
     expect(t.drainedEpoch).toBe(1);
+  });
+
+  it("keeps a key drained in the same step as a snapshot delivery", () => {
+    // A snapshot delivered in the same observation as the drain may
+    // reflect a fetch that predates it — it cannot prove coverage, so
+    // the key stays "updating" until a LATER delivery reconciles it.
+    let t = advance(INITIAL_HISTORY_TRACKER, [K1], []);
+    const stale = rows(); // fetched before the drain — key absent
+    t = advance(t, [], stale, "s2");
+    expect(t.awaiting.has(K1)).toBe(true);
+    expect(t.drainedEpoch).toBe(1);
+    // The next delivered snapshot (still without the key → truncated
+    // out of the window) honestly retires the transient marker.
+    const next = advance(t, [], stale, "s3");
+    expect(next.awaiting.size).toBe(0);
   });
 
   it("is referentially stable and never re-triggers a refresh", () => {
@@ -254,9 +290,9 @@ describe("advanceHistoryTracker", () => {
     let t = advance(INITIAL_HISTORY_TRACKER, [K1], []);
     t = advance(t, [], []);
     const refreshed = rows(row(K1, "2026-11-24T12:00:00Z"));
-    t = advance(t, [], refreshed);
+    t = advance(t, [], refreshed, "s2");
     expect(t.drainedEpoch).toBe(1);
-    expect(advance(t, [], refreshed)).toBe(t); // identical inputs: same ref
+    expect(advance(t, [], refreshed, "s2")).toBe(t); // same inputs: same ref
   });
 
   it("does not count a key that is already remote as a drain", () => {
@@ -274,6 +310,6 @@ describe("advanceHistoryTracker", () => {
     // component remounts keyed on userId) knows nothing about her keys.
     expect(INITIAL_HISTORY_TRACKER.pending.size).toBe(0);
     expect(INITIAL_HISTORY_TRACKER.awaiting.size).toBe(0);
-    expect(INITIAL_HISTORY_TRACKER.rowsSeen).toBeNull();
+    expect(INITIAL_HISTORY_TRACKER.snapshotSeen).toBeNull();
   });
 });

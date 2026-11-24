@@ -11,6 +11,7 @@ import {
   HISTORY_TRUNCATED_COPY,
   HISTORY_UPDATING_COPY,
   resolveHistoryTitle,
+  transientGroupLabel,
 } from "./activity-history";
 
 const REAL_KEY = "alfabeto/primeiros-passos/libras-e-uma-lingua";
@@ -58,6 +59,20 @@ describe("HISTORY_STATE_PRESENTATION", () => {
   });
 });
 
+describe("transientGroupLabel", () => {
+  it("says 'atualizando' only when no entry is really in the queue", () => {
+    expect(transientGroupLabel([{ state: "updating" }])).toBe(
+      HISTORY_UPDATING_COPY,
+    );
+    expect(
+      transientGroupLabel([{ state: "pending" }, { state: "updating" }]),
+    ).toBe(HISTORY_PENDING_LABEL);
+    expect(transientGroupLabel([{ state: "failed" }])).toBe(
+      HISTORY_PENDING_LABEL,
+    );
+  });
+});
+
 describe("resolveHistoryTitle", () => {
   it("resolves a known key to title, context and no link while unpublished", () => {
     const resolved = resolveHistoryTitle(REAL_KEY);
@@ -93,6 +108,7 @@ describe("ActivityHistory (SSR)", () => {
           { lessonKey: REAL_KEY, completedAt: "2026-11-24T12:00:00Z" },
         ]}
         truncated={false}
+        snapshotId="s1"
       />,
     );
     // Remote rows belong to the identity that fetched them: SSR/first
