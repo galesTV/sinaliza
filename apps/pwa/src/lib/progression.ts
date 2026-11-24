@@ -140,3 +140,55 @@ export function getResumeLesson(
   }
   return undefined;
 }
+
+/**
+ * Progress within one module. Same rule as `getPathProgress`, scoped to a
+ * single module — only completable lessons count, and unknown, foreign
+ * or stale keys are ignored, so `completedCount` can never exceed
+ * `availableCount`. `ratio` is `null` when nothing is completable.
+ */
+export function getModuleProgress(
+  path: LearningPath,
+  courseModule: CourseModule,
+  completed: ReadonlySet<string>,
+): PathProgress {
+  let completedCount = 0;
+  let availableCount = 0;
+
+  for (const lesson of courseModule.lessons) {
+    const key = lessonKey(path.slug, courseModule.slug, lesson.slug);
+    if (!isLessonCompletable(key, lesson.status)) continue;
+    availableCount += 1;
+    if (completed.has(key)) completedCount += 1;
+  }
+
+  return {
+    completedCount,
+    availableCount,
+    lessonCount: courseModule.lessons.length,
+    ratio: availableCount === 0 ? null : completedCount / availableCount,
+  };
+}
+
+/**
+ * Derived learning state of a module — what the learner can honestly be
+ * told about it today:
+ * - `preparation`: no completable lesson — content is being prepared;
+ * - `available`: completable lessons exist, none recorded;
+ * - `in_progress`: some completable lessons recorded;
+ * - `walked`: every completable lesson recorded — the module may still
+ *   have planned lessons, so this never means "module finished".
+ */
+export type ModuleState =
+  | "preparation"
+  | "available"
+  | "in_progress"
+  | "walked";
+
+export function deriveModuleState(progress: PathProgress): ModuleState {
+  if (progress.availableCount === 0) return "preparation";
+  if (progress.completedCount === 0) return "available";
+  return progress.completedCount >= progress.availableCount
+    ? "walked"
+    : "in_progress";
+}

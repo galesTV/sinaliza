@@ -9,8 +9,21 @@ import { HonestNote } from "./honest-note";
 import { IconFlask } from "./icons";
 import { LessonRunner } from "./lesson-runner";
 
-export function LessonStatusBadge({ status }: { status: LessonStatus }) {
-  return status === "available" ? (
+/**
+ * Availability badge for a lesson page header. "Disponível" only when the
+ * lesson is actually completable — `status === "available"` AND a
+ * publishable catalog entry — so the badge never promises learnability
+ * the content area below will refuse. `lessonKey` is required: no caller
+ * may assert availability outside the unified eligibility rule.
+ */
+export function LessonStatusBadge({
+  status,
+  lessonKey,
+}: {
+  status: LessonStatus;
+  lessonKey: string;
+}) {
+  return isLessonCompletable(lessonKey, status) ? (
     <Badge tone="success">Disponível</Badge>
   ) : (
     <PlannedBadge />

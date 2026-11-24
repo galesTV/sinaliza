@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import { getLearningPath } from "@/data/learning-paths";
 
+import { AtlasProgressContext } from "./atlas-progress";
 import { ModuleCard } from "./module-card";
 
 describe("ModuleCard", () => {
@@ -35,16 +36,56 @@ describe("ModuleCard", () => {
     expect(html).toContain('id="saudacoes"');
   });
 
-  it("communicates the planned state in text, not color alone", () => {
+  it("communicates the derived module state in text, not color alone", () => {
+    // Invariant under a resolved (non-loading) session: whichever state
+    // the real catalog yields, the badge is one of the four derived
+    // labels — never a fixed placeholder. The context pins `loading: false`
+    // so a future published lesson cannot hide the label behind the
+    // identity-resolution gate.
     const html = renderToStaticMarkup(
-      <ModuleCard
-        module={firstModule}
-        index={0}
-        total={modules.length}
-        pathSlug="vocabulario"
-      />,
+      <AtlasProgressContext.Provider
+        value={{ completed: new Set(), loading: false }}
+      >
+        <ModuleCard
+          module={firstModule}
+          index={0}
+          total={modules.length}
+          pathSlug="vocabulario"
+        />
+      </AtlasProgressContext.Provider>,
     );
-    expect(html).toContain("Em breve");
+    const derivedStates = [
+      "Em preparação",
+      "Disponível",
+      "Em andamento",
+      "Atividades publicadas percorridas",
+    ];
+    expect(
+      derivedStates.some((label) => html.includes(label)),
+    ).toBe(true);
+    expect(html).not.toContain("Em breve");
+  });
+
+  it("hides only personal states while the identity resolves", () => {
+    // During loading the badge may hide personal states — but a module in
+    // preparation is a catalog fact and still renders its label.
+    const html = renderToStaticMarkup(
+      <AtlasProgressContext.Provider
+        value={{ completed: new Set(), loading: true }}
+      >
+        <ModuleCard
+          module={firstModule}
+          index={0}
+          total={modules.length}
+          pathSlug="vocabulario"
+        />
+      </AtlasProgressContext.Provider>,
+    );
+    // Whatever the catalog state is, nothing here may surface another
+    // identity's progress: only the catalog-fact label is allowed.
+    expect(html).not.toContain("Em andamento");
+    expect(html).not.toContain("Atividades publicadas percorridas");
+    expect(html).not.toContain("Disponível");
   });
 
   it("states the module's position in the sequence for screen readers", () => {
