@@ -304,7 +304,7 @@ export function ConstellationLegendAndAlt({
                       className="flex min-h-11 items-center text-sm text-muted transition-colors duration-200 hover:text-foreground"
                     >
                       {star.title}
-                      <span className="text-muted/70">
+                      <span className="text-muted">
                         {" "}
                         —{" "}
                         {star.pending
