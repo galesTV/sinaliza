@@ -8,6 +8,8 @@ const base = {
   hydrated: false,
   pending: 0,
   failed: 0,
+  pendingKeys: [] as string[],
+  failedKeys: [] as string[],
   syncing: false,
 };
 

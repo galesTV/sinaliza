@@ -3,11 +3,17 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
+import { ActivityHistory } from "@/components/activity-history";
 import { DisplayNameForm } from "@/components/display-name-form";
 import { Eyebrow } from "@/components/eyebrow";
 import { GuestClaimCard } from "@/components/guest-claim-card";
 import { ProgressSyncNote } from "@/components/progress-sync-note";
 import { SignOutButton } from "@/components/sign-out-button";
+import {
+  HISTORY_DISPLAY_LIMIT,
+  sortHistoryRows,
+  validateHistoryRows,
+} from "@/lib/progress-history";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 
@@ -74,6 +80,21 @@ async function AccountPanel() {
       ? profile.display_name
       : null;
 
+  // Activity history: the account's own completion rows, newest first.
+  // RLS already scopes to auth.uid(); the explicit filter keeps the query
+  // self-documenting. limit+1 detects truncation without a count query.
+  const { data: historyRows, error: historyError } = await supabase
+    .from("lesson_completions")
+    .select("lesson_key, completed_at")
+    .eq("user_id", userId)
+    .order("completed_at", { ascending: false })
+    .order("lesson_key", { ascending: true })
+    .limit(HISTORY_DISPLAY_LIMIT + 1);
+
+  const validHistory = sortHistoryRows(validateHistoryRows(historyRows));
+  const history = validHistory.slice(0, HISTORY_DISPLAY_LIMIT);
+  const historyTruncated = validHistory.length > HISTORY_DISPLAY_LIMIT;
+
   return (
     <div className="flex flex-col gap-6 rounded-3xl border border-border bg-surface-elevated p-7 sm:p-9">
       <section
@@ -113,6 +134,26 @@ async function AccountPanel() {
           O progresso acumulado sem conta continua neste dispositivo,
           separado do progresso da sua conta.
         </p>
+      </section>
+      <section
+        aria-labelledby="conta-historico"
+        className="flex flex-col gap-3"
+      >
+        <h2 id="conta-historico" className={sectionTitleClass}>
+          Histórico de atividades
+        </h2>
+        {historyError ? (
+          <p role="status" className="text-sm leading-relaxed text-muted">
+            Não foi possível carregar seu histórico agora — seus dados
+            continuam seguros. Recarregue a página para tentar novamente.
+          </p>
+        ) : (
+          <ActivityHistory
+            userId={userId}
+            rows={history}
+            truncated={historyTruncated}
+          />
+        )}
       </section>
       <section
         aria-labelledby="conta-navegacao"

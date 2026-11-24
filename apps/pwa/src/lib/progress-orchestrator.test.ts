@@ -619,6 +619,8 @@ describe("sync snapshot honesty", () => {
       hydrated: false,
       pending: 0,
       failed: 0,
+      pendingKeys: [],
+      failedKeys: [],
       syncing: false,
     });
     expect(orch.getSyncSnapshot(GUEST).configured).toBe(false);
