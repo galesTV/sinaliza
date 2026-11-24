@@ -3,11 +3,20 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
+import {
+  ActivityHistory,
+  HistoryErrorNote,
+} from "@/components/activity-history";
 import { DisplayNameForm } from "@/components/display-name-form";
 import { Eyebrow } from "@/components/eyebrow";
 import { GuestClaimCard } from "@/components/guest-claim-card";
 import { ProgressSyncNote } from "@/components/progress-sync-note";
 import { SignOutButton } from "@/components/sign-out-button";
+import {
+  HISTORY_DISPLAY_LIMIT,
+  sortHistoryRows,
+  validateHistoryRows,
+} from "@/lib/progress-history";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 
@@ -63,16 +72,38 @@ async function AccountPanel() {
   const email =
     typeof data.claims.email === "string" ? data.claims.email : null;
 
-  const { data: profile, error: profileError } = await supabase
-    .from("profiles")
-    .select("display_name")
-    .eq("id", userId)
-    .maybeSingle();
+  // Profile and history are independent reads sharing one loading
+  // boundary — fetching them in parallel keeps a slow history query
+  // from delaying the profile form and the sign-out button.
+  const [profileResult, historyResult] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("display_name")
+      .eq("id", userId)
+      .maybeSingle(),
+    // Activity history: the account's own completion rows, newest
+    // first. RLS already scopes to auth.uid(); the explicit filter
+    // keeps the query self-documenting. limit+1 detects truncation
+    // without a count query.
+    supabase
+      .from("lesson_completions")
+      .select("lesson_key, completed_at")
+      .eq("user_id", userId)
+      .order("completed_at", { ascending: false })
+      .order("lesson_key", { ascending: true })
+      .limit(HISTORY_DISPLAY_LIMIT + 1),
+  ]);
+  const { data: profile, error: profileError } = profileResult;
+  const { data: historyRows, error: historyError } = historyResult;
 
   const savedName =
     !profileError && typeof profile?.display_name === "string"
       ? profile.display_name
       : null;
+
+  const validHistory = sortHistoryRows(validateHistoryRows(historyRows));
+  const history = validHistory.slice(0, HISTORY_DISPLAY_LIMIT);
+  const historyTruncated = validHistory.length > HISTORY_DISPLAY_LIMIT;
 
   return (
     <div className="flex flex-col gap-6 rounded-3xl border border-border bg-surface-elevated p-7 sm:p-9">
@@ -113,6 +144,26 @@ async function AccountPanel() {
           O progresso acumulado sem conta continua neste dispositivo,
           separado do progresso da sua conta.
         </p>
+      </section>
+      <section
+        aria-labelledby="conta-historico"
+        className="flex flex-col gap-3"
+      >
+        <h2 id="conta-historico" className={sectionTitleClass}>
+          Histórico de atividades
+        </h2>
+        {historyError ? (
+          <HistoryErrorNote />
+        ) : (
+          <ActivityHistory
+            userId={userId}
+            rows={history}
+            truncated={historyTruncated}
+            // Emitted once per successful query: a delivered snapshot is
+            // provable evidence — an array-reference change alone is not.
+            snapshotId={crypto.randomUUID()}
+          />
+        )}
       </section>
       <section
         aria-labelledby="conta-navegacao"

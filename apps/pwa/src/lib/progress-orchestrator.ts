@@ -62,15 +62,23 @@ export interface ProgressSyncSnapshot {
   pending: number;
   /** Pending entries whose retry budget is exhausted. */
   failed: number;
+  /** Keys of the pending entries (queue order). */
+  pendingKeys: readonly string[];
+  /** Keys of the entries whose retry budget is exhausted. */
+  failedKeys: readonly string[];
   /** A remote round-trip is in flight right now. */
   syncing: boolean;
 }
+
+const EMPTY_KEYS: readonly string[] = [];
 
 export const EMPTY_SYNC: ProgressSyncSnapshot = {
   configured: false,
   hydrated: false,
   pending: 0,
   failed: 0,
+  pendingKeys: EMPTY_KEYS,
+  failedKeys: EMPTY_KEYS,
   syncing: false,
 };
 
@@ -244,14 +252,16 @@ export function createProgressOrchestrator(
   function syncSnapshotFor(id: ProgressIdentity): ProgressSyncSnapshot {
     const userId = userIdOf(id);
     const pending = userId && deps.remote ? queueFor(userId).list() : [];
-    const failed = pending.filter(
+    const failedEntries = pending.filter(
       (entry) => entry.attempts >= MAX_SYNC_ATTEMPTS,
-    ).length;
+    );
     const next: ProgressSyncSnapshot = {
       configured: Boolean(deps.remote),
       hydrated: userId !== null && hydratedUsers.has(userId),
       pending: pending.length,
-      failed,
+      failed: failedEntries.length,
+      pendingKeys: pending.map((entry) => entry.key),
+      failedKeys: failedEntries.map((entry) => entry.key),
       syncing: inflight > 0,
     };
     const cacheKey =
@@ -263,12 +273,22 @@ export function createProgressOrchestrator(
       prev.hydrated === next.hydrated &&
       prev.pending === next.pending &&
       prev.failed === next.failed &&
+      sameKeys(prev.pendingKeys, next.pendingKeys) &&
+      sameKeys(prev.failedKeys, next.failedKeys) &&
       prev.syncing === next.syncing
     ) {
       return prev;
     }
     syncCache.set(cacheKey, next);
     return next;
+  }
+
+  function sameKeys(
+    a: readonly string[],
+    b: readonly string[],
+  ): boolean {
+    if (a.length !== b.length) return false;
+    return a.every((key, index) => key === b[index]);
   }
 
   const claimCache = new Map<string, GuestClaimSnapshot>();
