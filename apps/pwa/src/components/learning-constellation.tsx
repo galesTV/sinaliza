@@ -6,9 +6,11 @@ import type { LearningPath } from "@/data/learning-paths";
 import {
   allInPreparation,
   CONSTELLATION_HIT_RADIUS,
+  CONSTELLATION_WIDE_CAPACITY,
+  constellationDust,
   projectConstellation,
+  STAR_PENDING_LABEL,
   STAR_STATE_LABEL,
-  wrapStarLabel,
   type ConstellationGroup,
   type ConstellationStar,
 } from "@/lib/constellation";
@@ -20,10 +22,18 @@ export const CONSTELLATION_EMPTY_NOTE =
   "Sua constelação já está tomando forma. As estrelas ganharão novos estados conforme atividades forem disponibilizadas e percorridas.";
 export const CONSTELLATION_TEXT_TOGGLE = "Ver a constelação em texto";
 export const CONSTELLATION_LEGEND_TITLE = "Legenda";
+export const CONSTELLATION_LOADING_NOTE = "Carregando seu progresso…";
+export const CONSTELLATION_SKIP_LABEL = "Pular a constelação";
+
+/** One projected path: compact figure, plus an optional wider desktop layout. */
+export interface ConstellationEntry {
+  group: ConstellationGroup;
+  wide?: ConstellationGroup;
+}
 
 function starAccessibleName(star: ConstellationStar, pathTitle: string): string {
   return star.pending
-    ? `${star.title}, trilha ${pathTitle} — carregando progresso`
+    ? `${star.title}, trilha ${pathTitle} — ${STAR_PENDING_LABEL}`
     : `${star.title}, trilha ${pathTitle} — ${STAR_STATE_LABEL[star.state]}`;
 }
 
@@ -117,8 +127,10 @@ function StarGlyph({ state }: { state: ModuleState | "pending" }) {
 /**
  * A star: real link to the module's anchor on its path page, with an
  * expanded transparent hit area (≥44px CSS after viewBox scaling — see
- * constellation.ts), a drawn focus ring (CSS `outline` doesn't paint on
- * SVG children), and an accessible name carrying trail + module + state.
+ * constellation.ts), a drawn focus ring and an accessible name carrying
+ * trail + module + state. The page's global rectangular focus outline
+ * is suppressed on this link only — it clips on SVG geometry; the drawn
+ * cyan ring remains the accessible indicator.
  */
 function StarLink({
   star,
@@ -128,11 +140,14 @@ function StarLink({
   pathTitle: string;
 }) {
   const name = starAccessibleName(star, pathTitle);
-  const labelLines = wrapStarLabel(star.title);
   const labelY = star.labelAbove ? star.y - 22 : star.y + 28;
 
   return (
-    <a href={star.href} aria-label={name} className="starlink">
+    <a
+      href={star.href}
+      aria-label={name}
+      className="starlink focus-visible:outline-hidden"
+    >
       <title>{name}</title>
       <circle
         cx={star.x}
@@ -154,15 +169,15 @@ function StarLink({
         <StarGlyph state={star.pending ? "pending" : star.state} />
       </g>
       <text
-        x={star.x}
+        x={star.labelX}
         y={labelY}
         textAnchor="middle"
         fontSize={9.5}
         fill="var(--color-muted)"
         aria-hidden="true"
       >
-        {labelLines.map((line, i) => (
-          <tspan key={i} x={star.x} dy={i === 0 ? 0 : 10.5}>
+        {star.labelLines.map((line, i) => (
+          <tspan key={i} x={star.labelX} dy={i === 0 ? 0 : 10.5}>
             {line}
           </tspan>
         ))}
@@ -178,8 +193,10 @@ function StarLink({
  */
 export function ConstellationFigureView({
   group,
+  className,
 }: {
   group: ConstellationGroup;
+  className?: string;
 }) {
   if (group.stars.length === 0) return null;
 
@@ -189,8 +206,18 @@ export function ConstellationFigureView({
       fill="none"
       role="group"
       aria-label={`Constelação da trilha ${group.pathTitle}`}
-      className="mx-auto h-auto w-full max-w-64"
+      className={className}
     >
+      {constellationDust(group).map((dot, i) => (
+        <circle
+          key={i}
+          cx={dot.x}
+          cy={dot.y}
+          r={dot.r}
+          fill="var(--color-primary-soft)"
+          fillOpacity={0.18}
+        />
+      ))}
       {group.edges.map((edge) => {
         const from = group.stars[edge.from];
         const to = group.stars[edge.to];
@@ -279,7 +306,10 @@ export function ConstellationLegendAndAlt({
                       {star.title}
                       <span className="text-muted/70">
                         {" "}
-                        — {star.pending ? "carregando progresso" : STAR_STATE_LABEL[star.state]}
+                        —{" "}
+                        {star.pending
+                          ? STAR_PENDING_LABEL
+                          : STAR_STATE_LABEL[star.state]}
                       </span>
                     </a>
                   </li>
@@ -294,32 +324,87 @@ export function ConstellationLegendAndAlt({
 }
 
 /**
+ * One path's block: title (link to the path — skipped on its own page),
+ * skip link that surfaces on focus, the figure itself, and a textual
+ * loading note while any eligible star withholds its state.
+ */
+function ConstellationBlock({
+  entry,
+  showTitle,
+}: {
+  entry: ConstellationEntry;
+  showTitle: boolean;
+}) {
+  const { group, wide } = entry;
+  const sentinelId = `constellation-end-${group.pathSlug}`;
+
+  return (
+    <div className="flex flex-col gap-2.5">
+      {showTitle && (
+        <Link
+          href={group.pathHref}
+          className="w-fit text-xs font-semibold uppercase tracking-[0.12em] text-accent transition-colors duration-200 hover:text-primary-soft"
+        >
+          {group.pathTitle}
+        </Link>
+      )}
+      <a
+        href={`#${sentinelId}`}
+        className="sr-only rounded-lg bg-surface-elevated px-3 py-2 text-xs font-medium text-foreground focus:not-sr-only focus:w-fit"
+      >
+        {CONSTELLATION_SKIP_LABEL} — {group.pathTitle}
+      </a>
+      {wide ? (
+        <>
+          <ConstellationFigureView
+            group={wide}
+            className="mx-auto hidden h-auto w-full max-w-md sm:block"
+          />
+          <ConstellationFigureView
+            group={group}
+            className="mx-auto h-auto w-full max-w-64 sm:hidden"
+          />
+        </>
+      ) : (
+        <ConstellationFigureView
+          group={group}
+          className="mx-auto h-auto w-full max-w-64"
+        />
+      )}
+      <div id={sentinelId} tabIndex={-1} className="outline-none" />
+      {group.hasPending && (
+        <p className="text-xs italic text-muted" aria-live="polite">
+          {CONSTELLATION_LOADING_NOTE}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/**
  * The constellation block: one SVG figure per learning path (stacked on
  * narrow screens, side by side when there is room), plus legend and the
  * textual alternative. Pure view — the identity-aware wrapper is below.
  */
 export function LearningConstellationView({
-  groups,
+  entries,
 }: {
-  groups: readonly ConstellationGroup[];
+  entries: readonly ConstellationEntry[];
 }) {
-  if (groups.every((group) => group.stars.length === 0)) return null;
+  if (entries.every((entry) => entry.group.stars.length === 0)) return null;
 
-  const forming = groups.every(allInPreparation);
+  const single = entries.length === 1;
+  const forming = entries.every((entry) => allInPreparation(entry.group));
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="grid gap-6 sm:grid-cols-2">
-        {groups.map((group) => (
-          <div key={group.pathSlug} className="flex flex-col gap-2.5">
-            <Link
-              href={group.pathHref}
-              className="w-fit text-xs font-semibold uppercase tracking-[0.12em] text-accent transition-colors duration-200 hover:text-primary-soft"
-            >
-              {group.pathTitle}
-            </Link>
-            <ConstellationFigureView group={group} />
-          </div>
+      <div className={single ? "flex flex-col" : "grid gap-6 sm:grid-cols-2"}>
+        {entries.map((entry) => (
+          <ConstellationBlock
+            key={entry.group.pathSlug}
+            entry={entry}
+            showTitle={!single}
+          />
         ))}
       </div>
       {forming && (
@@ -327,7 +412,9 @@ export function LearningConstellationView({
           {CONSTELLATION_EMPTY_NOTE}
         </p>
       )}
-      <ConstellationLegendAndAlt groups={groups} />
+      <ConstellationLegendAndAlt
+        groups={entries.map((entry) => entry.group)}
+      />
     </div>
   );
 }
@@ -336,7 +423,8 @@ export function LearningConstellationView({
  * Identity-aware wrapper: one shared progress read via the page's
  * AtlasProgressProvider (no new auth subscriptions), then a pure
  * projection of the catalog — the figure is deterministic given the
- * same inputs.
+ * same inputs. A single-path page also projects a wider six-per-row
+ * silhouette for desktop, where the panel has room for it.
  */
 export function LearningConstellation({
   paths,
@@ -344,8 +432,17 @@ export function LearningConstellation({
   paths: readonly LearningPath[];
 }) {
   const { completed, loading } = useAtlasProgress();
-  const groups = paths.map((path) =>
-    projectConstellation(path, completed, loading),
-  );
-  return <LearningConstellationView groups={groups} />;
+  const single = paths.length === 1;
+  const entries: ConstellationEntry[] = paths.map((path) => ({
+    group: projectConstellation(path, completed, loading),
+    wide: single
+      ? projectConstellation(
+          path,
+          completed,
+          loading,
+          CONSTELLATION_WIDE_CAPACITY,
+        )
+      : undefined,
+  }));
+  return <LearningConstellationView entries={entries} />;
 }
