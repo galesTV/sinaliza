@@ -1,5 +1,37 @@
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+// Mutable harness state — the mocked hooks read it fresh per render, so
+// each test can flip identity or queue contents before rendering.
+const harness = vi.hoisted(() => ({
+  auth: {
+    status: "loading",
+    user: null,
+  } as
+    | { status: "loading"; user: null }
+    | { status: "user"; user: { id: string; email: string | null } },
+  sync: {
+    configured: true,
+    hydrated: true,
+    pending: 0,
+    failed: 0,
+    pendingKeys: [] as string[],
+    failedKeys: [] as string[],
+    syncing: false,
+  },
+}));
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ refresh: () => {} }),
+}));
+
+vi.mock("./use-auth-session", () => ({
+  useAuthSession: () => harness.auth,
+}));
+
+vi.mock("./use-progress", () => ({
+  useProgressSyncState: () => harness.sync,
+}));
 
 import {
   ActivityHistory,
@@ -7,6 +39,7 @@ import {
   HISTORY_FAILED_COPY,
   HISTORY_NOTE_COPY,
   HISTORY_PENDING_LABEL,
+  HISTORY_REFRESH_COPY,
   HISTORY_STATE_PRESENTATION,
   HISTORY_TRUNCATED_COPY,
   HISTORY_UPDATING_COPY,
@@ -15,6 +48,14 @@ import {
 } from "./activity-history";
 
 const REAL_KEY = "alfabeto/primeiros-passos/libras-e-uma-lingua";
+
+beforeEach(() => {
+  harness.auth = { status: "loading", user: null };
+  harness.sync.pendingKeys = [];
+  harness.sync.failedKeys = [];
+  harness.sync.pending = 0;
+  harness.sync.failed = 0;
+});
 
 describe("history copy", () => {
   it("describes dates as registration, never as proven completion time", () => {
@@ -120,5 +161,39 @@ describe("ActivityHistory (SSR)", () => {
   it("keeps the empty-state copy honest about what was recorded", () => {
     expect(HISTORY_EMPTY_COPY).toContain("registrada");
     expect(HISTORY_EMPTY_COPY).not.toContain("domínio");
+  });
+
+  it("keeps a manual refresh available when the history is empty", () => {
+    harness.auth = { status: "user", user: { id: "user-1", email: null } };
+    const html = renderToStaticMarkup(
+      <ActivityHistory
+        userId="user-1"
+        rows={[]}
+        truncated={false}
+        snapshotId="s1"
+      />,
+    );
+    // A learner awaiting their first record must be able to re-query
+    // without reloading the whole page.
+    expect(html).toContain(HISTORY_EMPTY_COPY);
+    expect(html).toContain(HISTORY_REFRESH_COPY);
+  });
+
+  it("announces transient and remote changes in polite live regions", () => {
+    harness.auth = { status: "user", user: { id: "user-1", email: null } };
+    harness.sync.pendingKeys = [REAL_KEY];
+    harness.sync.pending = 1;
+    const html = renderToStaticMarkup(
+      <ActivityHistory
+        userId="user-1"
+        rows={[{ lessonKey: "outra/trilha/licao", completedAt: "2026-11-24T12:00:00Z" }]}
+        truncated={false}
+        snapshotId="s1"
+      />,
+    );
+    // Both the transient group and the remote list are live regions, so
+    // queue→remote transitions are announced as they happen.
+    expect(html).toContain(HISTORY_PENDING_LABEL);
+    expect(html).toContain('aria-live="polite"');
   });
 });

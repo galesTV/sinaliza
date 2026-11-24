@@ -72,27 +72,34 @@ async function AccountPanel() {
   const email =
     typeof data.claims.email === "string" ? data.claims.email : null;
 
-  const { data: profile, error: profileError } = await supabase
-    .from("profiles")
-    .select("display_name")
-    .eq("id", userId)
-    .maybeSingle();
+  // Profile and history are independent reads sharing one loading
+  // boundary — fetching them in parallel keeps a slow history query
+  // from delaying the profile form and the sign-out button.
+  const [profileResult, historyResult] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("display_name")
+      .eq("id", userId)
+      .maybeSingle(),
+    // Activity history: the account's own completion rows, newest
+    // first. RLS already scopes to auth.uid(); the explicit filter
+    // keeps the query self-documenting. limit+1 detects truncation
+    // without a count query.
+    supabase
+      .from("lesson_completions")
+      .select("lesson_key, completed_at")
+      .eq("user_id", userId)
+      .order("completed_at", { ascending: false })
+      .order("lesson_key", { ascending: true })
+      .limit(HISTORY_DISPLAY_LIMIT + 1),
+  ]);
+  const { data: profile, error: profileError } = profileResult;
+  const { data: historyRows, error: historyError } = historyResult;
 
   const savedName =
     !profileError && typeof profile?.display_name === "string"
       ? profile.display_name
       : null;
-
-  // Activity history: the account's own completion rows, newest first.
-  // RLS already scopes to auth.uid(); the explicit filter keeps the query
-  // self-documenting. limit+1 detects truncation without a count query.
-  const { data: historyRows, error: historyError } = await supabase
-    .from("lesson_completions")
-    .select("lesson_key, completed_at")
-    .eq("user_id", userId)
-    .order("completed_at", { ascending: false })
-    .order("lesson_key", { ascending: true })
-    .limit(HISTORY_DISPLAY_LIMIT + 1);
 
   const validHistory = sortHistoryRows(validateHistoryRows(historyRows));
   const history = validHistory.slice(0, HISTORY_DISPLAY_LIMIT);

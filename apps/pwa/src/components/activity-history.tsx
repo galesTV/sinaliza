@@ -282,17 +282,24 @@ function ActivityHistoryInner({
   const hasRemote = groups.length > 0;
   const hasPending = pendingItems.length > 0;
   if (!hasRemote && !hasPending) {
+    // Manual refresh stays available: a learner awaiting their first
+    // record must be able to re-query without reloading the page.
     return (
-      <p className="text-sm leading-relaxed text-muted">
-        {HISTORY_EMPTY_COPY}
-      </p>
+      <div className="flex flex-col gap-2">
+        <p className="text-sm leading-relaxed text-muted">
+          {HISTORY_EMPTY_COPY}
+        </p>
+        <HistoryRefreshButton />
+      </div>
     );
   }
 
   return (
     <div className="flex flex-col gap-4">
       {hasPending && (
-        <section aria-label={transientGroupLabel(pendingItems)}>
+        // Polite live region: queue→remote transitions (label swaps,
+        // items leaving/entering) are announced as they happen.
+        <section aria-label={transientGroupLabel(pendingItems)} aria-live="polite">
           <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
             {transientGroupLabel(pendingItems)}
           </h3>
@@ -309,7 +316,9 @@ function ActivityHistoryInner({
         </section>
       )}
       {hasRemote && (
-        <div className="flex flex-col gap-4">
+        // New day groups/records arriving after a refresh are announced
+        // politely — ProgressSyncNote only covers the queue's own state.
+        <div className="flex flex-col gap-4" aria-live="polite">
           {groups.map((group) => (
             <section key={group.dayKey} aria-label={group.label}>
               <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
