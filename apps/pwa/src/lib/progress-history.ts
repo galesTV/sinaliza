@@ -12,6 +12,11 @@
  *   "Registrado", never "Concluída em".
  * - Local pending records carry no timestamp at all and must never get
  *   one fabricated — they render in their own undated group.
+ *
+ * Known limitation: "Hoje"/"Ontem" labels are resolved at render time.
+ * A page left open across midnight keeps the labels it was rendered
+ * with until the next navigation/refresh — reconciling a live clock is
+ * deliberately out of scope (no polling).
  */
 
 /** One remote row, as selected server-side from `lesson_completions`. */
@@ -74,13 +79,22 @@ export function sortHistoryRows(rows: readonly HistoryRow[]): HistoryRow[] {
   });
 }
 
-function dayKeyWithZone(date: Date, timeZone: string): string {
-  return new Intl.DateTimeFormat("en-CA", {
+/**
+ * Calendar-day key "YYYY-MM-DD" in `timeZone`, built from explicit
+ * formatToParts components — never by parsing a locale-formatted
+ * string, so the key is deterministic regardless of locale output
+ * quirks (e.g. "en-CA" literals like "a.m.").
+ */
+export function historyDayKey(date: Date, timeZone: string): string {
+  const parts = new Intl.DateTimeFormat("en-US", {
     timeZone,
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
-  }).format(date);
+  }).formatToParts(date);
+  const part = (type: string): string =>
+    parts.find((entry) => entry.type === type)?.value ?? "";
+  return `${part("year")}-${part("month")}-${part("day")}`;
 }
 
 /** Previous calendar day of a "YYYY-MM-DD" key — pure date arithmetic. */
@@ -111,7 +125,7 @@ export function groupHistoryByDay(
   timeZone: string,
   now: Date,
 ): HistoryDayGroup[] {
-  const todayKey = dayKeyWithZone(now, timeZone);
+  const todayKey = historyDayKey(now, timeZone);
   const yesterdayKey = previousDayKey(todayKey);
   const dayLabelFormat = new Intl.DateTimeFormat("pt-BR", {
     timeZone,
@@ -122,7 +136,7 @@ export function groupHistoryByDay(
 
   const groups = new Map<string, HistoryDayGroup>();
   for (const row of sortHistoryRows(rows)) {
-    const key = dayKeyWithZone(new Date(row.completedAt), timeZone);
+    const key = historyDayKey(new Date(row.completedAt), timeZone);
     let group = groups.get(key);
     if (!group) {
       groups.set(
@@ -148,19 +162,108 @@ export function groupHistoryByDay(
 }
 
 /**
- * Keys pending in the sync queue that are not already covered by the
- * remote rows — the undated "aguardando sincronização" group. Failed
- * entries are flagged so the UI can say a retry is scheduled, without
- * ever confusing a local record with a remote confirmation.
+ * Transient queue tracking for the history view — a small pure state
+ * machine the component folds into React state during render.
+ *
+ * Each key lives in one of three honest states:
+ * - "pending":   still in the sync queue — a real pending write.
+ * - "updating":  left the queue (its upsert succeeded) but the remote
+ *   rows don't cover it yet — the history is catching up.
+ * - covered:     present in the remote rows — a real record.
+ *
+ * `drainedEpoch` bumps whenever keys leave the queue, letting the
+ * component schedule ONE debounced router.refresh() per drain instead
+ * of one per push. Reconciliation on a NEW remote snapshot: an
+ * "updating" key still uncovered is dropped — queue.confirm already
+ * proved its remote write, and a capped window may legitimately omit
+ * it; it must not linger as a fake pending entry. A refresh that fails
+ * (rows unchanged) keeps entries waiting, with no false success.
  */
-export interface PendingItem {
-  lessonKey: string;
-  failed: boolean;
+export interface HistoryTracker {
+  /** Queue keys observed at the last advance. */
+  pending: ReadonlySet<string>;
+  /** Keys drained from the queue but not yet covered by remote rows. */
+  awaiting: ReadonlySet<string>;
+  /** Bumped whenever keys leave the queue — drives one batched refresh. */
+  drainedEpoch: number;
+  /** Remote rows already reconciled against (reference-compared). */
+  rowsSeen: readonly HistoryRow[] | null;
 }
 
+export const INITIAL_HISTORY_TRACKER: HistoryTracker = {
+  pending: new Set<string>(),
+  awaiting: new Set<string>(),
+  drainedEpoch: 0,
+  rowsSeen: null,
+};
+
+function sameKeys(a: ReadonlySet<string>, b: ReadonlySet<string>): boolean {
+  if (a.size !== b.size) return false;
+  for (const key of a) if (!b.has(key)) return false;
+  return true;
+}
+
+export function advanceHistoryTracker(
+  prev: HistoryTracker,
+  pendingKeys: readonly string[],
+  remoteRows: readonly HistoryRow[],
+): HistoryTracker {
+  const pending = new Set(pendingKeys);
+  const remoteKeys = new Set(remoteRows.map((row) => row.lessonKey));
+  // First observation is never "a fresh snapshot" — mount only.
+  const rowsChanged =
+    prev.rowsSeen !== null && prev.rowsSeen !== remoteRows;
+
+  const awaiting = new Set<string>();
+  for (const key of prev.awaiting) {
+    if (remoteKeys.has(key)) continue; // covered — became a record
+    if (rowsChanged && !pending.has(key)) continue; // outside the window
+    awaiting.add(key);
+  }
+  let drained = 0;
+  for (const key of prev.pending) {
+    if (!pending.has(key) && !remoteKeys.has(key)) {
+      awaiting.add(key);
+      drained += 1;
+    }
+  }
+
+  if (
+    drained === 0 &&
+    prev.rowsSeen === remoteRows &&
+    sameKeys(prev.pending, pending) &&
+    sameKeys(prev.awaiting, awaiting)
+  ) {
+    return prev;
+  }
+
+  return {
+    pending,
+    awaiting,
+    drainedEpoch: drained > 0 ? prev.drainedEpoch + 1 : prev.drainedEpoch,
+    rowsSeen: remoteRows,
+  };
+}
+
+/** Display state of an item in the transient history group. */
+export type PendingItemState = "pending" | "updating" | "failed";
+
+export interface PendingItem {
+  lessonKey: string;
+  state: PendingItemState;
+}
+
+/**
+ * Keys still travelling to the remote that are not already covered by
+ * the remote rows — the undated transient group. Queue keys come first
+ * (real pending writes, failures flagged), then drained keys awaiting
+ * the next snapshot. Never presents a local record as a remote
+ * confirmation, and never fabricates a timestamp.
+ */
 export function buildPendingItems(
   pendingKeys: readonly string[],
   failedKeys: readonly string[],
+  awaitingKeys: ReadonlySet<string>,
   remoteKeys: ReadonlySet<string>,
 ): PendingItem[] {
   const failed = new Set(failedKeys);
@@ -169,7 +272,15 @@ export function buildPendingItems(
   for (const key of pendingKeys) {
     if (remoteKeys.has(key) || seen.has(key)) continue;
     seen.add(key);
-    items.push({ lessonKey: key, failed: failed.has(key) });
+    items.push({
+      lessonKey: key,
+      state: failed.has(key) ? "failed" : "pending",
+    });
+  }
+  for (const key of awaitingKeys) {
+    if (remoteKeys.has(key) || seen.has(key)) continue;
+    seen.add(key);
+    items.push({ lessonKey: key, state: "updating" });
   }
   return items;
 }

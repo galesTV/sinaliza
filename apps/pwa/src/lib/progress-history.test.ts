@@ -1,12 +1,16 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  advanceHistoryTracker,
   buildPendingItems,
   groupHistoryByDay,
+  historyDayKey,
   historyTimeLabel,
+  INITIAL_HISTORY_TRACKER,
   sortHistoryRows,
   validateHistoryRows,
   type HistoryRow,
+  type HistoryTracker,
 } from "./progress-history";
 
 const TZ = "America/Sao_Paulo"; // UTC-3, no DST since 2019
@@ -120,22 +124,156 @@ describe("historyTimeLabel", () => {
   });
 });
 
+describe("historyDayKey", () => {
+  it("builds deterministic YYYY-MM-DD keys from calendar components", () => {
+    // Same instant, two zones — never parsed from a locale string.
+    const instant = new Date("2026-11-24T02:30:00Z");
+    expect(historyDayKey(instant, "America/Sao_Paulo")).toBe("2026-11-23");
+    expect(historyDayKey(instant, "UTC")).toBe("2026-11-24");
+  });
+
+  it("keeps year/month/day ordering across DST-free and DST zones", () => {
+    const instant = new Date("2026-03-08T05:00:00Z"); // US spring-forward day
+    expect(historyDayKey(instant, "America/New_York")).toBe("2026-03-08");
+    expect(historyDayKey(new Date("2027-01-01T00:30:00Z"), TZ)).toBe(
+      "2026-12-31",
+    );
+  });
+});
+
 describe("buildPendingItems", () => {
+  const none = new Set<string>();
+
   it("lists pending keys without dates, deduped against remote rows", () => {
-    const items = buildPendingItems([K1, K2, K3], [], new Set([K2]));
+    const items = buildPendingItems([K1, K2, K3], [], none, new Set([K2]));
     expect(items).toEqual([
-      { lessonKey: K1, failed: false },
-      { lessonKey: K3, failed: false },
+      { lessonKey: K1, state: "pending" },
+      { lessonKey: K3, state: "pending" },
     ]);
   });
 
   it("flags exhausted entries as failed", () => {
-    const items = buildPendingItems([K1, K2], [K2], new Set());
-    expect(items[1]).toEqual({ lessonKey: K2, failed: true });
+    const items = buildPendingItems([K1, K2], [K2], none, new Set());
+    expect(items[1]).toEqual({ lessonKey: K2, state: "failed" });
+  });
+
+  it("marks drained-but-uncovered keys as updating, after queue items", () => {
+    const items = buildPendingItems(
+      [K2],
+      [],
+      new Set([K1]),
+      new Set<string>(),
+    );
+    expect(items).toEqual([
+      { lessonKey: K2, state: "pending" },
+      { lessonKey: K1, state: "updating" },
+    ]);
+  });
+
+  it("never double-lists a key that is pending and awaiting at once", () => {
+    const items = buildPendingItems(
+      [K1],
+      [],
+      new Set([K1]),
+      new Set<string>(),
+    );
+    expect(items).toEqual([{ lessonKey: K1, state: "pending" }]);
   });
 
   it("drops duplicate pending keys", () => {
-    const items = buildPendingItems([K1, K1, K2], [], new Set());
+    const items = buildPendingItems([K1, K1, K2], [], none, new Set());
     expect(items.map((i) => i.lessonKey)).toEqual([K1, K2]);
+  });
+});
+
+describe("advanceHistoryTracker", () => {
+  const rows = (...rows_: HistoryRow[]) => rows_;
+  const advance = (
+    prev: HistoryTracker,
+    pendingKeys: readonly string[],
+    remote: readonly HistoryRow[],
+  ) => advanceHistoryTracker(prev, pendingKeys, remote);
+
+  it("observes queue keys as pending without touching awaiting", () => {
+    const t = advance(INITIAL_HISTORY_TRACKER, [K1, K2], []);
+    expect([...t.pending].sort()).toEqual([K1, K2]);
+    expect(t.awaiting.size).toBe(0);
+    expect(t.drainedEpoch).toBe(0);
+  });
+
+  it("moves a drained key to awaiting while a sibling stays pending", () => {
+    // Partial sync: K1 confirmed, K2 still in the queue.
+    let t = advance(INITIAL_HISTORY_TRACKER, [K1, K2], []);
+    t = advance(t, [K2], []);
+    expect(t.pending.has(K2)).toBe(true);
+    expect(t.awaiting.has(K1)).toBe(true);
+    expect(t.drainedEpoch).toBe(1); // one drain event, not one per state
+  });
+
+  it("keeps a failed sibling pending while a drained key awaits", () => {
+    let t = advance(INITIAL_HISTORY_TRACKER, [K1, K2], []);
+    t = advance(t, [K2], []); // K1 drained; K2 failed but still queued
+    expect(t.pending.has(K2)).toBe(true);
+    expect(t.awaiting.has(K1)).toBe(true);
+  });
+
+  it("graduates an awaiting key to covered once the snapshot has it", () => {
+    let t = advance(INITIAL_HISTORY_TRACKER, [K1], []);
+    t = advance(t, [], []);
+    const refreshed = rows(row(K1, "2026-11-24T12:00:00Z"));
+    const next = advance(t, [], refreshed);
+    expect(next.awaiting.size).toBe(0);
+    expect(next.rowsSeen).toBe(refreshed);
+  });
+
+  it("drops an awaiting key a fresh snapshot truncates out of view", () => {
+    // K1 synced but fell outside the top-N window: a NEW remote snapshot
+    // that still omits it retires the transient marker — queue.confirm
+    // already proved its write; it must not linger as a fake pending.
+    let t = advance(INITIAL_HISTORY_TRACKER, [K1], []);
+    t = advance(t, [], []);
+    const unrelated = rows(row(K2, "2026-11-24T12:00:00Z"));
+    const next = advance(t, [], unrelated);
+    expect(next.awaiting.size).toBe(0);
+  });
+
+  it("keeps awaiting keys when the refresh fails (rows unchanged)", () => {
+    // No false success: the same rows reference means the snapshot did
+    // not move — the drained key stays "atualizando", not "registrado".
+    const remote = rows(row(K2, "2026-11-24T12:00:00Z"));
+    let t = advance(INITIAL_HISTORY_TRACKER, [K1], remote);
+    t = advance(t, [], remote);
+    t = advance(t, [], remote); // "refresh" delivered nothing new
+    expect(t.awaiting.has(K1)).toBe(true);
+    expect(t.drainedEpoch).toBe(1);
+  });
+
+  it("is referentially stable and never re-triggers a refresh", () => {
+    // The drain already bumped the epoch once; reconciling its result
+    // back must not bump again — otherwise refresh → epoch → refresh.
+    let t = advance(INITIAL_HISTORY_TRACKER, [K1], []);
+    t = advance(t, [], []);
+    const refreshed = rows(row(K1, "2026-11-24T12:00:00Z"));
+    t = advance(t, [], refreshed);
+    expect(t.drainedEpoch).toBe(1);
+    expect(advance(t, [], refreshed)).toBe(t); // identical inputs: same ref
+  });
+
+  it("does not count a key that is already remote as a drain", () => {
+    // Key left the queue but the snapshot already covers it — nothing
+    // transient to display, no refresh needed.
+    const remote = rows(row(K1, "2026-11-24T12:00:00Z"));
+    const t = advance(INITIAL_HISTORY_TRACKER, [K1], remote);
+    const next = advance(t, [], remote);
+    expect(next.awaiting.size).toBe(0);
+    expect(next.drainedEpoch).toBe(0);
+  });
+
+  it("starts empty on remount — no identity state carries over", () => {
+    // Alice's tracker is dropped with the mount; a fresh tracker (the
+    // component remounts keyed on userId) knows nothing about her keys.
+    expect(INITIAL_HISTORY_TRACKER.pending.size).toBe(0);
+    expect(INITIAL_HISTORY_TRACKER.awaiting.size).toBe(0);
+    expect(INITIAL_HISTORY_TRACKER.rowsSeen).toBeNull();
   });
 });

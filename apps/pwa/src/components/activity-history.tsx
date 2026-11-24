@@ -2,18 +2,21 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { getLessonContext } from "@/data/learning-paths";
 import { isLessonCompletable } from "@/data/path-publication";
 import { parseLessonKey } from "@/lib/progress";
 import {
+  advanceHistoryTracker,
   buildPendingItems,
   groupHistoryByDay,
+  INITIAL_HISTORY_TRACKER,
   type HistoryRow,
+  type PendingItemState,
 } from "@/lib/progress-history";
 
-import { IconCheck } from "./icons";
+import { IconCheck, IconClock, IconRefresh, IconX } from "./icons";
 import { useAuthSession } from "./use-auth-session";
 import { useProgressSyncState } from "./use-progress";
 
@@ -26,6 +29,8 @@ import { useProgressSyncState } from "./use-progress";
  *   labels say "registrada"/"registrado", never "concluída em".
  * - Pending local records have no timestamp at all — the pending group
  *   shows none, and it never presents itself as remote confirmation.
+ * - "Atualizando histórico" means the write already reached the remote
+ *   and this list is catching up — never a fake remote record.
  */
 export const HISTORY_NOTE_COPY =
   "As datas indicam quando as atividades foram registradas na sua conta, " +
@@ -40,9 +45,9 @@ export const HISTORY_TRUNCATED_COPY =
 
 export const HISTORY_PENDING_LABEL = "Aguardando sincronização";
 
-export function pendingFailedCopy(): string {
-  return "Nova tentativa ao reconectar";
-}
+export const HISTORY_UPDATING_COPY = "Atualizando histórico";
+
+export const HISTORY_FAILED_COPY = "Nova tentativa ao reconectar";
 
 export interface ResolvedHistoryTitle {
   title: string;
@@ -82,37 +87,44 @@ export function resolveHistoryTitle(lessonKey: string): ResolvedHistoryTitle {
   };
 }
 
+type HistoryItemVariant = "registered" | PendingItemState;
+
 /**
- * Watches the queue and fires a single router.refresh() when it drains,
- * so confirmed rows move from the pending group into the remote list.
- * Gated on the pending>0 → 0 edge — never on a timer, never per push.
- * Rendered only while the owner session is active, so the router hooks
- * below never run during SSR (no app-router context there).
+ * Discrete visual treatment per record state — neutral icons for
+ * transient states, success only for real remote records, a warning
+ * mark plus recovery copy only for actual queue failures. Nothing here
+ * suggests skill or Libras proficiency.
  */
-function QueueDrainRefresh({ pending }: { pending: number }) {
-  const router = useRouter();
-  const prevPending = useRef(0);
-  useEffect(() => {
-    if (prevPending.current > 0 && pending === 0) router.refresh();
-    prevPending.current = pending;
-  }, [pending, router]);
-  return null;
+export const HISTORY_STATE_PRESENTATION: Record<
+  HistoryItemVariant,
+  { Icon: typeof IconCheck; className: string }
+> = {
+  registered: { Icon: IconCheck, className: "text-success" },
+  pending: { Icon: IconClock, className: "text-muted" },
+  updating: { Icon: IconRefresh, className: "text-accent" },
+  failed: { Icon: IconX, className: "text-destructive" },
+};
+
+function stateMeta(state: PendingItemState): string | undefined {
+  if (state === "failed") return HISTORY_FAILED_COPY;
+  if (state === "updating") return HISTORY_UPDATING_COPY;
+  return undefined;
 }
 
 function HistoryItem({
   lessonKey,
   meta,
+  variant = "registered",
 }: {
   lessonKey: string;
   meta?: string;
+  variant?: HistoryItemVariant;
 }) {
   const resolved = resolveHistoryTitle(lessonKey);
+  const { Icon, className } = HISTORY_STATE_PRESENTATION[variant];
   const body = (
     <>
-      <IconCheck
-        aria-hidden="true"
-        className="mt-0.5 h-4 w-4 shrink-0 text-success"
-      />
+      <Icon aria-hidden="true" className={`mt-0.5 h-4 w-4 shrink-0 ${className}`} />
       <span className="flex flex-col">
         <span className="font-medium text-foreground">{resolved.title}</span>
         <span className="text-xs text-muted">
@@ -137,15 +149,16 @@ function HistoryItem({
   );
 }
 
+/** Debounce window so a run of queue confirms coalesces into one refresh. */
+const REFRESH_DEBOUNCE_MS = 800;
+
 /**
- * Chronological activity history for one account — remote rows fetched
- * server-side plus the account's real pending queue keys (undated).
- *
- * Identity isolation: the rows were fetched for `userId`; the component
- * renders only while the ACTIVE session is that same account, so a stale
- * server snapshot can never surface after a switch or sign-out.
+ * The mounted history for the account that owns `rows`. Transient queue
+ * tracking lives here only — keyed on `userId` by the wrapper, so a
+ * session switch remounts it empty and no other account's keys can ever
+ * accumulate in its state.
  */
-export function ActivityHistory({
+function ActivityHistoryInner({
   userId,
   rows,
   truncated,
@@ -156,6 +169,7 @@ export function ActivityHistory({
 }) {
   const { status, user } = useAuthSession();
   const sync = useProgressSyncState();
+  const router = useRouter();
   const isOwner = status === "user" && user?.id === userId;
 
   const remoteKeys = useMemo(
@@ -163,31 +177,32 @@ export function ActivityHistory({
     [rows],
   );
 
-  // Keys confirmed remotely during this mount are remembered so they keep
-  // rendering in the pending group until a refreshed server snapshot
-  // covers them — they must never blink out of the list mid-transition.
-  // Derived state adjusted during render (the documented alternative to
-  // setState-in-effect, same pattern as the claim card).
-  const [remembered, setRemembered] = useState<Set<string>>(new Set());
-  const tracked = new Set(remembered);
-  let trackedChanged = false;
-  for (const key of sync.pendingKeys) {
-    if (!tracked.has(key)) {
-      tracked.add(key);
-      trackedChanged = true;
-    }
-  }
-  for (const key of [...tracked]) {
-    if (remoteKeys.has(key)) {
-      tracked.delete(key);
-      trackedChanged = true;
-    }
-  }
-  if (trackedChanged) setRemembered(tracked);
+  // Fold each sync emission through the pure tracker (state adjusted
+  // during render — the documented alternative to setState-in-effect).
+  // A non-owner emission feeds an EMPTY queue so foreign keys can never
+  // enter the tracker while an identity transition is in flight.
+  const [tracker, setTracker] = useState(INITIAL_HISTORY_TRACKER);
+  const nextTracker = advanceHistoryTracker(
+    tracker,
+    isOwner ? sync.pendingKeys : [],
+    rows,
+  );
+  if (nextTracker !== tracker) setTracker(nextTracker);
+
+  // One refresh per drain, debounced across consecutive confirms:
+  // rows-driven reconciliation never bumps drainedEpoch, so refresh
+  // output can never re-trigger itself — no polling, no loops.
+  const epoch = nextTracker.drainedEpoch;
+  useEffect(() => {
+    if (!isOwner || epoch === 0) return;
+    const timer = setTimeout(() => router.refresh(), REFRESH_DEBOUNCE_MS);
+    return () => clearTimeout(timer);
+  }, [isOwner, epoch, router]);
 
   const pendingItems = buildPendingItems(
-    [...tracked],
-    sync.failedKeys,
+    [...nextTracker.pending],
+    isOwner ? sync.failedKeys : [],
+    nextTracker.awaiting,
     remoteKeys,
   );
 
@@ -212,7 +227,6 @@ export function ActivityHistory({
 
   return (
     <div className="flex flex-col gap-4">
-      <QueueDrainRefresh pending={sync.pending} />
       {hasPending && (
         <section aria-label={HISTORY_PENDING_LABEL}>
           <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
@@ -223,7 +237,8 @@ export function ActivityHistory({
               <HistoryItem
                 key={item.lessonKey}
                 lessonKey={item.lessonKey}
-                meta={item.failed ? pendingFailedCopy() : undefined}
+                meta={stateMeta(item.state)}
+                variant={item.state}
               />
             ))}
           </ul>
@@ -254,5 +269,31 @@ export function ActivityHistory({
         </div>
       )}
     </div>
+  );
+}
+
+/**
+ * Chronological activity history for one account — remote rows fetched
+ * server-side plus the account's real pending queue keys (undated).
+ *
+ * Identity isolation: the rows were fetched for `userId`; the inner
+ * component mounts ONLY while the active session is that same account
+ * and is keyed on it — mounting, unmounting and switching all guarantee
+ * a stale server snapshot or another account's queue keys can never
+ * surface in (or accumulate into) this account's history state.
+ */
+export function ActivityHistory({
+  userId,
+  rows,
+  truncated,
+}: {
+  userId: string;
+  rows: HistoryRow[];
+  truncated: boolean;
+}) {
+  const { status, user } = useAuthSession();
+  if (status !== "user" || user?.id !== userId) return null;
+  return (
+    <ActivityHistoryInner key={userId} userId={userId} rows={rows} truncated={truncated} />
   );
 }

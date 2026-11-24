@@ -4,9 +4,12 @@ import { describe, expect, it } from "vitest";
 import {
   ActivityHistory,
   HISTORY_EMPTY_COPY,
+  HISTORY_FAILED_COPY,
   HISTORY_NOTE_COPY,
   HISTORY_PENDING_LABEL,
+  HISTORY_STATE_PRESENTATION,
   HISTORY_TRUNCATED_COPY,
+  HISTORY_UPDATING_COPY,
   resolveHistoryTitle,
 } from "./activity-history";
 
@@ -25,6 +28,33 @@ describe("history copy", () => {
 
   it("states truncation without promising completeness", () => {
     expect(HISTORY_TRUNCATED_COPY).toContain("mais recentes");
+  });
+
+  it("keeps the recovery copy honest — retry, never confirmed", () => {
+    expect(HISTORY_FAILED_COPY).toContain("Nova tentativa");
+    expect(HISTORY_UPDATING_COPY).toBe("Atualizando histórico");
+  });
+});
+
+describe("HISTORY_STATE_PRESENTATION", () => {
+  it("gives every transient state a distinct neutral treatment", () => {
+    const states = ["pending", "updating", "failed"] as const;
+    const icons = new Set(states.map((s) => HISTORY_STATE_PRESENTATION[s].Icon));
+    const classes = new Set(
+      states.map((s) => HISTORY_STATE_PRESENTATION[s].className),
+    );
+    expect(icons.size).toBe(3);
+    expect(classes.size).toBe(3);
+    // Success is reserved for real remote records — never for queue
+    // states, so a transient item can never masquerade as recorded.
+    expect(HISTORY_STATE_PRESENTATION.registered.className).toBe(
+      "text-success",
+    );
+    for (const state of states) {
+      expect(HISTORY_STATE_PRESENTATION[state].className).not.toBe(
+        "text-success",
+      );
+    }
   });
 });
 
