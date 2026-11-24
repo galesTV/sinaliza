@@ -340,6 +340,9 @@ export function createProgressOrchestrator(
     if (markerFor(userId).snapshot().initiated.size === 0) return;
     try {
       const keys = await deps.remote.fetchKeys(userId);
+      // Re-validate after the await: a response started under this
+      // account must not confirm anything once the session moved on.
+      if (activeUserId() !== userId) return;
       confirmClaims(userId, new Set(keys));
     } catch {
       // Verification failed: claims stay `initiated` until the next pass.
@@ -437,10 +440,22 @@ export function createProgressOrchestrator(
       for (const key of store.getSnapshot().completed) {
         if (!remoteKeys.has(key)) queue.enqueue(key);
       }
-      // A transfer authorized in a previous session may still be
-      // awaiting verification: confirm whatever the fresh remote set
-      // already covers. This is bookkeeping only — no writes.
-      confirmClaims(userId, remoteKeys);
+      // Only act on claim bookkeeping while this account is still the
+      // active session — a fetch answered after a switch must not
+      // confirm or enqueue under a stale identity.
+      if (activeUserId() === userId) {
+        // A transfer authorized in a previous session may still be
+        // awaiting verification: confirm whatever the fresh remote set
+        // already covers. This is bookkeeping only — no writes.
+        confirmClaims(userId, remoteKeys);
+        // Resume authorized transfers whose queued writes went missing
+        // (persisted intent outlived its queue entry): re-enqueue ONLY
+        // keys already in `initiated` — never new ones, never anything
+        // the remote already covers.
+        for (const key of markerFor(userId).snapshot().initiated) {
+          if (!remoteKeys.has(key)) queue.enqueue(key);
+        }
+      }
       inflight -= 1;
       emit();
       if (activeUserId() === userId) {

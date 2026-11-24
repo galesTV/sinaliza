@@ -10,6 +10,12 @@
  * All three sets are monotonic claims about keys, never about progress
  * counts or proficiency. Sibling instances (other tabs) merge by union,
  * with `confirmed`/`dismissed` always shadowing `initiated`.
+ *
+ * localStorage offers no compare-and-swap, so two tabs writing at the
+ * exact same moment can still overwrite each other. The pattern here —
+ * merge the stored record before every mutation, then persist the union
+ * — makes concurrent writes converge on the next read/write cycle. It is
+ * best-effort for truly simultaneous writes, not atomic.
  */
 
 import type { ProgressStorage } from "./progress";
@@ -129,6 +135,7 @@ export function createClaimMarker(deps: {
       };
     },
     addDismissed(keys) {
+      mergeStored();
       let changed = false;
       for (const key of keys) {
         if (dismissed.has(key)) continue;
@@ -139,6 +146,7 @@ export function createClaimMarker(deps: {
       if (changed) persist();
     },
     addInitiated(keys) {
+      mergeStored();
       let changed = false;
       for (const key of keys) {
         if (initiated.has(key) || confirmed.has(key) || dismissed.has(key)) {
@@ -150,6 +158,7 @@ export function createClaimMarker(deps: {
       if (changed) persist();
     },
     addConfirmed(keys) {
+      mergeStored();
       let changed = false;
       for (const key of keys) {
         if (confirmed.has(key)) continue;

@@ -112,6 +112,27 @@ describe("createClaimMarker", () => {
     expect(marker.snapshot().initiated).toEqual(new Set([K1]));
   });
 
+  it("merges interleaved writes from two markers instead of overwriting", () => {
+    // Both instances exist before either writes: neither sees the other's
+    // in-memory state — the classic lost-update setup.
+    const { storage } = makeStorage();
+    const key = claimStorageKey(ALICE);
+    const a = createClaimMarker({ storage, storageKey: key });
+    const b = createClaimMarker({ storage, storageKey: key });
+
+    a.addInitiated([K1]);
+    b.addInitiated([K2]); // must not drop K1
+    a.addConfirmed([K1]); // must not drop K2
+    b.addDismissed([K3]); // must not drop the confirmed K1
+
+    for (const marker of [a, b]) {
+      const snap = marker.snapshot();
+      expect(snap.confirmed).toEqual(new Set([K1]));
+      expect(snap.initiated).toEqual(new Set([K2]));
+      expect(snap.dismissed).toEqual(new Set([K3]));
+    }
+  });
+
   it("merges a sibling tab's persisted writes by union", () => {
     const { storage, map } = makeStorage();
     const key = claimStorageKey(ALICE);

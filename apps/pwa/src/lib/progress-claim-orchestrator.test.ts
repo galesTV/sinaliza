@@ -493,4 +493,113 @@ describe("guest → account claim", () => {
     expect(orch.claimGuestProgress(BOB)).toBe("no-eligible");
     expect(rows.has(BOB)).toBe(false);
   });
+
+  it("re-enqueues an authorized claim whose queue entry is missing", async () => {
+    const { storage, map } = makeStorage();
+    seedGuest(map, [K1, K2, K3]);
+    // Intent persisted in a previous session; its queue entry is gone.
+    map.set(
+      claimStorageKey(ALICE),
+      JSON.stringify({
+        version: 1,
+        dismissed: [],
+        initiated: [K1, K2],
+        confirmed: [],
+      }),
+    );
+    const rows = new Map<string, Set<string>>();
+    const remote = makeRemote(rows);
+    const orch = createProgressOrchestrator({ storage, remote });
+
+    orch.setIdentity(user(ALICE));
+    await settle();
+
+    // The authorized keys are re-enqueued and pushed without new consent.
+    expect(rows.get(ALICE)).toEqual(new Set([K1, K2]));
+    // Only previously authorized keys move — K3 was never consented to,
+    // stays in the guest bucket and remains offerable for fresh consent.
+    expect(remote.upsert).not.toHaveBeenCalledWith(ALICE, K3);
+    const claim = orch.getClaimSnapshot(user(ALICE));
+    expect(claim.confirmed).toEqual(new Set([K1, K2]));
+    expect(claim.eligible).toEqual(new Set([K3]));
+    expect(map.get(PROGRESS_STORAGE_KEY)).toContain(K3);
+  });
+
+  it("does not re-enqueue initiated keys the remote already covers", async () => {
+    const { storage, map } = makeStorage();
+    seedGuest(map, [K1, K2]);
+    map.set(
+      claimStorageKey(ALICE),
+      JSON.stringify({
+        version: 1,
+        dismissed: [],
+        initiated: [K1, K2],
+        confirmed: [],
+      }),
+    );
+    // K1 already reached the remote in the lost session: no re-push.
+    const rows = new Map<string, Set<string>>([[ALICE, new Set([K1])]]);
+    const remote = makeRemote(rows);
+    const orch = createProgressOrchestrator({ storage, remote });
+
+    orch.setIdentity(user(ALICE));
+    await settle();
+
+    expect(remote.upsert).not.toHaveBeenCalledWith(ALICE, K1);
+    expect(remote.upsert).toHaveBeenCalledWith(ALICE, K2);
+    const claim = orch.getClaimSnapshot(user(ALICE));
+    expect(claim.confirmed).toEqual(new Set([K1, K2]));
+  });
+
+  it("a fetch resolved under a switched session confirms nothing", async () => {
+    const { storage, map } = makeStorage();
+    seedGuest(map, [K1, K2]);
+    map.set(
+      claimStorageKey(ALICE),
+      JSON.stringify({
+        version: 1,
+        dismissed: [],
+        initiated: [K1, K2],
+        confirmed: [],
+      }),
+    );
+    const rows = new Map<string, Set<string>>([[ALICE, new Set([K1])]]);
+    const remote = makeRemote(rows);
+    // fetchKeys calls queue behind a manual gate when `gate` is set.
+    const pending: ((keys: string[]) => void)[] = [];
+    let gate = false;
+    remote.fetchKeys.mockImplementation((userId) =>
+      gate
+        ? new Promise<string[]>((resolve) => pending.push(resolve))
+        : Promise.resolve([...(rows.get(userId) ?? [])]),
+    );
+    const orch = createProgressOrchestrator({ storage, remote });
+
+    gate = true;
+    orch.setIdentity(user(ALICE));
+    await settle();
+    // Alice's hydrate answer: K1 confirms, K2 re-enqueues and pushes.
+    pending[0]([K1]);
+    await settle();
+    // The post-flush verification fetch is now pending — and the session
+    // switches before it resolves.
+    orch.setIdentity(user(BOB));
+    await settle();
+    pending[1]([K1, K2]); // Alice's late answer under Bob's session.
+    pending.at(-1)!([K1]); // Bob's own hydrate.
+    await settle();
+
+    // K2 is NOT confirmed under a stale identity: it stays initiated.
+    const claim = orch.getClaimSnapshot(user(ALICE));
+    expect(claim.confirmed).toEqual(new Set([K1]));
+    expect(claim.initiated).toEqual(new Set([K2]));
+
+    // Back under Alice's session the next pass confirms it honestly.
+    gate = false;
+    orch.setIdentity(user(ALICE));
+    await settle();
+    expect(orch.getClaimSnapshot(user(ALICE)).confirmed).toEqual(
+      new Set([K1, K2]),
+    );
+  });
 });
