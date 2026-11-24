@@ -177,6 +177,10 @@ describe("ActivityHistory (SSR)", () => {
     // without reloading the whole page.
     expect(html).toContain(HISTORY_EMPTY_COPY);
     expect(html).toContain(HISTORY_REFRESH_COPY);
+    // The button closes the tree: the same trailing slot in every
+    // render state is what lets React preserve the instance (and its
+    // focus) across the empty→populated transition.
+    expect(html.endsWith("</button></div>")).toBe(true);
   });
 
   it("keeps the refresh button in the same trailing slot when populated", () => {
@@ -191,13 +195,15 @@ describe("ActivityHistory (SSR)", () => {
         snapshotId="s1"
       />,
     );
-    // The button is the last element in every render state, so React
-    // keeps the same instance across the empty→populated transition
-    // and keyboard focus on it survives the refresh.
+    // Same invariant as the empty state: refresh stays the trailing
+    // element, so the DOM node — and keyboard focus on it — survives
+    // the refresh that fills the list in. DOM focus itself is not
+    // exercised here (no browser/jsdom in this suite).
     expect(html).toContain(HISTORY_REFRESH_COPY);
     expect(html.indexOf(HISTORY_REFRESH_COPY)).toBeGreaterThan(
       html.indexOf("Registrado às"),
     );
+    expect(html.endsWith("</button></div>")).toBe(true);
   });
 
   it("announces transient and remote changes in polite live regions", () => {
