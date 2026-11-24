@@ -11,7 +11,8 @@ import type { LessonContent } from "@/data/lesson-content";
 import { getPathProgress, getResumeLesson } from "@/lib/progression";
 import { lessonKey } from "@/lib/progress";
 
-import { ModuleLessonChip } from "./module-lesson-chip";
+import { lessonCompletionVisible } from "./lesson-completion-badge";
+import { lessonChipState, ModuleLessonChip } from "./module-lesson-chip";
 import { PathProgressLineView } from "./path-progress-line";
 import { ResumeCtaView } from "./resume-cta";
 
@@ -69,8 +70,10 @@ function publishableEntry(key: string): LessonCatalogEntry {
 }
 
 describe("ModuleLessonChip", () => {
-  const href = getLessonUrl("alfabeto", "letras-a-e", "letra-a");
-  const key = lessonKey("alfabeto", "letras-a-e", "letra-a");
+  // Synthetic key: the tests must not depend on the real catalog's
+  // current eligibility state.
+  const href = getLessonUrl("sintetico", "mod", "aula");
+  const key = lessonKey("sintetico", "mod", "aula");
 
   it("links to the lesson page", () => {
     const html = renderToStaticMarkup(
@@ -284,5 +287,72 @@ describe("ResumeCtaView", () => {
     );
     expect(html).toContain("concluiu todas as lições disponíveis");
     expect(html).toContain('href="/trilhas"');
+  });
+});
+
+describe("eligibility-precedes-completion rule", () => {
+  // Same rule for the module chip and the individual completion badge:
+  // stored completions are never erased, only hidden while the lesson is
+  // not completable. Pure predicates — the record itself is untouched.
+  it("eligible and not completed: actionable chip, no badge", () => {
+    expect(lessonChipState(true, false)).toBe("actionable");
+    expect(lessonCompletionVisible(true, false)).toBe(false);
+  });
+
+  it("eligible and completed: completed chip and visible badge", () => {
+    expect(lessonChipState(true, true)).toBe("completed");
+    expect(lessonCompletionVisible(true, true)).toBe(true);
+  });
+
+  it("planned lesson with an old completion: preparation prevails", () => {
+    expect(lessonChipState(false, true)).toBe("pending");
+    expect(lessonCompletionVisible(false, true)).toBe(false);
+  });
+
+  it("available-but-not-publishable with an old completion: preparation prevails", () => {
+    // Same branch as planned — non-completable means no "done" affordance
+    // regardless of why eligibility is missing.
+    expect(lessonChipState(false, true)).toBe("pending");
+    expect(lessonCompletionVisible(false, true)).toBe(false);
+  });
+
+  it("an eligibility change hides, never erases, the stored completion", () => {
+    const completions = new Set(["p/m/a"]);
+    const before = lessonChipState(true, completions.has("p/m/a"));
+    const during = lessonChipState(false, completions.has("p/m/a"));
+    const after = lessonChipState(true, completions.has("p/m/a"));
+    expect(before).toBe("completed");
+    expect(during).toBe("pending");
+    expect(after).toBe("completed");
+    expect(completions.has("p/m/a")).toBe(true);
+  });
+
+  it("stays coherent with aggregated progress: ineligible keys never count", () => {
+    const path = {
+      slug: "p",
+      title: "p",
+      summary: "",
+      goal: "",
+      icon: "alphabet" as const,
+      contentNote: "",
+      modules: [
+        {
+          slug: "m",
+          title: "",
+          description: "",
+          lessons: [
+            { slug: "a", title: "a", status: "planned" as const, objective: "" },
+          ],
+        },
+      ],
+    };
+    // Old completion of a now-ineligible lesson: hidden in chip/badge and
+    // excluded from the aggregate denominator/numerator alike.
+    const completed = new Set([lessonKey("p", "m", "a")]);
+    expect(lessonChipState(false, completed.has("p/m/a"))).toBe("pending");
+    expect(lessonCompletionVisible(false, true)).toBe(false);
+    const progress = getPathProgress(path, completed);
+    expect(progress.completedCount).toBe(0);
+    expect(progress.availableCount).toBe(0);
   });
 });

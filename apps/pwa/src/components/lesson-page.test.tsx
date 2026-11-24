@@ -117,18 +117,26 @@ function findElement(node: ReactNode, type: unknown): ReactElement | null {
 }
 
 describe("LessonStatusBadge", () => {
-  it("renders the availability state", () => {
-    expect(renderToStaticMarkup(<LessonStatusBadge status="planned" />)).toContain(
-      "Em breve",
-    );
+  it("renders 'Em breve' for planned lessons", () => {
     expect(
-      renderToStaticMarkup(<LessonStatusBadge status="available" />),
-    ).toContain("Disponível");
+      renderToStaticMarkup(
+        <LessonStatusBadge status="planned" lessonKey={TEST_LESSON_KEY} />,
+      ),
+    ).toContain("Em breve");
   });
 
-  it("never shows 'Disponível' for an available lesson that is not completable", () => {
+  it("never shows 'Disponível' for an available lesson without a catalog entry", () => {
     // status "available" without a publishable catalog entry: the badge
     // must not promise the learnability the content area will refuse.
+    const html = renderToStaticMarkup(
+      <LessonStatusBadge status="available" lessonKey={TEST_LESSON_KEY} />,
+    );
+    expect(html).not.toContain("Disponível");
+    expect(html).toContain("Em breve");
+  });
+
+  it("never shows 'Disponível' for an available lesson with a non-publishable entry", () => {
+    lessonCatalog.push(makeCatalogEntry({ draft: testContent }));
     const html = renderToStaticMarkup(
       <LessonStatusBadge status="available" lessonKey={TEST_LESSON_KEY} />,
     );
@@ -299,12 +307,43 @@ describe("LessonPager", () => {
   });
 
   it("labels non-completable destinations as 'Em preparação' instead of implying availability", () => {
-    // Every catalog lesson is planned today, so both destinations carry
-    // the preparation hint — the pager is editorial navigation, not the
-    // learning recommendation.
-    const context = getLessonContext("vocabulario", "saudacoes", "boa-tarde")!;
+    // Synthetic context: a planned destination carries the preparation
+    // hint — the pager is editorial navigation, not the learning
+    // recommendation — and the label must survive title truncation.
+    const context = {
+      path: { slug: "p", title: "P", summary: "", goal: "", icon: "alphabet" as const, contentNote: "", modules: [] },
+      module: { slug: "m", title: "M", description: "", lessons: [] },
+      lesson: { slug: "l", title: "L", status: "available" as const, objective: "" },
+      position: 1,
+      lessonCount: 3,
+      previous: undefined,
+      next: {
+        slug: "titulo-bastante-longo-que-trunca-em-telas-pequenas",
+        title: "Título bastante longo que trunca em telas pequenas",
+        status: "planned" as const,
+        objective: "",
+      },
+    };
     const html = renderToStaticMarkup(<LessonPager context={context} />);
+    expect(html).toContain("Próximo conteúdo do percurso");
     expect(html).toContain("Em preparação");
+    expect(html).toContain('class="truncate"');
+    expect(html).toContain("whitespace-nowrap");
+  });
+
+  it("renders completable destinations without the preparation hint", () => {
+    lessonCatalog.push(publishableEntry());
+    const context = {
+      path: { slug: "trilha", title: "P", summary: "", goal: "", icon: "alphabet" as const, contentNote: "", modules: [] },
+      module: { slug: "modulo", title: "M", description: "", lessons: [] },
+      lesson: { slug: "l", title: "L", status: "available" as const, objective: "" },
+      position: 1,
+      lessonCount: 3,
+      previous: undefined,
+      next: { slug: "licao", title: "Lição", status: "available" as const, objective: "" },
+    };
+    const html = renderToStaticMarkup(<LessonPager context={context} />);
+    expect(html).not.toContain("Em preparação");
   });
 
   it("renders no previous link on the first lesson and no next link on the last", () => {

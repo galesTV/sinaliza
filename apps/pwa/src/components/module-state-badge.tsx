@@ -36,7 +36,11 @@ function progressLine(progress: PathProgress): string | null {
       ? `Todas as atividades publicadas percorridas · ${pending} em preparação`
       : "Todas as atividades publicadas percorridas";
   }
-  return `${completedCount} de ${availableCount} atividades publicadas percorridas`;
+  return `${completedCount} de ${availableCount} ${
+    availableCount === 1
+      ? "atividade publicada percorrida"
+      : "atividades publicadas percorridas"
+  }`;
 }
 
 /**

@@ -9,6 +9,22 @@ import { cn } from "@/lib/utils";
 import { IconCheck } from "./icons";
 import { useProgressSnapshot } from "./use-progress";
 
+export type LessonChipState = "completed" | "pending" | "actionable";
+
+/**
+ * Display state of a lesson chip. Eligibility precedes completion: a
+ * stored completion of a currently non-completable lesson yields
+ * "pending" — the record stays, but a "done" chip would promise
+ * availability that does not exist today.
+ */
+export function lessonChipState(
+  completable: boolean,
+  hasCompletion: boolean,
+): LessonChipState {
+  if (!completable) return "pending";
+  return hasCompletion ? "completed" : "actionable";
+}
+
 /**
  * One lesson link inside a module card. Three honest states:
  * - completed: success check + tint (client-side, after hydration — the
@@ -31,8 +47,12 @@ export function ModuleLessonChip({
   lessonKey: string;
 }) {
   const snapshot = useProgressSnapshot();
-  const completed = snapshot.completed.has(lessonKey);
-  const pending = !isLessonCompletable(lessonKey, status);
+  const state = lessonChipState(
+    isLessonCompletable(lessonKey, status),
+    snapshot.completed.has(lessonKey),
+  );
+  const completed = state === "completed";
+  const pending = state === "pending";
 
   return (
     <Link

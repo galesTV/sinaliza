@@ -23,20 +23,26 @@ export function PathCardProgressView({
 }) {
   const { completedCount, availableCount } = progress;
   const preparation = availableCount === 0;
+  const published =
+    availableCount === 1 ? "1 atividade publicada" : `${availableCount} atividades publicadas`;
 
   return (
     <div className="flex flex-col gap-3">
       {preparation ? (
         <span className="inline-flex items-center gap-1.5 text-xs font-medium text-muted">
           <IconClock className="h-3.5 w-3.5" aria-hidden="true" />
-          Em preparação — conteúdo em validação
+          Em preparação
         </span>
       ) : loading ? null : (
         <div className="flex flex-col gap-1.5">
           <span className="text-xs leading-relaxed text-muted">
             {completedCount > 0
-              ? `${completedCount} de ${availableCount} atividades publicadas percorridas`
-              : `${availableCount} atividades publicadas`}
+              ? `${completedCount} de ${availableCount} ${
+                  availableCount === 1
+                    ? "atividade publicada percorrida"
+                    : "atividades publicadas percorridas"
+                }`
+              : published}
           </span>
           {completedCount > 0 && (
             <span

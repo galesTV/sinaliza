@@ -13,20 +13,17 @@ import { LessonRunner } from "./lesson-runner";
  * Availability badge for a lesson page header. "Disponível" only when the
  * lesson is actually completable — `status === "available"` AND a
  * publishable catalog entry — so the badge never promises learnability
- * the content area below will refuse.
+ * the content area below will refuse. `lessonKey` is required: no caller
+ * may assert availability outside the unified eligibility rule.
  */
 export function LessonStatusBadge({
   status,
   lessonKey,
 }: {
   status: LessonStatus;
-  /** When present, the badge honors full completability, not just status. */
-  lessonKey?: string;
+  lessonKey: string;
 }) {
-  const completable = lessonKey
-    ? isLessonCompletable(lessonKey, status)
-    : status === "available";
-  return completable ? (
+  return isLessonCompletable(lessonKey, status) ? (
     <Badge tone="success">Disponível</Badge>
   ) : (
     <PlannedBadge />

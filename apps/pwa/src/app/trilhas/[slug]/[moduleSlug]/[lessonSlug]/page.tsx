@@ -102,6 +102,7 @@ async function LessonContent({ params }: LessonPageProps) {
           <LessonStatusBadge status={lesson.status} lessonKey={key} />
           <LessonCompletionBadge
             lessonKey={lessonKey(path.slug, module.slug, lesson.slug)}
+            status={lesson.status}
           />
           <Badge>
             Lição {position} de {lessonCount}

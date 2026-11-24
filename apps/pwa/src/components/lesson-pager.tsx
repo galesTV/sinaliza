@@ -41,10 +41,13 @@ function PagerLink({
             ? "Conteúdo anterior do percurso"
             : "Próximo conteúdo do percurso"}
         </span>
-        <span className="truncate font-semibold text-foreground">
-          {lesson.title}
+        <span className="flex min-w-0 items-baseline font-semibold text-foreground">
+          <span className="truncate">{lesson.title}</span>
           {!completable && (
-            <span className="font-normal text-muted"> · Em preparação</span>
+            <span className="shrink-0 whitespace-nowrap font-normal text-muted">
+              {" "}
+              · Em preparação
+            </span>
           )}
         </span>
       </span>
