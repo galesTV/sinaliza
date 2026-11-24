@@ -99,7 +99,11 @@ export function CinematicHero({
     const hud = hudRef.current;
     if (hud) hud.hidden = !debug;
 
+    const staticBottom = root.getBoundingClientRect().bottom;
     root.dataset.mode = reducedMotion ? "reduced" : "live";
+    if (!reducedMotion && staticBottom <= 0) {
+      window.scrollBy(0, root.getBoundingClientRect().bottom - staticBottom);
+    }
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(31, 1, 0.1, 60);
@@ -111,11 +115,7 @@ export function CinematicHero({
     renderer.domElement.setAttribute("aria-hidden", "true");
     host.appendChild(renderer.domElement);
 
-    const pmrem = new THREE.PMREMGenerator(renderer);
-    const environment = new RoomEnvironment();
-    const environmentTexture = pmrem.fromScene(environment, 0.04).texture;
-    scene.environment = environmentTexture;
-
+    let environmentTarget: THREE.WebGLRenderTarget | null = null;
     let hand: CinematicHand | null = null;
     let layout: CinematicLayout = layoutFor(window.innerWidth);
     let pixelRatio = 1;
@@ -126,6 +126,7 @@ export function CinematicHero({
     let running = false;
     let visible = true;
     let dirty = true;
+    let scenePaused = false;
     let target = reducedMotion ? REDUCED_MOTION_PROGRESS : 0;
     let current = target;
     let lastTime = performance.now();
@@ -175,6 +176,11 @@ export function CinematicHero({
       dirty = true;
     };
 
+    // The scene belongs to Acts 1–2 only, even while their last pixels are
+    // still visible above Act 3. Hide the last frame after a fast scroll.
+    const pastScene = () =>
+      root.getBoundingClientRect().bottom < sceneLayer.offsetHeight;
+
     const writeHud = () => {
       if (!debug || !hud) return;
       const info = renderer.info;
@@ -189,15 +195,16 @@ export function CinematicHero({
         p: Number(current.toFixed(4)),
         target: Number(target.toFixed(4)),
         stage: stageAt(current),
+        scenePaused,
         layout,
         frameMs: Number(frameMs.toFixed(2)),
         frameMedianMs: Number(percentile(sorted, 0.5).toFixed(2)),
         frameP95Ms: Number(percentile(sorted, 0.95).toFixed(2)),
         frameSamples: sorted.length,
         workMs: Number(workMs.toFixed(2)),
-        drawCalls: info.render.calls,
-        triangles: info.render.triangles,
-        lines: info.render.lines,
+        drawCalls: scenePaused ? 0 : info.render.calls,
+        triangles: scenePaused ? 0 : info.render.triangles,
+        lines: scenePaused ? 0 : info.render.lines,
         geometries: info.memory.geometries,
         textures: info.memory.textures,
         dpr: pixelRatio,
@@ -213,8 +220,27 @@ export function CinematicHero({
         .join("\n");
     };
 
+    const setScenePaused = (paused: boolean) => {
+      if (scenePaused === paused) return;
+      scenePaused = paused;
+      host.style.visibility = paused ? "hidden" : "";
+      if (paused) {
+        if (!reducedMotion) current = target = 2;
+        writeHud();
+      }
+    };
+
     const render = () => {
       if (!hand) return;
+      if (scenePaused) return;
+      if (!environmentTarget) {
+        const pmrem = new THREE.PMREMGenerator(renderer);
+        const environment = new RoomEnvironment();
+        environmentTarget = pmrem.fromScene(environment, 0.04);
+        scene.environment = environmentTarget.texture;
+        environment.dispose();
+        pmrem.dispose();
+      }
       const start = performance.now();
       hand.update(current, layout, camera, viewWidth, viewHeight);
       renderer.render(scene, camera);
@@ -235,6 +261,11 @@ export function CinematicHero({
     const tick = (now: number) => {
       frame = 0;
       if (disposed || !visible) return;
+      if (pastScene()) {
+        setScenePaused(true);
+        return;
+      }
+      setScenePaused(false);
       frame = window.requestAnimationFrame(tick);
       const delta = Math.min(0.1, (now - lastTime) / 1000);
       lastTime = now;
@@ -260,7 +291,26 @@ export function CinematicHero({
       }
     };
 
-    const resizeObserver = new ResizeObserver(resize);
+    const resumeScene = () => {
+      if (!scenePaused || !visible || pastScene()) return;
+      dirty = true;
+      if (reducedMotion) {
+        setScenePaused(false);
+        render();
+      } else {
+        schedule();
+      }
+    };
+    const onScroll = () => {
+      if (reducedMotion && !scenePaused && pastScene()) setScenePaused(true);
+      else resumeScene();
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+
+    const resizeObserver = new ResizeObserver(() => {
+      resize();
+      resumeScene();
+    });
     resizeObserver.observe(host);
     resize();
 
@@ -291,6 +341,7 @@ export function CinematicHero({
         // Start on the real scroll position so a reload mid-page does not replay.
         target = readTarget();
         current = target;
+        setScenePaused(pastScene());
         render();
         root.dataset.canvas = "ready";
         if (reducedMotion) {
@@ -307,6 +358,7 @@ export function CinematicHero({
     const reducedResize = () => {
       if (reducedMotion && dirty) {
         dirty = false;
+        setScenePaused(pastScene());
         render();
       }
     };
@@ -316,15 +368,16 @@ export function CinematicHero({
     return () => {
       disposed = true;
       window.cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onScroll);
       resizeObserver.disconnect();
       reducedObserver.disconnect();
       visibilityObserver.disconnect();
       renderer.domElement.removeEventListener("webglcontextlost", onContextLost);
       hand?.dispose();
-      environmentTexture.dispose();
-      pmrem.dispose();
+      environmentTarget?.dispose();
       renderer.dispose();
       renderer.domElement.remove();
+      setScenePaused(false);
       delete root.dataset.mode;
       delete root.dataset.canvas;
       delete root.dataset.stage;
