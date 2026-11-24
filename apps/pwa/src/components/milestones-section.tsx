@@ -10,25 +10,38 @@ import {
 import { cn } from "@/lib/utils";
 
 import { Badge } from "./badge";
-import { IconActivity, IconCheck, IconClock } from "./icons";
+import { Eyebrow } from "./eyebrow";
+import {
+  IconActivity,
+  IconArrowRight,
+  IconFlag,
+  IconLayers,
+  IconMap,
+  IconRoute,
+  IconCheck,
+} from "./icons";
 import { useAuthSession } from "./use-auth-session";
 import { useProgressSnapshot, useProgressSyncState } from "./use-progress";
 
 export const MILESTONES_TITLE = "Marcos da sua jornada";
 export const MILESTONES_SUBTITLE =
   "Cada pequeno passo faz parte de uma descoberta maior.";
+export const MILESTONES_EYEBROW = "Observatório Pessoal";
 export const MILESTONES_EMPTY_TITLE = "Uma jornada prestes a começar";
 export const MILESTONES_EMPTY_COPY =
   "Seus marcos serão construídos conforme novas atividades forem disponibilizadas.";
 export const MILESTONES_NOTE =
-  "Os marcos representam sua participação nas atividades, não uma certificação de domínio em Libras.";
+  "Os marcos acompanham as atividades atualmente publicadas e representam sua participação, não uma certificação de domínio em Libras.";
 export const MILESTONES_ACHIEVED_LABEL = "Alcançado";
 export const MILESTONES_SOON_LABEL = "Em breve";
 
-const STATUS_ICON: Record<MilestoneStatus, typeof IconCheck> = {
-  achieved: IconCheck,
-  available: IconActivity,
-  unavailable: IconClock,
+/** Conceptual icon per milestone — the badge communicates the state. */
+const MILESTONE_ICON: Record<string, typeof IconCheck> = {
+  "primeiro-passo": IconArrowRight,
+  base: IconLayers,
+  "novos-caminhos": IconRoute,
+  "etapa-percorrida": IconFlag,
+  "caminho-percorrido": IconMap,
 };
 
 const STATUS_ICON_TONE: Record<MilestoneStatus, string> = {
@@ -37,8 +50,32 @@ const STATUS_ICON_TONE: Record<MilestoneStatus, string> = {
   unavailable: "border-border bg-surface-elevated text-muted",
 };
 
+/**
+ * Human-readable unit for each counter, keyed by milestone id — the bare
+ * "n de N" numbers need their meaning spelled out (activities? modules?
+ * which module/path? — the closest one, per `closest()`).
+ */
+export function progressLabel(milestone: Milestone): string | null {
+  const progress = milestone.progress;
+  if (!progress) return null;
+  const { current, target } = progress;
+  switch (milestone.id) {
+    case "base":
+      return `${current} de ${target} atividades`;
+    case "novos-caminhos":
+      return `${current} de ${target} módulos`;
+    case "etapa-percorrida":
+      return `Módulo mais próximo: ${current} de ${target} atividades`;
+    case "caminho-percorrido":
+      return `Trilha mais próxima: ${current} de ${target} atividades`;
+    default:
+      return `${current} de ${target}`;
+  }
+}
+
 function MilestoneRow({ milestone }: { milestone: Milestone }) {
-  const Icon = STATUS_ICON[milestone.status];
+  const Icon = MILESTONE_ICON[milestone.id] ?? IconActivity;
+  const label = progressLabel(milestone);
   return (
     <li className="flex items-start gap-3.5">
       <span
@@ -72,10 +109,8 @@ function MilestoneRow({ milestone }: { milestone: Milestone }) {
         <p className="text-sm leading-relaxed text-muted">
           {milestone.description}
         </p>
-        {milestone.progress && (
-          <p className="text-xs font-medium tabular-nums text-muted">
-            {milestone.progress.current} de {milestone.progress.target}
-          </p>
+        {label && (
+          <p className="text-xs font-medium tabular-nums text-muted">{label}</p>
         )}
       </div>
     </li>
@@ -83,32 +118,16 @@ function MilestoneRow({ milestone }: { milestone: Milestone }) {
 }
 
 /**
- * Journey milestones — a live projection of the recorded completion set
- * over the published catalog, shared by the home dashboard and /conta.
- *
- * Identity: milestones read `useProgressSnapshot()`, which already
- * resolves the active identity (guest bucket or account bucket), so a
- * sign-in/sign-out can never leak another identity's progress here.
- *
- * Loading is not empty progress: while the session resolves, or while a
- * signed-in account's remote completions are still being merged for the
- * first time this session, the section renders nothing rather than a
- * momentary "zero milestones". A failed hydration still shows the
- * honest local picture (locally recorded participation counts).
+ * Pure presentation of a derived milestone list — takes the projection
+ * as props so it stays testable with synthetic catalogs and free of any
+ * identity/loading concerns (the wrapper owns those).
  */
-export function MilestonesSection() {
-  const { status } = useAuthSession();
-  const snapshot = useProgressSnapshot();
-  const sync = useProgressSyncState();
-
-  const milestones = deriveMilestones(getLearningPaths(), snapshot.completed);
+export function MilestonesView({
+  milestones,
+}: {
+  milestones: readonly Milestone[];
+}) {
   const summary = summarizeMilestones(milestones);
-  const loading =
-    status === "loading" ||
-    (status === "user" && sync.configured && !sync.hydrated && sync.syncing);
-
-  if (loading) return null;
-
   const allUnavailable = summary.reachable === 0;
 
   return (
@@ -116,10 +135,11 @@ export function MilestonesSection() {
       aria-labelledby="journey-milestones-title"
       className="flex flex-col gap-5 rounded-2xl border border-border bg-surface p-7"
     >
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2.5">
+        <Eyebrow>{MILESTONES_EYEBROW}</Eyebrow>
         <h3
           id="journey-milestones-title"
-          className="text-sm font-semibold text-foreground"
+          className="font-display text-lg font-semibold tracking-tight text-foreground"
         >
           {MILESTONES_TITLE}
         </h3>
@@ -145,7 +165,7 @@ export function MilestonesSection() {
         </p>
       )}
 
-      <ul className="flex flex-col gap-4">
+      <ul className="grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2">
         {milestones.map((milestone) => (
           <MilestoneRow key={milestone.id} milestone={milestone} />
         ))}
@@ -153,5 +173,39 @@ export function MilestonesSection() {
 
       <p className="text-xs leading-relaxed text-muted">{MILESTONES_NOTE}</p>
     </section>
+  );
+}
+
+/**
+ * Journey milestones wired to the live identity — a projection of the
+ * recorded completion set over the published catalog, shared by the
+ * home dashboard and /conta.
+ *
+ * Identity: `useProgressSnapshot()` resolves the snapshot under the
+ * identity computed for this render (guest bucket or account bucket),
+ * and `useProgressSyncState()` reports that same identity's sync state.
+ *
+ * Loading is not empty progress: while the session resolves, or while a
+ * signed-in account's first remote merge of this session is in flight,
+ * the section renders nothing rather than a momentary "zero milestones".
+ * When the merge has already failed (not hydrated, nothing in flight),
+ * the honest local picture renders — locally recorded participation
+ * already counts toward milestones.
+ */
+export function MilestonesSection() {
+  const { status } = useAuthSession();
+  const snapshot = useProgressSnapshot();
+  const sync = useProgressSyncState();
+
+  const loading =
+    status === "loading" ||
+    (status === "user" && sync.configured && !sync.hydrated && sync.syncing);
+
+  if (loading) return null;
+
+  return (
+    <MilestonesView
+      milestones={deriveMilestones(getLearningPaths(), snapshot.completed)}
+    />
   );
 }

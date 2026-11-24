@@ -424,10 +424,33 @@ describe("deriveMilestones", () => {
     }
   });
 
-  it("derives the real initial state: the live catalog is fully planned", () => {
+  it("derives a consistent projection over the live catalog (invariants only)", () => {
+    // Catalog-independent invariants — this must keep passing once the
+    // first real lessons are published.
     const milestones = deriveMilestones(getLearningPaths(), new Set());
-    expect(milestones.every((m) => m.status === "unavailable")).toBe(true);
-    expect(summarizeMilestones(milestones)).toEqual({ reachable: 0, achieved: 0 });
+    expect(milestones.map((m) => m.id)).toEqual([
+      "primeiro-passo",
+      "base",
+      "novos-caminhos",
+      "etapa-percorrida",
+      "caminho-percorrido",
+    ]);
+    for (const milestone of milestones) {
+      expect(["achieved", "available", "unavailable"]).toContain(
+        milestone.status,
+      );
+      if (milestone.status !== "available") {
+        expect(milestone.progress).toBeUndefined();
+      }
+    }
+    const summary = summarizeMilestones(milestones);
+    expect(summary.reachable).toBe(
+      milestones.filter((m) => m.status !== "unavailable").length,
+    );
+    expect(summary.achieved).toBe(
+      milestones.filter((m) => m.status === "achieved").length,
+    );
+    expect(summary.achieved).toBeLessThanOrEqual(summary.reachable);
   });
 });
 
