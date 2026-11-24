@@ -61,32 +61,45 @@ export function parseLessonKey(key: string) {
   return { pathSlug: parts[0], moduleSlug: parts[1], lessonSlug: parts[2] };
 }
 
+/**
+ * Read the persisted completed set for a storage key. Malformed or
+ * missing payloads yield an empty set; a throwing getItem does too.
+ * Used by the store itself and by readers that need a fresh view of a
+ * sibling tab's writes (e.g. the guest-claim offer).
+ */
+export function loadCompleted(
+  storage: ProgressStorage | undefined,
+  storageKey: string,
+): Set<string> {
+  try {
+    const raw = storage?.getItem(storageKey);
+    if (!raw) return new Set();
+    const parsed: unknown = JSON.parse(raw);
+    if (
+      typeof parsed !== "object" ||
+      parsed === null ||
+      (parsed as { version?: unknown }).version !== 1 ||
+      !Array.isArray((parsed as { completed?: unknown }).completed)
+    ) {
+      return new Set();
+    }
+    return new Set(
+      (parsed as { completed: unknown[] }).completed.filter(
+        (key): key is string => typeof key === "string",
+      ),
+    );
+  } catch {
+    // Missing key, malformed JSON or a throwing getItem → start empty.
+    return new Set();
+  }
+}
+
 export function createProgressStore(deps: ProgressDeps = {}) {
   const storageKey = deps.storageKey ?? PROGRESS_STORAGE_KEY;
   const listeners = new Set<() => void>();
 
   function load(): Set<string> {
-    try {
-      const raw = deps.storage?.getItem(storageKey);
-      if (!raw) return new Set();
-      const parsed: unknown = JSON.parse(raw);
-      if (
-        typeof parsed !== "object" ||
-        parsed === null ||
-        (parsed as { version?: unknown }).version !== 1 ||
-        !Array.isArray((parsed as { completed?: unknown }).completed)
-      ) {
-        return new Set();
-      }
-      return new Set(
-        (parsed as { completed: unknown[] }).completed.filter(
-          (key): key is string => typeof key === "string",
-        ),
-      );
-    } catch {
-      // Missing key, malformed JSON or a throwing getItem → start empty.
-      return new Set();
-    }
+    return loadCompleted(deps.storage, storageKey);
   }
 
   function persist(completed: ReadonlySet<string>) {

@@ -7,8 +7,11 @@ import {
   type ProgressSnapshot,
 } from "@/lib/progress";
 import {
+  EMPTY_CLAIM,
   EMPTY_SYNC,
   createProgressOrchestrator,
+  type GuestClaimResult,
+  type GuestClaimSnapshot,
   type ProgressIdentity,
   type ProgressOrchestrator,
   type ProgressSyncSnapshot,
@@ -117,4 +120,38 @@ export function useProgressSyncState(): ProgressSyncSnapshot {
 
 export function markLessonCompleted(key: string): boolean {
   return getOrchestrator()?.markCompleted(key) ?? false;
+}
+
+/**
+ * Consent bookkeeping for transferring guest completions into the active
+ * account — `EMPTY_CLAIM` for guests, loading sessions and unconfigured
+ * remotes, so the claim card never renders without a signed-in user.
+ */
+export function useGuestClaimState(): GuestClaimSnapshot {
+  return useOrchestratedProgress(
+    (orch, identity) => orch.getClaimSnapshot(identity),
+    EMPTY_CLAIM,
+  );
+}
+
+/**
+ * Explicit claim action — only ever called from the consent card. The
+ * guest bucket is never modified by a claim. `offered` is the set the
+ * card displayed: nothing outside of it is ever transferred.
+ */
+export function claimGuestProgress(
+  userId: string,
+  offered: ReadonlySet<string>,
+): GuestClaimResult {
+  return (
+    getOrchestrator()?.claimGuestProgress(userId, offered) ?? "unavailable"
+  );
+}
+
+/** "Keep separate": persist this account's dismissal of the shown offer. */
+export function dismissGuestClaim(
+  userId: string,
+  offered: ReadonlySet<string>,
+): void {
+  getOrchestrator()?.dismissGuestClaim(userId, offered);
 }
