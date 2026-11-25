@@ -2,11 +2,12 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import "../Cinematic.css";
 import { CinematicHero } from "../CinematicHero";
+import { LearningAct } from "./LearningAct";
 
 export const metadata: Metadata = {
   title: "Sinaliza — V4 cinematic experience",
   description:
-    "Estudo isolado da experiência cinematográfica: o hero da mão anatômica (Ato 1) e A Conexão (Ato 2), dirigidos pelo scroll nativo.",
+    "Estudo isolado da experiência cinematográfica do Sinaliza: O Gesto, A Conexão e O Aprendizado.",
   robots: { index: false, follow: false },
 };
 
@@ -114,9 +115,11 @@ export default function Page() {
         </div>
       </CinematicHero>
 
+      <LearningAct />
+
       <footer className="v4c-end">
         <p>
-          Estudo em andamento · os atos 3 a 5 ainda não foram implementados.
+          Estudo em andamento · os atos 4 e 5 ainda não foram implementados.
         </p>
       </footer>
     </main>
