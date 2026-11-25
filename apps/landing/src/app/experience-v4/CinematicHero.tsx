@@ -99,9 +99,16 @@ export function CinematicHero({
     const hud = hudRef.current;
     if (hud) hud.hidden = !debug;
 
-    const hashTarget = window.location.hash
-      ? document.getElementById(decodeURIComponent(window.location.hash.slice(1)))
-      : null;
+    const hashTarget = (() => {
+      if (!window.location.hash) return null;
+      try {
+        return document.getElementById(
+          decodeURIComponent(window.location.hash.slice(1)),
+        );
+      } catch {
+        return null;
+      }
+    })();
     const anchor = hashTarget && !stage.contains(hashTarget) ? hashTarget : null;
     root.dataset.mode = reducedMotion ? "reduced" : "live";
     // Fragment navigation may still be heading for the static layout's
