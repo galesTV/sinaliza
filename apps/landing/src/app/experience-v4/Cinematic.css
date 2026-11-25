@@ -5,8 +5,16 @@
    from the single --v4c-p progress written by CinematicHero. */
 
 .v4c-page {
+  --v4c-ink: #0b1020;
+  --v4c-chapter-fade: clamp(100px, 19vh, 204px);
+  --v4c-chapter-edges: linear-gradient(
+    var(--v4c-ink),
+    transparent var(--v4c-chapter-fade),
+    transparent calc(100% - var(--v4c-chapter-fade)),
+    var(--v4c-ink)
+  );
   color: #f4f6fc;
-  background: #0b1020;
+  background: var(--v4c-ink);
   overflow-x: clip;
 }
 
@@ -341,6 +349,12 @@
 
 /* ---------- Act 2: A Conexão (normal document flow) ---------- */
 
+.v4c-act {
+  --v4c-title-distance: 30px;
+  --v4c-title-duration: 710ms;
+  background: linear-gradient(to top, var(--v4c-ink), transparent var(--v4c-chapter-fade));
+}
+
 .v4c-actInner {
   display: grid;
   gap: clamp(150px, 34vh, 380px);
@@ -363,6 +377,10 @@
   text-wrap: balance;
 }
 
+.v4c-actTitle .v4c-titleAccent {
+  color: #c7c0ff;
+}
+
 .v4c-actHeading {
   margin: 0;
   font-family: var(--font-display), sans-serif;
@@ -383,7 +401,18 @@
 
 .v4c-actBlock {
   padding-top: 26px;
-  border-top: 1px solid rgba(53, 201, 232, 0.4);
+  position: relative;
+  border-top: 1px solid rgb(199 192 255 / 0.16);
+}
+
+.v4c-actBlock::before {
+  position: absolute;
+  inset: -1px auto auto 0;
+  width: min(24%, 108px);
+  height: 1px;
+  background: #c7c0ff;
+  content: "";
+  transform-origin: left;
 }
 
 .v4c-actClosing {
@@ -401,6 +430,10 @@
   display: grid;
   gap: 10px;
   margin: 0;
+}
+
+.v4c-actBridge .v4c-bridgeRule {
+  background: linear-gradient(90deg, rgb(199 192 255 / 0.72), rgb(53 201 232 / 0.24));
 }
 
 /* Pre-boot state for the cinematic path: before hydration only the intro
@@ -438,28 +471,6 @@
   to {
     opacity: 0;
     visibility: hidden;
-  }
-}
-
-/* Blocks rise as they enter the window; visible by default everywhere else. */
-@media (prefers-reduced-motion: no-preference) {
-  @supports (animation-timeline: view()) {
-    .v4c[data-mode="live"] .v4c-reveal {
-      animation: v4c-reveal linear both;
-      animation-timeline: view();
-      animation-range: entry 0% cover 28%;
-    }
-  }
-}
-
-@keyframes v4c-reveal {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 44px, 0);
-  }
-  to {
-    opacity: 1;
-    transform: none;
   }
 }
 

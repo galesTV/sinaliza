@@ -14,7 +14,7 @@ const nodes = [
 function Constellation() {
   return (
     <div className="v4c-future-field" aria-hidden="true">
-      <svg viewBox="0 0 900 560" focusable="false" className="v4c-future-stars">
+      <svg viewBox="0 0 900 560" focusable="false" className="v4c-future-stars" data-v4c-reveal="constellation">
         <defs>
           <linearGradient id="v4c-future-light" x1="0%" y1="95%" x2="98%" y2="12%">
             <stop stopColor="#7164e9" />
@@ -79,11 +79,11 @@ export function FutureAct() {
     <section className="v4c-future" aria-labelledby="v4c-act5-title">
       <div className="v4c-future-scene v4c-future-width">
         <header className="v4c-future-intro">
-          <p className="v4c-eyebrow">Ato 5 · O Futuro</p>
-          <h2 id="v4c-act5-title" className="v4c-future-title">
+          <p className="v4c-eyebrow" data-v4c-reveal="eyebrow">Ato 5 · O Futuro</p>
+          <h2 id="v4c-act5-title" className="v4c-future-title" data-v4c-reveal="title">
             O futuro se constrói com <span>novas conexões.</span>
           </h2>
-          <p className="v4c-future-copy">
+          <p className="v4c-future-copy" data-v4c-reveal="copy">
             O Sinaliza nasce para apoiar os primeiros passos no aprendizado de
             Libras. Queremos construir uma experiência que aproxime pessoas,
             incentive a prática e amplie possibilidades de aprendizagem.
@@ -94,13 +94,13 @@ export function FutureAct() {
 
       <div className="v4c-future-invite v4c-future-width">
         <div>
-          <h3>Dê o primeiro passo.</h3>
-          <p className="v4c-future-copy">
+          <h3 data-v4c-reveal="title">Dê o primeiro passo.</h3>
+          <p className="v4c-future-copy" data-v4c-reveal="copy">
             Conheça a versão inicial do Sinaliza e explore uma nova forma de
             começar a aprender Libras.
           </p>
         </div>
-        <div className="v4c-future-action">
+        <div className="v4c-future-action" data-v4c-reveal="cta">
           <a href={PWA_URL} className="v4c-future-cta">
             Experimente o Sinaliza <span aria-hidden="true">↗</span>
           </a>

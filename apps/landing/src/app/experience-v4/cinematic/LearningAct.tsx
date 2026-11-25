@@ -35,7 +35,7 @@ function ProductShot({
 
   return (
     <figure className="v4c-learning-figure">
-      <picture className="v4c-learning-screen">
+      <picture className="v4c-learning-screen" data-v4c-reveal="screen">
         <source
           media="(max-width: 599px)"
           srcSet={`${src}-mobile.webp`}
@@ -51,7 +51,7 @@ function ProductShot({
           unoptimized
         />
       </picture>
-      <figcaption className="v4c-learning-caption">{children}</figcaption>
+      <figcaption className="v4c-learning-caption" data-v4c-reveal="caption">{children}</figcaption>
     </figure>
   );
 }
@@ -60,15 +60,15 @@ export function LearningAct() {
   return (
     <section className="v4c-learning" aria-labelledby="v4c-act3-title">
       <div className="v4c-learning-inner">
-        <article className="v4c-learning-dashboard">
+        <article className="v4c-learning-dashboard" data-v4c-reveal="rule">
           <header className="v4c-learning-opening">
             <div>
-              <p className="v4c-eyebrow">Ato 3 · O Aprendizado</p>
-              <h2 id="v4c-act3-title" className="v4c-learning-title">
+              <p className="v4c-eyebrow" data-v4c-reveal="eyebrow">Ato 3 · O Aprendizado</p>
+              <h2 id="v4c-act3-title" className="v4c-learning-title" data-v4c-reveal="title">
                 Seu aprendizado <span>começa aqui.</span>
               </h2>
             </div>
-            <p className="v4c-learning-copy">
+            <p className="v4c-learning-copy" data-v4c-reveal="copy">
               Na tela inicial do Sinaliza, você encontra por onde começar:
               pelo alfabeto manual ou explorando as trilhas.
             </p>
@@ -76,11 +76,11 @@ export function LearningAct() {
           <ProductShot shot="dashboard">Início da PWA · Modo convidado</ProductShot>
         </article>
 
-        <article className="v4c-learning-moment v4c-learning-modules">
+        <article className="v4c-learning-moment v4c-learning-modules" data-v4c-reveal="rule">
           <header className="v4c-learning-intro">
-            <p className="v4c-eyebrow">Trilhas e módulos</p>
-            <h3 className="v4c-learning-heading">Um caminho para aprender.</h3>
-            <p className="v4c-learning-copy">
+            <p className="v4c-eyebrow" data-v4c-reveal="eyebrow">Trilhas e módulos</p>
+            <h3 className="v4c-learning-heading" data-v4c-reveal="title">Um caminho para aprender.</h3>
+            <p className="v4c-learning-copy" data-v4c-reveal="copy">
               Cada trilha organiza um tema em módulos. Na de vocabulário, por
               exemplo, o percurso começa com saudações e apresentações. As
               lições mostradas ainda estão em preparação.
@@ -89,11 +89,11 @@ export function LearningAct() {
           <ProductShot shot="modules">Trilha de vocabulário · Módulos em preparação</ProductShot>
         </article>
 
-        <article className="v4c-learning-moment v4c-learning-lesson">
+        <article className="v4c-learning-moment v4c-learning-lesson" data-v4c-reveal="rule">
           <header className="v4c-learning-intro">
-            <p className="v4c-eyebrow">Demonstração de lição</p>
-            <h3 className="v4c-learning-heading">Aprenda no seu ritmo.</h3>
-            <p className="v4c-learning-copy">
+            <p className="v4c-eyebrow" data-v4c-reveal="eyebrow">Demonstração de lição</p>
+            <h3 className="v4c-learning-heading" data-v4c-reveal="title">Aprenda no seu ritmo.</h3>
+            <p className="v4c-learning-copy" data-v4c-reveal="copy">
               A demonstração alterna explicações e perguntas de múltipla
               escolha, com retorno após a resposta e espaço para tentar de novo.
               É uma prévia experimental da interface, sem conteúdo de Libras.
@@ -103,9 +103,9 @@ export function LearningAct() {
         </article>
 
         <p className="v4c-learning-bridge">
-          <span className="v4c-bridgeLabel">A seguir</span>
-          <span className="v4c-learning-bridgeTitle">A Prática</span>
-          <span className="v4c-bridgeRule" aria-hidden="true" />
+          <span className="v4c-bridgeLabel" data-v4c-reveal="eyebrow">A seguir</span>
+          <span className="v4c-learning-bridgeTitle" data-v4c-reveal="title">A Prática</span>
+          <span className="v4c-bridgeRule" data-v4c-reveal="rule" aria-hidden="true" />
         </p>
       </div>
     </section>

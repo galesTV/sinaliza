@@ -6,9 +6,13 @@
 }
 
 .v4c-future {
+  --v4c-title-distance: 40px;
+  --v4c-title-duration: 850ms;
   padding-inline: var(--v4c-future-gutter);
   background:
-    radial-gradient(ellipse at 80% 38%, rgba(105, 87, 232, 0.14), transparent 57%),
+    var(--v4c-chapter-edges),
+    radial-gradient(ellipse at 76% 34%, rgb(105 87 232 / 0.18), transparent 60%),
+    radial-gradient(ellipse at 94% 8%, rgb(53 201 232 / 0.07), transparent 40%),
     #0b1020;
 }
 
@@ -24,6 +28,7 @@
   align-items: center;
   min-height: clamp(540px, 51vw, 760px);
   border-bottom: 1px solid rgba(159, 232, 247, 0.23);
+  border-image: linear-gradient(90deg, rgb(244 246 252 / 0.16), rgb(159 232 247 / 0.52) 68%, transparent) 1;
   padding-block: clamp(42px, 6vw, 96px);
 }
 
