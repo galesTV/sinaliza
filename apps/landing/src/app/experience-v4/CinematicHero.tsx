@@ -188,6 +188,12 @@ export function CinematicHero({
       );
     };
 
+    // The base --v4c-p (0.5) is the static fallback's. Until the first
+    // render writes the real progress, the choreography must read the
+    // initial scroll position or the hero copy flashes while the hand
+    // asset loads.
+    root.style.setProperty("--v4c-p", String(Math.min(1, readTarget())));
+
     const resize = () => {
       const width = Math.max(1, canvasHost.clientWidth);
       const height = Math.max(1, canvasHost.clientHeight);

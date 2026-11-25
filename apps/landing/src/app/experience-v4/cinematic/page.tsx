@@ -16,6 +16,13 @@ export const metadata: Metadata = {
 function CinematicJourney() {
   return (
     <main className="v4c-page">
+      {/* The poster starts hidden so the live intro never flashes the formed
+          hand; without scripting it is the static composition and must show. */}
+      <noscript>
+        <style>{
+          ".v4c:not([data-mode]) .v4c-poster, .v4c:not([data-mode]) .v4c-hero, .v4c:not([data-mode]) .v4c-note, .v4c:not([data-mode]) .v4c-ghost { opacity: 1; } .v4c:not([data-mode]) .v4c-birth { display: none; }"
+        }</style>
+      </noscript>
       <CinematicHero
         backdrop={<p className="v4c-ghost">Libras</p>}
         practiceCanvasId={PRACTICE_CANVAS_ID}
