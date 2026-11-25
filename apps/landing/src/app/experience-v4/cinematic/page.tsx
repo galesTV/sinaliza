@@ -4,15 +4,16 @@ import "../Cinematic.css";
 import { CinematicHero } from "../CinematicHero";
 import { LearningAct } from "./LearningAct";
 import { PracticeAct, PRACTICE_CANVAS_ID } from "./PracticeAct";
+import { CinematicFooter, FutureAct } from "./FutureAct";
 
 export const metadata: Metadata = {
   title: "Sinaliza — V4 cinematic experience",
   description:
-    "Estudo isolado da experiência cinematográfica do Sinaliza: O Gesto, A Conexão, O Aprendizado e A Prática.",
+    "Experiência cinematográfica do Sinaliza: O Gesto, A Conexão, O Aprendizado, A Prática e O Futuro.",
   robots: { index: false, follow: false },
 };
 
-export default function Page() {
+function CinematicJourney() {
   return (
     <main className="v4c-page">
       <CinematicHero
@@ -119,12 +120,16 @@ export default function Page() {
 
       <LearningAct />
       <PracticeAct />
-
-      <footer className="v4c-end">
-        <p>
-          Estudo em andamento · o Ato 5 ainda não foi implementado.
-        </p>
-      </footer>
+      <FutureAct />
     </main>
+  );
+}
+
+export default function Page() {
+  return (
+    <>
+      <CinematicJourney />
+      <CinematicFooter />
+    </>
   );
 }
