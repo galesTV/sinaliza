@@ -122,13 +122,6 @@ export function CinematicHero({
     })();
     const anchor = hashTarget && !stage.contains(hashTarget) ? hashTarget : null;
     root.dataset.mode = reducedMotion ? "reduced" : "live";
-    // The base --v4c-p (0.5) is the static fallback's. Until the first
-    // render writes the real progress, the choreography must read the
-    // initial value or the hero copy flashes while the hand asset loads.
-    root.style.setProperty(
-      "--v4c-p",
-      String(reducedMotion ? REDUCED_MOTION_PROGRESS : 0),
-    );
     // Fragment navigation may still be heading for the static layout's
     // offset, so land on the target once the pinned layout applies.
     if (!reducedMotion && anchor) {
@@ -194,6 +187,12 @@ export function CinematicHero({
         Math.min(1, Math.max(0, hero)) + Math.min(1, Math.max(0, next))
       );
     };
+
+    // The base --v4c-p (0.5) is the static fallback's. Until the first
+    // render writes the real progress, the choreography must read the
+    // initial scroll position or the hero copy flashes while the hand
+    // asset loads.
+    root.style.setProperty("--v4c-p", String(Math.min(1, readTarget())));
 
     const resize = () => {
       const width = Math.max(1, canvasHost.clientWidth);
