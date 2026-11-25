@@ -230,17 +230,17 @@
     .v4c-future-formation {
       transform-origin: 58% 48%;
       animation-name: v4c-future-settle;
-      animation-range: entry 0% cover 58%;
+      animation-range: entry 0% entry 100%;
     }
 
     .v4c-future-thread {
       animation-name: v4c-future-connect;
-      animation-range: entry 20% cover 54%;
+      animation-range: entry 20% entry 100%;
     }
 
     .v4c-future-depth {
       animation-name: v4c-future-drift;
-      animation-range: entry 0% cover 64%;
+      animation-range: entry 0% entry 100%;
     }
   }
 }
