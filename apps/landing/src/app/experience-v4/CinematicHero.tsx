@@ -35,12 +35,14 @@ interface CinematicHeroProps {
   children: ReactNode;
   // Act 2, in normal document flow over the same canvas.
   connection: ReactNode;
+  practiceCanvasId: string;
 }
 
 export function CinematicHero({
   backdrop,
   children,
   connection,
+  practiceCanvasId,
 }: CinematicHeroProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<HTMLDivElement>(null);
@@ -56,6 +58,7 @@ export function CinematicHero({
     const act = actRef.current;
     const host = hostRef.current;
     if (!root || !sceneLayer || !stage || !act || !host) return;
+    const practiceHost = document.getElementById(practiceCanvasId);
 
     // The static layout is much shorter than the live one. Keep the reader
     // where they were: at the hero if it was pinned, else on the same text.
@@ -63,11 +66,19 @@ export function CinematicHero({
       const wasLive = root.dataset.mode === "live";
       const pinned = wasLive && stage.getBoundingClientRect().bottom > 0;
       const before = act.getBoundingClientRect().top;
+      const practiceTop = practiceHost?.getBoundingClientRect().top;
       root.dataset.mode = "static";
       root.dataset.canvas = "failed";
       if (!wasLive) return;
       if (pinned) {
         window.scrollBy(0, stage.getBoundingClientRect().top);
+      } else if (
+        practiceHost &&
+        practiceTop !== undefined &&
+        practiceTop < window.innerHeight
+      ) {
+        const top = practiceHost.getBoundingClientRect().top;
+        window.scrollTo({ top: window.scrollY + top - practiceTop, behavior: "instant" });
       } else {
         window.scrollBy(0, act.getBoundingClientRect().top - before);
       }
@@ -143,9 +154,10 @@ export function CinematicHero({
     let disposed = false;
     let frame = 0;
     let running = false;
-    let visible = true;
     let dirty = true;
     let scenePaused = false;
+    let canvasHost: HTMLElement = host;
+    let playingPractice = false;
     let target = reducedMotion ? REDUCED_MOTION_PROGRESS : 0;
     let current = target;
     let lastTime = performance.now();
@@ -161,9 +173,7 @@ export function CinematicHero({
       ? String(renderer.getContext().getParameter(debugInfo.UNMASKED_RENDERER_WEBGL))
       : "unknown";
 
-    // One timeline for both acts, derived only from the scroll position:
-    // [0, 1] plays Act 1 while its stage is pinned, [1, 2] follows Act 2
-    // scrolling through the window.
+    // Preserve the original 0–2 timeline for the hero and connection.
     const readTarget = () => {
       if (reducedMotion) return REDUCED_MOTION_PROGRESS;
       const windowHeight = sceneLayer.offsetHeight;
@@ -179,8 +189,8 @@ export function CinematicHero({
     };
 
     const resize = () => {
-      const width = Math.max(1, host.clientWidth);
-      const height = Math.max(1, host.clientHeight);
+      const width = Math.max(1, canvasHost.clientWidth);
+      const height = Math.max(1, canvasHost.clientHeight);
       viewWidth = width;
       viewHeight = height;
       layout = layoutFor(width);
@@ -195,10 +205,17 @@ export function CinematicHero({
       dirty = true;
     };
 
-    // The scene belongs to Acts 1–2 only, even while their last pixels are
-    // still visible above Act 3. Hide the last frame after a fast scroll.
+    // Pause the hero as Act 3 enters, even while Act 2's last pixels are visible.
     const pastScene = () =>
       root.getBoundingClientRect().bottom < sceneLayer.offsetHeight;
+
+    const getPracticeTarget = () => {
+      if (reducedMotion || !practiceHost) return null;
+      const { top, bottom, height } = practiceHost.getBoundingClientRect();
+      const viewport = sceneLayer.offsetHeight;
+      if (top >= viewport || bottom <= 0) return null;
+      return 2 + (viewport - top) / (viewport + height);
+    };
 
     const writeHud = () => {
       if (!debug || !hud) return;
@@ -243,10 +260,36 @@ export function CinematicHero({
       if (scenePaused === paused) return;
       scenePaused = paused;
       host.style.visibility = paused ? "hidden" : "";
+      renderer.domElement.style.visibility = paused ? "hidden" : "";
       if (paused) {
-        if (!reducedMotion) current = target = 2;
+        if (!reducedMotion && !playingPractice) current = target = 2;
         writeHud();
       }
+    };
+
+    // Move the same canvas between the two disjoint viewports.
+    const selectScene = (practiceTarget: number | null, initial = false) => {
+      if (practiceHost && practiceTarget !== null) {
+        if (!playingPractice || scenePaused) {
+          current = initial ? practiceTarget : Math.round(practiceTarget);
+        }
+        playingPractice = true;
+        if (canvasHost !== practiceHost) {
+          canvasHost = practiceHost;
+          canvasHost.appendChild(renderer.domElement);
+          resize();
+        }
+        return practiceTarget;
+      }
+      if (pastScene()) return null;
+      if (playingPractice) {
+        playingPractice = false;
+        canvasHost = host;
+        host.appendChild(renderer.domElement);
+        current = 2;
+        resize();
+      }
+      return readTarget();
     };
 
     const render = () => {
@@ -261,9 +304,9 @@ export function CinematicHero({
       writeHud();
     };
 
-    // The loop only runs while the stage is on screen.
+    // No animation loop between scenes.
     const schedule = () => {
-      if (disposed || frame || !running || !visible) return;
+      if (disposed || frame || !running) return;
       lastTime = performance.now();
       lastFrame = lastTime;
       frame = window.requestAnimationFrame(tick);
@@ -271,13 +314,14 @@ export function CinematicHero({
 
     const tick = (now: number) => {
       frame = 0;
-      if (disposed || !visible) return;
-      if (pastScene()) {
+      if (disposed) return;
+      const nextTarget = selectScene(getPracticeTarget());
+      if (nextTarget === null) {
         setScenePaused(true);
         return;
       }
       setScenePaused(false);
-      frame = window.requestAnimationFrame(tick);
+      target = nextTarget;
       const delta = Math.min(0.1, (now - lastTime) / 1000);
       lastTime = now;
       frameMs += (delta * 1000 - frameMs) * 0.1;
@@ -287,7 +331,6 @@ export function CinematicHero({
       }
       lastFrame = now;
 
-      target = readTarget();
       const gap = target - current;
       if (Math.abs(gap) > 0.00005) {
         const limit = MAX_SPEED * delta;
@@ -296,65 +339,71 @@ export function CinematicHero({
         if (Math.abs(target - current) < 0.0002) current = target;
         dirty = true;
       }
-      if (dirty || debug) {
+      if (dirty || (debug && !playingPractice)) {
         dirty = false;
         render();
+      }
+      if (!playingPractice || Math.abs(target - current) > 0.00005) {
+        frame = window.requestAnimationFrame(tick);
       }
     };
 
     const resumeScene = () => {
-      if (!scenePaused || !visible || pastScene()) return;
+      if (root.dataset.canvas === "failed") return;
+      if (pastScene() && getPracticeTarget() === null) return;
       dirty = true;
       if (reducedMotion) {
-        setScenePaused(false);
-        render();
+        if (scenePaused) {
+          setScenePaused(false);
+          render();
+        }
       } else {
         schedule();
       }
     };
     const onScroll = () => {
       if (reducedMotion && !scenePaused && pastScene()) setScenePaused(true);
-      else resumeScene();
+      else if (!scenePaused && playingPractice) schedule();
+      else if (scenePaused) resumeScene();
     };
     window.addEventListener("scroll", onScroll, { passive: true });
 
-    const resizeObserver = new ResizeObserver(() => {
+    const resizeObserver = new ResizeObserver((entries) => {
+      if (!entries.some(({ target }) => target === canvasHost)) return;
       resize();
-      resumeScene();
+      if (reducedMotion || scenePaused) resumeScene();
+      else schedule();
     });
     resizeObserver.observe(host);
+    if (practiceHost && !reducedMotion) resizeObserver.observe(practiceHost);
     resize();
-
-    const visibilityObserver = new IntersectionObserver(([entry]) => {
-      visible = entry.isIntersecting;
-      if (visible) {
-        current = readTarget();
-        dirty = true;
-        schedule();
-      }
-    });
-    visibilityObserver.observe(root);
 
     const onContextLost = (event: Event) => {
       event.preventDefault();
+      running = false;
+      window.cancelAnimationFrame(frame);
+      frame = 0;
+      setScenePaused(true);
+      practiceHost?.removeAttribute("data-ready");
       fail();
     };
     renderer.domElement.addEventListener("webglcontextlost", onContextLost);
 
     loadSkinnedHandAsset()
       .then((asset) => {
-        if (disposed) {
+        if (disposed || root.dataset.canvas === "failed") {
           asset.geometry.dispose();
           return;
         }
         loadMs = performance.now() - loadStart;
         hand = createCinematicHand(asset, scene);
         // Start on the real scroll position so a reload mid-page does not replay.
-        target = readTarget();
-        current = target;
-        setScenePaused(pastScene());
+        const initial = selectScene(getPracticeTarget(), true);
+        current = target = initial ?? 2;
+        setScenePaused(initial === null);
         render();
         root.dataset.canvas = "ready";
+        if (!reducedMotion) practiceHost?.setAttribute("data-ready", "");
         if (reducedMotion) {
           dirty = false;
         } else {
@@ -382,7 +431,7 @@ export function CinematicHero({
       window.removeEventListener("scroll", onScroll);
       resizeObserver.disconnect();
       reducedObserver.disconnect();
-      visibilityObserver.disconnect();
+      practiceHost?.removeAttribute("data-ready");
       renderer.domElement.removeEventListener("webglcontextlost", onContextLost);
       hand?.dispose();
       environmentTexture.dispose();
@@ -395,7 +444,7 @@ export function CinematicHero({
       delete root.dataset.stage;
       root.style.removeProperty("--v4c-p");
     };
-  }, []);
+  }, [practiceCanvasId]);
 
   return (
     <div ref={rootRef} className="v4c">
