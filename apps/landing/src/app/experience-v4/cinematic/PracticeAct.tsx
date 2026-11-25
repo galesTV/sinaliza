@@ -35,6 +35,11 @@ export function PracticeAct() {
                 <br />
                 São referências geométricas da mão, não sinais de Libras.
               </p>
+              <span className="v4c-srOnly">
+                Na representação tridimensional, os pontos se distribuem do
+                punho às pontas dos dedos, conectados por linhas que acompanham
+                cada dedo, como na topologia usada pela visão computacional.
+              </span>
             </figcaption>
           </figure>
         </div>
