@@ -11,8 +11,8 @@ import {
 
 export type CinematicLayout = "desktop" | "tablet" | "mobile";
 
-// One timeline `t` for both acts: [0, 1] is Act 1 (the hero stages below),
-// [1, 2] is Act 2. Every visual value is a pure function of `t`.
+// One timeline: [0, 1] is the hero, (1, 2] is the connection, and (2, 3]
+// is practice. The canvas is idle during the learning act between them.
 export const STAGE_BOUNDS = [0, 0.26, 0.52, 0.76, 1] as const;
 export const STAGE_IDS = [
   "birth",
@@ -20,9 +20,10 @@ export const STAGE_IDS = [
   "gesture",
   "transition",
 ] as const;
-export type StageId = (typeof STAGE_IDS)[number] | "connection";
+export type StageId = (typeof STAGE_IDS)[number] | "connection" | "practice";
 
 export function stageAt(t: number): StageId {
+  if (t > 2) return "practice";
   if (t > 1) return "connection";
   for (let i = STAGE_IDS.length - 1; i >= 0; i -= 1) {
     if (t >= STAGE_BOUNDS[i]) return STAGE_IDS[i];
@@ -373,6 +374,10 @@ export function createCinematicHand(
     const preset = PRESETS[layout];
     const p = Math.min(1, t);
     const q = clamp01(t - 1);
+    const practice = t > 2;
+    const r = clamp01(t - 2);
+    const trace = range(r, 0, 0.26) * (1 - range(r, 0.67, 0.94));
+    const tracking = 1 - range(r, 0.76, 1);
 
     // Act 2 envelopes: annotations and surface go first, the mesh stays as
     // a faint trace beside the text and fades as it leaves the frame.
@@ -392,13 +397,15 @@ export function createCinematicHand(
     // Gesture: one settle into a relaxed partial flexion, held afterwards.
     // The little finger leads and the index follows, as a relaxed hand does.
     rig.setAmounts(
-      [
-        0.26 * range(p, 0.58, 0.74),
-        0.34 * range(p, 0.565, 0.73),
-        0.44 * range(p, 0.55, 0.72),
-        0.52 * range(p, 0.54, 0.71),
-      ],
-      0.42 * range(p, 0.59, 0.75),
+      practice
+        ? 0.08
+        : [
+            0.26 * range(p, 0.58, 0.74),
+            0.34 * range(p, 0.565, 0.73),
+            0.44 * range(p, 0.55, 0.72),
+            0.52 * range(p, 0.54, 0.71),
+          ],
+      practice ? 0.06 : 0.42 * range(p, 0.59, 0.75),
     );
     group.updateMatrixWorld(true);
 
@@ -407,8 +414,13 @@ export function createCinematicHand(
       bone.getWorldPosition(point);
       asset.model.worldToLocal(point);
 
-      const appear = smooth(clamp01((nodesIn - landmarkTime(index) * 0.7) / 0.3));
-      const settle = 1.9 - 0.9 * range(p, 0.02, 0.26) - 0.28 * material + 0.15 * annotate;
+      const delay = landmarkTime(index);
+      const appear = practice
+        ? range(r, 0.04 + delay * 0.19, 0.24 + delay * 0.19)
+        : smooth(clamp01((nodesIn - delay * 0.7) / 0.3));
+      const settle = practice
+        ? 1.25
+        : 1.9 - 0.9 * range(p, 0.02, 0.26) - 0.28 * material + 0.15 * annotate;
       dummy.position.copy(point);
       dummy.scale.setScalar(
         Math.max(1e-6, nodeBase[index] * preset.landmarkScale * appear * settle),
@@ -417,36 +429,42 @@ export function createCinematicHand(
       nodes.setMatrixAt(index, dummy.matrix);
     });
     nodes.instanceMatrix.needsUpdate = true;
-    nodeMaterial.opacity =
-      (0.95 - 0.2 * material + 0.2 * annotate) * (1 - 0.5 * leave) * (1 - recede);
+    nodeMaterial.opacity = practice
+      ? 0.94 * tracking
+      : (0.95 - 0.2 * material + 0.2 * annotate) * (1 - 0.5 * leave) * (1 - recede);
     nodes.visible = nodeMaterial.opacity > 0.002;
 
     LANDMARK_CONNECTIONS.forEach(([a, b], index) => {
-      const grow = smooth(clamp01((linksIn - landmarkTime(a) * 0.7) / 0.3));
+      const delay = landmarkTime(a);
+      const grow = practice
+        ? range(r, 0.1 + delay * 0.17, 0.28 + delay * 0.17)
+        : smooth(clamp01((linksIn - delay * 0.7) / 0.3));
       from.copy(landmarkPositions[a]);
       to.copy(landmarkPositions[b]).sub(from).multiplyScalar(grow).add(from);
       linkPositions.set([from.x, from.y, from.z, to.x, to.y, to.z], index * 6);
     });
     linkAttribute.needsUpdate = true;
-    linkMaterial.opacity =
-      (0.85 * (1 - 0.82 * material) + 0.5 * annotate) *
-      (1 - 0.7 * leave) *
-      (1 - recede);
+    linkMaterial.opacity = practice
+      ? 0.8 * range(r, 0.1, 0.4) * tracking
+      : (0.85 * (1 - 0.82 * material) + 0.5 * annotate) *
+        (1 - 0.7 * leave) *
+        (1 - recede);
     links.visible = linkMaterial.opacity > 0.002;
 
     wire.uniforms.uReveal.value = wireIn;
     wire.uniforms.uFront.value = 1 - range(p, 0.24, 0.3);
     // Shared edges are drawn twice by the wireframe index, hence the lower base.
-    wire.material.opacity =
-      THREE.MathUtils.lerp(
-        THREE.MathUtils.lerp(0.46, 0.26, material),
-        WIRE_TRACE_OPACITY,
-        recede,
-      ) *
-      (1 - exit);
+    wire.material.opacity = practice
+      ? 0.16 * trace
+      : THREE.MathUtils.lerp(
+          THREE.MathUtils.lerp(0.46, 0.26, material),
+          WIRE_TRACE_OPACITY,
+          recede,
+        ) *
+        (1 - exit);
     wire.mesh.visible = wireIn > 0.001 && wire.material.opacity > 0.002;
 
-    surfaceMaterial.opacity = 0.15 * material * (1 - recede);
+    surfaceMaterial.opacity = practice ? 0 : 0.15 * material * (1 - recede);
     asset.skinnedMesh.visible = surfaceMaterial.opacity > 0.0003;
 
     key.intensity = 2.4 * material;
@@ -460,7 +478,7 @@ export function createCinematicHand(
       (1 - 0.5 * recede) *
       (1 - exit);
     glow.sprite.visible = glow.material.opacity > 0.002;
-    group.rotation.y = 0.45 * q;
+    group.rotation.y = practice ? 0.19 * (1 - range(r, 0, 0.52)) : 0.45 * q;
     glow.sprite.scale.setScalar(4 + 5.5 * range(p, 0, 0.3));
 
     // Camera: eased interpolation between the keys on the stage bounds,
@@ -468,6 +486,13 @@ export function createCinematicHand(
     let keyA: CameraKey;
     let keyB: CameraKey;
     let blend: number;
+    if (practice) {
+      camera.position.set(0.3, 0.06, layout === "desktop" ? 9.6 : 8.7);
+      camera.fov = preset.fov;
+      camera.clearViewOffset();
+      camera.lookAt(0, 0, 0);
+      return;
+    }
     if (q > 0) {
       const second = q >= connection.split;
       keyA = second ? connection.keys[0] : preset.keys[4];

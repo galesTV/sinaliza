@@ -1,0 +1,214 @@
+.v4c-practice {
+  background: linear-gradient(180deg, #0b1020, #10172b 34%, #0b1020 85%);
+  padding-inline: clamp(20px, 5.5vw, 88px);
+}
+
+.v4c-practice-inner {
+  display: grid;
+  gap: clamp(72px, 9vw, 132px);
+  max-width: 1320px;
+  margin-inline: auto;
+  padding-bottom: clamp(64px, 10vw, 144px);
+}
+
+.v4c-practice-opening,
+.v4c-practice-lab,
+.v4c-practice-close {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  align-items: center;
+  gap: clamp(24px, 5vw, 76px);
+  border-top: 1px solid rgba(159, 232, 247, 0.24);
+  padding-top: clamp(32px, 4.5vw, 62px);
+}
+
+.v4c-practice-title,
+.v4c-practice-heading {
+  margin: 0;
+  font-family: var(--font-display), sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.05em;
+  line-height: 1.02;
+  text-wrap: balance;
+}
+
+.v4c-practice-title {
+  max-width: 11ch;
+  font-size: clamp(36px, 5.7vw, 86px);
+  scroll-margin-top: 24px;
+}
+
+.v4c-practice-title span {
+  color: #9fe8f7;
+}
+
+.v4c-practice-heading {
+  max-width: 13ch;
+  font-size: clamp(32px, 4.1vw, 64px);
+}
+
+.v4c-practice-copy {
+  max-width: 40ch;
+  margin: 18px 0 0;
+  color: #c9d2e5;
+  font-size: clamp(16px, 1.3vw, 19px);
+  line-height: 1.6;
+}
+
+.v4c-practice-model,
+.v4c-practice-evidence {
+  min-width: 0;
+  margin: 0;
+}
+
+.v4c-practice-visual {
+  position: relative;
+  isolation: isolate;
+  height: clamp(340px, 44vw, 610px);
+  overflow: hidden;
+  background: radial-gradient(ellipse at 50% 48%, #182640, #0b1020 72%);
+  border: 1px solid rgba(159, 232, 247, 0.24);
+  border-radius: 6px;
+}
+
+.v4c-practice-visual img,
+.v4c-practice-visual canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.v4c-practice-visual img {
+  object-fit: contain;
+}
+
+.v4c-practice-visual[data-ready] img {
+  visibility: hidden;
+}
+
+.v4c-practice-key {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.v4c-practice-key > span {
+  color: #9fe8f7;
+  font: 600 clamp(40px, 5vw, 64px) / 0.9 var(--font-display), sans-serif;
+  letter-spacing: -0.08em;
+}
+
+.v4c-practice-key p,
+.v4c-practice-evidence figcaption {
+  margin: 0;
+  color: #b5c1d7;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.v4c-practice-key strong {
+  color: #f4f6fc;
+}
+
+.v4c-practice-lab {
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  grid-template-areas: "lab copy";
+}
+
+.v4c-practice-lab header {
+  grid-area: copy;
+}
+
+.v4c-practice-evidence {
+  grid-area: lab;
+}
+
+.v4c-practice-evidence picture,
+.v4c-practice-evidence img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.v4c-practice-evidence picture {
+  overflow: hidden;
+  background: #10172b;
+  border: 1px solid rgba(159, 232, 247, 0.24);
+  border-radius: 6px;
+}
+
+.v4c-practice-evidence figcaption {
+  margin-top: 12px;
+}
+
+.v4c-practice-close .v4c-practice-copy {
+  margin: 0;
+}
+
+.v4c-practice-bridge {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+}
+
+@media (max-width: 900px) {
+  .v4c-practice-opening,
+  .v4c-practice-lab,
+  .v4c-practice-close {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .v4c-practice-title {
+    max-width: 15ch;
+  }
+
+  .v4c-practice-model {
+    width: min(100%, 590px);
+    justify-self: end;
+  }
+
+  .v4c-practice-lab {
+    grid-template-areas: "copy" "lab";
+  }
+}
+
+@media (max-width: 599px) {
+  .v4c-practice-visual {
+    height: clamp(280px, 108vw, 410px);
+  }
+
+  .v4c-practice-bridge .v4c-bridgeTitle {
+    font-size: clamp(42px, 10vw, 60px);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .v4c-practice-evidence picture {
+      animation: v4c-practice-evidence-exit ease-in both;
+      animation-timeline: view();
+      animation-range: exit 35% exit 100%;
+    }
+  }
+}
+
+@keyframes v4c-practice-evidence-exit {
+  to {
+    opacity: 0.5;
+  }
+}
+
+.v4c-srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
