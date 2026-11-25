@@ -1,7 +1,12 @@
 .v4c-practice {
   --v4c-practice-accent: #9fe8f7;
   --v4c-practice-line: rgb(53 201 232 / 0.3);
+  --v4c-title-distance: 32px;
+  --v4c-title-duration: 720ms;
+  --v4c-media-clip-left: 0%;
+  --v4c-media-clip-right: 16%;
   background:
+    var(--v4c-chapter-edges),
     radial-gradient(ellipse at 78% 24%, rgb(53 201 232 / 0.07), transparent 55%),
     #0b1020;
   padding-inline: clamp(20px, 5.5vw, 88px);
@@ -225,42 +230,6 @@
 
   .v4c-practice-bridge .v4c-bridgeTitle {
     font-size: clamp(42px, 10vw, 60px);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  @supports (animation-timeline: view()) and (animation-range: entry 0% cover 20%) {
-    .v4c-practice :is(.v4c-eyebrow, h2, h3, .v4c-practice-copy, .v4c-practice-key > p, .v4c-practice-evidence figcaption, .v4c-practice-bridge) {
-      animation: v4c-editorial-in auto var(--v4c-enter-ease) both;
-      animation-timeline: view();
-      animation-range: entry 10% cover 19%;
-    }
-
-    .v4c-practice .v4c-practice-copy {
-      animation-range: entry 32% cover 24%;
-    }
-
-    .v4c-practice-key > [aria-hidden="true"] {
-      --v4c-enter-x: -12px;
-      --v4c-enter-y: 0px;
-      animation: v4c-editorial-in auto var(--v4c-enter-ease) both;
-      animation-timeline: view();
-      animation-range: entry 0% cover 14%;
-    }
-
-    .v4c-practice-evidence picture {
-      --v4c-enter-opacity: 0.55;
-      --v4c-enter-y: 18px;
-      animation: v4c-editorial-in auto var(--v4c-enter-ease) both;
-      animation-timeline: view();
-      animation-range: entry 0% entry 46%;
-    }
-
-    .v4c-practice-bridge .v4c-bridgeRule {
-      animation: v4c-rule-in auto var(--v4c-enter-ease) both;
-      animation-timeline: view();
-      animation-range: cover 0% cover 17%;
-    }
   }
 }
 

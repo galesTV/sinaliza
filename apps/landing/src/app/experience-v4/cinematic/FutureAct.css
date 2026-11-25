@@ -6,8 +6,11 @@
 }
 
 .v4c-future {
+  --v4c-title-distance: 40px;
+  --v4c-title-duration: 850ms;
   padding-inline: var(--v4c-future-gutter);
   background:
+    var(--v4c-chapter-edges),
     radial-gradient(ellipse at 76% 34%, rgb(105 87 232 / 0.18), transparent 60%),
     radial-gradient(ellipse at 94% 8%, rgb(53 201 232 / 0.07), transparent 40%),
     #0b1020;
@@ -215,39 +218,6 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  @supports (animation-timeline: view()) and (animation-range: entry 0% cover 20%) {
-    .v4c-future-intro > :is(.v4c-eyebrow, h2, p),
-    .v4c-future-invite > div:first-child > :is(h3, p),
-    .v4c-future-action:not(:focus-within) {
-      --v4c-enter-y: 20px;
-      animation: v4c-editorial-in auto var(--v4c-enter-ease) both;
-      animation-timeline: view();
-      animation-range: entry 0% cover 21%;
-    }
-
-    .v4c-future-intro > .v4c-future-copy {
-      animation-range: entry 30% cover 25%;
-    }
-
-    .v4c-future-invite > div:first-child > :is(h3, p),
-    .v4c-future-action:not(:focus-within) {
-      animation-range: entry 0% entry 100%;
-    }
-
-    .v4c-future-action:not(:focus-within) {
-      --v4c-enter-y: 12px;
-      animation-range: entry 35% entry 100%;
-    }
-
-    .v4c-future-field {
-      --v4c-enter-opacity: 0.64;
-      --v4c-enter-y: 0px;
-      animation: v4c-editorial-in auto var(--v4c-enter-ease) both;
-      animation-timeline: --v4c-future-field;
-      animation-range: entry 0% entry 74%;
-    }
-  }
-
   @supports (animation-timeline: view()) {
     .v4c-future-field {
       view-timeline-name: --v4c-future-field;

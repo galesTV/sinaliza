@@ -9,11 +9,11 @@ export function PracticeAct() {
       <div className="v4c-practice-inner">
         <div className="v4c-practice-opening">
           <header>
-            <p className="v4c-eyebrow">Ato 4 · A Prática</p>
-            <h2 id="v4c-act4-title" className="v4c-practice-title">
+            <p className="v4c-eyebrow" data-v4c-reveal="eyebrow">Ato 4 · A Prática</p>
+            <h2 id="v4c-act4-title" className="v4c-practice-title" data-v4c-reveal="title">
               Aprender também é <span>praticar.</span>
             </h2>
-            <p className="v4c-practice-copy">
+            <p className="v4c-practice-copy" data-v4c-reveal="copy">
               Explore movimentos e configurações da mão com auxílio da tecnologia.
             </p>
           </header>
@@ -29,8 +29,8 @@ export function PracticeAct() {
               />
             </div>
             <figcaption className="v4c-practice-key">
-              <span aria-hidden="true">21</span>
-              <p>
+              <span aria-hidden="true" data-v4c-reveal="landmarks">21</span>
+              <p data-v4c-reveal="copy">
                 <strong>21 pontos de referência</strong>
                 <br />
                 São referências geométricas da mão, não sinais de Libras.
@@ -46,16 +46,16 @@ export function PracticeAct() {
 
         <div className="v4c-practice-lab">
           <header>
-            <p className="v4c-eyebrow">Experimentação</p>
-            <h3 className="v4c-practice-heading">Observe. Experimente. Pratique.</h3>
-            <p className="v4c-practice-copy">
+            <p className="v4c-eyebrow" data-v4c-reveal="eyebrow">Experimentação</p>
+            <h3 className="v4c-practice-heading" data-v4c-reveal="title">Observe. Experimente. Pratique.</h3>
+            <p className="v4c-practice-copy" data-v4c-reveal="copy">
               O laboratório experimental permite acompanhar pontos de referência
               da mão em tempo real e explorar como a visão computacional pode
               apoiar experiências de aprendizagem.
             </p>
           </header>
           <figure className="v4c-practice-evidence">
-            <picture>
+            <picture data-v4c-reveal="screen">
               <source
                 media="(max-width: 599px)"
                 srcSet="/experience-v4/practice/lab-mobile.webp"
@@ -71,13 +71,13 @@ export function PracticeAct() {
                 unoptimized
               />
             </picture>
-            <figcaption>Laboratório de mãos · Recurso experimental.</figcaption>
+            <figcaption data-v4c-reveal="caption">Laboratório de mãos · Recurso experimental.</figcaption>
           </figure>
         </div>
 
         <div className="v4c-practice-close">
-          <h3 className="v4c-practice-heading">Tecnologia como apoio.</h3>
-          <p className="v4c-practice-copy">
+          <h3 className="v4c-practice-heading" data-v4c-reveal="title">Tecnologia como apoio.</h3>
+          <p className="v4c-practice-copy" data-v4c-reveal="copy">
             O rastreamento experimental de mãos não reconhece nem avalia a
             fluência em Libras. A tecnologia é um recurso complementar à
             aprendizagem.
@@ -85,9 +85,9 @@ export function PracticeAct() {
         </div>
 
         <p className="v4c-practice-bridge">
-          <span className="v4c-bridgeLabel">A seguir</span>
-          <span className="v4c-bridgeTitle">O Futuro</span>
-          <span className="v4c-bridgeRule" aria-hidden="true" />
+          <span className="v4c-bridgeLabel" data-v4c-reveal="eyebrow">A seguir</span>
+          <span className="v4c-bridgeTitle" data-v4c-reveal="title">O Futuro</span>
+          <span className="v4c-bridgeRule" data-v4c-reveal="rule" aria-hidden="true" />
         </p>
       </div>
     </section>

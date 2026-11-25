@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import "../Cinematic.css";
 import { CinematicHero } from "../CinematicHero";
+import { CinematicReveals } from "./CinematicReveals";
 import { LearningAct } from "./LearningAct";
 import { PracticeAct, PRACTICE_CANVAS_ID } from "./PracticeAct";
 import { CinematicFooter, FutureAct } from "./FutureAct";
@@ -15,7 +16,7 @@ export const metadata: Metadata = {
 
 function CinematicJourney() {
   return (
-    <main className="v4c-page">
+    <CinematicReveals>
       {/* The poster starts hidden so the live intro never flashes the formed
           hand; without scripting it is the static composition and must show. */}
       <noscript>
@@ -28,49 +29,49 @@ function CinematicJourney() {
         practiceCanvasId={PRACTICE_CANVAS_ID}
         connection={
           <div className="v4c-actInner">
-            <header className="v4c-actIntro v4c-reveal">
-              <p className="v4c-eyebrow">Ato 2 · A Conexão</p>
-              <h2 id="v4c-act2-title" className="v4c-actTitle">
+            <header className="v4c-actIntro">
+              <p className="v4c-eyebrow" data-v4c-reveal="eyebrow">Ato 2 · A Conexão</p>
+              <h2 id="v4c-act2-title" className="v4c-actTitle" data-v4c-reveal="title">
                 Uma língua.{" "}
                 <span className="v4c-titleAccent">
                   Novas possibilidades de conexão.
                 </span>
               </h2>
-              <p className="v4c-actText">
+              <p className="v4c-actText" data-v4c-reveal="copy">
                 A Língua Brasileira de Sinais tem estrutura e gramática
                 próprias. É vivida todos os dias pela comunidade surda
                 brasileira — e aprender Libras é um jeito de chegar mais perto.
               </p>
             </header>
 
-            <div className="v4c-actBlock v4c-reveal">
-              <h3 className="v4c-actHeading">Começar nem sempre é simples.</h3>
-              <p className="v4c-actText">
+            <div className="v4c-actBlock" data-v4c-reveal="rule">
+              <h3 className="v4c-actHeading" data-v4c-reveal="title">Começar nem sempre é simples.</h3>
+              <p className="v4c-actText" data-v4c-reveal="copy">
                 Quem quer aprender nem sempre encontra por onde começar, um
                 percurso organizado ou um espaço para praticar no próprio
                 ritmo.
               </p>
             </div>
 
-            <div className="v4c-actBlock v4c-reveal">
-              <h3 className="v4c-actHeading">
+            <div className="v4c-actBlock" data-v4c-reveal="rule">
+              <h3 className="v4c-actHeading" data-v4c-reveal="title">
                 Uma língua não se aprende apenas memorizando.
               </h3>
-              <p className="v4c-actText">
+              <p className="v4c-actText" data-v4c-reveal="copy">
                 Aprender Libras pede contexto, contato e prática. Nenhuma
                 plataforma substitui professores, intérpretes ou a convivência
                 com pessoas surdas.
               </p>
             </div>
 
-            <p className="v4c-actClosing v4c-reveal">
+            <p className="v4c-actClosing" data-v4c-reveal="title">
               O Sinaliza nasce para apoiar esse começo.
             </p>
 
-            <p className="v4c-actBridge v4c-reveal">
-              <span className="v4c-bridgeLabel">A seguir</span>
-              <span className="v4c-bridgeTitle">O Aprendizado</span>
-              <span className="v4c-bridgeRule" aria-hidden="true" />
+            <p className="v4c-actBridge">
+              <span className="v4c-bridgeLabel" data-v4c-reveal="eyebrow">A seguir</span>
+              <span className="v4c-bridgeTitle" data-v4c-reveal="title">O Aprendizado</span>
+              <span className="v4c-bridgeRule" data-v4c-reveal="rule" aria-hidden="true" />
             </p>
           </div>
         }
@@ -128,7 +129,7 @@ function CinematicJourney() {
       <LearningAct />
       <PracticeAct />
       <FutureAct />
-    </main>
+    </CinematicReveals>
   );
 }
 
