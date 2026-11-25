@@ -19,7 +19,9 @@ function CinematicJourney() {
       {/* The poster starts hidden so the live intro never flashes the formed
           hand; without scripting it is the static composition and must show. */}
       <noscript>
-        <style>{".v4c .v4c-poster { opacity: 1; }"}</style>
+        <style>{
+          ".v4c .v4c-poster, .v4c .v4c-hero, .v4c .v4c-note { opacity: 1; } .v4c .v4c-birth { display: none; }"
+        }</style>
       </noscript>
       <CinematicHero
         backdrop={<p className="v4c-ghost">Libras</p>}
