@@ -367,6 +367,10 @@ export function CinematicHero({
       else if (scenePaused) resumeScene();
     };
     window.addEventListener("scroll", onScroll, { passive: true });
+    const onWindowResize = () => {
+      if (playingPractice) schedule();
+    };
+    window.addEventListener("resize", onWindowResize, { passive: true });
 
     const resizeObserver = new ResizeObserver((entries) => {
       if (!entries.some(({ target }) => target === canvasHost)) return;
@@ -429,6 +433,7 @@ export function CinematicHero({
       disposed = true;
       window.cancelAnimationFrame(frame);
       window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onWindowResize);
       resizeObserver.disconnect();
       reducedObserver.disconnect();
       practiceHost?.removeAttribute("data-ready");
