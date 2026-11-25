@@ -99,10 +99,18 @@ export function CinematicHero({
     const hud = hudRef.current;
     if (hud) hud.hidden = !debug;
 
-    const staticBottom = root.getBoundingClientRect().bottom;
+    const hashTarget = window.location.hash
+      ? document.getElementById(decodeURIComponent(window.location.hash.slice(1)))
+      : null;
+    const anchor = hashTarget && !stage.contains(hashTarget) ? hashTarget : null;
     root.dataset.mode = reducedMotion ? "reduced" : "live";
-    if (!reducedMotion && staticBottom <= 0) {
-      window.scrollBy(0, root.getBoundingClientRect().bottom - staticBottom);
+    // Fragment navigation may still be heading for the static layout's
+    // offset, so land on the target once the pinned layout applies.
+    if (!reducedMotion && anchor) {
+      const land = () =>
+        anchor.scrollIntoView({ block: "start", behavior: "instant" });
+      land();
+      window.requestAnimationFrame(land);
     }
 
     const scene = new THREE.Scene();
@@ -115,7 +123,11 @@ export function CinematicHero({
     renderer.domElement.setAttribute("aria-hidden", "true");
     host.appendChild(renderer.domElement);
 
-    let environmentTarget: THREE.WebGLRenderTarget | null = null;
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    const environment = new RoomEnvironment();
+    const environmentTexture = pmrem.fromScene(environment, 0.04).texture;
+    scene.environment = environmentTexture;
+
     let hand: CinematicHand | null = null;
     let layout: CinematicLayout = layoutFor(window.innerWidth);
     let pixelRatio = 1;
@@ -233,14 +245,6 @@ export function CinematicHero({
     const render = () => {
       if (!hand) return;
       if (scenePaused) return;
-      if (!environmentTarget) {
-        const pmrem = new THREE.PMREMGenerator(renderer);
-        const environment = new RoomEnvironment();
-        environmentTarget = pmrem.fromScene(environment, 0.04);
-        scene.environment = environmentTarget.texture;
-        environment.dispose();
-        pmrem.dispose();
-      }
       const start = performance.now();
       hand.update(current, layout, camera, viewWidth, viewHeight);
       renderer.render(scene, camera);
@@ -374,7 +378,8 @@ export function CinematicHero({
       visibilityObserver.disconnect();
       renderer.domElement.removeEventListener("webglcontextlost", onContextLost);
       hand?.dispose();
-      environmentTarget?.dispose();
+      environmentTexture.dispose();
+      pmrem.dispose();
       renderer.dispose();
       renderer.domElement.remove();
       setScenePaused(false);
