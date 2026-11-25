@@ -20,7 +20,7 @@ function CinematicJourney() {
           hand; without scripting it is the static composition and must show. */}
       <noscript>
         <style>{
-          ".v4c .v4c-poster, .v4c .v4c-hero, .v4c .v4c-note { opacity: 1; } .v4c .v4c-birth { display: none; }"
+          ".v4c:not([data-mode]) .v4c-poster, .v4c:not([data-mode]) .v4c-hero, .v4c:not([data-mode]) .v4c-note, .v4c:not([data-mode]) .v4c-ghost { opacity: 1; } .v4c:not([data-mode]) .v4c-birth { display: none; }"
         }</style>
       </noscript>
       <CinematicHero

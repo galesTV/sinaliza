@@ -89,18 +89,9 @@
   height: 100%;
 }
 
-/* Hidden by default: in the live intro the hand starts unformed, so the
-   fully-formed poster must never paint before JavaScript runs. The poster
-   only appears when scripting is disabled (noscript rule in the page) or
-   when the WebGL path fails and the static composition takes over. */
 .v4c-poster {
-  opacity: 0;
   background: url("/experience-v4/cinematic-poster.webp") 94% 50% / auto 84% no-repeat;
   transition: opacity 500ms ease;
-}
-
-.v4c[data-canvas="failed"] .v4c-poster {
-  opacity: 1;
 }
 
 .v4c[data-canvas="ready"] .v4c-poster,
@@ -419,25 +410,21 @@
    any successful boot (live, reduced or static) cancels them immediately.
    Reduced-motion users are excluded: their static composition never swaps. */
 @media (prefers-reduced-motion: no-preference) {
-  .v4c {
+  .v4c:not([data-mode]) {
     --v4c-p: 0;
   }
 
-  .v4c-birth {
+  .v4c:not([data-mode]) .v4c-birth {
     display: block;
     animation: v4c-birth-backup 0s linear 5s forwards;
   }
 
-  .v4c-hero,
-  .v4c-note {
+  .v4c:not([data-mode]) .v4c-hero,
+  .v4c:not([data-mode]) .v4c-note,
+  .v4c:not([data-mode]) .v4c-poster,
+  .v4c:not([data-mode]) .v4c-ghost {
     opacity: 0;
     animation: v4c-copy-backup 0s linear 5s forwards;
-  }
-
-  .v4c[data-mode] .v4c-birth,
-  .v4c[data-mode] .v4c-hero,
-  .v4c[data-mode] .v4c-note {
-    animation: none;
   }
 }
 
@@ -452,17 +439,6 @@
     opacity: 0;
     visibility: hidden;
   }
-}
-
-/* The static composition after a WebGL failure must not inherit the
-   pre-boot hiding above. */
-.v4c[data-canvas="failed"] .v4c-hero,
-.v4c[data-canvas="failed"] .v4c-note {
-  opacity: 1;
-}
-
-.v4c[data-canvas="failed"] .v4c-birth {
-  display: none;
 }
 
 /* Blocks rise as they enter the window; visible by default everywhere else. */
