@@ -5,6 +5,7 @@
    from the single --v4c-p progress written by CinematicHero. */
 
 .v4c-page {
+  --v4c-enter-ease: cubic-bezier(0.22, 1, 0.36, 1);
   color: #f4f6fc;
   background: #0b1020;
   overflow-x: clip;
@@ -363,6 +364,10 @@
   text-wrap: balance;
 }
 
+.v4c-actTitle .v4c-titleAccent {
+  color: #c7c0ff;
+}
+
 .v4c-actHeading {
   margin: 0;
   font-family: var(--font-display), sans-serif;
@@ -383,7 +388,18 @@
 
 .v4c-actBlock {
   padding-top: 26px;
-  border-top: 1px solid rgba(53, 201, 232, 0.4);
+  position: relative;
+  border-top: 1px solid rgb(199 192 255 / 0.16);
+}
+
+.v4c-actBlock::before {
+  position: absolute;
+  inset: -1px auto auto 0;
+  width: min(24%, 108px);
+  height: 1px;
+  background: #c7c0ff;
+  content: "";
+  transform-origin: left;
 }
 
 .v4c-actClosing {
@@ -401,6 +417,10 @@
   display: grid;
   gap: 10px;
   margin: 0;
+}
+
+.v4c-actBridge .v4c-bridgeRule {
+  background: linear-gradient(90deg, rgb(199 192 255 / 0.72), rgb(53 201 232 / 0.24));
 }
 
 /* Pre-boot state for the cinematic path: before hydration only the intro
@@ -441,26 +461,53 @@
   }
 }
 
-/* Blocks rise as they enter the window; visible by default everywhere else. */
 @media (prefers-reduced-motion: no-preference) {
-  @supports (animation-timeline: view()) {
-    .v4c[data-mode="live"] .v4c-reveal {
-      animation: v4c-reveal linear both;
+  @supports (animation-timeline: view()) and (animation-range: entry 0% cover 20%) {
+    .v4c[data-mode="live"] :is(.v4c-actIntro, .v4c-actBlock).v4c-reveal {
+      view-timeline-name: --v4c-connection-beat;
+    }
+
+    .v4c[data-mode="live"] .v4c-reveal > :is(.v4c-eyebrow, h2, h3, .v4c-actText) {
+      --v4c-enter-y: 16px;
+      animation: v4c-editorial-in auto var(--v4c-enter-ease) both;
+      animation-timeline: --v4c-connection-beat;
+      animation-range: entry 0% cover 16%;
+    }
+
+    .v4c[data-mode="live"] .v4c-reveal > .v4c-actText {
+      animation-range: cover 8% cover 25%;
+    }
+
+    .v4c[data-mode="live"] :is(.v4c-actClosing, .v4c-actBridge).v4c-reveal {
+      --v4c-enter-y: 20px;
+      animation: v4c-editorial-in auto var(--v4c-enter-ease) both;
       animation-timeline: view();
-      animation-range: entry 0% cover 28%;
+      animation-range: entry 0% cover 24%;
+    }
+
+    .v4c[data-mode="live"] .v4c-actBlock.v4c-reveal::before {
+      animation: v4c-rule-in auto var(--v4c-enter-ease) both;
+      animation-timeline: --v4c-connection-beat;
+      animation-range: entry 0% cover 18%;
     }
   }
 }
 
-@keyframes v4c-reveal {
+@keyframes v4c-editorial-in {
   from {
-    opacity: 0;
-    transform: translate3d(0, 44px, 0);
+    opacity: var(--v4c-enter-opacity, 0.72);
+    translate: var(--v4c-enter-x, 0px) var(--v4c-enter-y, 12px);
   }
+
   to {
     opacity: 1;
-    transform: none;
+    translate: none;
   }
+}
+
+@keyframes v4c-rule-in {
+  from { scale: 0.16 1; }
+  to { scale: 1 1; }
 }
 
 /* ---------- Debug HUD (?debug) ---------- */

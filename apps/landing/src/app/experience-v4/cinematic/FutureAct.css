@@ -8,7 +8,8 @@
 .v4c-future {
   padding-inline: var(--v4c-future-gutter);
   background:
-    radial-gradient(ellipse at 80% 38%, rgba(105, 87, 232, 0.14), transparent 57%),
+    radial-gradient(ellipse at 76% 34%, rgb(105 87 232 / 0.18), transparent 60%),
+    radial-gradient(ellipse at 94% 8%, rgb(53 201 232 / 0.07), transparent 40%),
     #0b1020;
 }
 
@@ -24,6 +25,7 @@
   align-items: center;
   min-height: clamp(540px, 51vw, 760px);
   border-bottom: 1px solid rgba(159, 232, 247, 0.23);
+  border-image: linear-gradient(90deg, rgb(244 246 252 / 0.16), rgb(159 232 247 / 0.52) 68%, transparent) 1;
   padding-block: clamp(42px, 6vw, 96px);
 }
 
@@ -213,6 +215,39 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) and (animation-range: entry 0% cover 20%) {
+    .v4c-future-intro > :is(.v4c-eyebrow, h2, p),
+    .v4c-future-invite > div:first-child > :is(h3, p),
+    .v4c-future-action:not(:focus-within) {
+      --v4c-enter-y: 20px;
+      animation: v4c-editorial-in auto var(--v4c-enter-ease) both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 21%;
+    }
+
+    .v4c-future-intro > .v4c-future-copy {
+      animation-range: entry 30% cover 25%;
+    }
+
+    .v4c-future-invite > div:first-child > :is(h3, p),
+    .v4c-future-action:not(:focus-within) {
+      animation-range: entry 0% entry 100%;
+    }
+
+    .v4c-future-action:not(:focus-within) {
+      --v4c-enter-y: 12px;
+      animation-range: entry 35% entry 100%;
+    }
+
+    .v4c-future-field {
+      --v4c-enter-opacity: 0.64;
+      --v4c-enter-y: 0px;
+      animation: v4c-editorial-in auto var(--v4c-enter-ease) both;
+      animation-timeline: --v4c-future-field;
+      animation-range: entry 0% entry 74%;
+    }
+  }
+
   @supports (animation-timeline: view()) {
     .v4c-future-field {
       view-timeline-name: --v4c-future-field;

@@ -1,7 +1,9 @@
 .v4c-learning {
   position: relative;
   padding-inline: clamp(20px, 5.5vw, 88px);
-  background: linear-gradient(180deg, #0b1020, #10172b 26%, #0b1020 88%);
+  background:
+    radial-gradient(ellipse at 85% 26%, rgb(105 87 232 / 0.13), transparent 55%),
+    linear-gradient(180deg, #0b1020, #10172b 26%, #0b1020 88%);
 }
 
 .v4c-learning-inner {
@@ -13,8 +15,35 @@
 .v4c-learning-dashboard,
 .v4c-learning-moment,
 .v4c-learning-bridge {
-  border-top: 1px solid rgba(159, 232, 247, 0.24);
+  border-top: 1px solid rgb(199 192 255 / 0.21);
   padding-top: clamp(28px, 4.5vw, 62px);
+}
+
+.v4c-learning-dashboard,
+.v4c-learning-moment {
+  position: relative;
+}
+
+.v4c-learning-dashboard::before,
+.v4c-learning-moment::before {
+  position: absolute;
+  inset: -1px auto auto 0;
+  width: min(30%, 240px);
+  height: 1px;
+  background: linear-gradient(90deg, #9fe8f7, #6957e8 64%, transparent);
+  content: "";
+  transform-origin: left;
+}
+
+.v4c-learning-dashboard::after,
+.v4c-learning-moment::after {
+  position: absolute;
+  inset: -3px auto auto 0;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #9fe8f7;
+  content: "";
 }
 
 .v4c-learning-opening,
@@ -71,9 +100,10 @@
 .v4c-learning-screen {
   display: block;
   overflow: hidden;
-  border: 1px solid rgba(159, 232, 247, 0.24);
+  border: 1px solid rgb(199 192 255 / 0.28);
   border-radius: 6px;
   background: #10172b;
+  box-shadow: 0 16px 44px rgb(6 9 18 / 0.32);
 }
 
 .v4c-learning-screen img {
@@ -83,10 +113,21 @@
 }
 
 .v4c-learning-caption {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
   margin-top: 12px;
   color: #b5c1d7;
   font-size: 0.8125rem;
   line-height: 1.5;
+}
+
+.v4c-learning-caption::before {
+  align-self: center;
+  flex: 0 0 14px;
+  height: 1px;
+  background: #9fe8f7;
+  content: "";
 }
 
 .v4c-learning-dashboard .v4c-learning-figure {
@@ -133,6 +174,22 @@
   text-wrap: wrap;
 }
 
+.v4c-learning-bridge .v4c-bridgeRule {
+  background: linear-gradient(90deg, rgb(159 232 247 / 0.66), rgb(105 87 232 / 0.22));
+}
+
+@media (min-width: 901px) {
+  .v4c-learning-modules::before {
+    inset-inline: auto 0;
+    background: linear-gradient(270deg, #9fe8f7, #6957e8 64%, transparent);
+    transform-origin: right;
+  }
+
+  .v4c-learning-modules::after {
+    inset-inline: auto 0;
+  }
+}
+
 @media (max-width: 900px) {
   .v4c-learning-opening,
   .v4c-learning-moment {
@@ -176,23 +233,44 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  @supports (animation-timeline: view()) {
-    .v4c-learning-figure {
-      animation: v4c-learning-in ease-out both;
+  @supports (animation-timeline: view()) and (animation-range: entry 0% cover 20%) {
+    .v4c-learning :is(.v4c-learning-opening > div, .v4c-learning-intro > :is(.v4c-eyebrow, h3), .v4c-learning-copy, .v4c-learning-screen, .v4c-learning-caption, .v4c-learning-bridge) {
+      animation: v4c-editorial-in auto var(--v4c-enter-ease) both;
       animation-timeline: view();
-      animation-range: entry 0% entry 52%;
+      animation-range: entry 0% cover 18%;
+    }
+
+    .v4c-learning .v4c-learning-copy {
+      animation-range: entry 30% cover 24%;
+    }
+
+    .v4c-learning .v4c-learning-screen {
+      --v4c-enter-opacity: 0.52;
+      --v4c-enter-y: 24px;
+      animation-range: entry 0% entry 60%;
+    }
+
+    .v4c-learning .v4c-learning-caption {
+      animation-range: entry 0% entry 100%;
+    }
+
+    .v4c-learning-dashboard::before,
+    .v4c-learning-moment::before {
+      animation: v4c-rule-in auto var(--v4c-enter-ease) both;
+      animation-timeline: view();
+      animation-range: cover 0% cover 19%;
     }
   }
 }
 
-@keyframes v4c-learning-in {
-  from {
-    opacity: 0.9;
-    transform: translateY(16px);
+@media (min-width: 901px) and (prefers-reduced-motion: no-preference) {
+  .v4c-learning-modules .v4c-learning-screen {
+    --v4c-enter-x: -18px;
+    --v4c-enter-y: 10px;
   }
 
-  to {
-    opacity: 1;
-    transform: none;
+  .v4c-learning-lesson .v4c-learning-screen {
+    --v4c-enter-x: 18px;
+    --v4c-enter-y: 10px;
   }
 }
