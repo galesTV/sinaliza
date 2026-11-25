@@ -89,9 +89,18 @@
   height: 100%;
 }
 
+/* Hidden by default: in the live intro the hand starts unformed, so the
+   fully-formed poster must never paint before JavaScript runs. The poster
+   only appears when scripting is disabled (noscript rule in the page) or
+   when the WebGL path fails and the static composition takes over. */
 .v4c-poster {
+  opacity: 0;
   background: url("/experience-v4/cinematic-poster.webp") 94% 50% / auto 84% no-repeat;
   transition: opacity 500ms ease;
+}
+
+.v4c[data-canvas="failed"] .v4c-poster {
+  opacity: 1;
 }
 
 .v4c[data-canvas="ready"] .v4c-poster,

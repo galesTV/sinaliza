@@ -16,6 +16,11 @@ export const metadata: Metadata = {
 function CinematicJourney() {
   return (
     <main className="v4c-page">
+      {/* The poster starts hidden so the live intro never flashes the formed
+          hand; without scripting it is the static composition and must show. */}
+      <noscript>
+        <style>{".v4c .v4c-poster { opacity: 1; }"}</style>
+      </noscript>
       <CinematicHero
         backdrop={<p className="v4c-ghost">Libras</p>}
         practiceCanvasId={PRACTICE_CANVAS_ID}
