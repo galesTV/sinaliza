@@ -85,7 +85,12 @@
   opacity: .32;
 }
 
-.v4c-future-signal {
+.v4c-future-energy {
+  visibility: hidden;
+  opacity: 0;
+}
+
+.v4c-future-energy :is(path, circle) {
   opacity: 0;
 }
 
@@ -223,34 +228,105 @@
 
 @media (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: view()) {
-    .v4c-future-field {
+    .v4c-future-field[data-scroll-formation] {
       view-timeline-name: --v4c-future-field;
     }
 
-    .v4c-future-formation,
-    .v4c-future-thread,
-    .v4c-future-depth {
+    .v4c-future-field[data-scroll-formation] .v4c-future-branches {
+      mask: url(#v4c-future-branch-mask);
+    }
+
+    .v4c-future-field[data-scroll-formation] :is(
+      .v4c-future-formation,
+      .v4c-future-depth,
+      .v4c-future-thread,
+      .v4c-future-front,
+      .v4c-future-node
+    ) {
       animation-duration: auto;
       animation-fill-mode: both;
-      animation-timing-function: cubic-bezier(.22, 1, .36, 1);
+      animation-timing-function: linear;
       animation-timeline: --v4c-future-field;
     }
 
-    .v4c-future-formation {
+    .v4c-future-field[data-scroll-formation] .v4c-future-formation {
       transform-origin: 58% 48%;
       animation-name: v4c-future-settle;
       animation-range: entry 0% entry 100%;
     }
 
-    .v4c-future-thread {
-      animation-name: v4c-future-connect;
-      animation-range: entry 20% entry 100%;
-    }
-
-    .v4c-future-depth {
+    .v4c-future-field[data-scroll-formation] .v4c-future-depth {
       animation-name: v4c-future-drift;
       animation-range: entry 0% entry 100%;
     }
+
+    .v4c-future-field[data-scroll-formation] .v4c-future-thread {
+      animation-name: v4c-future-connect;
+      animation-range: entry 5% entry 94%;
+    }
+
+    .v4c-future-field[data-scroll-formation] .v4c-future-front {
+      transform-box: fill-box;
+      transform-origin: left center;
+      animation-name: v4c-future-reveal-branches;
+      animation-range: entry 6% entry 100%;
+    }
+
+    .v4c-future-field[data-scroll-formation] .v4c-future-node {
+      animation-name: v4c-future-arrive;
+      animation-range: entry clamp(0%, var(--v4c-arrival) - 2%, 100%)
+        entry min(100%, var(--v4c-arrival) + 8%);
+    }
+  }
+
+  .v4c-future-field[data-ambient] {
+    --v4c-ambient-play: paused;
+    --v4c-live-delay: 2.95s;
+    --v4c-flow-period: 6.8s;
+  }
+
+  .v4c-future-field[data-ambient="running"] {
+    --v4c-ambient-play: running;
+  }
+
+  .v4c-future-field[data-ambient="running"] .v4c-future-energy {
+    visibility: visible;
+    opacity: 1;
+    transition: opacity 180ms ease-out;
+  }
+
+  .v4c-future-field[data-ambient] :is(.v4c-future-halo, .v4c-future-echo) {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  .v4c-future-field[data-ambient] .v4c-future-halo {
+    animation: v4c-future-breathe var(--v4c-breath-period) ease-in-out
+      calc(var(--v4c-live-delay) + var(--v4c-breath-delay)) infinite var(--v4c-ambient-play);
+  }
+
+  .v4c-future-field[data-ambient] .v4c-future-atmosphere {
+    animation: v4c-future-depth-light 13s ease-in-out var(--v4c-live-delay)
+      infinite var(--v4c-ambient-play);
+  }
+
+  .v4c-future-field[data-ambient] .v4c-future-activation {
+    stroke-dasharray: .18 1.9;
+    animation: v4c-future-activate var(--v4c-activation-duration) linear
+      both var(--v4c-ambient-play);
+  }
+
+  .v4c-future-field[data-ambient] .v4c-future-flow {
+    stroke-dasharray: .14 1.9;
+    animation: v4c-future-travel var(--v4c-flow-period) linear var(--v4c-live-delay)
+      infinite var(--v4c-ambient-play);
+  }
+
+  .v4c-future-field[data-ambient] .v4c-future-echo {
+    animation:
+      v4c-future-ignite 880ms ease-out var(--v4c-ignite-at) var(--v4c-ambient-play),
+      v4c-future-echo var(--v4c-flow-period) ease-out calc(var(--v4c-live-delay) + var(--v4c-echo-at))
+        infinite var(--v4c-ambient-play);
   }
 }
 
@@ -264,54 +340,52 @@
   to { stroke-dasharray: 1; stroke-dashoffset: 0; }
 }
 
+@keyframes v4c-future-reveal-branches {
+  from { transform: scaleX(0); }
+  to { transform: none; }
+}
+
+@keyframes v4c-future-arrive {
+  0% { opacity: 0; }
+  42% { opacity: .94; }
+  100% { opacity: 1; }
+}
+
 @keyframes v4c-future-drift {
   from { transform: translate(-12px, 10px); }
   to { transform: none; }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .v4c-future-field[data-ambient] {
-    --v4c-ambient-play: paused;
-  }
+@keyframes v4c-future-activate {
+  0% { opacity: 0; stroke-dashoffset: .18; }
+  12%, 81% { opacity: .92; }
+  100% { opacity: 0; stroke-dashoffset: -1; }
+}
 
-  .v4c-future-field[data-ambient="running"] {
-    --v4c-ambient-play: running;
-  }
-
-  .v4c-future-field[data-ambient] .v4c-future-halo-near {
-    animation: v4c-future-breathe 10.8s ease-in-out .4s infinite var(--v4c-ambient-play);
-  }
-
-  .v4c-future-field[data-ambient] .v4c-future-halo-center {
-    animation: v4c-future-breathe 13.4s ease-in-out 2s infinite var(--v4c-ambient-play);
-  }
-
-  .v4c-future-field[data-ambient] .v4c-future-halo-far {
-    animation: v4c-future-breathe 15.2s ease-in-out 3.1s infinite var(--v4c-ambient-play);
-  }
-
-  .v4c-future-field[data-ambient] .v4c-future-atmosphere {
-    animation: v4c-future-depth-light 17s ease-in-out infinite var(--v4c-ambient-play);
-  }
-
-  .v4c-future-field[data-ambient] .v4c-future-signal {
-    stroke-dasharray: .1 1.9;
-    animation: v4c-future-travel 13s linear infinite var(--v4c-ambient-play);
-  }
+@keyframes v4c-future-ignite {
+  0% { opacity: 0; transform: scale(.85); }
+  30% { opacity: .84; }
+  100% { opacity: 0; transform: scale(1.4); }
 }
 
 @keyframes v4c-future-breathe {
-  0%, 100% { opacity: 1; }
-  50% { opacity: .68; }
+  0%, 100% { opacity: 1; transform: none; }
+  50% { opacity: .72; transform: scale(1.24); }
 }
 
 @keyframes v4c-future-depth-light {
   0%, 100% { opacity: 1; }
-  50% { opacity: .84; }
+  50% { opacity: .76; }
 }
 
 @keyframes v4c-future-travel {
-  0%, 13% { opacity: 0; stroke-dashoffset: .1; }
-  18%, 29% { opacity: .64; }
-  34%, 100% { opacity: 0; stroke-dashoffset: -1; }
+  0% { opacity: 0; stroke-dashoffset: .14; }
+  5%, 27% { opacity: .82; }
+  33%, 100% { opacity: 0; stroke-dashoffset: -1; }
+}
+
+@keyframes v4c-future-echo {
+  0%, 100% { opacity: 0; transform: none; }
+  3% { opacity: .58; }
+  15% { opacity: 0; transform: scale(1.23); }
 }

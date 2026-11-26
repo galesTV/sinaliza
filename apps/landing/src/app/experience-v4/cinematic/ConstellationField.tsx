@@ -9,11 +9,21 @@ export function ConstellationField({ children }: { children: ReactNode }) {
     const field = fieldRef.current;
     const stars = field?.querySelector("svg");
     const formation = stars?.querySelector(".v4c-future-formation");
-    if (!field || !stars || !formation || typeof IntersectionObserver === "undefined") return;
+    if (
+      !field || !stars || !formation ||
+      typeof IntersectionObserver === "undefined" ||
+      typeof ResizeObserver === "undefined" ||
+      typeof CSSAnimation === "undefined"
+    ) return;
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     const hasViewTimeline = CSS.supports("animation-timeline", "view()");
+    if (hasViewTimeline) field.dataset.scrollFormation = "";
     let visible = false;
+
+    const pauseAmbient = () => {
+      if (field.dataset.ambient === "running") field.dataset.ambient = "paused";
+    };
 
     const syncAmbient = () => {
       if (reducedMotion.matches) {
@@ -21,15 +31,21 @@ export function ConstellationField({ children }: { children: ReactNode }) {
         return;
       }
 
-      if (!visible || document.hidden) {
-        if (field.dataset.ambient === "running") field.dataset.ambient = "paused";
+      if (document.hidden || (!visible && !field.dataset.ambient)) {
+        pauseAmbient();
         return;
       }
 
       const { top, height, bottom } = field.getBoundingClientRect();
       const viewportHeight = document.documentElement.clientHeight;
-      if (top >= viewportHeight || bottom <= 0) {
-        if (field.dataset.ambient === "running") field.dataset.ambient = "paused";
+      const entryEnd = Math.max(0, viewportHeight - height);
+      // A shallow rewind pauses the current cue. Only a substantial rewind arms a new one.
+      if (hasViewTimeline && top > entryEnd + Math.min(96, height * 0.18)) {
+        delete field.dataset.ambient;
+        return;
+      }
+      if (!visible || top >= viewportHeight || bottom <= 0) {
+        pauseAmbient();
         return;
       }
 
@@ -38,14 +54,14 @@ export function ConstellationField({ children }: { children: ReactNode }) {
         (animation) => animation instanceof CSSAnimation && animation.animationName === "v4c-future-settle",
       ) : undefined;
       const forming = hasViewTimeline && (
-        top > Math.max(0, viewportHeight - height) ||
+        top > entryEnd ||
         (settle && settle.effect?.getComputedTiming().progress !== 1)
       );
       const revealing = stars.dataset.v4cRevealState === "pending" ||
         stars.getAnimations().some(({ playState }) => playState === "running" || playState === "paused");
 
       if (forming || revealing) {
-        delete field.dataset.ambient;
+        pauseAmbient();
       } else if (field.dataset.ambient !== "running") {
         field.dataset.ambient = "running";
       }
@@ -78,6 +94,7 @@ export function ConstellationField({ children }: { children: ReactNode }) {
       document.removeEventListener("visibilitychange", syncAmbient);
       reducedMotion.removeEventListener("change", syncAmbient);
       delete field.dataset.ambient;
+      delete field.dataset.scrollFormation;
     };
   }, []);
 

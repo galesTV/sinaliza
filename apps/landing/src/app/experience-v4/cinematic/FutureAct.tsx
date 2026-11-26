@@ -1,4 +1,5 @@
 import Image from "next/image";
+import type { CSSProperties } from "react";
 import { PWA_URL } from "../../lib/site";
 import { ConstellationField } from "./ConstellationField";
 import "./FutureAct.css";
@@ -11,6 +12,34 @@ const nodes = [
   [691, 170, 2.3], [737, 257, 3.6], [766, 112, 4.4], [807, 191, 2.6],
   [849, 145, 2.4],
 ] as const;
+
+function route(indices: readonly number[]) {
+  let distance = 0;
+  const distances = indices.map((index, step) => {
+    if (step > 0) {
+      const [x, y] = nodes[index];
+      const [previousX, previousY] = nodes[indices[step - 1]];
+      distance += Math.hypot(x - previousX, y - previousY);
+    }
+    return distance;
+  });
+  return {
+    path: "M" + indices.map((index) => nodes[index].slice(0, 2).join(" ")).join(" "),
+    progress: new Map(indices.map((index, step) => [index, distances[step] / distance])),
+  };
+}
+
+const thread = route([0, 1, 3, 4, 6, 7, 10, 13, 14, 17, 19, 20]);
+const flow = route([4, 6, 7, 10, 13, 14, 17, 19]);
+const halos = [[4, 31], [10, 56], [14, 26], [18, 30]] as const;
+const activationDuration = 2200;
+const flowDuration = 2244;
+
+function revealAt(index: number) {
+  const progress = thread.progress.get(index);
+  const arrival = progress === undefined ? 6 + 94 * nodes[index][0] / 925 : 5 + 89 * progress;
+  return { "--v4c-arrival": `${arrival.toFixed(2)}%` } as CSSProperties;
+}
 
 function Constellation() {
   return (
@@ -28,6 +57,13 @@ function Constellation() {
             <stop offset=".26" stopColor="#35c9e8" stopOpacity=".32" />
             <stop offset="1" stopColor="#4585ea" stopOpacity="0" />
           </radialGradient>
+          <linearGradient id="v4c-future-front">
+            <stop offset=".94" stopColor="white" />
+            <stop offset="1" stopColor="white" stopOpacity="0" />
+          </linearGradient>
+          <mask id="v4c-future-branch-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="980" height="560">
+            <rect className="v4c-future-front" width="980" height="560" fill="url(#v4c-future-front)" />
+          </mask>
         </defs>
         <g className="v4c-future-depth" fill="none" stroke="#9693f9">
           <g className="v4c-future-atmosphere">
@@ -39,6 +75,7 @@ function Constellation() {
         </g>
         <g className="v4c-future-formation">
           <path
+            className="v4c-future-branches"
             d="M95 436 162 370 221 467 306 415 270 334 162 370M270 334 338 264 416 290 378 360 306 415 474 343 433 185 338 264M433 185 571 166 520 268 416 290 474 343 548 385 666 387 599 322 548 385M599 322 632 237 571 166 691 170 766 112 807 191 849 145M766 112 737 257 632 237 691 170M807 191 737 257 666 387"
             fill="none"
             stroke="url(#v4c-future-light)"
@@ -46,7 +83,7 @@ function Constellation() {
           />
           <path
             className="v4c-future-thread"
-            d="M95 436 162 370 270 334 306 415 378 360 416 290 520 268 599 322 632 237 737 257 807 191 849 145"
+            d={thread.path}
             pathLength="1"
             fill="none"
             stroke="url(#v4c-future-light)"
@@ -54,33 +91,58 @@ function Constellation() {
             strokeLinecap="round"
             strokeLinejoin="round"
           />
-          <path
-            className="v4c-future-signal"
-            d="M416 290 520 268 599 322 632 237 737 257 807 191"
-            pathLength="1"
-            fill="none"
-            stroke="#a1f3ff"
-            strokeWidth="2.4"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
           <g fill="url(#v4c-future-halo)">
-            <circle className="v4c-future-halo-near" cx="306" cy="415" r="31" />
-            <circle className="v4c-future-halo-center" cx="520" cy="268" r="56" />
-            <circle cx="632" cy="237" r="26" />
-            <circle className="v4c-future-halo-far" cx="766" cy="112" r="30" />
-          </g>
-          <g fill="none" stroke="#9de4ff">
-            <circle cx="520" cy="268" r="18" opacity=".65" />
-            <circle cx="520" cy="268" r="29" opacity=".36" strokeDasharray="2 6" />
-            <circle cx="306" cy="415" r="12" opacity=".42" />
-          </g>
-          <g fill="url(#v4c-future-light)">
-            {nodes.map(([x, y, radius]) => (
-              <circle key={x} cx={x} cy={y} r={radius} />
+            {halos.map(([node, radius], index) => (
+              <g key={node} className="v4c-future-node" style={revealAt(node)}>
+                <circle
+                  className="v4c-future-halo"
+                  cx={nodes[node][0]} cy={nodes[node][1]} r={radius}
+                  style={{ "--v4c-breath-period": `${5.8 + index * 0.9}s`, "--v4c-breath-delay": `${index * 0.41}s` } as CSSProperties}
+                />
+              </g>
             ))}
           </g>
-          <circle cx="520" cy="268" r="3.5" fill="#f4f6fc" />
+          <g fill="none" stroke="#9de4ff">
+            <g className="v4c-future-node" style={revealAt(10)}>
+              <circle cx="520" cy="268" r="18" opacity=".65" />
+              <circle cx="520" cy="268" r="29" opacity=".36" strokeDasharray="2 6" />
+            </g>
+            <g className="v4c-future-node" style={revealAt(4)}>
+              <circle cx="306" cy="415" r="12" opacity=".42" />
+            </g>
+          </g>
+          <g fill="url(#v4c-future-light)">
+            {nodes.map(([x, y, radius], index) => (
+              <circle key={x} className="v4c-future-node" style={revealAt(index)} cx={x} cy={y} r={radius} />
+            ))}
+          </g>
+          <circle className="v4c-future-node" style={revealAt(10)} cx="520" cy="268" r="3.5" fill="#f4f6fc" />
+          <g
+            className="v4c-future-energy"
+            style={{ "--v4c-activation-duration": `${activationDuration}ms` } as CSSProperties}
+          >
+            <g fill="none" stroke="#b6f4ff" strokeLinecap="round" strokeLinejoin="round">
+              <path className="v4c-future-activation" d={thread.path} pathLength="1" strokeWidth="3.5" />
+              <path className="v4c-future-flow" d={flow.path} pathLength="1" strokeWidth="3" />
+            </g>
+            <g fill="url(#v4c-future-halo)">
+              {halos.flatMap(([node, radius]) => {
+                const arrival = thread.progress.get(node);
+                const repeat = flow.progress.get(node);
+                if (arrival === undefined || repeat === undefined) return [];
+                return (
+                  <circle
+                    key={node} className="v4c-future-echo"
+                    cx={nodes[node][0]} cy={nodes[node][1]} r={radius}
+                    style={{
+                      "--v4c-ignite-at": `${Math.round(arrival * activationDuration)}ms`,
+                      "--v4c-echo-at": `${Math.round(repeat * flowDuration)}ms`,
+                    } as CSSProperties}
+                  />
+                );
+              })}
+            </g>
+          </g>
         </g>
       </svg>
     </ConstellationField>
