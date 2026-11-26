@@ -121,6 +121,9 @@ export interface LessonImageMedia {
   src: string;
   /** Alternative text describing what the image shows. */
   alt: string;
+  /** Intrinsic dimensions reserve the correct layout box before the asset loads. */
+  width?: number;
+  height?: number;
 }
 
 export type LessonMedia = LessonVideoMedia | LessonImageMedia;
@@ -487,8 +490,17 @@ function validateExercise(exercise: LessonExercise): string[] {
 export function validateLessonMedia(media: LessonMedia): string[] {
   const problems: string[] = [];
   if (!media.src.trim()) problems.push("missing media src");
-  if (media.type === "image" && !media.alt.trim())
-    problems.push("image: missing alt text");
+  if (media.type === "image") {
+    if (!media.alt.trim()) problems.push("image: missing alt text");
+    if ((media.width == null) !== (media.height == null))
+      problems.push("image: width and height must be recorded together");
+    if (
+      (media.width != null && (!Number.isInteger(media.width) || media.width <= 0)) ||
+      (media.height != null &&
+        (!Number.isInteger(media.height) || media.height <= 0))
+    )
+      problems.push("image: dimensions must be positive integers");
+  }
   if (media.type === "video" && media.captions) {
     const { src, srclang, label } = media.captions;
     if (!src.trim() || !src.endsWith(".vtt"))
@@ -804,6 +816,8 @@ export const visualExerciseDemo: LessonContent = {
                 type: "image",
                 src: "/media/fixtures/shape-triangle.svg",
                 alt: "Forma geométrica com três lados e três vértices.",
+                width: 320,
+                height: 240,
               },
               attribution: syntheticAttribution,
             },
@@ -816,6 +830,8 @@ export const visualExerciseDemo: LessonContent = {
                 type: "image",
                 src: "/media/fixtures/shape-square.svg",
                 alt: "Forma geométrica com quatro lados iguais e quatro ângulos retos.",
+                width: 320,
+                height: 240,
               },
               attribution: syntheticAttribution,
             },

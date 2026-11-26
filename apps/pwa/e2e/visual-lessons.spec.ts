@@ -22,6 +22,27 @@ async function reachImageOptionsExercise(page: Page) {
   await page.getByRole("button", { name: "Continuar" }).click();
   await option(page, "Círculo").click();
   await page.getByRole("button", { name: "Continuar" }).click();
+
+  // Answer only after the visual choices have their final dimensions; fast
+  // automation otherwise answers during ordinary image loading and tests a
+  // transient layout rather than the settled exercise a learner sees.
+  for (const src of [
+    "/media/fixtures/shape-triangle.svg",
+    "/media/fixtures/shape-square.svg",
+  ]) {
+    const image = page.locator(`img[src="${src}"]`);
+    await expect(image).toBeVisible();
+    await expect
+      .poll(() =>
+        image.evaluate(
+          (element) =>
+            element instanceof HTMLImageElement &&
+            element.complete &&
+            element.naturalWidth > 0,
+        ),
+      )
+      .toBe(true);
+  }
 }
 
 async function focusFirstRadioByKeyboard(page: Page) {
@@ -36,6 +57,18 @@ async function focusFirstRadioByKeyboard(page: Page) {
     if (reachedRadio) break;
   }
   expect(reachedRadio).toBe(true);
+}
+
+async function expectFocusedVisualOptionOutline(page: Page, text: string) {
+  const card = page.locator("label", { hasText: text }).locator(":scope > span");
+  await expect
+    .poll(() =>
+      card.evaluate((element) => {
+        const style = getComputedStyle(element);
+        return `${style.outlineStyle}:${style.outlineWidth}`;
+      }),
+    )
+    .toBe("solid:2px");
 }
 
 test.describe("textual lesson demo", () => {
@@ -349,6 +382,7 @@ test.describe("visual exercise infrastructure", () => {
     await page.keyboard.press("ArrowDown");
     await expect(page.getByText("Correto!")).toBeVisible();
     await expect(page.locator("label", { hasText: "Imagem 2" })).toBeFocused();
+    await expectFocusedVisualOptionOutline(page, "Imagem 2");
     await expectActiveElementClearOfFixedChrome(page, ":scope > span");
 
     await page.keyboard.press("Tab");
@@ -374,6 +408,7 @@ test.describe("visual exercise infrastructure", () => {
     await page.keyboard.press("ArrowDown");
     await expect(page.getByText("Correto!")).toBeVisible();
     await expect(page.locator("label", { hasText: "Imagem 2" })).toBeFocused();
+    await expectFocusedVisualOptionOutline(page, "Imagem 2");
     await expectActiveElementClearOfFixedChrome(page, ":scope > span");
     await expectNoProgressRecorded(page);
   });

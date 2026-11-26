@@ -296,23 +296,17 @@ function ExerciseBlock({
 
   // A correct answer disables the radio that may currently own focus. Keep
   // focus on that answer's visible label instead of letting the browser drop
-  // it to BODY; the next Tab then reaches the advance action naturally. Media
-  // and feedback insertion can shift layout after the transition, so visibility
-  // is rechecked from resize events rather than an arbitrary timeout. Revisiting
-  // an already solved step must not steal focus from the step heading managed
-  // by the parent runner.
+  // it to BODY; the next Tab then reaches the advance action naturally.
+  // Revisiting an already solved step must not steal focus from the step
+  // heading managed by the parent runner.
   useEffect(() => {
     const previousResult = previousResultRef.current;
     previousResultRef.current = result;
     if (previousResult !== "correct" && result === "correct") {
       const correctOptionLabel = correctOptionLabelRef.current;
       correctOptionLabel?.focus({ preventScroll: true });
-      let frame = 0;
-      const ensureVisible = () => {
-        frame = 0;
-        if (!correctOptionLabel || document.activeElement !== correctOptionLabel) {
-          return;
-        }
+      const frame = requestAnimationFrame(() => {
+        if (!correctOptionLabel) return;
         const rect = correctOptionLabel.getBoundingClientRect();
         const topBoundary =
           document.querySelector("header")?.getBoundingClientRect().bottom ?? 0;
@@ -333,23 +327,8 @@ function ExerciseBlock({
         if (!clearOfFixedChrome) {
           correctOptionLabel.scrollIntoView({ block: "start" });
         }
-      };
-      const scheduleVisibilityCheck = () => {
-        if (frame === 0) frame = requestAnimationFrame(ensureVisible);
-      };
-      scheduleVisibilityCheck();
-      window.addEventListener("resize", scheduleVisibilityCheck);
-      const resizeObserver =
-        typeof ResizeObserver === "undefined"
-          ? null
-          : new ResizeObserver(scheduleVisibilityCheck);
-      resizeObserver?.observe(document.body);
-      if (correctOptionLabel) resizeObserver?.observe(correctOptionLabel);
-      return () => {
-        cancelAnimationFrame(frame);
-        window.removeEventListener("resize", scheduleVisibilityCheck);
-        resizeObserver?.disconnect();
-      };
+      });
+      return () => cancelAnimationFrame(frame);
     }
   }, [result]);
 
@@ -469,6 +448,8 @@ function ExerciseBlock({
                           // Exercise media alt text is authored to describe the
                           // visible configuration without naming the answer.
                           alt={option.media.media.alt}
+                          width={option.media.media.width}
+                          height={option.media.media.height}
                           className="h-auto w-full rounded-lg border border-border bg-black/40 object-contain"
                           onError={() => markFailed(option.media!.media.src)}
                         />
@@ -487,6 +468,8 @@ function ExerciseBlock({
                           <img
                             src={option.media.media.src}
                             alt={option.media.media.alt}
+                            width={option.media.media.width}
+                            height={option.media.media.height}
                             className="h-16 w-16 shrink-0 rounded-lg border border-border bg-black/40 object-contain"
                             onError={() => markFailed(option.media!.media.src)}
                           />
