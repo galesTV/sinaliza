@@ -195,7 +195,7 @@ export function DemoConstellation({
         })}
 
         {state.completed && (
-          <g className="text-highlight motion-safe:animate-pulse motion-reduce:animate-none">
+          <g className="text-highlight">
             <circle cx={120} cy={108} r={13} fill="none" stroke="currentColor" strokeOpacity={0.45} />
             <path
               d="M120 98l2.7 5.7 6.3.8-4.6 4.3 1.2 6.2-5.6-3.1-5.6 3.1 1.2-6.2-4.6-4.3 6.3-.8z"
@@ -223,7 +223,7 @@ export function DemoConstellation({
                   r={12}
                   fill="currentColor"
                   opacity={0.16}
-                  className="motion-safe:animate-pulse motion-reduce:animate-none"
+                  className="demo-node-pulse motion-reduce:animate-none"
                 />
               )}
               <circle

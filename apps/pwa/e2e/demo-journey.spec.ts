@@ -184,6 +184,17 @@ test.describe("guided public demo constellation", () => {
     await expect(
       page.locator('[data-mini-node="3"]'),
     ).toHaveAttribute("data-state", "correct");
+    const pulse = await page
+      .locator('[data-demo-node="3"] circle')
+      .first()
+      .evaluate((node) => {
+        const style = getComputedStyle(node);
+        return {
+          name: style.animationName,
+          iterations: style.animationIterationCount,
+        };
+      });
+    expect(pulse).toEqual({ name: "demo-node-pulse", iterations: "1" });
   });
 
   test("back and forward navigation never duplicates demo achievements", async ({
