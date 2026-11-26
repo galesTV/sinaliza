@@ -682,7 +682,7 @@ def case_wrapper_exit_zero_without_skip():
 def case_wrapper_skip_message_with_nonzero_exit():
     wrapper_script_case(
         "wrapper rejects SKIP message with nonzero exit",
-        "#!/usr/bin/env bash\necho 'SKIP: misleading confirmation'\nexit 2\n",
+        "#!/usr/bin/env bash\nprintf 'SKIP\\n'\nexit 2\n",
         "BUILD",
     )
 
