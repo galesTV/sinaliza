@@ -345,8 +345,8 @@ def case_manual_redeploy_same_sha():
 WRAPPER_COMMAND = (
     's=../../infra/vercel/landing-ignore-build.sh;'
     '[ "$VERCEL_ENV/$VERCEL_TARGET_ENV" = preview/preview ]&&bash -n "$s"||{ echo BUILD;exit 1;};'
-    'o=$(bash "$s" 2>&1);c=$?;echo "$o";'
-    '[ $c = 0 ]&&[[ "$o" == SKIP:\\ * && "$o" != *$\'\\n\'* ]]&&exit 0;'
+    'o=$(bash $s;printf x$?);c=${o##*x};o=${o%x$c};echo "$o";'
+    '[ $c = 0 ]&&[ "$o" = $\'SKIP\\n\' ]&&exit 0;'
     'echo BUILD:$c;exit 1'
 )
 
@@ -703,6 +703,22 @@ def case_wrapper_skip_with_unterminated_extra_output():
     )
 
 
+def case_wrapper_skip_only_on_stderr():
+    wrapper_script_case(
+        "wrapper rejects SKIP written only to stderr",
+        "#!/usr/bin/env bash\nprintf 'SKIP\\n' >&2\nexit 0\n",
+        "BUILD",
+    )
+
+
+def case_wrapper_skip_with_trailing_blank_line():
+    wrapper_script_case(
+        "wrapper rejects exact SKIP with trailing blank line",
+        "#!/usr/bin/env bash\nprintf 'SKIP\\n\\n'\nexit 0\n",
+        "BUILD",
+    )
+
+
 def case_wrapper_unreadable_script():
     tmp, repo, base, head = prepare_wrapper_repo()
     script_path = repo / "infra/vercel/landing-ignore-build.sh"
@@ -821,6 +837,8 @@ def main():
         case_wrapper_skip_message_with_nonzero_exit,
         case_wrapper_skip_with_extra_output,
         case_wrapper_skip_with_unterminated_extra_output,
+        case_wrapper_skip_only_on_stderr,
+        case_wrapper_skip_with_trailing_blank_line,
         case_wrapper_unreadable_script,
         case_accumulated_skips_then_landing,
     ]

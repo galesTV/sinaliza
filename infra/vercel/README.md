@@ -45,9 +45,9 @@ O contrato do Ignored Build Step da Vercel é:
 O script versionado segue este contrato:
 
 - imprime uma linha `BUILD: ...` e sai com `1` para qualquer incerteza, falha ou mudança relevante;
-- imprime exatamente uma linha `SKIP: ...` e sai com `0` somente para um skip válido.
+- imprime exatamente o token stdout `SKIP` seguido de uma única newline e sai com `0` somente para um skip válido; detalhes humanos do motivo vão para stderr e não fazem parte da confirmação.
 
-O wrapper exige confirmação explícita: exit `0` sozinho não basta. Ele captura stdout/stderr, preserva essa saída nos logs e só aceita SKIP quando a execução termina com exit `0` e a saída capturada é uma única linha não ambígua começando com `SKIP: `. Qualquer saída adicional — mesmo sem newline final — mensagem ausente, múltiplas confirmações, exit inesperado ou erro resulta em exit `1`.
+O wrapper exige confirmação explícita: exit `0` sozinho não basta. Ele captura stdout com um sentinela que preserva newlines finais, deixa stderr fluir para os logs e só aceita SKIP quando a execução termina com exit `0` e stdout é exatamente `SKIP\n`. Qualquer stdout adicional — inclusive linha vazia final, texto sem newline final ou múltiplas confirmações — mensagem ausente, confirmação apenas em stderr, exit inesperado ou erro resulta em exit `1`.
 
 Essa proteção evita erros acidentais e regressões simples. Ela **não** é uma fronteira de segurança contra um script deliberadamente modificado na branch: o script avaliado é conteúdo do commit em avaliação, portanto alterações futuras nele exigem revisão humana.
 
@@ -56,7 +56,7 @@ Essa proteção evita erros acidentais e regressões simples. Ela **não** é um
 Este é o comando proposto para o campo Ignored Build Step do projeto da landing. Ele ainda não foi aplicado. O comando tem 254 caracteres, abaixo do limite de 256 documentado no schema oficial de `ignoreCommand`:
 
 ```bash
-s=../../infra/vercel/landing-ignore-build.sh;[ "$VERCEL_ENV/$VERCEL_TARGET_ENV" = preview/preview ]&&bash -n "$s"||{ echo BUILD;exit 1;};o=$(bash "$s" 2>&1);c=$?;echo "$o";[ $c = 0 ]&&[[ "$o" == SKIP:\ * && "$o" != *$'\n'* ]]&&exit 0;echo BUILD:$c;exit 1
+s=../../infra/vercel/landing-ignore-build.sh;[ "$VERCEL_ENV/$VERCEL_TARGET_ENV" = preview/preview ]&&bash -n "$s"||{ echo BUILD;exit 1;};o=$(bash $s;printf x$?);c=${o##*x};o=${o%x$c};echo "$o";[ $c = 0 ]&&[ "$o" = $'SKIP\n' ]&&exit 0;echo BUILD:$c;exit 1
 ```
 
 Branches antigas sem `infra/vercel/landing-ignore-build.sh` continuam em BUILD porque `bash -n` falha ao abrir/ler o script antes da execução.

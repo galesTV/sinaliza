@@ -9,7 +9,8 @@ build() {
 }
 
 skip() {
-  printf 'SKIP: %s\n' "$1"
+  printf 'SKIP\n'
+  printf 'SKIP: %s\n' "$1" >&2
   exit 0
 }
 
