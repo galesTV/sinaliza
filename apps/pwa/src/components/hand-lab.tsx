@@ -189,6 +189,13 @@ export function HandLab() {
   const [snapshot, setSnapshot] = useState(IDLE_SNAPSHOT);
   const [guidance, setGuidance] = useState(GUIDANCE_IDLE_SNAPSHOT);
 
+  useEffect(() => {
+    document.documentElement.dataset.sinalizaHandLabHydrated = "true";
+    return () => {
+      delete document.documentElement.dataset.sinalizaHandLabHydrated;
+    };
+  }, []);
+
   // Only called from event handlers and effects — never during render.
   function ensureTracker() {
     let tracker = trackerRef.current;

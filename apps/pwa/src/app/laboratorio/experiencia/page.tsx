@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { SpecimenViewer } from "@/components/alphabet-specimen";
 import { Breadcrumb } from "@/components/breadcrumb";
 import {
   ValidationStatusBadge,
@@ -9,7 +8,7 @@ import {
 import { Eyebrow } from "@/components/eyebrow";
 import { HonestNote } from "@/components/honest-note";
 import { IconArrowRight, IconFlask } from "@/components/icons";
-import { LessonRunner } from "@/components/lesson-runner";
+import { GuidedExperienceDemo } from "@/components/guided-experience-demo";
 import {
   alphabetSpecimens,
   hasDisplayPermission,
@@ -17,7 +16,6 @@ import {
   specimenAvailabilityLabel,
 } from "@/data/alphabet-specimens";
 import { prepareSpecimenForEnvironment } from "@/data/review-media-environment";
-import { guidedExperience } from "@/data/lesson-content";
 
 export const metadata: Metadata = {
   title: "Laboratório — Experiência guiada de aprendizagem",
@@ -52,8 +50,8 @@ export default function GuidedExperiencePage() {
           Experiência guiada de aprendizagem
         </h1>
         <p className="max-w-xl text-base leading-relaxed text-muted">
-          Percorra uma atividade completa — do objetivo à conclusão — e depois
-          navegue pelos espécimes do alfabeto manual em curadoria.
+          Percorra uma atividade completa — do objetivo à conclusão — com uma
+          evolução visual demonstrativa, exercícios e feedback imediato.
         </p>
 
         <HonestNote
@@ -82,10 +80,7 @@ export default function GuidedExperiencePage() {
         </HonestNote>
       </section>
 
-      <LessonRunner
-        content={guidedExperience}
-        completionLabel="Experiência concluída"
-      />
+      <GuidedExperienceDemo />
 
       <section
         aria-labelledby="specimens-title"
@@ -130,29 +125,15 @@ export default function GuidedExperiencePage() {
 
         <HonestNote title="Demonstrações visuais em curadoria">
           {licensedMediaAuthorized
-            ? "Quatro espécimes têm fotografias licenciadas para uso educativo não comercial (acervo Fiocruz Imagens) na prévia local — a letra C segue sem mídia licenciada. A licença autoriza a revisão local, mas não garante a presença do arquivo nem a publicação: os visores abaixo mostram o estado real de cada espécime, sem imagens provisórias ou demonstrações inventadas."
-            : "As fotografias licenciadas do acervo Fiocruz Imagens são restritas à prévia local de revisão e não são exibidas neste ambiente público. Os visores abaixo mostram o estado real de cada espécime, sem imagens provisórias ou demonstrações inventadas."}
+            ? "Quatro espécimes têm fotografias licenciadas para uso educativo não comercial (acervo Fiocruz Imagens) na prévia local — a letra C segue sem mídia licenciada. A licença autoriza a revisão local, mas não garante a presença do arquivo nem a publicação: as páginas individuais mostram o estado real de cada espécime, sem imagens provisórias ou demonstrações inventadas."
+            : "As fotografias licenciadas do acervo Fiocruz Imagens são restritas à prévia local de revisão e não são exibidas neste ambiente público. As páginas individuais mostram o estado real de cada espécime, sem imagens provisórias ou demonstrações inventadas."}
         </HonestNote>
 
-        <ul
-          className="grid gap-5 sm:grid-cols-2"
-          aria-label="Visores dos espécimes"
-        >
-          {displaySpecimens.map((specimen) => (
-            <li key={specimen.id} className="flex flex-col gap-2">
-              <SpecimenViewer specimen={specimen} />
-              <p className="text-xs leading-relaxed text-muted">
-                {specimen.title} ·{" "}
-                <Link
-                  href={getSpecimenUrl(specimen.letter)}
-                  className="font-medium text-accent underline-offset-4 hover:underline"
-                >
-                  Ver espécime e referências
-                </Link>
-              </p>
-            </li>
-          ))}
-        </ul>
+        <p className="text-xs leading-relaxed text-muted">
+          Abra um espécime para ver referências, licenciamento e o estado
+          completo da mídia. Nenhuma fotografia restrita é exibida neste
+          ambiente público.
+        </p>
       </section>
     </div>
   );

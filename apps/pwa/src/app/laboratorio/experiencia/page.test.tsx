@@ -2,7 +2,7 @@ import { isValidElement, type ReactElement, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
-import { LessonRunner } from "@/components/lesson-runner";
+import { GuidedExperienceDemo } from "@/components/guided-experience-demo";
 import {
   alphabetSpecimens,
   getSpecimenUrl,
@@ -46,7 +46,7 @@ describe("guided experience page", () => {
   it("runs the runner without a progress key", () => {
     // No lessonKey ever reaches the runner here: completing the experience
     // cannot write to the real progress store.
-    const runner = findElement(GuidedExperiencePage(), LessonRunner);
+    const runner = findElement(GuidedExperiencePage(), GuidedExperienceDemo);
     expect(runner).not.toBeNull();
     expect(
       (runner!.props as { lessonKey?: string }).lessonKey,
@@ -62,7 +62,16 @@ describe("guided experience page", () => {
   });
 
   it("shows the honest media state instead of placeholder imagery", () => {
-    expect(html).toContain("em produção");
+    expect(html).toContain("Abra um espécime");
     expect(html).not.toContain("placeholder");
+  });
+});
+
+describe("guided experience demo wiring", () => {
+  it("labels the visual evolution as non-persisted simulation", () => {
+    const html = renderToStaticMarkup(<GuidedExperienceDemo />);
+    expect(html).toContain("Constelação demonstrativa");
+    expect(html).toContain("não registra progresso nas trilhas");
+    expect(html).toContain("Passo 1 de 6");
   });
 });

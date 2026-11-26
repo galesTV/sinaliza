@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { lessonKey, parseLessonKey } from "@/lib/progress";
 import { createLessonRunner } from "@/lib/lesson-runner";
@@ -9,6 +9,7 @@ import {
   getLessonDraft,
   getLessonDraftUrl,
   isPublishable,
+  licensedLetterMedia,
   lessonCatalog,
   validateCatalogEntry,
   VALIDATION_STATUS_ORDER,
@@ -370,6 +371,15 @@ describe("primeiras-letras draft-6", () => {
         /^https:\/\/www\.fiocruzimagens\.fiocruz\.br\/s\/fiocruzimagens\/item\//,
       );
       expect(block.attribution.licenseUrl).toMatch(/^https:\/\//);
+    }
+  });
+
+  it("omits even opaque local-review references from production catalogs", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    try {
+      expect(licensedLetterMedia("B").media.src).toBe("");
+    } finally {
+      vi.unstubAllEnvs();
     }
   });
 

@@ -5,6 +5,7 @@ import {
   useRef,
   useState,
   useSyncExternalStore,
+  type ReactNode,
   type RefObject,
 } from "react";
 
@@ -16,7 +17,10 @@ import {
   type LessonExercise,
   type LessonExerciseOption,
 } from "@/data/lesson-content";
-import { createLessonRunner } from "@/lib/lesson-runner";
+import {
+  createLessonRunner,
+  type LessonRunnerSnapshot,
+} from "@/lib/lesson-runner";
 import { cn } from "@/lib/utils";
 
 import { Badge } from "./badge";
@@ -507,11 +511,20 @@ export function LessonRunner({
   content,
   lessonKey: completedKey,
   completionLabel = "Lição concluída",
+  onSnapshot,
+  headerAccessory,
 }: {
   content: LessonContent;
   /** When set, completing the lesson records it in the real progress store. */
   lessonKey?: string;
   completionLabel?: string;
+  /**
+   * Optional read-only observer for demonstrations. It receives snapshots
+   * after render and must never be used as a substitute for `lessonKey`.
+   */
+  onSnapshot?: (snapshot: LessonRunnerSnapshot) => void;
+  /** Optional compact status visualization rendered in the runner header. */
+  headerAccessory?: ReactNode;
 }) {
   // Created once per mounted component; pure — safe to build during SSR.
   const [runner] = useState(() =>
@@ -528,15 +541,20 @@ export function LessonRunner({
   );
 
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    onSnapshot?.(snapshot);
+  }, [onSnapshot, snapshot]);
 
   // Move focus to the new step so keyboard and screen-reader users are not
-  // left stranded on a removed/disabled control, and bring the prompt back
-  // into view (below the sticky navbar, via the heading's scroll-margin).
+  // left stranded on a removed/disabled control. Scroll the whole runner
+  // into view so mobile learners keep its step/exercise context visible.
   useEffect(() => {
     const heading = headingRef.current;
     if (!heading) return;
     heading.focus({ preventScroll: true });
-    heading.scrollIntoView({ block: "start" });
+    sectionRef.current?.scrollIntoView({ block: "start" });
   }, [snapshot.stepIndex]);
 
   const { block, stepIndex, stepCount } = snapshot;
@@ -544,17 +562,21 @@ export function LessonRunner({
 
   return (
     <section
+      ref={sectionRef}
       aria-labelledby="lesson-runner-title"
-      className="flex flex-col gap-6 rounded-3xl border border-border bg-surface-elevated p-6 shadow-[0_20px_60px_rgba(0,0,0,0.2)] sm:p-8"
+      className="flex scroll-mt-24 flex-col gap-6 rounded-3xl border border-border bg-surface-elevated p-6 shadow-[0_20px_60px_rgba(0,0,0,0.2)] sm:p-8"
     >
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-5">
-        <Badge tone="accent">
-          Passo {Math.min(stepIndex + 1, stepCount)} de {stepCount}
-        </Badge>
-        <Badge>
-          {snapshot.solvedExercises} de {snapshot.totalExercises} exercícios
-          resolvidos
-        </Badge>
+        <div className="flex flex-wrap items-center gap-3">
+          <Badge tone="accent">
+            Passo {Math.min(stepIndex + 1, stepCount)} de {stepCount}
+          </Badge>
+          <Badge>
+            {snapshot.solvedExercises} de {snapshot.totalExercises} exercícios
+            resolvidos
+          </Badge>
+        </div>
+        {headerAccessory}
       </header>
 
       {stepIndex === 0 && (

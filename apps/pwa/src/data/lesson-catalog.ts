@@ -193,10 +193,12 @@ const FIOCRUZ_CANDIDATES: Record<
 };
 
 /**
- * Licensed media slot for one letter demonstration. The catalog carries
- * an opaque `local-review:` reference rather than the distributable file
- * path; server-rendered review surfaces resolve that reference only outside
- * public deployments. The file itself lives at
+ * Licensed media slot for one letter demonstration. Outside production the
+ * catalog carries an opaque `local-review:` reference rather than the
+ * distributable file path; production catalogs omit even that opaque
+ * reference, keeping public client bundles free of restricted-media
+ * references. Server-rendered review surfaces resolve the opaque reference
+ * only outside public deployments. The file itself lives at
  * `public/media/<trilha>/<modulo>/letra-*.jpg` as a processed local copy
  * (≈1200 px, git-ignored, never committed) — see Fase B of the
  * integration plan. `permissionEvidence` is recorded, so the display
@@ -204,6 +206,11 @@ const FIOCRUZ_CANDIDATES: Record<
  * required credit "Imagem: Mauro Campello | Acervo Fiocruz Imagens" and
  * links the official item page and the collection's own license terms.
  */
+function localReviewReference(letter: string): string {
+  if (process.env.NODE_ENV === "production") return "";
+  return `local-review:fiocruz:${letter.toLowerCase()}`;
+}
+
 export function licensedLetterMedia(letter: keyof typeof FIOCRUZ_CANDIDATES): {
   media: LessonImageMedia;
   attribution: LessonMediaAttribution;
@@ -212,7 +219,7 @@ export function licensedLetterMedia(letter: keyof typeof FIOCRUZ_CANDIDATES): {
   return {
     media: {
       type: "image",
-      src: `local-review:fiocruz:${letter.toLowerCase()}`,
+      src: localReviewReference(letter),
       alt: `Demonstração fotográfica da letra ${letter} do alfabeto manual de Libras: ${FIOCRUZ_CONFIGURATION_ALT[letter]}.`,
     },
     attribution: {

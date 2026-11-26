@@ -37,6 +37,15 @@ export default function Home() {
           Trilhas curtas e visuais para aprender Língua Brasileira de Sinais no
           seu ritmo — sem precisar de câmera.
         </p>
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <Link href="/laboratorio/experiencia" className="btn-primary">
+            Experimentar o Sinaliza
+            <IconArrowRight className="h-4 w-4" />
+          </Link>
+          <Link href="/trilhas" className="btn-secondary">
+            Explorar trilhas
+          </Link>
+        </div>
       </section>
 
       <section aria-labelledby="next-step-title">
@@ -76,11 +85,11 @@ export default function Home() {
             id="lab-title"
             className="font-display text-2xl font-semibold tracking-tight text-foreground"
           >
-            Experimentos técnicos
+            Comece experimentando
           </h2>
           <p className="max-w-xl text-sm leading-relaxed text-muted">
-            Experimentos técnicos em validação — não fazem parte das trilhas de
-            aprendizagem.
+            Demonstrações públicas do mecanismo de aprendizagem e da visão
+            computacional — não são lições validadas nem fazem parte das trilhas.
           </p>
         </div>
         <ul className="grid gap-5 sm:grid-cols-2">
