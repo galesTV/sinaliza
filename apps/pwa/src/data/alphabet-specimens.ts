@@ -21,6 +21,7 @@ import {
 import {
   hasMediaDisplayPermission,
   hasMediaPublicationPermission,
+  isLocalReviewMediaReference,
   validateLessonMedia,
   type LessonMedia,
   type LessonMediaAttribution,
@@ -216,6 +217,7 @@ export function isSpecimenPublishable(specimen: AlphabetSpecimen): boolean {
     ) &&
     hasDisplayPermission(specimen) &&
     hasMediaPublicationPermission(specimen.attribution) &&
+    !isLocalReviewMediaReference(specimen.media!.src) &&
     validateLessonMedia(specimen.media!).length === 0
   );
 }

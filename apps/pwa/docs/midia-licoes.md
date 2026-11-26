@@ -62,7 +62,10 @@ registra a autorização para distribuir o arquivo como mídia publicada;
 da lição ou do espécime não tem essa evidência, mesmo que
 `permissionEvidence` permita exibi-la em revisão. Um ativo ainda marcado
 `displayScope: "local-review"` também não publica: obter a autorização de
-redistribuição exige revisar e alterar esse escopo deliberadamente.
+redistribuição exige revisar e alterar esse escopo deliberadamente **e**
+substituir a referência opaca `local-review:*` pelo caminho/URL real do ativo
+autorizado. A validação de publicação rejeita referências opacas mesmo quando
+escopo e evidências foram preenchidos.
 
 `displayScope: "local-review"` marca ativos autorizados apenas para avaliação
 local. O catálogo guarda esses ativos como referências opacas

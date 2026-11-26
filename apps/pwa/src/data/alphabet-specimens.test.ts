@@ -258,6 +258,22 @@ describe("isSpecimenPublishable", () => {
     });
     expect(hasDisplayPermission(displayOnly)).toBe(true);
     expect(isSpecimenPublishable(displayOnly)).toBe(false);
+
+    const unresolvedReference = makeSpecimen({
+      validationStatus: "expert-validated",
+      reviews: [...FULL_REVIEW_CHAIN],
+      media: {
+        type: "image",
+        src: "local-review:fiocruz:b",
+        alt: "Configuração de mão.",
+      },
+      attribution: {
+        ...LICENSED_MEDIA.attribution!,
+        publicationEvidence: "autorização de distribuição",
+        displayScope: "public",
+      },
+    });
+    expect(isSpecimenPublishable(unresolvedReference)).toBe(false);
   });
 
   it("keeps licensed media displayable in preview but not publishable", () => {

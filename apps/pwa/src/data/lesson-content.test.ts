@@ -325,6 +325,27 @@ describe("media permission gate", () => {
       ],
     };
     expect(validateLessonPublicationMedia(distributable)).toEqual([]);
+
+    const unresolvedReference: LessonContent = {
+      intro: "intro",
+      blocks: [
+        makeMediaBlock({
+          media: {
+            type: "image",
+            src: "local-review:fiocruz:b",
+            alt: "Configuração de mão.",
+          },
+          attribution: {
+            ...baseAttribution,
+            publicationEvidence: "autorização de distribuição",
+            displayScope: "public",
+          },
+        }),
+      ],
+    };
+    expect(validateLessonPublicationMedia(unresolvedReference).join()).toContain(
+      "unresolved local-review media reference",
+    );
   });
 
   it("gates an exercise when any required media lacks evidence", () => {

@@ -301,15 +301,25 @@ export function lessonMediaList(
   });
 }
 
+/** True while `src` is still an opaque local-review reference rather than a resolvable distributable media path or URL. */
+export function isLocalReviewMediaReference(src: string): boolean {
+  return src.startsWith("local-review:");
+}
+
 /** Media problems that make content ineligible for publication. */
 export function validateLessonPublicationMedia(
   content: LessonContent,
 ): string[] {
-  return lessonMediaList(content).flatMap((item, index) =>
-    hasMediaPublicationPermission(item.attribution)
-      ? []
-      : [`media ${index}: missing publication evidence`],
-  );
+  return lessonMediaList(content).flatMap((item, index) => {
+    const problems: string[] = [];
+    if (isLocalReviewMediaReference(item.media.src)) {
+      problems.push(`media ${index}: unresolved local-review media reference`);
+    }
+    if (!hasMediaPublicationPermission(item.attribution)) {
+      problems.push(`media ${index}: missing publication evidence`);
+    }
+    return problems;
+  });
 }
 
 /**
