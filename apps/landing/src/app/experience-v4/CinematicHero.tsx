@@ -4,6 +4,8 @@ import { useEffect, useRef, type ReactNode } from "react";
 import * as THREE from "three";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import { HAND_ASSET_URL, loadSkinnedHandAsset } from "./handAsset";
+import { FLEX_SEQUENCE, HAND_POSES, HandPosePlayer } from "./handPoses";
+import { mountPracticeDiagnostics, type PracticeCommand } from "./practiceDiagnostics";
 import {
   createCinematicHand,
   stageAt,
@@ -158,6 +160,10 @@ export function CinematicHero({
     let scenePaused = false;
     let canvasHost: HTMLElement = host;
     let playingPractice = false;
+    const posePlayer = new HandPosePlayer();
+    let command: PracticeCommand = "relaxed";
+    let diagnostics: ReturnType<typeof mountPracticeDiagnostics> | undefined;
+    let practiceFrames = 0;
     let target = reducedMotion ? REDUCED_MOTION_PROGRESS : 0;
     let current = target;
     let lastTime = performance.now();
@@ -238,6 +244,10 @@ export function CinematicHero({
         target: Number(target.toFixed(4)),
         stage: stageAt(current),
         scenePaused,
+        framePending: frame !== 0,
+        practiceFrames,
+        practicePose: posePlayer.pose,
+        poseMoving: posePlayer.active,
         layout,
         frameMs: Number(frameMs.toFixed(2)),
         frameMedianMs: Number(percentile(sorted, 0.5).toFixed(2)),
@@ -260,6 +270,7 @@ export function CinematicHero({
       hud.textContent = Object.entries(stats)
         .map(([key, value]) => `${key}: ${value}`)
         .join("\n");
+      diagnostics?.update(command, posePlayer.active, frame !== 0, practiceFrames);
     };
 
     const setScenePaused = (paused: boolean) => {
@@ -287,6 +298,10 @@ export function CinematicHero({
         }
         return practiceTarget;
       }
+      if (playingPractice && !scenePaused) {
+        posePlayer.reset();
+        command = "relaxed";
+      }
       if (pastScene()) return null;
       if (playingPractice) {
         playingPractice = false;
@@ -302,8 +317,9 @@ export function CinematicHero({
       if (!hand) return;
       if (scenePaused) return;
       const start = performance.now();
-      hand.update(current, layout, camera, viewWidth, viewHeight);
+      hand.update(current, layout, camera, viewWidth, viewHeight, posePlayer.pose);
       renderer.render(scene, camera);
+      if (debug && playingPractice) practiceFrames += 1;
       workMs += (performance.now() - start - workMs) * 0.2;
       root.style.setProperty("--v4c-p", Math.min(1, current).toFixed(4));
       root.dataset.stage = stageAt(current);
@@ -345,13 +361,28 @@ export function CinematicHero({
         if (Math.abs(target - current) < 0.0002) current = target;
         dirty = true;
       }
+      if (playingPractice && posePlayer.active) {
+        posePlayer.sample(now);
+        dirty = true;
+      }
+      if (!playingPractice || posePlayer.active || Math.abs(target - current) > 0.00005) {
+        frame = window.requestAnimationFrame(tick);
+      }
       if (dirty || (debug && !playingPractice)) {
         dirty = false;
         render();
       }
-      if (!playingPractice || Math.abs(target - current) > 0.00005) {
-        frame = window.requestAnimationFrame(tick);
-      }
+    };
+
+    const playPose = (next: PracticeCommand) => {
+      if (!running || getPracticeTarget() === null) return;
+      command = next;
+      posePlayer.play(
+        next === "sequence" ? FLEX_SEQUENCE : [{ target: HAND_POSES[next], durationMs: 680 }],
+        performance.now(),
+      );
+      dirty = true;
+      schedule();
     };
 
     const resumeScene = () => {
@@ -393,6 +424,9 @@ export function CinematicHero({
       running = false;
       window.cancelAnimationFrame(frame);
       frame = 0;
+      posePlayer.reset();
+      diagnostics?.remove();
+      diagnostics = undefined;
       setScenePaused(true);
       practiceHost?.removeAttribute("data-ready");
       fail();
@@ -407,6 +441,9 @@ export function CinematicHero({
         }
         loadMs = performance.now() - loadStart;
         hand = createCinematicHand(asset, scene);
+        if (debug && !reducedMotion && practiceHost) {
+          diagnostics = mountPracticeDiagnostics(practiceHost, playPose);
+        }
         // Start on the real scroll position so a reload mid-page does not replay.
         const initial = selectScene(getPracticeTarget(), true);
         current = target = initial ?? 2;
@@ -442,6 +479,7 @@ export function CinematicHero({
       window.removeEventListener("resize", onWindowResize);
       resizeObserver.disconnect();
       reducedObserver.disconnect();
+      diagnostics?.remove();
       practiceHost?.removeAttribute("data-ready");
       renderer.domElement.removeEventListener("webglcontextlost", onContextLost);
       hand?.dispose();

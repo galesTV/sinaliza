@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import type { SkinnedHandAsset } from "./handAsset";
 import { createHandRig } from "./handRig";
+import { RELAXED, type HandPose } from "./handPoses";
 import {
   LANDMARK_AMBER,
   LANDMARK_CONNECTIONS,
@@ -265,6 +266,7 @@ export interface CinematicHand {
     camera: THREE.PerspectiveCamera,
     width: number,
     height: number,
+    practicePose?: HandPose,
   ) => void;
   dispose: () => void;
 }
@@ -370,6 +372,7 @@ export function createCinematicHand(
     camera: THREE.PerspectiveCamera,
     width: number,
     height: number,
+    practicePose: HandPose = RELAXED,
   ) => {
     const preset = PRESETS[layout];
     const p = Math.min(1, t);
@@ -398,14 +401,14 @@ export function createCinematicHand(
     // The little finger leads and the index follows, as a relaxed hand does.
     rig.setAmounts(
       practice
-        ? 0.08
+        ? practicePose
         : [
             0.26 * range(p, 0.58, 0.74),
             0.34 * range(p, 0.565, 0.73),
             0.44 * range(p, 0.55, 0.72),
             0.52 * range(p, 0.54, 0.71),
           ],
-      practice ? 0.06 : 0.42 * range(p, 0.59, 0.75),
+      practice ? practicePose[4] : 0.42 * range(p, 0.59, 0.75),
     );
     group.updateMatrixWorld(true);
 

@@ -121,6 +121,48 @@
   visibility: hidden;
 }
 
+.v4c-practice-debug {
+  min-width: 0;
+  margin: 12px 0 0;
+  padding: 8px 12px 12px;
+  border: 1px solid var(--v4c-practice-line);
+  color: #c9d2e5;
+  font-size: 0.8125rem;
+}
+
+.v4c-practice-debug div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.v4c-practice-debug button {
+  min-height: 44px;
+  padding: 0 10px;
+  border: 1px solid #687992;
+  border-radius: 4px;
+  background: #10172b;
+  color: var(--v4c-practice-accent);
+  font: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.v4c-practice-debug button:is(:hover, :active) {
+  background: #25324b;
+}
+
+.v4c-practice-debug button:focus-visible {
+  outline: 2px solid var(--v4c-practice-accent);
+  outline-offset: 2px;
+}
+
+.v4c-practice-debug :is(output, span) {
+  display: inline-block;
+  margin: 8px 12px 0 0;
+  font-variant-numeric: tabular-nums;
+}
+
 .v4c-practice-key {
   display: flex;
   align-items: center;
