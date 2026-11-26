@@ -43,3 +43,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Fiocruz review photographs: local pedagogical review only.
+# Redistribution in the public repository or deployments is not authorized.
+/public/media/alfabeto/primeiros-passos/letra-a.jpg
+/public/media/alfabeto/primeiros-passos/letra-b.jpg
+/public/media/alfabeto/primeiros-passos/letra-i.jpg
+/public/media/alfabeto/primeiros-passos/letra-l.jpg

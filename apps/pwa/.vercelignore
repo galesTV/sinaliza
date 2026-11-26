@@ -1,0 +1,7 @@
+# Fiocruz review photographs: local pedagogical review only.
+# These exact files must not be uploaded by manual Vercel deployments.
+# This does not sanitize prebuilt artifacts; release builds must start from a clean worktree.
+/public/media/alfabeto/primeiros-passos/letra-a.jpg
+/public/media/alfabeto/primeiros-passos/letra-b.jpg
+/public/media/alfabeto/primeiros-passos/letra-i.jpg
+/public/media/alfabeto/primeiros-passos/letra-l.jpg

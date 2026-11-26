@@ -217,7 +217,15 @@ As regras de negócio e os componentes críticos deverão ser desenvolvidos de f
 
 A landing page está publicada na Vercel, em projeto próprio com Root Directory `apps/landing`.
 
-O PWA tem um **segundo projeto na Vercel**, com Root Directory `apps/pwa`, preservando integralmente a configuração e o deploy da landing (ver [ADR 0003](decisions/0003-deploy-vercel-dois-projetos.md)); previews de pull request estão ativos. O comportamento do deploy de produção ainda não foi verificado.
+O PWA tem um **segundo projeto na Vercel** (`sinaliza-pwa`), preservando integralmente a configuração e o deploy da landing (ver [ADR 0003](decisions/0003-deploy-vercel-dois-projetos.md)). A configuração documentada usa Root Directory `apps/pwa`; operacionalmente, o projeto não aparece entre os projetos com integração Git ativa da conta Vercel, então o deploy de produção é manual a partir de `apps/pwa`.
+
+#### Deploy manual do PWA e mídias restritas
+
+O fluxo operacional atual do PWA usa deploy manual executado a partir de `apps/pwa` (por exemplo, `vercel deploy --prod`). Por isso, as regras de exclusão do upload manual ficam em `apps/pwa/.vercelignore`, não apenas no `.gitignore` do repositório.
+
+As quatro fotografias Fiocruz de revisão pedagógica local — `public/media/alfabeto/primeiros-passos/letra-a.jpg`, `letra-b.jpg`, `letra-i.jpg` e `letra-l.jpg` — não têm redistribuição pública autorizada. Elas são excluídas explicitamente do Git e do upload manual da Vercel. A exclusão é intencionalmente limitada a esses arquivos: outras mídias do alfabeto não devem ser bloqueadas quando houver licença legítima.
+
+`.vercelignore` reduz o risco de upload acidental dos arquivos-fonte em um deploy manual, mas **não é garantia universal** contra artefatos já compilados. Se `vercel build`, `next build` ou outro empacotamento local for executado em uma worktree contendo as fotos, o artefato/prebuilt pode já incorporá-las antes do upload. Builds e deploys de release devem partir de uma worktree ou clone limpo, sincronizado com o commit pretendido e sem materiais restritos. Antes de um deploy de release, conferir também que `.next/` e `.vercel/output/` não foram produzidos em um diretório contendo essas mídias.
 
 ### Ambientes planejados
 
@@ -238,7 +246,7 @@ As decisões abaixo registram o estado atual do projeto. Decisões marcadas como
 | Backend e API | Proposta: Supabase + funcionalidade server-side do Next.js — ADR 0002 |
 | Banco de dados | Proposta: PostgreSQL via Supabase, migrações em `supabase/migrations` — ADR 0002 |
 | Autenticação | Proposta: Supabase Auth — ADR 0002 |
-| Deploy do PWA | Definida: projeto Vercel separado, Root Directory `apps/pwa` — ADR 0003 (previews de PR ativos; comportamento de produção ainda não verificado) |
+| Deploy do PWA | Definida: projeto Vercel separado, Root Directory documentado `apps/pwa` — ADR 0003; sem integração Git ativa verificada, deploy de produção manual |
 | Integração da visão computacional | Em investigação (MediaPipe no navegador, processamento local) |
 | Estratégia de armazenamento de imagens e vídeos | Em aberto (Supabase Storage quando necessário) |
 | Infraestrutura dos futuros serviços | Proposta: sem serviço dedicado no MVP |
