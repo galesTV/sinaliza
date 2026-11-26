@@ -85,6 +85,17 @@
   opacity: .32;
 }
 
+.v4c-future-energy {
+  visibility: hidden;
+  opacity: 0;
+}
+
+.v4c-future-energy :is(path, circle),
+.v4c-future-origin-halo,
+.v4c-future-construction-tip {
+  opacity: 0;
+}
+
 .v4c-future-invite {
   display: flex;
   justify-content: space-between;
@@ -218,49 +229,173 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  @supports (animation-timeline: view()) {
-    .v4c-future-field {
-      view-timeline-name: --v4c-future-field;
+  .v4c-future-field[data-formation]:not([data-formation="complete"]) {
+    --v4c-formation-duration: 2.6s;
+    --v4c-formation-play: paused;
+
+    &[data-formation="running"] {
+      --v4c-formation-play: running;
     }
 
-    .v4c-future-formation,
-    .v4c-future-thread,
-    .v4c-future-depth {
-      animation-duration: auto;
-      animation-fill-mode: both;
-      animation-timing-function: cubic-bezier(.22, 1, .36, 1);
-      animation-timeline: --v4c-future-field;
+    & .v4c-future-branches {
+      mask: url(#v4c-future-branch-mask);
     }
 
-    .v4c-future-formation {
-      transform-origin: 58% 48%;
-      animation-name: v4c-future-settle;
-      animation-range: entry 0% entry 100%;
+    & .v4c-future-thread {
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
     }
 
-    .v4c-future-thread {
-      animation-name: v4c-future-connect;
-      animation-range: entry 20% entry 100%;
+    & .v4c-future-front {
+      transform-box: fill-box;
+      transform-origin: left center;
+      transform: scaleX(0);
     }
 
-    .v4c-future-depth {
-      animation-name: v4c-future-drift;
-      animation-range: entry 0% entry 100%;
+    & .v4c-future-node {
+      opacity: 0;
     }
+
+    & .v4c-future-origin {
+      fill: #b6f4ff;
+    }
+
+    & .v4c-future-origin-halo {
+      opacity: .96;
+    }
+
+    &:not([data-formation="waiting"]) {
+      & .v4c-future-thread {
+        animation: v4c-future-connect var(--v4c-formation-duration) linear both var(--v4c-formation-play);
+      }
+
+      & .v4c-future-front {
+        animation: v4c-future-reveal-branches var(--v4c-formation-duration) linear both var(--v4c-formation-play);
+      }
+
+      & .v4c-future-node {
+        animation: v4c-future-arrive calc(var(--v4c-formation-duration) * .06) ease-out
+          calc(var(--v4c-formation-duration) * var(--v4c-arrival)) both var(--v4c-formation-play);
+      }
+
+      & .v4c-future-origin-halo {
+        animation: v4c-future-seed var(--v4c-formation-duration) ease-out both var(--v4c-formation-play);
+      }
+
+      & .v4c-future-construction-tip {
+        stroke-dasharray: .035 1.9;
+        animation: v4c-future-trace var(--v4c-formation-duration) linear both var(--v4c-formation-play);
+      }
+    }
+  }
+
+  .v4c-future-field[data-ambient] {
+    --v4c-ambient-play: paused;
+    --v4c-live-delay: 2.45s;
+    --v4c-flow-period: 6.8s;
+  }
+
+  .v4c-future-field[data-ambient="running"] {
+    --v4c-ambient-play: running;
+  }
+
+  .v4c-future-field[data-ambient="running"] .v4c-future-energy {
+    visibility: visible;
+    opacity: 1;
+    transition: opacity 180ms ease-out;
+  }
+
+  .v4c-future-field[data-ambient] :is(.v4c-future-halo, .v4c-future-echo) {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  .v4c-future-field[data-ambient] .v4c-future-halo {
+    animation: v4c-future-breathe var(--v4c-breath-period) ease-in-out
+      calc(var(--v4c-live-delay) + var(--v4c-breath-delay)) infinite var(--v4c-ambient-play);
+  }
+
+  .v4c-future-field[data-ambient] .v4c-future-atmosphere {
+    animation: v4c-future-depth-light 13s ease-in-out var(--v4c-live-delay)
+      infinite var(--v4c-ambient-play);
+  }
+
+  .v4c-future-field[data-ambient] .v4c-future-activation {
+    stroke-dasharray: .18 1.9;
+    animation: v4c-future-activate var(--v4c-activation-duration) linear
+      both var(--v4c-ambient-play);
+  }
+
+  .v4c-future-field[data-ambient] .v4c-future-flow {
+    stroke-dasharray: .14 1.9;
+    animation: v4c-future-travel var(--v4c-flow-period) linear var(--v4c-live-delay)
+      infinite var(--v4c-ambient-play);
+  }
+
+  .v4c-future-field[data-ambient] .v4c-future-echo {
+    animation:
+      v4c-future-ignite 880ms ease-out var(--v4c-ignite-at) var(--v4c-ambient-play),
+      v4c-future-echo var(--v4c-flow-period) ease-out calc(var(--v4c-live-delay) + var(--v4c-echo-at))
+        infinite var(--v4c-ambient-play);
   }
 }
 
-@keyframes v4c-future-settle {
-  from { opacity: .65; transform: translate(22px, 15px) scale(1.06); }
-  to { opacity: 1; transform: none; }
-}
-
 @keyframes v4c-future-connect {
-  from { stroke-dasharray: 1; stroke-dashoffset: 1; }
-  to { stroke-dasharray: 1; stroke-dashoffset: 0; }
+  0%, 10% { stroke-dasharray: 1; stroke-dashoffset: 1; }
+  94%, 100% { stroke-dasharray: 1; stroke-dashoffset: 0; }
 }
 
-@keyframes v4c-future-drift {
-  from { transform: translate(-12px, 10px); }
-  to { transform: none; }
+@keyframes v4c-future-reveal-branches {
+  0%, 12% { transform: scaleX(0); }
+  96%, 100% { transform: none; }
+}
+
+@keyframes v4c-future-arrive {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes v4c-future-seed {
+  0%, 10% { opacity: .96; }
+  30%, 100% { opacity: 0; }
+}
+
+@keyframes v4c-future-trace {
+  0%, 10% { opacity: 0; stroke-dashoffset: .035; }
+  15%, 89% { opacity: .92; }
+  94%, 100% { opacity: 0; stroke-dashoffset: -1; }
+}
+
+@keyframes v4c-future-activate {
+  0% { opacity: 0; stroke-dashoffset: .18; }
+  12%, 81% { opacity: .92; }
+  100% { opacity: 0; stroke-dashoffset: -1; }
+}
+
+@keyframes v4c-future-ignite {
+  0% { opacity: 0; transform: scale(.85); }
+  30% { opacity: .84; }
+  100% { opacity: 0; transform: scale(1.4); }
+}
+
+@keyframes v4c-future-breathe {
+  0%, 100% { opacity: 1; transform: none; }
+  50% { opacity: .72; transform: scale(1.24); }
+}
+
+@keyframes v4c-future-depth-light {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .76; }
+}
+
+@keyframes v4c-future-travel {
+  0% { opacity: 0; stroke-dashoffset: .14; }
+  5%, 27% { opacity: .82; }
+  33%, 100% { opacity: 0; stroke-dashoffset: -1; }
+}
+
+@keyframes v4c-future-echo {
+  0%, 100% { opacity: 0; transform: none; }
+  3% { opacity: .58; }
+  15% { opacity: 0; transform: scale(1.23); }
 }
