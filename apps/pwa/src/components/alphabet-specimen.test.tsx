@@ -107,6 +107,27 @@ describe("SpecimenViewer", () => {
     }
   });
 
+  it("explains local-review restriction instead of reporting an unconfirmed license", () => {
+    const specimen = makeSpecimen({
+      media: { type: "image", src: "", alt: "Configuração de mão." },
+      attribution: {
+        source: "Fonte externa",
+        license: "Uso educativo restrito",
+        permissionEvidence: "",
+        displayScope: "local-review",
+      },
+    });
+    const html = renderToStaticMarkup(
+      <>
+        <SpecimenReviewNote specimen={specimen} />
+        <SpecimenViewer specimen={specimen} />
+      </>,
+    );
+    expect(html).toContain("autorização documentada para revisão local");
+    expect(html).toContain("não é exibida neste ambiente público");
+    expect(html).not.toContain("licença confirmada está disponível");
+  });
+
   it("previews licensed media while the unvalidated-review note shows", () => {
     const specimen = makeSpecimen({
       validationStatus: "draft",
