@@ -151,7 +151,9 @@ async function reachFirstGuidedExercise(page: Page) {
   await expect(demoConstellation(page)).toBeVisible();
   await expect(demoConstellation(page)).toHaveAttribute("data-correct", "0");
   await page.getByRole("button", { name: "Continuar" }).click();
+  await expect(page.getByText("Passo 2 de 6")).toBeVisible();
   await page.getByRole("button", { name: "Continuar" }).click();
+  await expect(page.getByText("Passo 3 de 6")).toBeVisible();
   await page.getByRole("button", { name: "Continuar" }).click();
   await expect(page.getByText("Passo 4 de 6")).toBeVisible();
 }
