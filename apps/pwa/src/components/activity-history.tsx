@@ -1,8 +1,9 @@
 "use client";
 
+import { io } from "next/cache";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { use, useEffect, useMemo, useState, useTransition } from "react";
 
 import { getLessonContext } from "@/data/learning-paths";
 import { isLessonCompletable } from "@/data/path-publication";
@@ -230,6 +231,10 @@ function ActivityHistoryInner({
   truncated: boolean;
   snapshotId: string;
 }) {
+  // Cache Components treats wall-clock reads during server-side rendering as
+  // synchronous IO; `io()` keeps the day grouping out of the static shell.
+  use(io());
+
   const { status, user } = useAuthSession();
   const sync = useProgressSyncState();
   const router = useRouter();
