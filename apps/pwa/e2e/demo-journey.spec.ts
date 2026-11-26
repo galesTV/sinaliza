@@ -205,7 +205,7 @@ test.describe("guided public demo constellation", () => {
     ).toBeVisible();
   });
 
-  test("keeps focus on the advance action after a correct keyboard answer", async ({
+  test("preserves keyboard focus continuity after a correct answer", async ({
     page,
   }) => {
     await reachFirstGuidedExercise(page);
@@ -226,7 +226,19 @@ test.describe("guided public demo constellation", () => {
     // the second option, which is the correct answer in this exercise.
     await page.keyboard.press("ArrowDown");
     await expect(page.getByText("Correto!")).toBeVisible();
+    const correctLabel = page.locator("label", { hasText: FIRST_RIGHT });
+    await expect(correctLabel).toBeFocused();
+    await expect
+      .poll(() =>
+        correctLabel.evaluate(
+          (label) =>
+            getComputedStyle(label.querySelector(":scope > span")!).outlineWidth,
+        ),
+      )
+      .toBe("2px");
+
     const continueButton = page.getByRole("button", { name: "Continuar" });
+    await page.keyboard.press("Tab");
     await expect(continueButton).toBeFocused();
 
     await page.keyboard.press("Enter");

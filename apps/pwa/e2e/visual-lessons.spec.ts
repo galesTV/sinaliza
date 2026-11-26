@@ -315,7 +315,7 @@ test.describe("visual exercise infrastructure", () => {
     await expectNoProgressRecorded(page);
   });
 
-  test("keeps the focused advance action visible after a correct keyboard answer in a short viewport", async ({
+  test("keeps keyboard focus visible through a correct answer in a short viewport", async ({
     page,
   }) => {
     await page.setViewportSize({ width: 390, height: 560 });
@@ -341,6 +341,10 @@ test.describe("visual exercise infrastructure", () => {
     // advance action far down the page.
     await page.keyboard.press("ArrowDown");
     await expect(page.getByText("Correto!")).toBeVisible();
+    await expect(page.locator("label", { hasText: "Imagem 2" })).toBeFocused();
+    await expectActiveElementClearOfFixedChrome(page);
+
+    await page.keyboard.press("Tab");
     await expect(page.getByRole("button", { name: "Continuar" })).toBeFocused();
     await expectActiveElementClearOfFixedChrome(page);
 

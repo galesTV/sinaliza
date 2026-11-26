@@ -292,19 +292,20 @@ function ExerciseBlock({
   };
 
   const previousResultRef = useRef(result);
-  const advanceButtonRef = useRef<HTMLButtonElement>(null);
+  const correctOptionLabelRef = useRef<HTMLLabelElement>(null);
 
-  // A correct answer disables the radio that may currently own focus. Move
-  // focus once to the newly available advance action instead of letting the
-  // browser drop it to BODY; revisiting an already solved step must not
-  // steal focus from the step heading managed by the parent runner.
+  // A correct answer disables the radio that may currently own focus. Keep
+  // focus once on that answer's visible label instead of letting the browser
+  // drop it to BODY; the next Tab then reaches the advance action naturally.
+  // Revisiting an already solved step must not steal focus from the step
+  // heading managed by the parent runner.
   useEffect(() => {
     const previousResult = previousResultRef.current;
     previousResultRef.current = result;
     if (previousResult !== "correct" && result === "correct") {
-      const advanceButton = advanceButtonRef.current;
-      advanceButton?.focus({ preventScroll: true });
-      advanceButton?.scrollIntoView({ block: "nearest" });
+      const correctOptionLabel = correctOptionLabelRef.current;
+      correctOptionLabel?.focus({ preventScroll: true });
+      correctOptionLabel?.scrollIntoView({ block: "nearest" });
     }
   }, [result]);
 
@@ -384,7 +385,11 @@ function ExerciseBlock({
                 : OPTION_TONES.idle;
           return (
             <div key={option.label} className="flex flex-col gap-1.5">
-              <label className="block h-full">
+              <label
+                ref={solved && isCorrect ? correctOptionLabelRef : undefined}
+                tabIndex={solved && isCorrect ? -1 : undefined}
+                className="group block h-full scroll-mb-20 focus:outline-none md:scroll-mb-0"
+              >
                 <input
                   type="radio"
                   name={`${exercise.prompt}${useVariant ? " (descrição)" : ""}`}
@@ -396,7 +401,7 @@ function ExerciseBlock({
                 <span
                   className={cn(
                     visualOptions ? OPTION_CARD_BASE : OPTION_BUTTON_BASE,
-                    "peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-ring",
+                    "peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-ring group-focus-visible:outline-2 group-focus-visible:outline-offset-2 group-focus-visible:outline-ring",
                     solved || blocked ? "cursor-default" : "cursor-pointer",
                     tone,
                   )}
@@ -520,7 +525,6 @@ function ExerciseBlock({
         <div className="flex flex-wrap gap-3">
           {solved && (
             <button
-              ref={advanceButtonRef}
               type="button"
               onClick={onAdvance}
               className="btn-primary scroll-mb-20 md:scroll-mb-0"
