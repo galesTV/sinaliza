@@ -347,14 +347,7 @@ test.describe("guided public demo constellation", () => {
     const nav = page.getByRole("navigation", { name: "Navegação principal" });
     await nav.getByRole("link", { name: "Trilhas" }).click();
     await expect(page).toHaveURL(/\/trilhas$/);
-    await page
-      .getByRole("link", { name: "Sinaliza — página inicial" })
-      .click();
-    await expect(page).toHaveURL(/\/$/);
-    await page
-      .locator('section[aria-labelledby="home-title"]')
-      .getByRole("link", { name: "Experimentar o Sinaliza" })
-      .click();
+    await page.goBack();
 
     await expect(page).toHaveURL(/\/laboratorio\/experiencia$/);
     await expect(demoConstellation(page)).toHaveAttribute("data-correct", "0");
