@@ -1,5 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 
+import { expectActiveElementClearOfFixedChrome } from "./accessibility";
+
 const PROGRESS_KEY = "sinaliza.progress.v1";
 
 async function expectNoProgressRecorded(page: Page) {
@@ -13,6 +15,60 @@ async function expectNoProgressRecorded(page: Page) {
 /** Clicks the option card whose text matches — the radio input itself is visually hidden. */
 function option(page: Page, text: string | RegExp) {
   return page.locator("fieldset label", { hasText: text });
+}
+
+async function reachImageOptionsExercise(page: Page) {
+  await page.goto("/laboratorio/licao-visual");
+  await page.getByRole("button", { name: "Continuar" }).click();
+  await option(page, "Círculo").click();
+  await page.getByRole("button", { name: "Continuar" }).click();
+
+  // Answer only after the visual choices have their final dimensions; fast
+  // automation otherwise answers during ordinary image loading and tests a
+  // transient layout rather than the settled exercise a learner sees.
+  for (const src of [
+    "/media/fixtures/shape-triangle.svg",
+    "/media/fixtures/shape-square.svg",
+  ]) {
+    const image = page.locator(`img[src="${src}"]`);
+    await expect(image).toBeVisible();
+    await expect
+      .poll(() =>
+        image.evaluate(
+          (element) =>
+            element instanceof HTMLImageElement &&
+            element.complete &&
+            element.naturalWidth > 0,
+        ),
+      )
+      .toBe(true);
+  }
+}
+
+async function focusFirstRadioByKeyboard(page: Page) {
+  let reachedRadio = false;
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    await page.keyboard.press("Tab");
+    reachedRadio = await page.evaluate(
+      () =>
+        document.activeElement instanceof HTMLInputElement &&
+        document.activeElement.type === "radio",
+    );
+    if (reachedRadio) break;
+  }
+  expect(reachedRadio).toBe(true);
+}
+
+async function expectFocusedVisualOptionOutline(page: Page, text: string) {
+  const card = page.locator("label", { hasText: text }).locator(":scope > span");
+  await expect
+    .poll(() =>
+      card.evaluate((element) => {
+        const style = getComputedStyle(element);
+        return `${style.outlineStyle}:${style.outlineWidth}`;
+      }),
+    )
+    .toBe("solid:2px");
 }
 
 test.describe("textual lesson demo", () => {
@@ -313,6 +369,50 @@ test.describe("visual exercise infrastructure", () => {
     await expectNoProgressRecorded(page);
   });
 
+  test("keeps keyboard focus visible through a correct answer in a short viewport", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 560 });
+    await reachImageOptionsExercise(page);
+    await focusFirstRadioByKeyboard(page);
+
+    // In this unselected group, ArrowDown moves from Imagem 1 to the correct
+    // Imagem 2. The image options stack vertically at this width, pushing the
+    // advance action far down the page.
+    await page.keyboard.press("ArrowDown");
+    await expect(page.getByText("Correto!")).toBeVisible();
+    await expect(page.locator("label", { hasText: "Imagem 2" })).toBeFocused();
+    await expectFocusedVisualOptionOutline(page, "Imagem 2");
+    await expectActiveElementClearOfFixedChrome(page, ":scope > span");
+
+    await page.keyboard.press("Tab");
+    await expect(page.getByRole("button", { name: "Continuar" })).toBeFocused();
+    await expectActiveElementClearOfFixedChrome(page);
+
+    await page.keyboard.press("Enter");
+    await expect(
+      page.getByRole("heading", {
+        name: /Pela descrição: a forma tem todos os pontos/,
+      }),
+    ).toBeVisible();
+    await expectNoProgressRecorded(page);
+  });
+
+  test("keeps correct-answer focus clear of fixed chrome in a landscape viewport", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 667, height: 375 });
+    await reachImageOptionsExercise(page);
+    await focusFirstRadioByKeyboard(page);
+
+    await page.keyboard.press("ArrowDown");
+    await expect(page.getByText("Correto!")).toBeVisible();
+    await expect(page.locator("label", { hasText: "Imagem 2" })).toBeFocused();
+    await expectFocusedVisualOptionOutline(page, "Imagem 2");
+    await expectActiveElementClearOfFixedChrome(page, ":scope > span");
+    await expectNoProgressRecorded(page);
+  });
+
   test("keeps the recorded answer's feedback after a later media failure", async ({
     page,
   }) => {
@@ -377,6 +477,9 @@ test.describe("visual exercise infrastructure", () => {
     await expect(
       page.locator('img[src="/media/fixtures/shape-circle.svg"]'),
     ).toHaveCount(0);
+    await expect(
+      page.getByText("Não foi possível carregar a mídia"),
+    ).toHaveCount(0);
     await option(page, "Círculo").click();
     await expect(page.getByText("Correto!")).toBeVisible();
     await page.getByRole("button", { name: "Continuar" }).click();
@@ -389,8 +492,17 @@ test.describe("visual exercise infrastructure", () => {
         name: /Pela descrição: a forma tem três lados/,
       }),
     ).toBeVisible();
+    await expect(
+      page.getByText("Não foi possível carregar a mídia"),
+    ).toBeVisible();
+    await expect(
+      page.getByText(/Uma ou mais mídias deste exercício não puderam ser carregadas/),
+    ).toBeVisible();
     await option(page, "Triângulo").click();
     await expect(page.getByText("Correto!")).toBeVisible();
+    await expect(
+      page.getByText("Não foi possível carregar a mídia"),
+    ).toBeVisible();
     await page.getByRole("button", { name: "Finalizar experiência" }).click();
     await page.getByRole("button", { name: "Concluir experiência" }).click();
     await expect(page.getByText("Demonstração concluída")).toBeVisible();

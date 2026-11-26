@@ -40,6 +40,16 @@ export function GuidedExperienceDemo() {
   const completionHeadingRef = useRef<HTMLHeadingElement>(null);
   const [runId, setRunId] = useState(0);
 
+  const resetDemonstration = useCallback(() => {
+    setRunId((current) => current + 1);
+    setDemoState(
+      initialDemoConstellationState(
+        guidedExperience.blocks.length,
+        exerciseStepIndexes.length,
+      ),
+    );
+  }, [exerciseStepIndexes.length]);
+
   const handleSnapshot = useCallback((snapshot: LessonRunnerSnapshot) => {
     setDemoState((current) => reduceDemoConstellation(current, snapshot));
   }, []);
@@ -89,7 +99,7 @@ export function GuidedExperienceDemo() {
             <p className="max-w-2xl text-sm leading-relaxed text-muted">
               Você percorreu {demoState.stepCount} etapas e respondeu{" "}
               {demoState.correctExercises} de {demoState.totalExercises}{" "}
-              exercícios demonstrativos corretamente. A constelação acima é
+              exercícios demonstrativos corretamente. Essa constelação é
               apenas uma simulação visual: nenhuma lição oficial foi concluída
               e nenhum progresso foi salvo.
             </p>
@@ -120,6 +130,7 @@ export function GuidedExperienceDemo() {
             content={guidedExperience}
             completionLabel="Experiência demonstrativa concluída"
             onSnapshot={handleSnapshot}
+            onRestart={resetDemonstration}
             headerAccessory={
               <DemoConstellationMini
                 state={demoState}

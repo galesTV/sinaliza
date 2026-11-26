@@ -207,11 +207,11 @@ function ExerciseBlock({
     () => answeredInVariant && Boolean(variant),
   );
 
+  const mediaLoadFailed = exerciseMediaList(exercise).some((item) =>
+    failedSrcs.has(item.media.src),
+  );
   const mediaUnavailable =
-    !isExerciseVisuallyPermitted(exercise) ||
-    exerciseMediaList(exercise).some((item) =>
-      failedSrcs.has(item.media.src),
-    );
+    !isExerciseVisuallyPermitted(exercise) || mediaLoadFailed;
 
   const useVariant = Boolean(variant) && (mediaUnavailable || prefersDescription);
   const blocked = mediaUnavailable && !variant;
@@ -291,6 +291,47 @@ function ExerciseBlock({
     else onSelect(index);
   };
 
+  const previousResultRef = useRef(result);
+  const correctOptionLabelRef = useRef<HTMLLabelElement>(null);
+
+  // A correct answer disables the radio that may currently own focus. Keep
+  // focus on that answer's visible label instead of letting the browser drop
+  // it to BODY; the next Tab then reaches the advance action naturally.
+  // Revisiting an already solved step must not steal focus from the step
+  // heading managed by the parent runner.
+  useEffect(() => {
+    const previousResult = previousResultRef.current;
+    previousResultRef.current = result;
+    if (previousResult !== "correct" && result === "correct") {
+      const correctOptionLabel = correctOptionLabelRef.current;
+      correctOptionLabel?.focus({ preventScroll: true });
+      const frame = requestAnimationFrame(() => {
+        if (!correctOptionLabel) return;
+        const rect = correctOptionLabel.getBoundingClientRect();
+        const topBoundary =
+          document.querySelector("header")?.getBoundingClientRect().bottom ?? 0;
+        const bottomBoundary = Array.from(document.querySelectorAll("nav")).reduce(
+          (boundary, nav) => {
+            const style = window.getComputedStyle(nav);
+            if (style.position !== "fixed" || style.display === "none") {
+              return boundary;
+            }
+            const navRect = nav.getBoundingClientRect();
+            if (navRect.bottom < window.innerHeight) return boundary;
+            return Math.min(boundary, navRect.top);
+          },
+          window.innerHeight,
+        );
+        const clearOfFixedChrome =
+          rect.top >= topBoundary && rect.bottom <= bottomBoundary;
+        if (!clearOfFixedChrome) {
+          correctOptionLabel.scrollIntoView({ block: "start" });
+        }
+      });
+      return () => cancelAnimationFrame(frame);
+    }
+  }, [result]);
+
   return (
     <div className="flex flex-col gap-5">
       <h2
@@ -321,7 +362,14 @@ function ExerciseBlock({
       {/* Announced politely so assistive tech hears the modality change. */}
       <div aria-live="polite">
         {useVariant && (
-          <HonestNote>
+          <HonestNote
+            title={
+              mediaLoadFailed ? "Não foi possível carregar a mídia" : undefined
+            }
+          >
+            {mediaLoadFailed
+              ? "Uma ou mais mídias deste exercício não puderam ser carregadas agora. "
+              : ""}
             Versão por descrição: avalia a compreensão da descrição da
             demonstração, não a identificação visual. Não é uma equivalência
             pedagógica validada.
@@ -360,7 +408,11 @@ function ExerciseBlock({
                 : OPTION_TONES.idle;
           return (
             <div key={option.label} className="flex flex-col gap-1.5">
-              <label className="block h-full">
+              <label
+                ref={solved && isCorrect ? correctOptionLabelRef : undefined}
+                tabIndex={solved && isCorrect ? -1 : undefined}
+                className="group block h-full scroll-mt-20 scroll-mb-20 focus:outline-none md:scroll-mb-0"
+              >
                 <input
                   type="radio"
                   name={`${exercise.prompt}${useVariant ? " (descrição)" : ""}`}
@@ -372,7 +424,7 @@ function ExerciseBlock({
                 <span
                   className={cn(
                     visualOptions ? OPTION_CARD_BASE : OPTION_BUTTON_BASE,
-                    "peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-ring",
+                    "peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-ring group-focus-visible:outline-2 group-focus-visible:outline-offset-[-2px] group-focus-visible:outline-ring",
                     solved || blocked ? "cursor-default" : "cursor-pointer",
                     tone,
                   )}
@@ -396,6 +448,8 @@ function ExerciseBlock({
                           // Exercise media alt text is authored to describe the
                           // visible configuration without naming the answer.
                           alt={option.media.media.alt}
+                          width={option.media.media.width}
+                          height={option.media.media.height}
                           className="h-auto w-full rounded-lg border border-border bg-black/40 object-contain"
                           onError={() => markFailed(option.media!.media.src)}
                         />
@@ -414,6 +468,8 @@ function ExerciseBlock({
                           <img
                             src={option.media.media.src}
                             alt={option.media.media.alt}
+                            width={option.media.media.width}
+                            height={option.media.media.height}
                             className="h-16 w-16 shrink-0 rounded-lg border border-border bg-black/40 object-contain"
                             onError={() => markFailed(option.media!.media.src)}
                           />
@@ -495,7 +551,11 @@ function ExerciseBlock({
       {(solved || canGoBack) && (
         <div className="flex flex-wrap gap-3">
           {solved && (
-            <button type="button" onClick={onAdvance} className="btn-primary">
+            <button
+              type="button"
+              onClick={onAdvance}
+              className="btn-primary scroll-mb-20 md:scroll-mb-0"
+            >
               {isLastBlock ? finishLabel : "Continuar"}
               <IconArrowRight className="h-4 w-4" />
             </button>
@@ -513,6 +573,7 @@ export function LessonRunner({
   completionLabel = "Lição concluída",
   onSnapshot,
   headerAccessory,
+  onRestart,
 }: {
   content: LessonContent;
   /** When set, completing the lesson records it in the real progress store. */
@@ -525,6 +586,12 @@ export function LessonRunner({
   onSnapshot?: (snapshot: LessonRunnerSnapshot) => void;
   /** Optional compact status visualization rendered in the runner header. */
   headerAccessory?: ReactNode;
+  /**
+   * Optional restart owner for demonstrations whose parent must coordinate
+   * layout/state outside the runner. Regular lessons keep the internal
+   * runner restart when this prop is absent.
+   */
+  onRestart?: () => void;
 }) {
   // Created once per mounted component; pure — safe to build during SSR.
   const [runner] = useState(() =>
@@ -770,7 +837,7 @@ export function LessonRunner({
             ) : (
               <button
                 type="button"
-                onClick={runner.restart}
+                onClick={onRestart ?? runner.restart}
                 className="btn-secondary"
               >
                 <IconRefresh className="h-4 w-4" />
