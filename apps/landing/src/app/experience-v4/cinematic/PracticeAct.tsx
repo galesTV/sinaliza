@@ -17,31 +17,38 @@ export function PracticeAct() {
               Explore movimentos e configurações da mão com auxílio da tecnologia.
             </p>
           </header>
-          <figure className="v4c-practice-model">
-            <div id={PRACTICE_CANVAS_ID} className="v4c-practice-visual" aria-hidden="true">
-              <Image
-                src="/experience-v4/cinematic-poster.webp"
-                alt=""
-                width={487}
-                height={520}
-                loading="lazy"
-                unoptimized
-              />
+          <div className="v4c-practice-specimen">
+            <figure className="v4c-practice-model">
+              <div id={PRACTICE_CANVAS_ID} className="v4c-practice-visual" aria-hidden="true">
+                <Image
+                  src="/experience-v4/cinematic-poster.webp"
+                  alt=""
+                  width={487}
+                  height={520}
+                  loading="lazy"
+                  unoptimized
+                />
+              </div>
+              <figcaption className="v4c-practice-key">
+                <span aria-hidden="true" data-v4c-reveal="landmarks">21</span>
+                <p data-v4c-reveal="copy">
+                  <strong>21 pontos de referência</strong>
+                  <br />
+                  São referências geométricas da mão, não sinais de Libras.
+                </p>
+                <span className="v4c-srOnly">
+                  Na representação tridimensional, os pontos se distribuem do
+                  punho às pontas dos dedos, conectados por linhas que acompanham
+                  cada dedo, como na topologia usada pela visão computacional.
+                </span>
+              </figcaption>
+            </figure>
+            <div id={`${PRACTICE_CANVAS_ID}-actions`} className="v4c-practice-actions" hidden>
+              <button type="button" data-pose="sequence">Explorar movimento</button>
+              <button type="button" data-pose="relaxed">Posição inicial</button>
+              <span className="v4c-srOnly" role="status" />
             </div>
-            <figcaption className="v4c-practice-key">
-              <span aria-hidden="true" data-v4c-reveal="landmarks">21</span>
-              <p data-v4c-reveal="copy">
-                <strong>21 pontos de referência</strong>
-                <br />
-                São referências geométricas da mão, não sinais de Libras.
-              </p>
-              <span className="v4c-srOnly">
-                Na representação tridimensional, os pontos se distribuem do
-                punho às pontas dos dedos, conectados por linhas que acompanham
-                cada dedo, como na topologia usada pela visão computacional.
-              </span>
-            </figcaption>
-          </figure>
+          </div>
         </div>
 
         <div className="v4c-practice-lab">

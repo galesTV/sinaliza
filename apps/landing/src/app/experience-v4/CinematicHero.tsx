@@ -4,6 +4,8 @@ import { useEffect, useRef, type ReactNode } from "react";
 import * as THREE from "three";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import { HAND_ASSET_URL, loadSkinnedHandAsset } from "./handAsset";
+import { FLEX_SEQUENCE, HAND_POSES, HandPosePlayer } from "./handPoses";
+import { mountPracticeDiagnostics, type PracticeCommand } from "./practiceDiagnostics";
 import {
   createCinematicHand,
   stageAt,
@@ -16,6 +18,10 @@ const SMOOTHING = 9;
 // Timeline units per second: a fling still plays every intermediate state.
 const MAX_SPEED = 1.8;
 const FRAME_SAMPLES = 120;
+const ENTRY_VISIBILITY = 0.65;
+const TILT_LIMIT = THREE.MathUtils.degToRad(5);
+const TILT_DAMPING = 12;
+const TILT_EPSILON = 0.0001;
 
 function percentile(sorted: number[], fraction: number) {
   if (sorted.length === 0) return 0;
@@ -49,7 +55,9 @@ export function CinematicHero({
   const stageRef = useRef<HTMLElement>(null);
   const actRef = useRef<HTMLElement>(null);
   const hostRef = useRef<HTMLDivElement>(null);
+  const hudPanelRef = useRef<HTMLDetailsElement>(null);
   const hudRef = useRef<HTMLPreElement>(null);
+  const entryPlayedRef = useRef(false);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -59,10 +67,14 @@ export function CinematicHero({
     const host = hostRef.current;
     if (!root || !sceneLayer || !stage || !act || !host) return;
     const practiceHost = document.getElementById(practiceCanvasId);
+    const actions = document.getElementById(`${practiceCanvasId}-actions`);
+    const status = actions?.querySelector('[role="status"]');
 
     // The static layout is much shorter than the live one. Keep the reader
     // where they were: at the hero if it was pinned, else on the same text.
     const fail = () => {
+      if (actions) actions.hidden = true;
+      practiceHost?.removeAttribute("data-ready");
       const wasLive = root.dataset.mode === "live";
       const pinned = wasLive && stage.getBoundingClientRect().bottom > 0;
       const before = act.getBoundingClientRect().top;
@@ -103,12 +115,12 @@ export function CinematicHero({
       return;
     }
 
-    const reducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const hover = window.matchMedia("(hover: hover) and (pointer: fine)");
     const debug = new URLSearchParams(window.location.search).has("debug");
+    const hudPanel = hudPanelRef.current;
     const hud = hudRef.current;
-    if (hud) hud.hidden = !debug;
+    if (hudPanel) hudPanel.hidden = !debug;
 
     const hashTarget = (() => {
       if (!window.location.hash) return null;
@@ -158,10 +170,17 @@ export function CinematicHero({
     let scenePaused = false;
     let canvasHost: HTMLElement = host;
     let playingPractice = false;
+    const posePlayer = new HandPosePlayer();
+    const tilt = new THREE.Vector2();
+    const tiltTarget = new THREE.Vector2();
+    let poseSource: "entry" | "control" | "debug" | null = null;
+    let command: PracticeCommand = "relaxed";
+    let diagnostics: ReturnType<typeof mountPracticeDiagnostics> | undefined;
+    let practiceFrames = 0;
     let target = reducedMotion ? REDUCED_MOTION_PROGRESS : 0;
     let current = target;
     let lastTime = performance.now();
-    let lastFrame = lastTime;
+    let lastAnimatedFrame: number | null = null;
     let frameMs = 16.7;
     let workMs = 0;
     const frameTimes: number[] = [];
@@ -215,12 +234,15 @@ export function CinematicHero({
     const pastScene = () =>
       root.getBoundingClientRect().bottom < sceneLayer.offsetHeight;
 
-    const getPracticeTarget = () => {
-      if (reducedMotion || !practiceHost) return null;
+    const readPractice = () => {
+      if (reducedMotion || !practiceHost || document.hidden) return null;
       const { top, bottom, height } = practiceHost.getBoundingClientRect();
       const viewport = sceneLayer.offsetHeight;
       if (top >= viewport || bottom <= 0) return null;
-      return 2 + (viewport - top) / (viewport + height);
+      return {
+        progress: 2 + (viewport - top) / (viewport + height),
+        visibility: (Math.min(bottom, viewport) - Math.max(top, 0)) / Math.min(height, viewport),
+      };
     };
 
     const writeHud = () => {
@@ -238,6 +260,13 @@ export function CinematicHero({
         target: Number(target.toFixed(4)),
         stage: stageAt(current),
         scenePaused,
+        framePending: frame !== 0,
+        practiceFrames,
+        practicePose: posePlayer.pose,
+        poseMoving: posePlayer.active,
+        poseSource,
+        entryPlayed: entryPlayedRef.current,
+        practiceTilt: tilt.toArray(),
         layout,
         frameMs: Number(frameMs.toFixed(2)),
         frameMedianMs: Number(percentile(sorted, 0.5).toFixed(2)),
@@ -260,6 +289,16 @@ export function CinematicHero({
       hud.textContent = Object.entries(stats)
         .map(([key, value]) => `${key}: ${value}`)
         .join("\n");
+      diagnostics?.update(command, posePlayer.active, frame !== 0, practiceFrames);
+    };
+
+    const resetPractice = () => {
+      posePlayer.reset();
+      tilt.set(0, 0);
+      tiltTarget.set(0, 0);
+      poseSource = null;
+      command = "relaxed";
+      if (status) status.textContent = "";
     };
 
     const setScenePaused = (paused: boolean) => {
@@ -287,6 +326,9 @@ export function CinematicHero({
         }
         return practiceTarget;
       }
+      if (playingPractice && !scenePaused) {
+        resetPractice();
+      }
       if (pastScene()) return null;
       if (playingPractice) {
         playingPractice = false;
@@ -302,8 +344,9 @@ export function CinematicHero({
       if (!hand) return;
       if (scenePaused) return;
       const start = performance.now();
-      hand.update(current, layout, camera, viewWidth, viewHeight);
+      hand.update(current, layout, camera, viewWidth, viewHeight, posePlayer.pose, tilt.x, tilt.y);
       renderer.render(scene, camera);
+      if (debug && playingPractice) practiceFrames += 1;
       workMs += (performance.now() - start - workMs) * 0.2;
       root.style.setProperty("--v4c-p", Math.min(1, current).toFixed(4));
       root.dataset.stage = stageAt(current);
@@ -314,49 +357,129 @@ export function CinematicHero({
     const schedule = () => {
       if (disposed || frame || !running) return;
       lastTime = performance.now();
-      lastFrame = lastTime;
+      lastAnimatedFrame = null;
       frame = window.requestAnimationFrame(tick);
     };
 
     const tick = (now: number) => {
       frame = 0;
       if (disposed) return;
-      const nextTarget = selectScene(getPracticeTarget());
+      const practice = readPractice();
+      const nextTarget = selectScene(practice?.progress ?? null);
       if (nextTarget === null) {
         setScenePaused(true);
         return;
       }
       setScenePaused(false);
       target = nextTarget;
-      const delta = Math.min(0.1, (now - lastTime) / 1000);
+      const elapsed = Math.max(0, (now - lastTime) / 1000);
+      const delta = Math.min(0.1, elapsed);
       lastTime = now;
-      frameMs += (delta * 1000 - frameMs) * 0.1;
-      if (debug) {
-        frameTimes.push(now - lastFrame);
-        if (frameTimes.length > FRAME_SAMPLES) frameTimes.shift();
-      }
-      lastFrame = now;
 
       const gap = target - current;
-      if (Math.abs(gap) > 0.00005) {
+      const scrolling = Math.abs(gap) > 0.00005;
+      if (scrolling) {
         const limit = MAX_SPEED * delta;
         const step = gap * (1 - Math.exp(-delta * SMOOTHING));
         current += Math.min(limit, Math.max(-limit, step));
         if (Math.abs(target - current) < 0.0002) current = target;
         dirty = true;
       }
-      if (dirty || (debug && !playingPractice)) {
+      // Wait for the scroll reveal to finish drawing the connections.
+      if (
+        practice && !entryPlayedRef.current && practice.visibility >= ENTRY_VISIBILITY &&
+        current >= 2.45 && current <= 2.75
+      ) {
+        startPose("sequence", "entry", now);
+      }
+      const articulating = playingPractice && posePlayer.active;
+      if (articulating) {
+        posePlayer.sample(now);
+        dirty = true;
+        if (!posePlayer.active && poseSource === "control" && status) {
+          status.textContent = "Mão na posição inicial.";
+        }
+      }
+      const tilting = playingPractice && !tilt.equals(tiltTarget);
+      if (tilting) {
+        tilt.lerp(tiltTarget, 1 - Math.exp(-elapsed * TILT_DAMPING));
+        if (tilt.distanceToSquared(tiltTarget) < TILT_EPSILON ** 2) tilt.copy(tiltTarget);
+        dirty = true;
+      }
+      if (debug) {
+        const animating = scrolling || articulating || tilting;
+        if (animating && lastAnimatedFrame !== null) {
+          const interval = now - lastAnimatedFrame;
+          frameMs += (interval - frameMs) * 0.1;
+          frameTimes.push(interval);
+          if (frameTimes.length > FRAME_SAMPLES) frameTimes.shift();
+        }
+        lastAnimatedFrame = animating ? now : null;
+      }
+      if (posePlayer.active || !tilt.equals(tiltTarget) || Math.abs(target - current) > 0.00005) {
+        frame = window.requestAnimationFrame(tick);
+      }
+      if (dirty) {
         dirty = false;
         render();
       }
-      if (!playingPractice || Math.abs(target - current) > 0.00005) {
-        frame = window.requestAnimationFrame(tick);
-      }
     };
+
+    const startPose = (next: PracticeCommand, source: typeof poseSource, now: number) => {
+      entryPlayedRef.current = true;
+      poseSource = source;
+      command = next;
+      posePlayer.play(
+        next === "sequence" ? FLEX_SEQUENCE : [{ target: HAND_POSES[next], durationMs: 680 }],
+        now,
+      );
+      if (source === "control" && status) {
+        status.textContent = next === "sequence" ? "Demonstração em andamento."
+          : posePlayer.active ? "Retornando à posição inicial." : "Mão na posição inicial.";
+      }
+      dirty = true;
+    };
+
+    const playPose = (next: PracticeCommand) => {
+      if (!running || !readPractice()) return;
+      startPose(next, "debug", performance.now());
+      schedule();
+    };
+
+    const onAction = (event: MouseEvent) => {
+      if (!running || !(event.target instanceof HTMLElement)) return;
+      const next = event.target.closest("button")?.dataset.pose;
+      if (next !== "sequence" && next !== "relaxed") return;
+      const practice = readPractice();
+      if (!practice || practice.visibility < ENTRY_VISIBILITY || practice.progress > 2.75) {
+        practiceHost?.scrollIntoView({ block: "center", behavior: "instant" });
+      }
+      startPose(next, "control", performance.now());
+      schedule();
+    };
+
+    const onPointerMove = (event: PointerEvent) => {
+      if (!running || !playingPractice || scenePaused || !hover.matches ||
+          event.pointerType !== "mouse" || !practiceHost) return;
+      const { left, top, width, height } = practiceHost.getBoundingClientRect();
+      tiltTarget.set(
+        TILT_LIMIT * THREE.MathUtils.clamp(2 * (event.clientY - top) / height - 1, -1, 1),
+        TILT_LIMIT * THREE.MathUtils.clamp(2 * (event.clientX - left) / width - 1, -1, 1),
+      );
+      if (!tilt.equals(tiltTarget)) schedule();
+    };
+    const releasePointer = () => {
+      tiltTarget.set(0, 0);
+      if (!tilt.equals(tiltTarget)) schedule();
+    };
+    actions?.addEventListener("click", onAction);
+    practiceHost?.addEventListener("pointermove", onPointerMove, { passive: true });
+    practiceHost?.addEventListener("pointerleave", releasePointer);
+    hover.addEventListener("change", releasePointer);
 
     const resumeScene = () => {
       if (root.dataset.canvas === "failed") return;
-      if (pastScene() && getPracticeTarget() === null) return;
+      if (pastScene() && !readPractice()) return;
       dirty = true;
       if (reducedMotion) {
         if (scenePaused) {
@@ -369,14 +492,27 @@ export function CinematicHero({
     };
     const onScroll = () => {
       if (reducedMotion && !scenePaused && pastScene()) setScenePaused(true);
-      else if (!scenePaused && playingPractice) schedule();
       else if (scenePaused) resumeScene();
+      else if (!reducedMotion) schedule();
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     const onWindowResize = () => {
-      if (playingPractice) schedule();
+      if (scenePaused) resumeScene();
+      else if (playingPractice) schedule();
     };
     window.addEventListener("resize", onWindowResize, { passive: true });
+
+    const onVisibilityChange = () => {
+      if (!document.hidden) {
+        resumeScene();
+      } else if (playingPractice) {
+        window.cancelAnimationFrame(frame);
+        frame = 0;
+        resetPractice();
+        setScenePaused(true);
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
 
     const resizeObserver = new ResizeObserver((entries) => {
       if (!entries.some(({ target }) => target === canvasHost)) return;
@@ -393,6 +529,9 @@ export function CinematicHero({
       running = false;
       window.cancelAnimationFrame(frame);
       frame = 0;
+      resetPractice();
+      diagnostics?.remove();
+      diagnostics = undefined;
       setScenePaused(true);
       practiceHost?.removeAttribute("data-ready");
       fail();
@@ -407,8 +546,11 @@ export function CinematicHero({
         }
         loadMs = performance.now() - loadStart;
         hand = createCinematicHand(asset, scene);
+        if (debug && !reducedMotion && practiceHost) {
+          diagnostics = mountPracticeDiagnostics(practiceHost, playPose);
+        }
         // Start on the real scroll position so a reload mid-page does not replay.
-        const initial = selectScene(getPracticeTarget(), true);
+        const initial = selectScene(readPractice()?.progress ?? null, true);
         current = target = initial ?? 2;
         setScenePaused(initial === null);
         render();
@@ -418,6 +560,7 @@ export function CinematicHero({
           dirty = false;
         } else {
           running = true;
+          if (actions) actions.hidden = false;
           schedule();
         }
       })
@@ -440,8 +583,16 @@ export function CinematicHero({
       window.cancelAnimationFrame(frame);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onWindowResize);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      actions?.removeEventListener("click", onAction);
+      if (actions) actions.hidden = true;
+      if (hudPanel) hudPanel.hidden = true;
+      practiceHost?.removeEventListener("pointermove", onPointerMove);
+      practiceHost?.removeEventListener("pointerleave", releasePointer);
+      hover.removeEventListener("change", releasePointer);
       resizeObserver.disconnect();
       reducedObserver.disconnect();
+      diagnostics?.remove();
       practiceHost?.removeAttribute("data-ready");
       renderer.domElement.removeEventListener("webglcontextlost", onContextLost);
       hand?.dispose();
@@ -458,21 +609,26 @@ export function CinematicHero({
   }, [practiceCanvasId]);
 
   return (
-    <div ref={rootRef} className="v4c">
-      <div ref={sceneRef} className="v4c-scene" aria-hidden="true">
-        {backdrop}
-        <div className="v4c-poster" />
-        <div ref={hostRef} className="v4c-canvasHost" />
-        <pre ref={hudRef} className="v4c-hud" hidden />
+    <>
+      <details ref={hudPanelRef} className="v4c-hud" hidden>
+        <summary>Métricas da cena 3D</summary>
+        <pre ref={hudRef} translate="no" />
+      </details>
+      <div ref={rootRef} className="v4c">
+        <div ref={sceneRef} className="v4c-scene" aria-hidden="true">
+          {backdrop}
+          <div className="v4c-poster" />
+          <div ref={hostRef} className="v4c-canvasHost" />
+        </div>
+
+        <section className="v4c-stage" ref={stageRef} aria-labelledby="v4c-title">
+          <div className="v4c-viewport">{children}</div>
+        </section>
+
+        <section className="v4c-act" ref={actRef} aria-labelledby="v4c-act2-title">
+          {connection}
+        </section>
       </div>
-
-      <section className="v4c-stage" ref={stageRef} aria-labelledby="v4c-title">
-        <div className="v4c-viewport">{children}</div>
-      </section>
-
-      <section className="v4c-act" ref={actRef} aria-labelledby="v4c-act2-title">
-        {connection}
-      </section>
-    </div>
+    </>
   );
 }

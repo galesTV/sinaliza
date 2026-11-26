@@ -477,18 +477,28 @@
 /* ---------- Debug HUD (?debug) ---------- */
 
 .v4c-hud {
-  position: absolute;
-  z-index: 5;
-  top: 56px;
-  right: 16px;
-  margin: 0;
-  padding: 10px 12px;
-  border: 1px solid rgba(244, 246, 252, 0.16);
-  border-radius: 6px;
-  background: rgba(6, 9, 18, 0.78);
+  padding-inline: clamp(20px, 5vw, 72px);
+  border-bottom: 1px solid rgba(244, 246, 252, 0.16);
+  background: #10172b;
   color: #c9f3fb;
-  font: 11px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace;
-  pointer-events: none;
+  font-size: 0.8125rem;
+}
+
+.v4c-hud summary {
+  padding-block: 12px;
+  cursor: pointer;
+}
+
+.v4c-hud summary:focus-visible {
+  outline: 2px solid #9fe8f7;
+}
+
+.v4c-hud pre {
+  margin: 0;
+  padding-bottom: 12px;
+  font: 0.75rem/1.45 ui-monospace, SFMono-Regular, Menlo, monospace;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 /* ---------- Tablet & mobile: hand above, type below ---------- */
