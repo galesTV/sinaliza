@@ -6,6 +6,7 @@ import type { LessonRunnerSnapshot } from "./lesson-runner";
  * milestones, history or relationship to the educational progress store.
  */
 export interface DemoConstellationState {
+  currentStep: number;
   furthestStep: number;
   correctExercises: number;
   totalExercises: number;
@@ -18,6 +19,7 @@ export function initialDemoConstellationState(
   totalExercises = 0,
 ): DemoConstellationState {
   return {
+    currentStep: 0,
     furthestStep: 0,
     correctExercises: 0,
     totalExercises,
@@ -50,6 +52,7 @@ export function reduceDemoConstellation(
   }
 
   return {
+    currentStep: snapshot.stepIndex,
     furthestStep: Math.max(state.furthestStep, snapshot.stepIndex),
     correctExercises: Math.max(
       state.correctExercises,
@@ -80,10 +83,9 @@ export function demoNodeStates(
   const correctIndexes = new Set(
     exerciseStepIndexes.slice(0, state.correctExercises),
   );
-  const unlockedThrough = Math.min(
-    state.furthestStep,
-    Math.max(0, count - 1),
-  );
+  const lastIndex = Math.max(0, count - 1);
+  const unlockedThrough = Math.min(state.furthestStep, lastIndex);
+  const currentStep = Math.min(state.currentStep, lastIndex);
 
   return Array.from({ length: count }, (_, index) => {
     if (correctIndexes.has(index)) {
@@ -91,7 +93,8 @@ export function demoNodeStates(
     }
     if (state.completed && index <= unlockedThrough) return "complete";
     if (index > unlockedThrough) return "locked";
-    if (index === unlockedThrough) return "current";
-    return "passed";
+    if (index === currentStep) return "current";
+    if (index <= unlockedThrough) return "passed";
+    return "locked";
   });
 }

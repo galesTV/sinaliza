@@ -68,9 +68,13 @@ describe("demo constellation state", () => {
       state,
       snapshot({ stepIndex: 1, solvedExercises: 2 }),
     );
+    expect(state.currentStep).toBe(1);
     expect(state.furthestStep).toBe(5);
     expect(state.correctExercises).toBe(2);
-    expect(demoNodeStates(state, exercises)[5]).toBe("correct");
+    const nodes = demoNodeStates(state, exercises);
+    expect(nodes[1]).toBe("current");
+    expect(nodes[4]).toBe("passed");
+    expect(nodes[5]).toBe("correct");
   });
 
   it("forms the completed simulation and resets only on restart after completion", () => {

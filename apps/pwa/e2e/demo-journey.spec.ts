@@ -201,6 +201,9 @@ test.describe("guided public demo constellation", () => {
       "4",
     );
     await expect(demoConstellation(page)).toHaveAttribute("data-correct", "1");
+    await expect(
+      page.locator('[data-demo-node="4"]'),
+    ).toHaveAttribute("data-state", "passed");
 
     await page.getByRole("button", { name: "Continuar" }).click();
     await expect(demoConstellation(page)).toHaveAttribute(
