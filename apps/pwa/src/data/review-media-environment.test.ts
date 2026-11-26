@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { hasMediaDisplayPermission } from "./lesson-content";
 import {
@@ -77,11 +77,13 @@ function makeSpecimen(): AlphabetSpecimen {
 }
 
 describe("review media environment guard", () => {
-  it("detects only preview and production as public deployments", () => {
+  it("treats Vercel public deployments and any production runtime as public", () => {
     expect(isPublicDeploymentEnvironment("preview")).toBe(true);
     expect(isPublicDeploymentEnvironment("production")).toBe(true);
+    expect(isPublicDeploymentEnvironment(undefined, "production")).toBe(true);
     expect(isPublicDeploymentEnvironment("development")).toBe(false);
-    expect(isPublicDeploymentEnvironment(undefined)).toBe(false);
+    expect(isPublicDeploymentEnvironment(undefined, "development")).toBe(false);
+    expect(isPublicDeploymentEnvironment(undefined, "test")).toBe(false);
   });
 
   it("keeps local-review media displayable outside public deployments", () => {
@@ -110,6 +112,26 @@ describe("review media environment guard", () => {
       "/media/alfabeto/primeiros-passos/letra-b.jpg",
     );
     expect(mediaBlock.media.src).toBe("local-review:fiocruz:b");
+  });
+
+  it("does not resolve restricted media merely because VERCEL_ENV is absent in production", () => {
+    delete process.env.VERCEL_ENV;
+    const content = makeContent();
+    const mediaBlock = content.blocks[0];
+    if (mediaBlock.kind !== "media") throw new Error("fixture");
+    mediaBlock.media = {
+      ...mediaBlock.media,
+      src: "local-review:fiocruz:b",
+    };
+
+    vi.stubEnv("NODE_ENV", "production");
+    const prepared = prepareLessonContentForEnvironment(content);
+    vi.unstubAllEnvs();
+
+    const preparedBlock = prepared.blocks[0];
+    if (preparedBlock.kind !== "media") throw new Error("fixture");
+    expect(preparedBlock.media.src).toBe("");
+    expect(hasMediaDisplayPermission(preparedBlock.attribution)).toBe(false);
   });
 
   it("strips display permission from every local-review media slot in public deployments", () => {

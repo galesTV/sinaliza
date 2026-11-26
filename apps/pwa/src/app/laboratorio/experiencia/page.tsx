@@ -14,6 +14,7 @@ import {
   alphabetSpecimens,
   hasDisplayPermission,
   getSpecimenUrl,
+  specimenAvailabilityLabel,
 } from "@/data/alphabet-specimens";
 import { prepareSpecimenForEnvironment } from "@/data/review-media-environment";
 import { guidedExperience } from "@/data/lesson-content";
@@ -29,7 +30,7 @@ export default function GuidedExperiencePage() {
   const displaySpecimens = alphabetSpecimens.map((specimen) =>
     prepareSpecimenForEnvironment(specimen),
   );
-  const licensedMediaVisible = displaySpecimens.some((specimen) =>
+  const licensedMediaAuthorized = displaySpecimens.some((specimen) =>
     hasDisplayPermission(specimen),
   );
 
@@ -118,9 +119,7 @@ export default function GuidedExperiencePage() {
                     <ValidationStatusBadge status={specimen.validationStatus} />
                   </span>
                   <span className="text-sm text-muted">
-                    {hasDisplayPermission(specimen)
-                      ? "Demonstração disponível para revisão."
-                      : "Mídia em produção — licença não confirmada."}
+                    {specimenAvailabilityLabel(specimen)}
                   </span>
                 </span>
                 <IconArrowRight className="h-4 w-4 shrink-0 text-muted transition-colors group-hover:text-foreground" />
@@ -130,8 +129,8 @@ export default function GuidedExperiencePage() {
         </ul>
 
         <HonestNote title="Demonstrações visuais em curadoria">
-          {licensedMediaVisible
-            ? "Quatro espécimes já exibem fotografias licenciadas para uso educativo não comercial (acervo Fiocruz Imagens) nesta prévia local — a letra C segue sem mídia licenciada. Os visores abaixo mostram o estado real de cada espécime, sem imagens provisórias ou demonstrações inventadas."
+          {licensedMediaAuthorized
+            ? "Quatro espécimes têm fotografias licenciadas para uso educativo não comercial (acervo Fiocruz Imagens) na prévia local — a letra C segue sem mídia licenciada. A licença autoriza a revisão local, mas não garante a presença do arquivo nem a publicação: os visores abaixo mostram o estado real de cada espécime, sem imagens provisórias ou demonstrações inventadas."
             : "As fotografias licenciadas do acervo Fiocruz Imagens são restritas à prévia local de revisão e não são exibidas neste ambiente público. Os visores abaixo mostram o estado real de cada espécime, sem imagens provisórias ou demonstrações inventadas."}
         </HonestNote>
 

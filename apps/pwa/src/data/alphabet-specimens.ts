@@ -185,6 +185,17 @@ export function getSpecimenUrl(letter: string): string {
   return `/laboratorio/alfabeto/${letter.trim().toLowerCase()}`;
 }
 
+/** Short honest availability label for review listings. */
+export function specimenAvailabilityLabel(specimen: AlphabetSpecimen): string {
+  if (hasDisplayPermission(specimen)) {
+    return "Autorização local documentada — disponibilidade mostrada no visor.";
+  }
+  if (specimen.attribution?.displayScope === "local-review") {
+    return "Restrita à revisão local — não exibida neste ambiente público.";
+  }
+  return "Mídia em produção — licença não confirmada.";
+}
+
 /**
  * Whether the specimen's media may be shown at all (previews included):
  * a present asset whose attribution records author, license and

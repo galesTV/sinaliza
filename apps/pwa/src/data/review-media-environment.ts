@@ -8,9 +8,10 @@
  * never carry the distributable file path. Server-rendered review surfaces
  * call these helpers before passing content to client components:
  *
- * - outside public deployments, the opaque reference is resolved to the local
+ * - in local development/test, the opaque reference is resolved to the local
  *   review file path and the licensed preview behaves normally;
- * - in Vercel preview/production the display evidence is stripped and the
+ * - in any production runtime, including production builds outside Vercel,
+ *   and in Vercel preview/production the display evidence is stripped and the
  *   source emptied, so the ordinary fail-closed media gate hides the asset
  *   and the browser never requests the restricted file.
  *
@@ -31,8 +32,11 @@ const LOCAL_REVIEW_SRC = /^local-review:fiocruz:([abil])$/;
 
 export function isPublicDeploymentEnvironment(
   vercelEnv = process.env.VERCEL_ENV,
+  nodeEnv = process.env.NODE_ENV,
 ): boolean {
-  return PUBLIC_DEPLOYMENT_ENVS.has(vercelEnv ?? "");
+  return (
+    PUBLIC_DEPLOYMENT_ENVS.has(vercelEnv ?? "") || nodeEnv === "production"
+  );
 }
 
 function resolveLocalReviewSrc(src: string): string {

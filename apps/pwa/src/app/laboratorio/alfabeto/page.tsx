@@ -11,6 +11,7 @@ import {
   alphabetSpecimens,
   hasDisplayPermission,
   getSpecimenUrl,
+  specimenAvailabilityLabel,
 } from "@/data/alphabet-specimens";
 import { prepareSpecimenForEnvironment } from "@/data/review-media-environment";
 
@@ -25,7 +26,7 @@ export default function AlphabetSpecimensPage() {
   const displaySpecimens = alphabetSpecimens.map((specimen) =>
     prepareSpecimenForEnvironment(specimen),
   );
-  const licensedMediaVisible = displaySpecimens.some((specimen) =>
+  const licensedMediaAuthorized = displaySpecimens.some((specimen) =>
     hasDisplayPermission(specimen),
   );
 
@@ -40,8 +41,8 @@ export default function AlphabetSpecimensPage() {
           Curadoria do alfabeto manual
         </h1>
         <p className="max-w-xl text-base leading-relaxed text-muted">
-          {licensedMediaVisible
-            ? "Espécimes visuais das primeiras letras em curadoria — quatro demonstrações já têm uso educativo confirmado pela Fiocruz Imagens e aparecem nesta prévia local; revisão linguística e publicação seguem pendentes."
+          {licensedMediaAuthorized
+            ? "Espécimes visuais das primeiras letras em curadoria — quatro demonstrações têm uso educativo documentado pela Fiocruz Imagens para a prévia local; os visores mostram se cada arquivo está efetivamente disponível. Revisão linguística e publicação seguem pendentes."
             : "Espécimes visuais das primeiras letras em curadoria — as demonstrações com uso educativo confirmado pela Fiocruz Imagens são restritas à prévia local e não aparecem neste ambiente público; revisão linguística e publicação seguem pendentes."}
         </p>
 
@@ -86,9 +87,7 @@ export default function AlphabetSpecimensPage() {
                   <ValidationStatusBadge status={specimen.validationStatus} />
                 </span>
                 <span className="text-sm text-muted">
-                  {hasDisplayPermission(specimen)
-                    ? "Demonstração disponível para revisão."
-                    : "Mídia em produção — licença não confirmada."}
+                  {specimenAvailabilityLabel(specimen)}
                 </span>
               </span>
               <IconArrowRight className="h-4 w-4 shrink-0 text-muted transition-colors group-hover:text-foreground" />

@@ -15,8 +15,6 @@ import {
   getSpecimen,
 } from "@/data/alphabet-specimens";
 import { prepareSpecimenForEnvironment } from "@/data/review-media-environment";
-import { getLessonContext } from "@/data/learning-paths";
-import { parseLessonKey } from "@/lib/progress";
 
 interface SpecimenPreviewProps {
   params: Promise<{ letter: string }>;
@@ -49,11 +47,6 @@ export default async function SpecimenPreviewPage({
   if (!specimen) notFound();
 
   const displaySpecimen = prepareSpecimenForEnvironment(specimen);
-  const parsed = parseLessonKey(specimen.lessonKey);
-  const context =
-    parsed &&
-    getLessonContext(parsed.pathSlug, parsed.moduleSlug, parsed.lessonSlug);
-
   return (
     <div className="flex flex-col gap-10">
       <Breadcrumb
@@ -69,8 +62,7 @@ export default async function SpecimenPreviewPage({
 
       <header className="flex flex-col gap-5">
         <Eyebrow>
-          Laboratório · Alfabeto manual
-          {context ? ` · ${context.module.title}` : ""}
+          Laboratório · Alfabeto manual · Espécime em curadoria
         </Eyebrow>
         <h1 className="max-w-2xl font-display text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
           {specimen.title}
