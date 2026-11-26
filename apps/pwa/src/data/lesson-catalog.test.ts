@@ -379,7 +379,10 @@ describe("primeiras-letras draft-6", () => {
     const fullyReviewed = {
       ...entry,
       validationStatus: "expert-validated" as const,
-      reviews: [...FULL_REVIEW_CHAIN],
+      reviews: FULL_REVIEW_CHAIN.map((review) => ({
+        ...review,
+        version: entry.version,
+      })),
     };
     expect(isPublishable(fullyReviewed)).toBe(false);
   });
