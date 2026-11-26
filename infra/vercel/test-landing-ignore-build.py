@@ -810,6 +810,7 @@ def main():
         lambda: special_file_case("landing file with tab in name", "apps/landing/file\twith-tab.txt", 1, "\\t"),
         lambda: special_file_case("landing file with newline in name", "apps/landing/file\nwith-newline.txt", 1, "\\n"),
         lambda: special_file_case("landing file with quote and backslash in name", 'apps/landing/file"quote\\backslash.txt', 1, "landing-relevant path changed"),
+        lambda: simple_case("root gitignore change", 1, lambda repo: write(repo, ".gitignore", "apps/landing/src/**\n"), reason_contains="unclassified path changed"),
         case_rename_special_pwa_to_landing,
         case_rename_special_landing_to_pwa,
         case_git_diff_failure,

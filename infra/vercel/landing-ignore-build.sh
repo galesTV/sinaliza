@@ -15,7 +15,7 @@ skip() {
 
 is_known_independent_path() {
   case "$1" in
-    apps/pwa/*|docs/*|supabase/*|.agents/*|README.md|AGENTS.md|.gitignore)
+    apps/pwa/*|docs/*|supabase/*|.agents/*|README.md|AGENTS.md)
       return 0
       ;;
     *)

@@ -29,8 +29,9 @@ SKIP possível somente em preview positivamente identificado quando todos os cam
 - `supabase/**`;
 - `.agents/**`;
 - `README.md`;
-- `AGENTS.md`;
-- `.gitignore`.
+- `AGENTS.md`.
+
+`.gitignore` é intencionalmente tratado como BUILD: alterações nele podem influenciar a detecção automática de conteúdo do Tailwind e, portanto, o CSS gerado da landing.
 
 Essa fronteira foi auditada no snapshot atual de `origin/dev`. Ela não é uma garantia permanente para branches futuras.
 
