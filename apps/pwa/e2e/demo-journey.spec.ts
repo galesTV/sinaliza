@@ -131,21 +131,18 @@ async function answerGuidedExercise(page: Page, label: string) {
 }
 
 async function expectMiniConstellationVisible(page: Page) {
-  const metrics = await page
-    .getByTestId("demo-constellation-mini")
-    .evaluate((element) => {
-      const rect = element.getBoundingClientRect();
-      const headerBottom =
-        document.querySelector("header")?.getBoundingClientRect().bottom ?? 0;
-      return {
-        top: rect.top,
-        bottom: rect.bottom,
-        headerBottom,
-        viewportHeight: window.innerHeight,
-      };
-    });
-  expect(metrics.top).toBeGreaterThanOrEqual(metrics.headerBottom);
-  expect(metrics.bottom).toBeLessThanOrEqual(metrics.viewportHeight);
+  // Correct-answer focus may legitimately start a smooth scroll; wait for the
+  // final position instead of measuring while that scroll is still settling.
+  await expect
+    .poll(() =>
+      page.getByTestId("demo-constellation-mini").evaluate((element) => {
+        const rect = element.getBoundingClientRect();
+        const headerBottom =
+          document.querySelector("header")?.getBoundingClientRect().bottom ?? 0;
+        return rect.top >= headerBottom && rect.bottom <= window.innerHeight;
+      }),
+    )
+    .toBe(true);
 }
 
 async function reachFirstGuidedExercise(page: Page) {
