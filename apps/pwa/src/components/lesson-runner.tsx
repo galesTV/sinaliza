@@ -295,18 +295,24 @@ function ExerciseBlock({
   const correctOptionLabelRef = useRef<HTMLLabelElement>(null);
 
   // A correct answer disables the radio that may currently own focus. Keep
-  // focus once on that answer's visible label instead of letting the browser
-  // drop it to BODY; the next Tab then reaches the advance action naturally.
-  // Revisiting an already solved step must not steal focus from the step
-  // heading managed by the parent runner.
+  // focus on that answer's visible label instead of letting the browser drop
+  // it to BODY; the next Tab then reaches the advance action naturally. Media
+  // and feedback insertion can shift layout after the transition, so visibility
+  // is rechecked from resize events rather than an arbitrary timeout. Revisiting
+  // an already solved step must not steal focus from the step heading managed
+  // by the parent runner.
   useEffect(() => {
     const previousResult = previousResultRef.current;
     previousResultRef.current = result;
     if (previousResult !== "correct" && result === "correct") {
       const correctOptionLabel = correctOptionLabelRef.current;
       correctOptionLabel?.focus({ preventScroll: true });
-      const frame = requestAnimationFrame(() => {
-        if (!correctOptionLabel) return;
+      let frame = 0;
+      const ensureVisible = () => {
+        frame = 0;
+        if (!correctOptionLabel || document.activeElement !== correctOptionLabel) {
+          return;
+        }
         const rect = correctOptionLabel.getBoundingClientRect();
         const topBoundary =
           document.querySelector("header")?.getBoundingClientRect().bottom ?? 0;
@@ -327,8 +333,23 @@ function ExerciseBlock({
         if (!clearOfFixedChrome) {
           correctOptionLabel.scrollIntoView({ block: "start" });
         }
-      });
-      return () => cancelAnimationFrame(frame);
+      };
+      const scheduleVisibilityCheck = () => {
+        if (frame === 0) frame = requestAnimationFrame(ensureVisible);
+      };
+      scheduleVisibilityCheck();
+      window.addEventListener("resize", scheduleVisibilityCheck);
+      const resizeObserver =
+        typeof ResizeObserver === "undefined"
+          ? null
+          : new ResizeObserver(scheduleVisibilityCheck);
+      resizeObserver?.observe(document.body);
+      if (correctOptionLabel) resizeObserver?.observe(correctOptionLabel);
+      return () => {
+        cancelAnimationFrame(frame);
+        window.removeEventListener("resize", scheduleVisibilityCheck);
+        resizeObserver?.disconnect();
+      };
     }
   }, [result]);
 
