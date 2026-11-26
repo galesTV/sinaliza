@@ -305,7 +305,30 @@ function ExerciseBlock({
     if (previousResult !== "correct" && result === "correct") {
       const correctOptionLabel = correctOptionLabelRef.current;
       correctOptionLabel?.focus({ preventScroll: true });
-      correctOptionLabel?.scrollIntoView({ block: "nearest" });
+      const frame = requestAnimationFrame(() => {
+        if (!correctOptionLabel) return;
+        const rect = correctOptionLabel.getBoundingClientRect();
+        const topBoundary =
+          document.querySelector("header")?.getBoundingClientRect().bottom ?? 0;
+        const bottomBoundary = Array.from(document.querySelectorAll("nav")).reduce(
+          (boundary, nav) => {
+            const style = window.getComputedStyle(nav);
+            if (style.position !== "fixed" || style.display === "none") {
+              return boundary;
+            }
+            const navRect = nav.getBoundingClientRect();
+            if (navRect.bottom < window.innerHeight) return boundary;
+            return Math.min(boundary, navRect.top);
+          },
+          window.innerHeight,
+        );
+        const clearOfFixedChrome =
+          rect.top >= topBoundary && rect.bottom <= bottomBoundary;
+        if (!clearOfFixedChrome) {
+          correctOptionLabel.scrollIntoView({ block: "start" });
+        }
+      });
+      return () => cancelAnimationFrame(frame);
     }
   }, [result]);
 
@@ -388,7 +411,7 @@ function ExerciseBlock({
               <label
                 ref={solved && isCorrect ? correctOptionLabelRef : undefined}
                 tabIndex={solved && isCorrect ? -1 : undefined}
-                className="group block h-full scroll-mb-20 focus:outline-none md:scroll-mb-0"
+                className="group block h-full scroll-mt-20 scroll-mb-20 focus:outline-none md:scroll-mb-0"
               >
                 <input
                   type="radio"

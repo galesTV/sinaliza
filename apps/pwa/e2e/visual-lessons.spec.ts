@@ -17,6 +17,27 @@ function option(page: Page, text: string | RegExp) {
   return page.locator("fieldset label", { hasText: text });
 }
 
+async function reachImageOptionsExercise(page: Page) {
+  await page.goto("/laboratorio/licao-visual");
+  await page.getByRole("button", { name: "Continuar" }).click();
+  await option(page, "Círculo").click();
+  await page.getByRole("button", { name: "Continuar" }).click();
+}
+
+async function focusFirstRadioByKeyboard(page: Page) {
+  let reachedRadio = false;
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    await page.keyboard.press("Tab");
+    reachedRadio = await page.evaluate(
+      () =>
+        document.activeElement instanceof HTMLInputElement &&
+        document.activeElement.type === "radio",
+    );
+    if (reachedRadio) break;
+  }
+  expect(reachedRadio).toBe(true);
+}
+
 test.describe("textual lesson demo", () => {
   test("navigates steps, requires correct answers and records no progress", async ({
     page,
@@ -319,22 +340,8 @@ test.describe("visual exercise infrastructure", () => {
     page,
   }) => {
     await page.setViewportSize({ width: 390, height: 560 });
-    await page.goto("/laboratorio/licao-visual");
-    await page.getByRole("button", { name: "Continuar" }).click();
-    await option(page, "Círculo").click();
-    await page.getByRole("button", { name: "Continuar" }).click();
-
-    let reachedRadio = false;
-    for (let attempt = 0; attempt < 20; attempt += 1) {
-      await page.keyboard.press("Tab");
-      reachedRadio = await page.evaluate(
-        () =>
-          document.activeElement instanceof HTMLInputElement &&
-          document.activeElement.type === "radio",
-      );
-      if (reachedRadio) break;
-    }
-    expect(reachedRadio).toBe(true);
+    await reachImageOptionsExercise(page);
+    await focusFirstRadioByKeyboard(page);
 
     // In this unselected group, ArrowDown moves from Imagem 1 to the correct
     // Imagem 2. The image options stack vertically at this width, pushing the
@@ -354,6 +361,20 @@ test.describe("visual exercise infrastructure", () => {
         name: /Pela descrição: a forma tem todos os pontos/,
       }),
     ).toBeVisible();
+    await expectNoProgressRecorded(page);
+  });
+
+  test("keeps correct-answer focus clear of fixed chrome in a landscape viewport", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 667, height: 375 });
+    await reachImageOptionsExercise(page);
+    await focusFirstRadioByKeyboard(page);
+
+    await page.keyboard.press("ArrowDown");
+    await expect(page.getByText("Correto!")).toBeVisible();
+    await expect(page.locator("label", { hasText: "Imagem 2" })).toBeFocused();
+    await expectActiveElementClearOfFixedChrome(page);
     await expectNoProgressRecorded(page);
   });
 
