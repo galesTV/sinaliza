@@ -128,6 +128,24 @@ async function answerGuidedExercise(page: Page, label: string) {
   await page.locator("fieldset label", { hasText: label }).click();
 }
 
+async function expectMiniConstellationVisible(page: Page) {
+  const metrics = await page
+    .getByTestId("demo-constellation-mini")
+    .evaluate((element) => {
+      const rect = element.getBoundingClientRect();
+      const headerBottom =
+        document.querySelector("header")?.getBoundingClientRect().bottom ?? 0;
+      return {
+        top: rect.top,
+        bottom: rect.bottom,
+        headerBottom,
+        viewportHeight: window.innerHeight,
+      };
+    });
+  expect(metrics.top).toBeGreaterThanOrEqual(metrics.headerBottom);
+  expect(metrics.bottom).toBeLessThanOrEqual(metrics.viewportHeight);
+}
+
 async function reachFirstGuidedExercise(page: Page) {
   await page.goto("/laboratorio/experiencia");
   await expect(demoConstellation(page)).toBeVisible();
@@ -195,6 +213,9 @@ test.describe("guided public demo constellation", () => {
         };
       });
     expect(pulse).toEqual({ name: "demo-node-pulse", iterations: "1" });
+    if ((page.viewportSize()?.width ?? 0) <= 430) {
+      await expectMiniConstellationVisible(page);
+    }
   });
 
   test("back and forward navigation never duplicates demo achievements", async ({
@@ -308,6 +329,33 @@ test.describe("guided public demo constellation", () => {
       "false",
     );
     await expectNoProgressRecorded(page);
+  });
+
+  test("navigating away and returning discards the ephemeral attempt", async ({
+    page,
+  }) => {
+    await reachFirstGuidedExercise(page);
+    await answerGuidedExercise(page, FIRST_RIGHT);
+    await expect(demoConstellation(page)).toHaveAttribute("data-correct", "1");
+
+    const nav = page.getByRole("navigation", { name: "Navegação principal" });
+    await nav.getByRole("link", { name: "Trilhas" }).click();
+    await expect(page).toHaveURL(/\/trilhas$/);
+    await page
+      .getByRole("link", { name: "Sinaliza — página inicial" })
+      .click();
+    await expect(page).toHaveURL(/\/$/);
+    await page
+      .locator('section[aria-labelledby="home-title"]')
+      .getByRole("link", { name: "Experimentar o Sinaliza" })
+      .click();
+
+    await expect(page).toHaveURL(/\/laboratorio\/experiencia$/);
+    await expect(demoConstellation(page)).toHaveAttribute("data-correct", "0");
+    await expect(demoConstellation(page)).toHaveAttribute(
+      "data-completed",
+      "false",
+    );
   });
 
   test("correct-answer animation is disabled under reduced motion", async ({

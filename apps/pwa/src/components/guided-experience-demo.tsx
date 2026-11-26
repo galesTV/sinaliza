@@ -38,6 +38,7 @@ export function GuidedExperienceDemo() {
   );
 
   const completionHeadingRef = useRef<HTMLHeadingElement>(null);
+  const [runId, setRunId] = useState(0);
 
   const handleSnapshot = useCallback((snapshot: LessonRunnerSnapshot) => {
     setDemoState((current) => reduceDemoConstellation(current, snapshot));
@@ -47,11 +48,27 @@ export function GuidedExperienceDemo() {
     if (demoState.completed) completionHeadingRef.current?.focus();
   }, [demoState.completed]);
 
+  // Client-side route caching can preserve a hidden page's React state.
+  // When those effects disconnect, retire this run so a later visit mounts
+  // a fresh runner instead of resuming an abandoned demonstration.
+  useEffect(() => {
+    return () => {
+      setRunId((current) => current + 1);
+      setDemoState(
+        initialDemoConstellationState(
+          guidedExperience.blocks.length,
+          exerciseStepIndexes.length,
+        ),
+      );
+    };
+  }, [exerciseStepIndexes.length]);
+
   return (
     <div className="flex flex-col gap-6">
       <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
         <div className="order-2 xl:order-1">
           <LessonRunner
+            key={runId}
             content={guidedExperience}
             completionLabel="Experiência demonstrativa concluída"
             onSnapshot={handleSnapshot}
