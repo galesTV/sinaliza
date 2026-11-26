@@ -349,7 +349,7 @@ test.describe("visual exercise infrastructure", () => {
     await page.keyboard.press("ArrowDown");
     await expect(page.getByText("Correto!")).toBeVisible();
     await expect(page.locator("label", { hasText: "Imagem 2" })).toBeFocused();
-    await expectActiveElementClearOfFixedChrome(page);
+    await expectActiveElementClearOfFixedChrome(page, ":scope > span");
 
     await page.keyboard.press("Tab");
     await expect(page.getByRole("button", { name: "Continuar" })).toBeFocused();
@@ -374,7 +374,7 @@ test.describe("visual exercise infrastructure", () => {
     await page.keyboard.press("ArrowDown");
     await expect(page.getByText("Correto!")).toBeVisible();
     await expect(page.locator("label", { hasText: "Imagem 2" })).toBeFocused();
-    await expectActiveElementClearOfFixedChrome(page);
+    await expectActiveElementClearOfFixedChrome(page, ":scope > span");
     await expectNoProgressRecorded(page);
   });
 

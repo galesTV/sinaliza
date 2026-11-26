@@ -424,7 +424,7 @@ function ExerciseBlock({
                 <span
                   className={cn(
                     visualOptions ? OPTION_CARD_BASE : OPTION_BUTTON_BASE,
-                    "peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-ring group-focus-visible:outline-2 group-focus-visible:outline-offset-2 group-focus-visible:outline-ring",
+                    "peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-ring group-focus-visible:outline-2 group-focus-visible:outline-offset-[-2px] group-focus-visible:outline-ring",
                     solved || blocked ? "cursor-default" : "cursor-pointer",
                     tone,
                   )}
