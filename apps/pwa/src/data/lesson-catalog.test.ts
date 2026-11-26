@@ -356,6 +356,8 @@ describe("primeiras-letras draft-6", () => {
       expect(block.media.src).toMatch(
         /^\/media\/alfabeto\/primeiros-passos\/letra-[abil]\.jpg$/,
       );
+      if (block.media.type !== "image") throw new Error("fixture");
+      expect(block.media.alt).toMatch(/mão|dedo|punho/);
       // Educational use was confirmed by Fiocruz Imagens, so evidence is
       // recorded and the gate opens — for local review surfaces only:
       // the lesson stays draft and never publishable without reviews
@@ -397,6 +399,16 @@ describe("primeiras-letras draft-6", () => {
       // variant stays available as the accessible alternative.
       expect(isExerciseVisuallyPermitted(exercise)).toBe(true);
       expect(exercise.descriptionVariant).toBeDefined();
+      for (const item of [
+        ...(exercise.promptMedia ? [exercise.promptMedia] : []),
+        ...exercise.options.flatMap((option) => (option.media ? [option.media] : [])),
+      ]) {
+        if (item.media.type !== "image") throw new Error("fixture");
+        // Exercise media may describe the visible hand configuration, but
+        // never name the letter being asked for.
+        expect(item.media.alt).not.toMatch(/letra [ABIL]/);
+        expect(item.media.alt).toMatch(/mão|dedo|punho/);
+      }
     }
   });
 

@@ -160,6 +160,16 @@ const FIOCRUZ_LICENSE_URL =
  */
 const FIOCRUZ_PERMISSION_EVIDENCE =
   "Uso educativo não comercial confirmado pela Equipe Fiocruz Imagens em 24/11/2026 (docs/evidencia-permissao-fiocruz.md). Redistribuição pública dos arquivos não autorizada: exibição restrita à prévia local de revisão.";
+const FIOCRUZ_CONFIGURATION_ALT: Record<
+  "A" | "B" | "I" | "L",
+  string
+> = {
+  A: "a mão fechada em punho, com os quatro dedos dobrados e o polegar apoiado ao lado deles",
+  B: "a mão aberta e estendida, com os quatro dedos juntos e o polegar dobrado sobre a palma",
+  I: "somente o dedo mínimo estendido, com os demais dedos e o polegar dobrados",
+  L: "o dedo indicador estendido para cima e o polegar aberto para o lado, com os demais dedos dobrados",
+};
+
 const FIOCRUZ_CANDIDATES: Record<
   "A" | "B" | "I" | "L",
   { item: string; url: string }
@@ -200,7 +210,7 @@ export function licensedLetterMedia(letter: keyof typeof FIOCRUZ_CANDIDATES): {
     media: {
       type: "image",
       src: `/media/alfabeto/primeiros-passos/letra-${letter.toLowerCase()}.jpg`,
-      alt: `Demonstração fotográfica da configuração de mão da letra ${letter} do alfabeto manual de Libras.`,
+      alt: `Demonstração fotográfica da letra ${letter} do alfabeto manual de Libras: ${FIOCRUZ_CONFIGURATION_ALT[letter]}.`,
     },
     attribution: {
       source: `Mauro Campello | Acervo Fiocruz Imagens (item ${candidate.item})`,
@@ -209,6 +219,27 @@ export function licensedLetterMedia(letter: keyof typeof FIOCRUZ_CANDIDATES): {
       licenseUrl: FIOCRUZ_LICENSE_URL,
       permissionEvidence: FIOCRUZ_PERMISSION_EVIDENCE,
       displayScope: "local-review",
+    },
+  };
+}
+
+/**
+ * Exercise-scoped variant of the licensed media. The alt text describes
+ * the visible hand configuration without naming the letter, so assistive
+ * technology receives an equivalent stimulus without exposing the answer.
+ */
+export function licensedLetterExerciseMedia(
+  letter: keyof typeof FIOCRUZ_CANDIDATES,
+): {
+  media: LessonImageMedia;
+  attribution: LessonMediaAttribution;
+} {
+  const licensed = licensedLetterMedia(letter);
+  return {
+    ...licensed,
+    media: {
+      ...licensed.media,
+      alt: `Demonstração fotográfica de uma configuração de mão: ${FIOCRUZ_CONFIGURATION_ALT[letter]}.`,
     },
   };
 }
@@ -565,7 +596,7 @@ export const lessonCatalog: LessonCatalogEntry[] = [
           exercise: {
             prompt:
               "Qual letra do alfabeto manual está sendo demonstrada na imagem?",
-            promptMedia: licensedLetterMedia("B"),
+            promptMedia: licensedLetterExerciseMedia("B"),
             options: [
               {
                 label: "Letra B",
@@ -631,19 +662,19 @@ export const lessonCatalog: LessonCatalogEntry[] = [
                 label: "Imagem 1",
                 feedback:
                   "Não: a imagem 1 mostra a mão aberta e plana — a configuração da letra B.",
-                media: licensedLetterMedia("B"),
+                media: licensedLetterExerciseMedia("B"),
               },
               {
                 label: "Imagem 2",
                 feedback:
                   "Isso mesmo: a imagem 2 mostra somente o dedo mínimo estendido — a configuração da letra I.",
-                media: licensedLetterMedia("I"),
+                media: licensedLetterExerciseMedia("I"),
               },
               {
                 label: "Imagem 3",
                 feedback:
                   "Não: a imagem 3 mostra o punho fechado — a configuração da letra A.",
-                media: licensedLetterMedia("A"),
+                media: licensedLetterExerciseMedia("A"),
               },
             ],
             correctIndex: 1,

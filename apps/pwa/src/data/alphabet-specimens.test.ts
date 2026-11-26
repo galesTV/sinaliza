@@ -133,6 +133,8 @@ describe("alphabetSpecimens catalog", () => {
       expect(isSpecimenPublishable(specimen)).toBe(false);
       if (licensed.has(specimen.id)) {
         expect(specimen.media).toBeDefined();
+        if (specimen.media?.type !== "image") throw new Error("fixture");
+        expect(specimen.media.alt).toMatch(/mão|dedo|punho/);
         expect(specimen.attribution?.permissionEvidence?.trim()).toBeTruthy();
         expect(specimen.attribution?.displayScope).toBe("local-review");
         expect(specimen.attribution?.publicationEvidence).toBeUndefined();

@@ -470,9 +470,14 @@ test.describe("draft preview", () => {
 
     // Step 11: visual exercise — permitted media renders the stimulus and
     // the description variant stays offered as an alternative.
-    await expect(
-      page.locator('img[src="/media/alfabeto/primeiros-passos/letra-b.jpg"]'),
-    ).toBeVisible();
+    const stimulus = page.locator(
+      'img[src="/media/alfabeto/primeiros-passos/letra-b.jpg"]',
+    );
+    await expect(stimulus).toBeVisible();
+    await expect(stimulus).toHaveAttribute(
+      "alt",
+      /^Demonstração fotográfica de uma configuração de mão:/,
+    );
     await expect(
       page.getByRole("button", { name: "Responder por descrição" }),
     ).toBeVisible();
