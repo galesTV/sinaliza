@@ -32,9 +32,9 @@ function EmptyActivity() {
           suas lições concluídas aparecem aqui.
         </p>
       </div>
-      <Link href="/trilhas" className="btn-secondary min-h-11 px-4 text-xs">
+      <Link href="/laboratorio/experiencia" className="btn-secondary min-h-11 px-4 text-xs">
         <IconGraduationCap className="h-4 w-4" />
-        Ver o que vem por aí
+        Experimentar demonstração
       </Link>
     </div>
   );

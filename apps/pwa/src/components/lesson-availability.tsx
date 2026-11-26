@@ -110,11 +110,11 @@ export function LessonContentArea({
         </Link>
       )}
       <Link
-        href="/laboratorio"
+        href="/laboratorio/experiencia"
         className="group inline-flex items-center gap-2 self-start text-sm font-medium text-accent transition-colors hover:text-foreground"
       >
         <IconFlask className="h-4 w-4" />
-        Conheça as demonstrações do Sinaliza
+        Iniciar experiência guiada
       </Link>
     </div>
   );

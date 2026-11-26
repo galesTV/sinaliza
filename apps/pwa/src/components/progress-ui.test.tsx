@@ -213,8 +213,10 @@ describe("ResumeCtaView", () => {
       />,
     );
     expect(html).toContain('href="/trilhas/alfabeto"');
-    expect(html).toContain("Começar pelo alfabeto");
+    expect(html).not.toContain("Experimentar o Sinaliza");
+    expect(html).toContain("Ver alfabeto manual");
     expect(html).toContain("Nenhuma lição publicada ainda");
+    expect(html).toContain("não registra progresso");
   });
 
   const pathWithLesson = {

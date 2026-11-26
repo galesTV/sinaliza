@@ -62,16 +62,13 @@ export function ResumeCtaView({
   // Nothing published yet: keep the start-of-path navigation and say so.
   return (
     <>
-      <Link href={`/trilhas/${firstPathSlug}`} className="btn-primary">
-        Começar pelo alfabeto
+      <Link href={`/trilhas/${firstPathSlug}`} className="btn-secondary">
+        Ver alfabeto manual
         <IconArrowRight className="h-4 w-4" />
       </Link>
-      <Link href="/trilhas" className="btn-secondary">
-        Explorar trilhas
-      </Link>
       <p className="max-w-xs basis-full text-xs leading-relaxed text-muted/80">
-        Nenhuma lição publicada ainda — cada material passa por validação
-        pedagógica e linguística antes de ser liberado.
+        Nenhuma lição publicada ainda — a demonstração no topo é interativa,
+        mas não registra progresso nem substitui a validação pedagógica.
       </p>
     </>
   );

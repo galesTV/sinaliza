@@ -223,6 +223,29 @@ a {
   transform: translateY(0);
 }
 
+@keyframes demo-node-pulse {
+  0% {
+    opacity: 0;
+    transform: scale(0.65);
+  }
+
+  45% {
+    opacity: 0.34;
+    transform: scale(1.18);
+  }
+
+  100% {
+    opacity: 0.16;
+    transform: scale(1);
+  }
+}
+
+.demo-node-pulse {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: demo-node-pulse 640ms ease-out 1 both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -234,5 +257,9 @@ a {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+  }
+
+  .demo-node-pulse {
+    animation: none !important;
   }
 }

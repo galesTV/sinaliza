@@ -33,6 +33,19 @@ async function setObservation(
   }, observation);
 }
 
+
+async function activateCamera(page: Page) {
+  const button = page.getByRole("button", { name: "Ativar câmera" });
+  // Server-rendered controls are visible before React hydration; waiting for
+  // the component's hydration marker avoids losing the first click under
+  // parallel E2E load instead of papering over the race with a timeout.
+  await expect(page.locator("html")).toHaveAttribute(
+    "data-sinaliza-hand-lab-hydrated",
+    "true",
+  );
+  await button.click();
+}
+
 async function installSim(context: BrowserContext) {
   await context.addInitScript(() => {
     const w = window as unknown as {
@@ -68,7 +81,7 @@ test.describe("guided hand practice", () => {
     await page.goto("/laboratorio/maos");
     await setObservation(page, NO_HAND);
 
-    await page.getByRole("button", { name: "Ativar câmera" }).click();
+    await activateCamera(page);
     await expect(page.getByText("Câmera ativa")).toBeVisible();
     await expect(page.getByText("Procurando uma mão...")).toBeVisible();
 
@@ -106,7 +119,7 @@ test.describe("guided hand practice", () => {
     page,
   }) => {
     await page.goto("/laboratorio/maos");
-    await page.getByRole("button", { name: "Ativar câmera" }).click();
+    await activateCamera(page);
     await expect(page.getByText("Câmera ativa")).toBeVisible();
     await page.waitForFunction(
       () => (document.querySelector("video")?.videoWidth ?? 0) > 0,
@@ -156,7 +169,7 @@ test.describe("guided hand practice", () => {
     page,
   }) => {
     await page.goto("/laboratorio/maos");
-    await page.getByRole("button", { name: "Ativar câmera" }).click();
+    await activateCamera(page);
     await expect(page.getByText("Câmera ativa")).toBeVisible();
 
     await setObservation(page, handAt(0.5, 0.5));
@@ -203,7 +216,7 @@ test.describe("guided practice — camera denied", () => {
       });
     });
     await page.goto("/laboratorio/maos");
-    await page.getByRole("button", { name: "Ativar câmera" }).click();
+    await activateCamera(page);
 
     await expect(page.getByText("Permissão negada")).toBeVisible();
     await expect(page.getByText(/Permissão de câmera negada/)).toBeVisible();

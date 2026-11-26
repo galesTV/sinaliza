@@ -22,7 +22,7 @@ describe("home page", () => {
 
   it("marks the demo as experimental, not validated Libras content", () => {
     expect(html).toContain("ainda não é uma lição validada de Libras");
-    expect(html).toContain("não fazem parte das trilhas");
+    expect(html).toContain("não são lições validadas nem fazem parte das trilhas");
   });
 
   it("keeps the learning-paths entry point and publication counters", () => {
