@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { io } from "next/cache";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
@@ -57,6 +58,10 @@ export default function ContaPage() {
 
 async function AccountPanel() {
   if (!isSupabaseConfigured()) redirect("/");
+
+  // Supabase Auth reads wall-clock time while loading/validating a session;
+  // keep those request-specific reads out of the partial-prerender shell.
+  await io();
 
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
