@@ -140,13 +140,14 @@ a revisão especializada indicar.
 - **Variantes regionais:** verificar se alguma das quatro letras tem
   variação regional relevante para mencionar (fonte disponível: artigo
   CECIERJ sobre variação linguística).
-- **Mídia:** as imagens Fiocruz (CC BY-NC declarada) estão em curadoria
-  separada (`docs/curadoria-midia-fiocruz.md`) — a especialista pode
-  avaliar adequação linguística das fotos; a decisão de licenciamento é
-  do responsável. Com o draft-4, incorporar os arquivos e registrar
-  `permissionEvidence` **desbloqueia apenas a exibição técnica** — a
-  publicação continua exigindo as verificações humanas do checklist de
-  ativação (licença exata, direitos de imagem, correção linguística,
+- **Mídia:** as imagens Fiocruz (licença própria "Uso não comercial
+  (by-nc)", uso educativo confirmado em 24/11/2026) estão exibidas na
+  prévia local desde o `draft-6` — ver `docs/curadoria-midia-fiocruz.md`
+  e `docs/evidencia-permissao-fiocruz.md`. A especialista pode avaliar a
+  adequação linguística das fotos já na demonstração; `permissionEvidence`
+  registrado **desbloqueia apenas a exibição técnica** — a publicação
+  continua exigindo as verificações humanas do checklist de ativação
+  (redistribuição pública, direitos de imagem, correção linguística,
   coerência ativo × texto × gabarito, revisão especializada da versão
   final).
 - **Fidelidade descrição × foto:** quando a mídia chegar, conferir se

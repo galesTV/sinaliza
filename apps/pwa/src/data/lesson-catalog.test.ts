@@ -329,14 +329,14 @@ describe("validateCatalogEntry", () => {
   });
 });
 
-describe("primeiras-letras draft-5", () => {
+describe("primeiras-letras draft-6", () => {
   const entry = getCatalogEntry(
     "alfabeto/primeiros-passos/primeiras-letras",
   )!;
 
   it("stays a draft: never publishable, lesson never available", () => {
     expect(entry.validationStatus).toBe("draft");
-    expect(entry.version).toBe("draft-5");
+    expect(entry.version).toBe("draft-6");
     expect(isPublishable(entry)).toBe(false);
     const parsed = parseLessonKey(entry.lessonKey)!;
     expect(
@@ -346,7 +346,7 @@ describe("primeiras-letras draft-5", () => {
     expect(validateCatalogEntry(entry)).toEqual([]);
   });
 
-  it("declares one gated media slot per taught letter", () => {
+  it("declares one licensed media slot per taught letter", () => {
     const mediaBlocks = entry.draft!.blocks.flatMap((block) =>
       block.kind === "media" ? [block] : [],
     );
@@ -356,14 +356,19 @@ describe("primeiras-letras draft-5", () => {
       expect(block.media.src).toMatch(
         /^\/media\/alfabeto\/primeiros-passos\/letra-[abil]\.jpg$/,
       );
-      // No evidence was recorded: the fail-closed gate must keep every
-      // slot in the "em produção" state instead of rendering the asset.
-      expect(block.attribution.permissionEvidence).toBeUndefined();
-      expect(hasMediaDisplayPermission(block.attribution)).toBe(false);
+      // Educational use was confirmed by Fiocruz Imagens, so evidence is
+      // recorded and the gate opens — for local review surfaces only:
+      // the lesson stays draft and never publishable without reviews.
+      expect(block.attribution.permissionEvidence?.trim()).toBeTruthy();
+      expect(hasMediaDisplayPermission(block.attribution)).toBe(true);
+      expect(block.attribution.sourceUrl).toMatch(
+        /^https:\/\/www\.fiocruzimagens\.fiocruz\.br\/s\/fiocruzimagens\/item\//,
+      );
+      expect(block.attribution.licenseUrl).toMatch(/^https:\/\//);
     }
   });
 
-  it("gates both visual exercises and offers a description variant", () => {
+  it("permits both visual exercises and keeps a description variant", () => {
     const visual = entry.draft!.blocks.flatMap((block) =>
       block.kind === "exercise" &&
       (block.exercise.promptMedia ||
@@ -373,7 +378,10 @@ describe("primeiras-letras draft-5", () => {
     );
     expect(visual.length).toBeGreaterThanOrEqual(2);
     for (const exercise of visual) {
-      expect(isExerciseVisuallyPermitted(exercise)).toBe(false);
+      // Licensed media carries recorded evidence, so the exercises are
+      // visually permitted in the review preview; the description
+      // variant stays available as the accessible alternative.
+      expect(isExerciseVisuallyPermitted(exercise)).toBe(true);
       expect(exercise.descriptionVariant).toBeDefined();
     }
   });

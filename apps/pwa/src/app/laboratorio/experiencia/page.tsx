@@ -120,10 +120,12 @@ export default function GuidedExperiencePage() {
           ))}
         </ul>
 
-        <HonestNote title="Demonstrações visuais em produção">
-          Nenhuma das cinco letras tem mídia licenciada ainda — os visores
-          abaixo mostram o estado real de cada espécime, sem imagens
-          provisórias ou demonstrações inventadas.
+        <HonestNote title="Demonstrações visuais em curadoria">
+          Quatro espécimes já exibem fotografias licenciadas para uso educativo
+          não comercial (acervo Fiocruz Imagens) nesta prévia local — a letra C
+          segue sem mídia licenciada. Os visores abaixo mostram o estado real
+          de cada espécime, sem imagens provisórias ou demonstrações
+          inventadas.
         </HonestNote>
 
         <ul

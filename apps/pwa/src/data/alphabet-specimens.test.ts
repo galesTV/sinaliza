@@ -121,13 +121,24 @@ describe("alphabetSpecimens catalog", () => {
     }
   });
 
-  it("catalogues letters without media instead of inventing it", () => {
+  it("keeps media state honest per specimen", () => {
+    // Letters A, B, I and L carry the licensed Fiocruz photo; every other
+    // catalogued letter stays without media rather than inventing one.
+    const licensed = new Set(["letra-a", "letra-b", "letra-i", "letra-l"]);
     for (const specimen of alphabetSpecimens) {
-      expect(specimen.media).toBeUndefined();
-      expect(specimen.attribution).toBeUndefined();
       expect(specimen.validationStatus).toBe("draft");
-      expect(hasDisplayPermission(specimen)).toBe(false);
+      // The empty review chain keeps every specimen unpublishable,
+      // licensed or not.
       expect(isSpecimenPublishable(specimen)).toBe(false);
+      if (licensed.has(specimen.id)) {
+        expect(specimen.media).toBeDefined();
+        expect(specimen.attribution?.permissionEvidence?.trim()).toBeTruthy();
+        expect(hasDisplayPermission(specimen)).toBe(true);
+      } else {
+        expect(specimen.media).toBeUndefined();
+        expect(specimen.attribution).toBeUndefined();
+        expect(hasDisplayPermission(specimen)).toBe(false);
+      }
     }
   });
 });

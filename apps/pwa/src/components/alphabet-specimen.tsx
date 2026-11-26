@@ -73,11 +73,12 @@ export function SpecimenReviewNote({
       title="Prévia em revisão — espécime não validado"
       icon={<IconFlask className="h-5 w-5" />}
     >
-      Este espécime visual da letra {specimen.letter} está em curadoria: a
-      demonstração ainda depende
-      de revisão linguística especializada e de confirmação de direitos de
-      uso antes de ser publicada na lição. Visualizar esta página não
-      registra progresso nem marca a lição como concluída.
+      Este espécime visual da letra {specimen.letter} está em curadoria.
+      {specimen.media
+        ? " A fotografia exibida tem uso educativo não comercial confirmado pela Fiocruz Imagens e aparece apenas nesta prévia local: hospedagem e distribuição públicas ainda dependem de esclarecimento, e a demonstração aguarda revisão linguística especializada antes de ser publicada na lição."
+        : " A demonstração ainda depende de material licenciado e de revisão linguística especializada antes de ser publicada na lição."}{" "}
+      Visualizar esta página não registra progresso nem marca a lição como
+      concluída.
     </HonestNote>
   );
 }

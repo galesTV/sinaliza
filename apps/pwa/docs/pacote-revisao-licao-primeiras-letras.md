@@ -5,10 +5,53 @@ Nenhuma aprovação, parceria ou endosso é atribuído pela leitura deste
 documento — as decisões registradas ao final dependem da revisão.
 
 **Lição:** `alfabeto/primeiros-passos/primeiras-letras` — versão
-`draft-5` (rascunho, **não validado**)
-**Preparado em:** 19/11/2026 (atualizado em 20/11/2026 para `draft-5`)
+`draft-6` (rascunho, **não validado**)
+**Preparado em:** 19/11/2026 (atualizado em 20/11/2026 para `draft-5`;
+atualizado em 24/11/2026 para `draft-6`)
 **Prévia navegável:** `/laboratorio/licoes/alfabeto/primeiros-passos/primeiras-letras`
 (marcada como "Rascunho — conteúdo não validado"; não registra progresso)
+
+## Atualização draft-6 (24/11/2026)
+
+Em 24/11/2026 a Equipe Fiocruz Imagens confirmou que "o uso para fins
+educativos está de acordo com os termos de uso" do acervo. O draft-6
+registra `permissionEvidence` nas quatro atribuições e incorpora as
+fotografias licenciadas — **somente na prévia local de revisão**:
+
+- As quatro imagens processadas (1200×1600 px, JPEG q80, sem recorte,
+  cor ou anatomia intactas) ocupam `public/media/alfabeto/primeiros-passos/`
+  localmente, **excluídas do Git e nunca publicadas** — a redistribuição
+  pública dos arquivos não foi autorizada (ver
+  `docs/evidencia-permissao-fiocruz.md`, pendências P1–P3).
+- O gate de exibição abre na prévia porque a evidência foi registrada;
+  a lição segue `draft`, sem revisões e **não publicável** — publicação
+  exige a cadeia de revisão completa sobre a versão vigente.
+- Os exercícios visuais passam a exibir as imagens na prévia; as
+  `descriptionVariant`s permanecem como alternativa acessível.
+- Crédito exibido: "Imagem: Mauro Campello | Acervo Fiocruz Imagens
+  (item NNNNNN)" com link para o item oficial e para a licença
+  "Uso não comercial (by-nc) — Fiocruz Imagens".
+- Os espécimes `letra-a`, `letra-b`, `letra-i` e `letra-l`
+  (`/laboratorio/alfabeto/<letra>`) exibem a mesma fotografia licenciada
+  na versão `draft-2`, também sem revisões e não publicáveis.
+
+### Roteiro de demonstração (~5 min)
+
+1. Apresentar o objetivo da lição (identificar características das
+   configurações de mão de B, L, A e I).
+2. Mostrar as quatro fotografias e seus créditos (blocos 3, 5, 7 e 9).
+3. Demonstrar a sequência de ensino B → L → A → I.
+4. Executar os dois exercícios visuais (identificar a letra da imagem;
+   escolher a imagem da letra I) e mostrar os créditos das alternativas.
+5. Mostrar a alternativa "Responder por descrição" (`descriptionVariant`).
+6. Mostrar a prévia de um espécime (`/laboratorio/alfabeto/b`).
+7. Solicitar avaliação das imagens, descrições, sequência e exercícios
+   (perguntas da seção 7).
+
+> **Importante para a demonstração:** a exibição das fotos na prévia
+> local é uso educativo confirmado, não aprovação pedagógica nem
+> autorização de publicação. A máquina da demonstração precisa ter os
+> quatro arquivos locais — eles não estão no repositório.
 
 ## 1. Contexto
 
@@ -31,15 +74,15 @@ lições anteriores.
 > A e I — pela descrição nesta versão e, quando houver mídia licenciada,
 > por identificação visual da letra demonstrada.
 
-**Limitação declarada do objetivo:** o draft-4 integra a infraestrutura
-visual — slots de demonstração por letra e dois exercícios de
-identificação visual — mas **sem nenhum arquivo de mídia nem
-`permissionEvidence`**: o gate de exibição mantém todos os slots em
-"em produção" e os exercícios visuais só são respondidos pelas
-`descriptionVariant`s. O aprendiz de hoje treina a compreensão das
-descrições; **não se afirma treino de reconhecimento visual**. A mídia
-segue dependente da curadoria Fiocruz (`docs/curadoria-midia-fiocruz.md`)
-ou de produção própria.
+**Limitação declarada do objetivo (atualizada para `draft-6`):** os
+exercícios visuais exibem agora as fotografias licenciadas na prévia de
+revisão, mas **sem validação especializada — não se afirma treino de
+reconhecimento visual aprovado**. A `descriptionVariant` segue como
+alternativa acessível de cada exercício. Em ambiente sem os arquivos
+locais (ex.: deploy de teste sem os JPEGs), os slots voltam ao estado
+"em produção" e os exercícios abrem na versão por descrição. A decisão
+de publicar segue dependente da revisão desta versão e das pendências
+jurídicas de `docs/evidencia-permissao-fiocruz.md`.
 
 ## 3. Cuidados pedagógicos aplicados
 
@@ -262,12 +305,11 @@ incorporada ao produto, e a decisão de licenciamento é do responsável.
    verificação de entendimento das descrições, sem prometer
    identificação visual? Os textos das variantes descrevem corretamente
    o que cada imagem planejada mostrará?
-7. As fotos da série Fiocruz (curadoria em
-   `docs/curadoria-midia-fiocruz.md`) são linguísticamente adequadas —
-   configuração, orientação e enquadramento corretos — caso o licenciamento
-   seja aprovado? Em caso afirmativo, basta registrar o
-   `permissionEvidence` e incorporar os arquivos nos caminhos
-   planejados para que os exercícios visuais passem a exibir as imagens.
+7. As fotos da série Fiocruz — **agora exibidas na prévia local**
+   (licenciadas para uso educativo não comercial; curadoria em
+   `docs/curadoria-midia-fiocruz.md`) — são linguisticamente adequadas?
+   Avaliar configuração, orientação, posição dos dedos e do polegar,
+   enquadramento e necessidade de outros ângulos.
 8. Esta lição deve preceder ou suceder o aprendizado das letras por
    espécime (`/laboratorio/alfabeto/<letra>`) na jornada?
 9. A seção "Recursos complementares" (draft-5) é adequada como indicação
@@ -290,6 +332,7 @@ Decisões internas já tomadas (para contexto da reunião):
 | Prévia no laboratório, sem registro de progresso | Verificado | `/laboratorio/licoes/alfabeto/primeiros-passos/primeiras-letras` exibe o aviso de rascunho e não grava progresso. |
 | Integração da experiência visual na lição C | Aplicado em `draft-4`, 19/11/2026 | Fase 8C.3: infraestrutura existente reutilizada (sem novo motor de lição); objetivos visual × descrição distintos em código e documentação. |
 | Seção "Recursos complementares" com links externos (INES, Unesp) | Aplicado em `draft-5`, 20/11/2026 | Fase 8D.3: novo `LessonResourcesBlock` opcional ao fim do rascunho; apenas hiperlinks https, sem mídia de terceiros; WikiLibras descartado por não demonstrar o alfabeto manual de forma localizável. |
+| Fotografias Fiocruz integradas na prévia local (draft-6) | Aplicado em `draft-6`, 24/11/2026 | Uso educativo não comercial confirmado pela Equipe Fiocruz Imagens; arquivos processados mantidos fora do Git; exibição restrita à prévia de revisão — pendências P1–P3 de `docs/evidencia-permissao-fiocruz.md`. |
 
 ### Decisões da revisão especializada (preencher em 25/11)
 

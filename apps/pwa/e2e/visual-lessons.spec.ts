@@ -412,9 +412,20 @@ test.describe("visual exercise infrastructure", () => {
 });
 
 test.describe("draft preview", () => {
-  test("shows honest review state and never records progress", async ({
+  // The licensed Fiocruz photos are local-only files (git-ignored): serve a
+  // tiny stand-in JPEG so the suite is hermetic wherever it runs.
+  const TINY_JPEG = Buffer.from(
+    "/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/wAALCAAIAAgBAREA/8QAFAABAAAAAAAAAAAAAAAAAAAACf/EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAD8AVN//2Q==",
+    "base64",
+  );
+
+  test("shows licensed media, required credits and never records progress", async ({
     page,
   }) => {
+    await page.route("**/media/alfabeto/primeiros-passos/*.jpg", (route) =>
+      route.fulfill({ contentType: "image/jpeg", body: TINY_JPEG }),
+    );
+
     await page.goto(
       "/laboratorio/licoes/alfabeto/primeiros-passos/primeiras-letras",
     );
@@ -425,9 +436,9 @@ test.describe("draft preview", () => {
     // Step 1: intro text.
     await page.getByRole("button", { name: "Continuar" }).click();
 
-    // Steps 2-9: letter explanations alternate with gated media slots.
-    // Each slot must stay in the honest "em produção" state — no image
-    // is fetched because no permission evidence was recorded.
+    // Steps 2-9: letter explanations alternate with media slots that now
+    // render the licensed photo + the required "Imagem: autor | acervo"
+    // credit linking to the official Fiocruz item page.
     for (const letter of ["B", "L", "A", "I"]) {
       await expect(
         page.getByRole("heading", {
@@ -436,20 +447,20 @@ test.describe("draft preview", () => {
       ).toBeVisible();
       await page.getByRole("button", { name: "Continuar" }).click();
       await expect(
-        page.getByText("Demonstração visual em produção"),
+        page.locator(
+          `img[src="/media/alfabeto/primeiros-passos/letra-${letter.toLowerCase()}.jpg"]`,
+        ),
       ).toBeVisible();
-      // Candidate attribution is preserved even while the media is
-      // unavailable — but never as a link: the lesson must not point
-      // learners at an unlicensed, unvalidated photo.
-      await expect(page.getByText(/Fiocruz Imagens/)).toBeVisible();
       await expect(
-        page.locator('a[href*="fiocruzimagens"]'),
-      ).toHaveCount(0);
+        page.locator(
+          'a[href*="fiocruzimagens.fiocruz.br/s/fiocruzimagens/item/"]',
+        ),
+      ).toBeVisible();
+      await expect(
+        page.getByText(/Mauro Campello \| Acervo Fiocruz Imagens/),
+      ).toBeVisible();
       await page.getByRole("button", { name: "Continuar" }).click();
     }
-    await expect(
-      page.locator('img[src^="/media/alfabeto/primeiros-passos/"]'),
-    ).toHaveCount(0);
 
     // Step 10: comparison text.
     await expect(
@@ -457,20 +468,39 @@ test.describe("draft preview", () => {
     ).toBeVisible();
     await page.getByRole("button", { name: "Continuar" }).click();
 
-    // Step 11: visual exercise — gated prompt media auto-opens the
-    // description variant, honestly labelled as a different assessment.
-    await expect(page.getByText("Versão por descrição")).toBeVisible();
+    // Step 11: visual exercise — permitted media renders the stimulus and
+    // the description variant stays offered as an alternative.
     await expect(
-      page.getByRole("heading", {
-        name: /Pela descrição: a demonstração mostra a mão aberta/,
-      }),
+      page.locator('img[src="/media/alfabeto/primeiros-passos/letra-b.jpg"]'),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Responder por descrição" }),
     ).toBeVisible();
     await option(page, "Letra B").click();
     await expect(page.getByText("Correto!")).toBeVisible();
     await page.getByRole("button", { name: "Continuar" }).click();
 
-    // Step 12: visual exercise with option media — also description-gated.
-    await expect(page.getByText("Versão por descrição")).toBeVisible();
+    // Step 12: visual exercise — photo-first option cards, each carrying
+    // its own item credit; no alt text may leak the correct answer.
+    await expect(
+      page.locator('img[src="/media/alfabeto/primeiros-passos/letra-i.jpg"]'),
+    ).toBeVisible();
+    for (const img of await page.locator("fieldset img").all()) {
+      await expect(img).toHaveAttribute(
+        "alt",
+        /^Demonstração visual referida pela imagem \d$/,
+      );
+    }
+    await expect(
+      page
+        .locator(
+          'fieldset a[href*="fiocruzimagens.fiocruz.br/s/fiocruzimagens/item/"]',
+        )
+        .first(),
+    ).toBeVisible();
+    await expect(
+      page.getByText(/Imagem: Mauro Campello \| Acervo Fiocruz Imagens \(item 127856\)/),
+    ).toBeVisible();
     await option(page, "Imagem 2").click();
     await expect(page.getByText("Correto!")).toBeVisible();
     await page.getByRole("button", { name: "Continuar" }).click();
@@ -514,6 +544,38 @@ test.describe("draft preview", () => {
       .getByRole("button", { name: "Concluir experiência" })
       .click();
     await expect(page.getByText("Prévia concluída")).toBeVisible();
+
+    await expectNoProgressRecorded(page);
+  });
+
+  test("falls back honestly when the licensed files are absent", async ({
+    page,
+  }) => {
+    // The photos are local-only and excluded from git: any deploy without
+    // them must degrade honestly — no broken frames, description variant
+    // keeps the exercise answerable.
+    await page.route("**/media/alfabeto/primeiros-passos/*.jpg", (route) =>
+      route.abort(),
+    );
+
+    await page.goto(
+      "/laboratorio/licoes/alfabeto/primeiros-passos/primeiras-letras",
+    );
+    await page.getByRole("button", { name: "Continuar" }).click(); // intro
+    await page.getByRole("button", { name: "Continuar" }).click(); // Letra B
+
+    await expect(
+      page.getByText("Não foi possível carregar a mídia agora"),
+    ).toBeVisible();
+
+    // Jump to the first visual exercise: it must open the description
+    // variant, honestly labelled, instead of a hidden stimulus.
+    for (let step = 0; step < 8; step += 1) {
+      await page.getByRole("button", { name: "Continuar" }).click();
+    }
+    await expect(page.getByText("Versão por descrição")).toBeVisible();
+    await option(page, "Letra B").click();
+    await expect(page.getByText("Correto!")).toBeVisible();
 
     await expectNoProgressRecorded(page);
   });

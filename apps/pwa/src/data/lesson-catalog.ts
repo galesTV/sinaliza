@@ -135,15 +135,28 @@ const COMMON_REFERENCES = {
 } as const;
 
 /**
- * Candidate items of the "Alfabeto em Libras" photo series in the Fiocruz
+ * Licensed items of the "Alfabeto em Libras" photo series in the Fiocruz
  * Imagens collection (author Mauro Campello, patrimonial rights Fundação
- * Oswaldo Cruz, declared license "Uso não comercial (by-nc)"), recorded in
- * `docs/curadoria-midia-fiocruz.md`. Approval pending: nothing here grants
- * reuse permission. The `url` fields are the activation reference for the
- * curation decision — they are deliberately NOT passed to `attribution`
- * (see `pendingLetterMedia`), so learner-facing UI never links to an
- * unlicensed candidate photo.
+ * Oswaldo Cruz, license "Uso não comercial (by-nc)"), curated in
+ * `docs/curadoria-midia-fiocruz.md`. Non-commercial educational use was
+ * confirmed by the Fiocruz Imagens team on 2026-11-24
+ * (`docs/evidencia-permissao-fiocruz.md`). That confirmation covers
+ * display for pedagogical review — it does NOT authorize standalone
+ * public redistribution of the files, so the JPEGs stay local and
+ * git-ignored while the legal questions in the evidence document remain
+ * open.
  */
+const FIOCRUZ_LICENSE_URL =
+  "https://www.fiocruzimagens.fiocruz.br/s/fiocruzimagens/page/licencas";
+
+/**
+ * Reference to the recorded permission evidence. The display gate only
+ * checks that evidence was registered — the limitation stated here is
+ * what keeps reviewers aware that local preview is the only surface this
+ * media may appear on for now.
+ */
+const FIOCRUZ_PERMISSION_EVIDENCE =
+  "Uso educativo não comercial confirmado pela Equipe Fiocruz Imagens em 24/11/2026 (docs/evidencia-permissao-fiocruz.md). Redistribuição pública dos arquivos não autorizada: exibição restrita à prévia local de revisão.";
 const FIOCRUZ_CANDIDATES: Record<
   "A" | "B" | "I" | "L",
   { item: string; url: string }
@@ -167,18 +180,15 @@ const FIOCRUZ_CANDIDATES: Record<
 };
 
 /**
- * Planned media slot for one letter demonstration. The path follows the
- * `public/media/<trilha>/<modulo>/` convention but the file intentionally
- * does not exist yet, and `permissionEvidence` is deliberately absent —
- * so the fail-closed display gate keeps the slot in the honest "em
- * produção" state and exercises fall back to their description variants.
- * The attribution names the curation candidate for traceability; it is
- * marked "candidato em curadoria" so the credit line can never read as
- * the provenance of a displayed demonstration, and no `sourceUrl` is
- * exposed — a learner must not be linked through to an unlicensed,
- * unvalidated photo from inside a lesson.
+ * Licensed media slot for one letter demonstration. The file lives at
+ * `public/media/<trilha>/<modulo>/letra-*.jpg` as a processed local copy
+ * (≈1200 px, git-ignored, never committed) — see Fase B of the
+ * integration plan. `permissionEvidence` is recorded, so the display
+ * gate opens for the local review preview; the attribution renders the
+ * required credit "Imagem: Mauro Campello | Acervo Fiocruz Imagens" and
+ * links the official item page and the collection's own license terms.
  */
-function pendingLetterMedia(letter: keyof typeof FIOCRUZ_CANDIDATES): {
+export function licensedLetterMedia(letter: keyof typeof FIOCRUZ_CANDIDATES): {
   media: LessonImageMedia;
   attribution: LessonMediaAttribution;
 } {
@@ -190,10 +200,11 @@ function pendingLetterMedia(letter: keyof typeof FIOCRUZ_CANDIDATES): {
       alt: `Demonstração fotográfica da configuração de mão da letra ${letter} do alfabeto manual de Libras.`,
     },
     attribution: {
-      source: `Candidato em curadoria — Mauro Campello, série "Alfabeto em Libras", Fiocruz Imagens / Fundação Oswaldo Cruz (item ${candidate.item})`,
-      license: "\"Uso não comercial (by-nc)\", declarada pelo acervo — versão exata a confirmar",
-      // No permissionEvidence on purpose: the candidate still awaits
-      // curation approval and expert review, so the gate stays closed.
+      source: `Mauro Campello | Acervo Fiocruz Imagens (item ${candidate.item})`,
+      sourceUrl: candidate.url,
+      license: "Uso não comercial (by-nc) — Fiocruz Imagens",
+      licenseUrl: FIOCRUZ_LICENSE_URL,
+      permissionEvidence: FIOCRUZ_PERMISSION_EVIDENCE,
     },
   };
 }
@@ -465,10 +476,10 @@ export const lessonCatalog: LessonCatalogEntry[] = [
     ],
     plannedOutline: [
       "Introdução: como observar uma configuração de mão",
-      "Letra B — explicação e slot de demonstração (mídia em produção)",
-      "Letra L — explicação e slot de demonstração (cuidado: letra G)",
-      "Letra A — explicação e slot de demonstração (cuidado: letra S)",
-      "Letra I — explicação e slot de demonstração (cuidado: letra J)",
+      "Letra B — explicação e demonstração fotográfica licenciada (prévia local)",
+      "Letra L — explicação e demonstração fotográfica licenciada (cuidado: letra G)",
+      "Letra A — explicação e demonstração fotográfica licenciada (cuidado: letra S)",
+      "Letra I — explicação e demonstração fotográfica licenciada (cuidado: letra J)",
       "Comparação e revisão das quatro configurações",
       "Exercício visual: identificar a letra demonstrada (alternativa por descrição)",
       "Exercício visual: qual imagem mostra a letra I (alternativa por descrição)",
@@ -477,15 +488,15 @@ export const lessonCatalog: LessonCatalogEntry[] = [
       "Recursos complementares: links externos opcionais para estudo",
     ],
     validationStatus: "draft",
-    version: "draft-5",
+    version: "draft-6",
     reviews: [],
     mediaPlan: {
       summary:
-        "O draft-5 mantém os slots de demonstração das letras B, L, A e I (`LessonMediaBlock`, caminhos planejados `/media/alfabeto/primeiros-passos/letra-*.jpg`) e os dois exercícios de identificação visual — todos sem `permissionEvidence`, portanto bloqueados pelo gate de exibição até haver licença confirmada — e adiciona a seção opcional 'Recursos complementares' (`LessonResourcesBlock`): apenas links externos https para INES e Unesp, sem mídia de terceiros incorporada, baixada ou embutida. Nenhum arquivo foi incorporado. Candidatas em curadoria: série 'Alfabeto em Língua Brasileira de Sinais (Libras)' do acervo Fiocruz Imagens (autoria de Mauro Campello, licença declarada 'Uso não comercial (by-nc)', itens 127847/127848/127856/127859), aguardando aprovação separada da curadoria e validação da especialista. Alternativa planejada: produção própria com autorização de imagem por escrito.",
+        "O draft-6 incorpora as quatro fotografias licenciadas da série 'Alfabeto em Língua Brasileira de Sinais (Libras)' (Mauro Campello, Fiocruz Imagens, itens 127847/127848/127856/127859) nos slots já existentes: arquivos processados localmente (1200×1600, sem recorte) em `public/media/alfabeto/primeiros-passos/`, excluídos do Git — a redistribuição pública não foi autorizada e a exibição fica restrita à prévia local de revisão. `permissionEvidence` aponta para `docs/evidencia-permissao-fiocruz.md`; o gate abre porque a evidência foi registrada, não porque as pendências jurídicas foram resolvidas. Crédito exigido: 'Imagem: Mauro Campello | Acervo Fiocruz Imagens' com link do item e da licença 'Uso não comercial (by-nc) — Fiocruz Imagens'. Sequência, exercícios, variantes e feedbacks inalterados; a lição segue draft, sem revisões e não publicável.",
     },
     draft: {
       intro:
-        "Nesta lição, você vai dar os primeiros passos no alfabeto manual de Libras conhecendo quatro letras — B, L, A e I — observando a forma de cada configuração de mão e os cuidados para não confundir letras parecidas. As demonstrações visuais de cada letra estão em produção: enquanto elas não chegam, a descrição de cada passo cobre o conteúdo.",
+        "Nesta lição, você vai dar os primeiros passos no alfabeto manual de Libras conhecendo quatro letras — B, L, A e I — observando a forma de cada configuração de mão e os cuidados para não confundir letras parecidas. Cada letra tem uma demonstração fotográfica do acervo Fiocruz Imagens, licenciada para uso educativo não comercial e exibida nesta prévia de revisão — a publicação ainda depende de esclarecimentos sobre hospedagem e distribuição, e a lição segue aguardando validação pedagógica e linguística.",
       blocks: [
         {
           kind: "text",
@@ -501,8 +512,8 @@ export const lessonCatalog: LessonCatalogEntry[] = [
           kind: "media",
           title: "Demonstração da letra B",
           description:
-            "Demonstração visual da configuração da letra B: a mão aberta e estendida, com os quatro dedos juntos e o polegar dobrado sobre a palma. A imagem candidata está em curadoria e só será exibida quando houver licença confirmada e revisão especializada.",
-          ...pendingLetterMedia("B"),
+            "Demonstração visual da configuração da letra B: a mão aberta e estendida, com os quatro dedos juntos e o polegar dobrado sobre a palma. Fotografia do acervo Fiocruz Imagens licenciada para uso educativo não comercial; exibida na prévia de revisão, ainda sem validação especializada.",
+          ...licensedLetterMedia("B"),
         },
         {
           kind: "text",
@@ -513,8 +524,8 @@ export const lessonCatalog: LessonCatalogEntry[] = [
           kind: "media",
           title: "Demonstração da letra L",
           description:
-            "Demonstração visual da configuração da letra L: o dedo indicador estendido para cima e o polegar aberto para o lado, com os demais dedos dobrados. A imagem candidata está em curadoria e só será exibida quando houver licença confirmada e revisão especializada.",
-          ...pendingLetterMedia("L"),
+            "Demonstração visual da configuração da letra L: o dedo indicador estendido para cima e o polegar aberto para o lado, com os demais dedos dobrados. Fotografia do acervo Fiocruz Imagens licenciada para uso educativo não comercial; exibida na prévia de revisão, ainda sem validação especializada.",
+          ...licensedLetterMedia("L"),
         },
         {
           kind: "text",
@@ -525,8 +536,8 @@ export const lessonCatalog: LessonCatalogEntry[] = [
           kind: "media",
           title: "Demonstração da letra A",
           description:
-            "Demonstração visual da configuração da letra A: a mão fechada em punho, com os quatro dedos dobrados e o polegar apoiado ao lado deles, por fora. A imagem candidata está em curadoria e só será exibida quando houver licença confirmada e revisão especializada.",
-          ...pendingLetterMedia("A"),
+            "Demonstração visual da configuração da letra A: a mão fechada em punho, com os quatro dedos dobrados e o polegar apoiado ao lado deles, por fora. Fotografia do acervo Fiocruz Imagens licenciada para uso educativo não comercial; exibida na prévia de revisão, ainda sem validação especializada.",
+          ...licensedLetterMedia("A"),
         },
         {
           kind: "text",
@@ -537,8 +548,8 @@ export const lessonCatalog: LessonCatalogEntry[] = [
           kind: "media",
           title: "Demonstração da letra I",
           description:
-            "Demonstração visual da configuração da letra I: apenas o dedo mínimo estendido, com os demais dedos e o polegar dobrados. A imagem candidata está em curadoria e só será exibida quando houver licença confirmada e revisão especializada.",
-          ...pendingLetterMedia("I"),
+            "Demonstração visual da configuração da letra I: apenas o dedo mínimo estendido, com os demais dedos e o polegar dobrados. Fotografia do acervo Fiocruz Imagens licenciada para uso educativo não comercial; exibida na prévia de revisão, ainda sem validação especializada.",
+          ...licensedLetterMedia("I"),
         },
         {
           kind: "text",
@@ -550,7 +561,7 @@ export const lessonCatalog: LessonCatalogEntry[] = [
           exercise: {
             prompt:
               "Qual letra do alfabeto manual está sendo demonstrada na imagem?",
-            promptMedia: pendingLetterMedia("B"),
+            promptMedia: licensedLetterMedia("B"),
             options: [
               {
                 label: "Letra B",
@@ -616,19 +627,19 @@ export const lessonCatalog: LessonCatalogEntry[] = [
                 label: "Imagem 1",
                 feedback:
                   "Não: a imagem 1 mostra a mão aberta e plana — a configuração da letra B.",
-                media: pendingLetterMedia("B"),
+                media: licensedLetterMedia("B"),
               },
               {
                 label: "Imagem 2",
                 feedback:
                   "Isso mesmo: a imagem 2 mostra somente o dedo mínimo estendido — a configuração da letra I.",
-                media: pendingLetterMedia("I"),
+                media: licensedLetterMedia("I"),
               },
               {
                 label: "Imagem 3",
                 feedback:
                   "Não: a imagem 3 mostra o punho fechado — a configuração da letra A.",
-                media: pendingLetterMedia("A"),
+                media: licensedLetterMedia("A"),
               },
             ],
             correctIndex: 1,
@@ -691,7 +702,7 @@ export const lessonCatalog: LessonCatalogEntry[] = [
         {
           kind: "text",
           heading: "Recapitulando",
-          body: "Você conheceu as configurações de mão de quatro letras do alfabeto manual — B, L, A e I — e aprendeu a observar a forma dos dedos e a orientação da mão. Quando as demonstrações visuais estiverem licenciadas, os exercícios de identificação passam a mostrar as imagens reais; até lá, a versão por descrição mantém a prática sem fingir avaliar o olhar.",
+          body: "Você conheceu as configurações de mão de quatro letras do alfabeto manual — B, L, A e I — e aprendeu a observar a forma dos dedos e a orientação da mão. Nesta prévia, os exercícios de identificação já mostram as fotografias licenciadas; a versão por descrição continua disponível como alternativa — e ambas seguem aguardando a validação especializada antes de qualquer publicação.",
         },
         {
           kind: "resources",

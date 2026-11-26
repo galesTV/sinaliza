@@ -15,7 +15,7 @@ import {
 export const metadata: Metadata = {
   title: "Laboratório — Curadoria do alfabeto manual",
   description:
-    "Espécimes visuais do alfabeto manual de Libras em curadoria: demonstrações ainda não validadas e sem licença de uso confirmada.",
+    "Espécimes visuais do alfabeto manual de Libras em curadoria: demonstrações ainda não validadas; parte já licenciada para uso educativo em prévia local.",
   robots: { index: false, follow: false },
 };
 
@@ -31,9 +31,10 @@ export default function AlphabetSpecimensPage() {
           Curadoria do alfabeto manual
         </h1>
         <p className="max-w-xl text-base leading-relaxed text-muted">
-          Espécimes visuais das primeiras letras em curadoria — demonstrações
-          ainda em produção, aguardando revisão linguística e confirmação de
-          licenças.
+          Espécimes visuais das primeiras letras em curadoria — quatro
+          demonstrações já têm uso educativo confirmado pela Fiocruz Imagens e
+          aparecem nesta prévia local; revisão linguística e publicação seguem
+          pendentes.
         </p>
 
         <HonestNote
@@ -55,7 +56,8 @@ export default function AlphabetSpecimensPage() {
               <span aria-hidden="true" className="mt-2 h-1 w-1 shrink-0 rounded-full bg-accent" />
               Mídia só aparece em prévia com evidência de autorização
               registrada; publicação como lição continua exigindo
-              validação especializada da versão atual.
+              validação especializada e esclarecimento sobre hospedagem
+              e distribuição públicas.
             </li>
           </ul>
         </HonestNote>

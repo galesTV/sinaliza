@@ -200,9 +200,12 @@ describe("visual exercises", () => {
         })}
       />,
     );
-    expect(html).toContain("Créditos das imagens das alternativas:");
-    // Same attribution on both options is rendered once.
-    expect(html.match(/Fonte — Licença/g)?.length).toBe(1);
+    // Photo-first cards carry each option's own credit right under the
+    // photograph, keeping the photo↔item association explicit.
+    expect(html.match(/Imagem: Fonte — Licença/g)?.length).toBe(2);
+    // The media's own alt would leak the answer — options get a neutral one.
+    expect(html).not.toContain("Demonstração visual da opção");
+    expect(html).toContain('alt="Demonstração visual referida pela imagem 1"');
   });
 
   it("renders a resources block with safe external links", () => {
