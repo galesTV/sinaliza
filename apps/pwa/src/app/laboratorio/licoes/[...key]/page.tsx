@@ -11,6 +11,7 @@ import { IconArrowRight } from "@/components/icons";
 import { LessonRunner } from "@/components/lesson-runner";
 import { getCatalogEntry, lessonCatalog } from "@/data/lesson-catalog";
 import { getLessonContext } from "@/data/learning-paths";
+import { prepareLessonContentForEnvironment } from "@/data/review-media-environment";
 
 interface DraftPreviewProps {
   params: Promise<{ key: string[] }>;
@@ -75,7 +76,7 @@ export default async function DraftPreviewPage({
       <DraftReviewNote status={entry.validationStatus} />
 
       <LessonRunner
-        content={entry.draft}
+        content={prepareLessonContentForEnvironment(entry.draft)}
         completionLabel="Prévia concluída"
       />
 

@@ -20,7 +20,10 @@ import type {
   LessonImageMedia,
   LessonMediaAttribution,
 } from "./lesson-content";
-import { validateLessonContent } from "./lesson-content";
+import {
+  validateLessonContent,
+  validateLessonPublicationMedia,
+} from "./lesson-content";
 import { getLessonContext } from "./learning-paths";
 import { lessonKey, parseLessonKey } from "@/lib/progress";
 
@@ -205,6 +208,7 @@ export function licensedLetterMedia(letter: keyof typeof FIOCRUZ_CANDIDATES): {
       license: "Uso não comercial (by-nc) — Fiocruz Imagens",
       licenseUrl: FIOCRUZ_LICENSE_URL,
       permissionEvidence: FIOCRUZ_PERMISSION_EVIDENCE,
+      displayScope: "local-review",
     },
   };
 }
@@ -790,7 +794,8 @@ export function isPublishable(entry: LessonCatalogEntry): boolean {
       hasCurrentReview(entry.reviews, entry.version, type),
     ) &&
     Boolean(entry.draft) &&
-    validateLessonContent(entry.draft!).length === 0
+    validateLessonContent(entry.draft!).length === 0 &&
+    validateLessonPublicationMedia(entry.draft!).length === 0
   );
 }
 

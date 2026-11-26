@@ -6,8 +6,10 @@ import {
   demoLesson,
   guidedExperience,
   hasMediaDisplayPermission,
+  hasMediaPublicationPermission,
   isExerciseVisuallyPermitted,
   validateLessonContent,
+  validateLessonPublicationMedia,
   visualExerciseDemo,
   type LessonContent,
   type LessonExercise,
@@ -285,6 +287,37 @@ describe("media permission gate", () => {
         license: "Licença",
       }),
     ).toBe(false);
+  });
+
+  it("requires separate publication evidence beyond display permission", () => {
+    expect(hasMediaPublicationPermission(baseAttribution)).toBe(false);
+    expect(
+      hasMediaPublicationPermission({
+        ...baseAttribution,
+        publicationEvidence: "autorização de distribuição",
+      }),
+    ).toBe(true);
+  });
+
+  it("reports media without publication evidence as not publishable", () => {
+    const displayOnly: LessonContent = {
+      intro: "intro",
+      blocks: [makeMediaBlock({ attribution: baseAttribution })],
+    };
+    expect(validateLessonPublicationMedia(displayOnly)).toHaveLength(1);
+
+    const distributable: LessonContent = {
+      intro: "intro",
+      blocks: [
+        makeMediaBlock({
+          attribution: {
+            ...baseAttribution,
+            publicationEvidence: "autorização de distribuição",
+          },
+        }),
+      ],
+    };
+    expect(validateLessonPublicationMedia(distributable)).toEqual([]);
   });
 
   it("gates an exercise when any required media lacks evidence", () => {

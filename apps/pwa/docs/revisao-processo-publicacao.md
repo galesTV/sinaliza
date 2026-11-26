@@ -10,7 +10,11 @@ lição pode ser publicada apenas por alteração manual de `status`.
    `validationStatus`, `version` e `reviews[]`. `isPublishable(entry)`
    exige `expert-validated` **e** a cadeia completa de revisões
    (pesquisa + técnica + especialista) sobre a **versão atual** do
-   conteúdo, além de rascunho bem-formado.
+   conteúdo, além de rascunho bem-formado. Desde a revisão da integração
+   pedagógica, toda mídia usada pelo rascunho também precisa de
+   `publicationEvidence` — evidência separada de que o arquivo pode ser
+   redistribuído como mídia publicada; permissão apenas de exibição local
+   não basta.
 2. **Conteúdo publicado**: a página da lição renderiza o próprio
    `entry.draft` do catálogo (Fase 13C — fonte única; o antigo registro
    `lessonContents` foi eliminado). Publicar é uma única mudança de dados:
@@ -44,7 +48,8 @@ lição pode ser publicada apenas por alteração manual de `status`.
 **Implementada.** `LessonContentArea` só monta o `LessonRunner` quando a
 entrada de catálogo da lição existe e `isPublishable(entry)` retorna
 verdadeiro — `expert-validated`, cadeia completa de revisões sobre a
-versão atual do conteúdo e rascunho bem-formado. A guarda é
+versão atual do conteúdo, rascunho bem-formado e evidência de
+redistribuição para cada mídia. A guarda é
 *fail-closed*: catálogo ausente, status sem revisões válidas e revisões
 de versões anteriores caem no aviso honesto "Conteúdo indisponível no
 momento". Sem o runner montado, o conteúdo não renderiza e `lessonKey` —

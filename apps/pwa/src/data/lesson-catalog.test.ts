@@ -358,14 +358,28 @@ describe("primeiras-letras draft-6", () => {
       );
       // Educational use was confirmed by Fiocruz Imagens, so evidence is
       // recorded and the gate opens — for local review surfaces only:
-      // the lesson stays draft and never publishable without reviews.
+      // the lesson stays draft and never publishable without reviews
+      // or redistribution evidence.
       expect(block.attribution.permissionEvidence?.trim()).toBeTruthy();
+      expect(block.attribution.displayScope).toBe("local-review");
+      expect(block.attribution.publicationEvidence).toBeUndefined();
       expect(hasMediaDisplayPermission(block.attribution)).toBe(true);
       expect(block.attribution.sourceUrl).toMatch(
         /^https:\/\/www\.fiocruzimagens\.fiocruz\.br\/s\/fiocruzimagens\/item\//,
       );
       expect(block.attribution.licenseUrl).toMatch(/^https:\/\//);
     }
+  });
+
+  it("keeps local-review media ineligible for publication even with full reviews", () => {
+    // The Fiocruz evidence authorizes educational display for review, not
+    // redistribution of the asset files as published lesson media.
+    const fullyReviewed = {
+      ...entry,
+      validationStatus: "expert-validated" as const,
+      reviews: [...FULL_REVIEW_CHAIN],
+    };
+    expect(isPublishable(fullyReviewed)).toBe(false);
   });
 
   it("permits both visual exercises and keeps a description variant", () => {

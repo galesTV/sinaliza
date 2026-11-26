@@ -74,7 +74,7 @@ export function SpecimenReviewNote({
       icon={<IconFlask className="h-5 w-5" />}
     >
       Este espécime visual da letra {specimen.letter} está em curadoria.
-      {specimen.media
+      {hasDisplayPermission(specimen)
         ? " A fotografia exibida tem uso educativo não comercial confirmado pela Fiocruz Imagens e aparece apenas nesta prévia local: hospedagem e distribuição públicas ainda dependem de esclarecimento, e a demonstração aguarda revisão linguística especializada antes de ser publicada na lição."
         : " A demonstração ainda depende de material licenciado e de revisão linguística especializada antes de ser publicada na lição."}{" "}
       Visualizar esta página não registra progresso nem marca a lição como

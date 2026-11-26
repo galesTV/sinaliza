@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getCatalogEntry } from "@/data/lesson-catalog";
 import type { LessonStatus } from "@/data/learning-paths";
 import { isLessonCompletable } from "@/data/path-publication";
+import { prepareLessonContentForEnvironment } from "@/data/review-media-environment";
 
 import { Badge, PlannedBadge } from "./badge";
 import { HonestNote } from "./honest-note";
@@ -66,7 +67,12 @@ export function LessonContentArea({
     catalogEntry?.draft &&
     isLessonCompletable(lessonKey, status)
   ) {
-    return <LessonRunner content={catalogEntry.draft} lessonKey={lessonKey} />;
+    return (
+      <LessonRunner
+        content={prepareLessonContentForEnvironment(catalogEntry.draft)}
+        lessonKey={lessonKey}
+      />
+    );
   }
   if (status === "available") {
     return (

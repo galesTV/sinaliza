@@ -23,9 +23,13 @@ fotografias licenciadas — **somente na prévia local de revisão**:
   localmente, **excluídas do Git e nunca publicadas** — a redistribuição
   pública dos arquivos não foi autorizada (ver
   `docs/evidencia-permissao-fiocruz.md`, pendências P1–P3).
-- O gate de exibição abre na prévia porque a evidência foi registrada;
-  a lição segue `draft`, sem revisões e **não publicável** — publicação
-  exige a cadeia de revisão completa sobre a versão vigente.
+- O gate de exibição abre na prévia local porque a evidência foi
+  registrada; em deploys públicos Vercel (`preview`/`production`) a
+  evidência e o caminho dessas mídias `local-review` são removidos antes
+  do runtime cliente, então o arquivo restrito não é requisitado.
+- A lição segue `draft`, sem revisões e **não publicável** — publicação
+  exige a cadeia de revisão completa sobre a versão vigente e evidência
+  separada de redistribuição (`publicationEvidence`) para cada mídia.
 - Os exercícios visuais passam a exibir as imagens na prévia; as
   `descriptionVariant`s permanecem como alternativa acessível.
 - Crédito exibido: "Imagem: Mauro Campello | Acervo Fiocruz Imagens
@@ -332,7 +336,7 @@ Decisões internas já tomadas (para contexto da reunião):
 | Prévia no laboratório, sem registro de progresso | Verificado | `/laboratorio/licoes/alfabeto/primeiros-passos/primeiras-letras` exibe o aviso de rascunho e não grava progresso. |
 | Integração da experiência visual na lição C | Aplicado em `draft-4`, 19/11/2026 | Fase 8C.3: infraestrutura existente reutilizada (sem novo motor de lição); objetivos visual × descrição distintos em código e documentação. |
 | Seção "Recursos complementares" com links externos (INES, Unesp) | Aplicado em `draft-5`, 20/11/2026 | Fase 8D.3: novo `LessonResourcesBlock` opcional ao fim do rascunho; apenas hiperlinks https, sem mídia de terceiros; WikiLibras descartado por não demonstrar o alfabeto manual de forma localizável. |
-| Fotografias Fiocruz integradas na prévia local (draft-6) | Aplicado em `draft-6`, 24/11/2026 | Uso educativo não comercial confirmado pela Equipe Fiocruz Imagens; arquivos processados mantidos fora do Git; exibição restrita à prévia de revisão — pendências P1–P3 de `docs/evidencia-permissao-fiocruz.md`. |
+| Fotografias Fiocruz integradas na prévia local (draft-6) | Aplicado em `draft-6`, 24/11/2026 | Uso educativo não comercial confirmado pela Equipe Fiocruz Imagens; arquivos processados mantidos fora do Git; exibição restrita à prévia local de revisão e bloqueada em deploys públicos — pendências P1–P3 de `docs/evidencia-permissao-fiocruz.md`. |
 
 ### Decisões da revisão especializada (preencher em 25/11)
 

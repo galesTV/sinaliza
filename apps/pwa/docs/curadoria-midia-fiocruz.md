@@ -170,5 +170,10 @@ adicional do autor). Consequências registradas:
   pública (P1), direito de imagem (P2) e uso em vídeo de demonstração
   (P3).
 - **Segue não autorizada para publicação**: a cadeia completa de
-  revisão sobre a versão vigente e a resolução das pendências são
-  pré-requisitos inalterados.
+  revisão sobre a versão vigente, evidência separada de redistribuição
+  (`publicationEvidence`) e a resolução das pendências são
+  pré-requisitos inalterados. As atribuições trazem
+  `displayScope: "local-review"`; em deploys públicos Vercel
+  (`preview`/`production`), as rotas removem evidência de exibição e
+  caminho do arquivo antes do runtime cliente, então as fotos não são
+  requisitadas nem exibidas fora da prévia local.

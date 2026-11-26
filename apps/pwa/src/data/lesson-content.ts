@@ -151,6 +151,21 @@ export interface LessonMediaAttribution {
    * that the referenced evidence actually authorizes the use.
    */
   permissionEvidence?: string;
+  /**
+   * Reference to the recorded proof that the asset may be distributed as
+   * published lesson media. Display permission alone is not enough: review
+   * assets can be authorized for local pedagogical evaluation while public
+   * redistribution remains unresolved. Publishing is fail-closed without
+   * this separate evidence.
+   */
+  publicationEvidence?: string;
+  /**
+   * Display scope of the recorded permission. `local-review` marks assets
+   * that may appear only in non-public review environments; public
+   * deployments must strip display permission before the media reaches the
+   * learner-facing runtime.
+   */
+  displayScope?: "public" | "local-review";
 }
 
 /**
@@ -225,6 +240,21 @@ export function hasMediaDisplayPermission(
   );
 }
 
+/**
+ * Publication gate for lesson media. It is intentionally separate from
+ * display permission: an asset can be cleared for a local review preview
+ * while its public redistribution remains unresolved. Published lessons
+ * require explicit distribution evidence for every media item.
+ */
+export function hasMediaPublicationPermission(
+  attribution?: LessonMediaAttribution,
+): boolean {
+  return (
+    hasMediaDisplayPermission(attribution) &&
+    Boolean(attribution!.publicationEvidence?.trim())
+  );
+}
+
 /** Every media declared by an exercise (stimulus plus option media). */
 export function exerciseMediaList(
   exercise: LessonExercise,
@@ -249,6 +279,35 @@ export function isExerciseVisuallyPermitted(exercise: LessonExercise): boolean {
 export interface LessonContent {
   intro: string;
   blocks: LessonBlock[];
+}
+
+/** Every media item declared anywhere in lesson content. */
+export function lessonMediaList(
+  content: LessonContent,
+): LessonExerciseMedia[] {
+  return content.blocks.flatMap((block) => {
+    if (block.kind === "media") {
+      return [
+        {
+          media: block.media,
+          attribution: block.attribution,
+        },
+      ];
+    }
+    if (block.kind === "exercise") return exerciseMediaList(block.exercise);
+    return [];
+  });
+}
+
+/** Media problems that make content ineligible for publication. */
+export function validateLessonPublicationMedia(
+  content: LessonContent,
+): string[] {
+  return lessonMediaList(content).flatMap((item, index) =>
+    hasMediaPublicationPermission(item.attribution)
+      ? []
+      : [`media ${index}: missing publication evidence`],
+  );
 }
 
 /**

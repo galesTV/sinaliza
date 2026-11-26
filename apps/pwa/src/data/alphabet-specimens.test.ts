@@ -69,6 +69,7 @@ const LICENSED_MEDIA: Pick<
     source: "Equipe Sinaliza",
     license: "Produção própria",
     permissionEvidence: "Termo de autorização de imagem do intérprete.",
+    publicationEvidence: "Termo de cessão para distribuição educacional do ativo.",
   },
 };
 
@@ -133,6 +134,8 @@ describe("alphabetSpecimens catalog", () => {
       if (licensed.has(specimen.id)) {
         expect(specimen.media).toBeDefined();
         expect(specimen.attribution?.permissionEvidence?.trim()).toBeTruthy();
+        expect(specimen.attribution?.displayScope).toBe("local-review");
+        expect(specimen.attribution?.publicationEvidence).toBeUndefined();
         expect(hasDisplayPermission(specimen)).toBe(true);
       } else {
         expect(specimen.media).toBeUndefined();
@@ -232,13 +235,27 @@ describe("isSpecimenPublishable", () => {
     expect(isSpecimenPublishable(mediaNoLicense)).toBe(false);
   });
 
-  it("publishes only with the full chain and licensed media", () => {
+  it("publishes only with the full chain and media cleared for distribution", () => {
     const specimen = makeSpecimen({
       validationStatus: "expert-validated",
       reviews: [...FULL_REVIEW_CHAIN],
       ...LICENSED_MEDIA,
     });
     expect(isSpecimenPublishable(specimen)).toBe(true);
+
+    // Display permission alone never suffices: local-review media needs
+    // separate evidence that public redistribution is authorized.
+    const displayOnly = makeSpecimen({
+      validationStatus: "expert-validated",
+      reviews: [...FULL_REVIEW_CHAIN],
+      media: LICENSED_MEDIA.media,
+      attribution: {
+        ...LICENSED_MEDIA.attribution!,
+        publicationEvidence: undefined,
+      },
+    });
+    expect(hasDisplayPermission(displayOnly)).toBe(true);
+    expect(isSpecimenPublishable(displayOnly)).toBe(false);
   });
 
   it("keeps licensed media displayable in preview but not publishable", () => {

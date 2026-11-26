@@ -20,6 +20,7 @@ import {
 } from "./lesson-catalog";
 import {
   hasMediaDisplayPermission,
+  hasMediaPublicationPermission,
   validateLessonMedia,
   type LessonMedia,
   type LessonMediaAttribution,
@@ -214,6 +215,7 @@ export function isSpecimenPublishable(specimen: AlphabetSpecimen): boolean {
       hasCurrentReview(specimen.reviews, specimen.version, type),
     ) &&
     hasDisplayPermission(specimen) &&
+    hasMediaPublicationPermission(specimen.attribution) &&
     validateLessonMedia(specimen.media!).length === 0
   );
 }

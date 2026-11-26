@@ -29,6 +29,8 @@ Todo passo de mídia é um `LessonMediaBlock` em `src/data/lesson-content.ts`:
     license: "CC BY 4.0",                // obrigatório — nunca omita
     licenseUrl: "https://creativecommons.org/licenses/by/4.0/",
     permissionEvidence: "URL/ID do registro de autorização", // obrigatório para exibir
+    publicationEvidence: "URL/ID da autorização de distribuição", // obrigatório para publicar
+    displayScope: "public",                  // ou "local-review" quando a exibição é só de revisão
   },
 }
 ```
@@ -51,6 +53,28 @@ ela é juridicamente válida. Uma string não vazia não prova licença — a
 revisão humana (pesquisa → técnica → especialista) é quem confere que a
 evidência referenciada autoriza de fato o uso. O gate existe para impedir
 publicação por omissão, não para certificar direitos.
+
+## Gates de publicação e de escopo local
+
+Exibição e distribuição são permissões distintas. `publicationEvidence`
+registra a autorização para distribuir o arquivo como mídia publicada;
+`isPublishable`/`isSpecimenPublishable` são fail-closed quando qualquer mídia
+da lição ou do espécime não tem essa evidência, mesmo que
+`permissionEvidence` permita exibi-la em revisão.
+
+`displayScope: "local-review"` marca ativos autorizados apenas para avaliação
+local. Nas rotas servidoras de revisão/publicação, esse escopo é preparado por
+`prepareLessonContentForEnvironment`/`prepareSpecimenForEnvironment`: em
+deploys Vercel `preview`/`production`, a evidência de exibição e o `src` do
+ativo são removidos antes de serializar o conteúdo para o runtime cliente. O
+gate comum então mostra o estado honesto indisponível/em produção e o
+navegador não requisita o arquivo restrito. Fora desses ambientes públicos,
+a prévia local continua exibindo o ativo quando a evidência existe.
+
+`publicationEvidence` não deve ser preenchido por inferência: só registre um
+documento ou autorização que cubra explicitamente hospedagem/redistribuição
+pública do arquivo. Licenças restritas a uso local, não comercial ou interno
+não viram publicação por silêncio.
 
 ## Mídia em exercícios
 
@@ -173,9 +197,10 @@ Em caso de dúvida, **não use o ativo** e registre a pendência.
    temporariamente para ver o fallback).
 3. Navegue por teclado (Tab até o player e o botão Continuar) e teste em
    viewport mobile ~390px.
-4. Só então, com a entrada `expert-validated` e a cadeia de revisões na
-   versão atual, mude `status` para `"available"` em `learning-paths.ts` —
-   a página passa a renderizar o próprio `entry.draft` aprovado.
+4. Só então, com a entrada `expert-validated`, a cadeia de revisões na
+   versão atual e `publicationEvidence` válida para cada mídia, mude
+   `status` para `"available"` em `learning-paths.ts` — a página passa a
+   renderizar o próprio `entry.draft` aprovado.
 
 ## Limitações atuais
 

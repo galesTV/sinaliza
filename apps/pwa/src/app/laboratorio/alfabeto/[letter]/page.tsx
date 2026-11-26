@@ -14,6 +14,7 @@ import {
   alphabetSpecimens,
   getSpecimen,
 } from "@/data/alphabet-specimens";
+import { prepareSpecimenForEnvironment } from "@/data/review-media-environment";
 import { getLessonContext } from "@/data/learning-paths";
 import { parseLessonKey } from "@/lib/progress";
 
@@ -47,6 +48,7 @@ export default async function SpecimenPreviewPage({
   const specimen = getSpecimen(letter);
   if (!specimen) notFound();
 
+  const displaySpecimen = prepareSpecimenForEnvironment(specimen);
   const parsed = parseLessonKey(specimen.lessonKey);
   const context =
     parsed &&
@@ -78,7 +80,7 @@ export default async function SpecimenPreviewPage({
         </div>
       </header>
 
-      <SpecimenReviewNote specimen={specimen} />
+      <SpecimenReviewNote specimen={displaySpecimen} />
 
       <section aria-labelledby="media-title" className="flex flex-col gap-4">
         <h2
@@ -87,7 +89,7 @@ export default async function SpecimenPreviewPage({
         >
           Demonstração visual
         </h2>
-        <SpecimenViewer specimen={specimen} />
+        <SpecimenViewer specimen={displaySpecimen} />
         {specimen.description && (
           <p className="max-w-xl text-sm leading-relaxed text-muted">
             {specimen.description}

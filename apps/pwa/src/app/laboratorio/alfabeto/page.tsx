@@ -9,8 +9,10 @@ import { HonestNote } from "@/components/honest-note";
 import { IconArrowRight, IconFlask } from "@/components/icons";
 import {
   alphabetSpecimens,
+  hasDisplayPermission,
   getSpecimenUrl,
 } from "@/data/alphabet-specimens";
+import { prepareSpecimenForEnvironment } from "@/data/review-media-environment";
 
 export const metadata: Metadata = {
   title: "Laboratório — Curadoria do alfabeto manual",
@@ -20,6 +22,13 @@ export const metadata: Metadata = {
 };
 
 export default function AlphabetSpecimensPage() {
+  const displaySpecimens = alphabetSpecimens.map((specimen) =>
+    prepareSpecimenForEnvironment(specimen),
+  );
+  const licensedMediaVisible = displaySpecimens.some((specimen) =>
+    hasDisplayPermission(specimen),
+  );
+
   return (
     <div className="flex flex-col gap-10">
       <section aria-labelledby="specimens-title" className="flex flex-col gap-6">
@@ -31,10 +40,9 @@ export default function AlphabetSpecimensPage() {
           Curadoria do alfabeto manual
         </h1>
         <p className="max-w-xl text-base leading-relaxed text-muted">
-          Espécimes visuais das primeiras letras em curadoria — quatro
-          demonstrações já têm uso educativo confirmado pela Fiocruz Imagens e
-          aparecem nesta prévia local; revisão linguística e publicação seguem
-          pendentes.
+          {licensedMediaVisible
+            ? "Espécimes visuais das primeiras letras em curadoria — quatro demonstrações já têm uso educativo confirmado pela Fiocruz Imagens e aparecem nesta prévia local; revisão linguística e publicação seguem pendentes."
+            : "Espécimes visuais das primeiras letras em curadoria — as demonstrações com uso educativo confirmado pela Fiocruz Imagens são restritas à prévia local e não aparecem neste ambiente público; revisão linguística e publicação seguem pendentes."}
         </p>
 
         <HonestNote
@@ -64,7 +72,7 @@ export default function AlphabetSpecimensPage() {
       </section>
 
       <ul className="flex flex-col gap-3" aria-label="Espécimes catalogados">
-        {alphabetSpecimens.map((specimen) => (
+        {displaySpecimens.map((specimen) => (
           <li key={specimen.id}>
             <Link
               href={getSpecimenUrl(specimen.letter)}
@@ -78,7 +86,7 @@ export default function AlphabetSpecimensPage() {
                   <ValidationStatusBadge status={specimen.validationStatus} />
                 </span>
                 <span className="text-sm text-muted">
-                  {specimen.media
+                  {hasDisplayPermission(specimen)
                     ? "Demonstração disponível para revisão."
                     : "Mídia em produção — licença não confirmada."}
                 </span>
