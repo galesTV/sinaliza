@@ -509,15 +509,17 @@ test.describe("draft preview", () => {
     await page.getByRole("button", { name: "Continuar" }).click();
 
     // Step 12: visual exercise — photo-first option cards, each carrying
-    // its own item credit; no alt text may leak the correct answer.
+    // its own item credit; alt text describes the visible hand configuration
+    // without naming the letter being asked for.
     await expect(
       page.locator('img[src="/media/alfabeto/primeiros-passos/letra-i.jpg"]'),
     ).toBeVisible();
     for (const img of await page.locator("fieldset img").all()) {
-      await expect(img).toHaveAttribute(
-        "alt",
-        /^Demonstração visual referida pela imagem \d$/,
+      const alt = await img.getAttribute("alt");
+      expect(alt).toMatch(
+        /^Demonstração fotográfica de uma configuração de mão:/,
       );
+      expect(alt).not.toMatch(/letra [ABIL]/);
     }
     await expect(
       page

@@ -793,7 +793,7 @@ export const visualExerciseDemo: LessonContent = {
               media: {
                 type: "image",
                 src: "/media/fixtures/shape-triangle.svg",
-                alt: "Demonstração visual da opção 1.",
+                alt: "Forma geométrica com três lados e três vértices.",
               },
               attribution: syntheticAttribution,
             },
@@ -805,7 +805,7 @@ export const visualExerciseDemo: LessonContent = {
               media: {
                 type: "image",
                 src: "/media/fixtures/shape-square.svg",
-                alt: "Demonstração visual da opção 2.",
+                alt: "Forma geométrica com quatro lados iguais e quatro ângulos retos.",
               },
               attribution: syntheticAttribution,
             },

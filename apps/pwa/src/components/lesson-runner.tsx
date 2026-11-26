@@ -389,11 +389,9 @@ function ExerciseBlock({
                         // eslint-disable-next-line @next/next/no-img-element -- lesson media stays dependency-free; next/image is not used in this app
                         <img
                           src={option.media.media.src}
-                          // Neutral alt: the media's own alt names the letter
-                          // demonstrated, which would leak the answer before it
-                          // is given. The photograph's identity stays bound to
-                          // its credit line right under the card.
-                          alt={`Demonstração visual referida pela ${option.label.toLowerCase()}`}
+                          // Exercise media alt text is authored to describe the
+                          // visible configuration without naming the answer.
+                          alt={option.media.media.alt}
                           className="h-auto w-full rounded-lg border border-border bg-black/40 object-contain"
                           onError={() => markFailed(option.media!.media.src)}
                         />
@@ -411,7 +409,7 @@ function ExerciseBlock({
                           // eslint-disable-next-line @next/next/no-img-element -- lesson media stays dependency-free; next/image is not used in this app
                           <img
                             src={option.media.media.src}
-                            alt={`Demonstração visual referida pela ${option.label.toLowerCase()}`}
+                            alt={option.media.media.alt}
                             className="h-16 w-16 shrink-0 rounded-lg border border-border bg-black/40 object-contain"
                             onError={() => markFailed(option.media!.media.src)}
                           />
