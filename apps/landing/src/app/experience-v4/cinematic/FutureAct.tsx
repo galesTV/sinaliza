@@ -37,8 +37,8 @@ const flowDuration = 2244;
 
 function revealAt(index: number) {
   const progress = thread.progress.get(index);
-  const arrival = progress === undefined ? 6 + 94 * nodes[index][0] / 925 : 5 + 89 * progress;
-  return { "--v4c-arrival": `${arrival.toFixed(2)}%` } as CSSProperties;
+  const arrival = progress === undefined ? 0.12 + 0.84 * nodes[index][0] / 925 : 0.10 + 0.84 * progress;
+  return { "--v4c-arrival": arrival.toFixed(4) } as CSSProperties;
 }
 
 function Constellation() {
@@ -91,6 +91,20 @@ function Constellation() {
             strokeLinecap="round"
             strokeLinejoin="round"
           />
+          <path
+            className="v4c-future-construction-tip"
+            d={thread.path}
+            pathLength="1"
+            fill="none"
+            stroke="#b6f4ff"
+            strokeWidth="2.8"
+            strokeLinecap="round"
+          />
+          <circle
+            className="v4c-future-origin-halo"
+            cx={nodes[0][0]} cy={nodes[0][1]} r="17"
+            fill="url(#v4c-future-halo)"
+          />
           <g fill="url(#v4c-future-halo)">
             {halos.map(([node, radius], index) => (
               <g key={node} className="v4c-future-node" style={revealAt(node)}>
@@ -113,7 +127,12 @@ function Constellation() {
           </g>
           <g fill="url(#v4c-future-light)">
             {nodes.map(([x, y, radius], index) => (
-              <circle key={x} className="v4c-future-node" style={revealAt(index)} cx={x} cy={y} r={radius} />
+              <circle
+                key={x}
+                className={index === 0 ? "v4c-future-origin" : "v4c-future-node"}
+                style={index === 0 ? undefined : revealAt(index)}
+                cx={x} cy={y} r={radius}
+              />
             ))}
           </g>
           <circle className="v4c-future-node" style={revealAt(10)} cx="520" cy="268" r="3.5" fill="#f4f6fc" />
