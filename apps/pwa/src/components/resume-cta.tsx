@@ -62,16 +62,13 @@ export function ResumeCtaView({
   // Nothing published yet: keep the start-of-path navigation and say so.
   return (
     <>
-      <Link href="/laboratorio/experiencia" className="btn-primary">
-        Experimentar o Sinaliza
-        <IconArrowRight className="h-4 w-4" />
-      </Link>
       <Link href={`/trilhas/${firstPathSlug}`} className="btn-secondary">
         Ver alfabeto manual
+        <IconArrowRight className="h-4 w-4" />
       </Link>
       <p className="max-w-xs basis-full text-xs leading-relaxed text-muted/80">
-        Nenhuma lição publicada ainda — a demonstração é interativa, mas não
-        registra progresso nem substitui a validação pedagógica.
+        Nenhuma lição publicada ainda — a demonstração no topo é interativa,
+        mas não registra progresso nem substitui a validação pedagógica.
       </p>
     </>
   );
