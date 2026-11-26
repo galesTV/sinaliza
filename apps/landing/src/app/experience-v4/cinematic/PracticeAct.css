@@ -64,6 +64,7 @@
   line-height: 1.6;
 }
 
+.v4c-practice-specimen,
 .v4c-practice-model,
 .v4c-practice-evidence {
   min-width: 0;
@@ -119,6 +120,43 @@
 
 .v4c-practice-visual[data-ready] img {
   visibility: hidden;
+}
+
+.v4c-practice-actions:not([hidden]) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-top: 18px;
+}
+
+.v4c-practice-actions button {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: #c9d2e5;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.v4c-practice-actions [data-pose="sequence"] {
+  border-color: #497a89;
+  background: #14293a;
+  color: var(--v4c-practice-accent);
+}
+
+.v4c-practice-actions button:is(:hover, :active) {
+  border-color: var(--v4c-practice-accent);
+  background: #203649;
+  color: #f4f6fc;
+}
+
+.v4c-practice-actions button:focus-visible {
+  outline: 2px solid var(--v4c-practice-accent);
+  outline-offset: 3px;
 }
 
 .v4c-practice-debug {
@@ -255,7 +293,7 @@
     max-width: 15ch;
   }
 
-  .v4c-practice-model {
+  .v4c-practice-specimen {
     width: min(100%, 590px);
     justify-self: end;
   }

@@ -267,6 +267,8 @@ export interface CinematicHand {
     width: number,
     height: number,
     practicePose?: HandPose,
+    pitch?: number,
+    yaw?: number,
   ) => void;
   dispose: () => void;
 }
@@ -373,6 +375,8 @@ export function createCinematicHand(
     width: number,
     height: number,
     practicePose: HandPose = RELAXED,
+    pitch = 0,
+    yaw = 0,
   ) => {
     const preset = PRESETS[layout];
     const p = Math.min(1, t);
@@ -481,7 +485,8 @@ export function createCinematicHand(
       (1 - 0.5 * recede) *
       (1 - exit);
     glow.sprite.visible = glow.material.opacity > 0.002;
-    group.rotation.y = practice ? 0.19 * (1 - range(r, 0, 0.52)) : 0.45 * q;
+    group.rotation.x = practice ? pitch : 0;
+    group.rotation.y = practice ? 0.19 * (1 - range(r, 0, 0.52)) + yaw : 0.45 * q;
     glow.sprite.scale.setScalar(4 + 5.5 * range(p, 0, 0.3));
 
     // Camera: eased interpolation between the keys on the stage bounds,
