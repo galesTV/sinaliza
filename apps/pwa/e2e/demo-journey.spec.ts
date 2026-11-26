@@ -280,12 +280,21 @@ test.describe("guided public demo constellation", () => {
     );
     await expect(demoConstellation(page)).toHaveAttribute("data-correct", "2");
     await expect(page.getByText(/nenhum progresso foi salvo/i)).toBeVisible();
+    const handLabLink = page.getByRole("link", {
+      name: "Experimentar laboratório de mãos",
+    });
+    const trailsLink = page.getByRole("link", { name: "Explorar trilhas" });
+    await expect(handLabLink).toHaveAttribute("href", "/laboratorio/maos");
+    await expect(trailsLink).toHaveAttribute("href", "/trilhas");
+
+    await page.keyboard.press("Tab");
+    await expect(handLabLink).toBeFocused();
+    await page.keyboard.press("Tab");
+    await expect(trailsLink).toBeFocused();
+    await page.keyboard.press("Tab");
     await expect(
-      page.getByRole("link", { name: "Experimentar laboratório de mãos" }),
-    ).toHaveAttribute("href", "/laboratorio/maos");
-    await expect(
-      page.getByRole("link", { name: "Explorar trilhas" }),
-    ).toHaveAttribute("href", "/trilhas");
+      page.getByRole("button", { name: "Recomeçar" }),
+    ).toBeFocused();
 
     const after = await page.evaluate(
       (key) => localStorage.getItem(key),

@@ -72,31 +72,6 @@ export function GuidedExperienceDemo() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
-        <div className="order-2 xl:order-1">
-          <LessonRunner
-            key={runId}
-            content={guidedExperience}
-            completionLabel="Experiência demonstrativa concluída"
-            onSnapshot={handleSnapshot}
-            headerAccessory={
-              <DemoConstellationMini
-                state={demoState}
-                exerciseStepIndexes={exerciseStepIndexes}
-              />
-            }
-          />
-        </div>
-        {!demoState.completed && (
-          <aside className="order-1 xl:sticky xl:top-24 xl:order-2">
-            <DemoConstellation
-              state={demoState}
-              exerciseStepIndexes={exerciseStepIndexes}
-            />
-          </aside>
-        )}
-      </div>
-
       {demoState.completed && (
         <section
           aria-labelledby="demo-completion-title"
@@ -137,6 +112,32 @@ export function GuidedExperienceDemo() {
           </div>
         </section>
       )}
+
+      <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="order-2 xl:order-1">
+          <LessonRunner
+            key={runId}
+            content={guidedExperience}
+            completionLabel="Experiência demonstrativa concluída"
+            onSnapshot={handleSnapshot}
+            headerAccessory={
+              <DemoConstellationMini
+                state={demoState}
+                exerciseStepIndexes={exerciseStepIndexes}
+              />
+            }
+          />
+        </div>
+        {!demoState.completed && (
+          <aside className="order-1 xl:sticky xl:top-24 xl:order-2">
+            <DemoConstellation
+              state={demoState}
+              exerciseStepIndexes={exerciseStepIndexes}
+            />
+          </aside>
+        )}
+      </div>
+
     </div>
   );
 }
