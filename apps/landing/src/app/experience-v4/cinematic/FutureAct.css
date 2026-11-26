@@ -85,6 +85,10 @@
   opacity: .32;
 }
 
+.v4c-future-signal {
+  opacity: 0;
+}
+
 .v4c-future-invite {
   display: flex;
   justify-content: space-between;
@@ -263,4 +267,51 @@
 @keyframes v4c-future-drift {
   from { transform: translate(-12px, 10px); }
   to { transform: none; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .v4c-future-field[data-ambient] {
+    --v4c-ambient-play: paused;
+  }
+
+  .v4c-future-field[data-ambient="running"] {
+    --v4c-ambient-play: running;
+  }
+
+  .v4c-future-field[data-ambient] .v4c-future-halo-near {
+    animation: v4c-future-breathe 10.8s ease-in-out .4s infinite var(--v4c-ambient-play);
+  }
+
+  .v4c-future-field[data-ambient] .v4c-future-halo-center {
+    animation: v4c-future-breathe 13.4s ease-in-out 2s infinite var(--v4c-ambient-play);
+  }
+
+  .v4c-future-field[data-ambient] .v4c-future-halo-far {
+    animation: v4c-future-breathe 15.2s ease-in-out 3.1s infinite var(--v4c-ambient-play);
+  }
+
+  .v4c-future-field[data-ambient] .v4c-future-atmosphere {
+    animation: v4c-future-depth-light 17s ease-in-out infinite var(--v4c-ambient-play);
+  }
+
+  .v4c-future-field[data-ambient] .v4c-future-signal {
+    stroke-dasharray: .1 1.9;
+    animation: v4c-future-travel 13s linear infinite var(--v4c-ambient-play);
+  }
+}
+
+@keyframes v4c-future-breathe {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .68; }
+}
+
+@keyframes v4c-future-depth-light {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .84; }
+}
+
+@keyframes v4c-future-travel {
+  0%, 13% { opacity: 0; stroke-dashoffset: .1; }
+  18%, 29% { opacity: .64; }
+  34%, 100% { opacity: 0; stroke-dashoffset: -1; }
 }

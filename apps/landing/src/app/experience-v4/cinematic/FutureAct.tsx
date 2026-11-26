@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { PWA_URL } from "../../lib/site";
+import { ConstellationField } from "./ConstellationField";
 import "./FutureAct.css";
 
 const nodes = [
@@ -13,7 +14,7 @@ const nodes = [
 
 function Constellation() {
   return (
-    <div className="v4c-future-field" aria-hidden="true">
+    <ConstellationField>
       <svg viewBox="0 0 900 560" focusable="false" className="v4c-future-stars" data-v4c-reveal="constellation">
         <defs>
           <linearGradient id="v4c-future-light" x1="0%" y1="95%" x2="98%" y2="12%">
@@ -29,10 +30,12 @@ function Constellation() {
           </radialGradient>
         </defs>
         <g className="v4c-future-depth" fill="none" stroke="#9693f9">
-          <path d="M44 454C155 291 415 122 705 88c117-14 177 15 169 61-20 125-401 319-664 359C102 524 43 500 44 454Z" />
-          <path d="M103 204c62-74 267-97 449-43 168 50 291 141 256 219-37 83-266 98-454 42C177 369 38 280 103 204Z" strokeDasharray="1 7" />
-          <path d="M75 308 201 189 395 105 571 166 803 74M133 494 306 415 564 463 737 257 871 277" strokeDasharray="2 7" />
-          <path d="M36 370h.1M82 242h.1M115 123h.1M157 310h.1M182 134h.1M199 526h.1M239 113h.1M248 254h.1M285 199h.1M352 497h.1M384 446h.1M441 127h.1M456 493h.1M468 74h.1M536 96h.1M537 451h.1M607 458h.1M637 83h.1M674 290h.1M739 353h.1M761 68h.1M800 330h.1M834 218h.1M868 91h.1" strokeLinecap="round" strokeWidth="3" />
+          <g className="v4c-future-atmosphere">
+            <path d="M44 454C155 291 415 122 705 88c117-14 177 15 169 61-20 125-401 319-664 359C102 524 43 500 44 454Z" />
+            <path d="M103 204c62-74 267-97 449-43 168 50 291 141 256 219-37 83-266 98-454 42C177 369 38 280 103 204Z" strokeDasharray="1 7" />
+            <path d="M75 308 201 189 395 105 571 166 803 74M133 494 306 415 564 463 737 257 871 277" strokeDasharray="2 7" />
+            <path d="M36 370h.1M82 242h.1M115 123h.1M157 310h.1M182 134h.1M199 526h.1M239 113h.1M248 254h.1M285 199h.1M352 497h.1M384 446h.1M441 127h.1M456 493h.1M468 74h.1M536 96h.1M537 451h.1M607 458h.1M637 83h.1M674 290h.1M739 353h.1M761 68h.1M800 330h.1M834 218h.1M868 91h.1" strokeLinecap="round" strokeWidth="3" />
+          </g>
         </g>
         <g className="v4c-future-formation">
           <path
@@ -51,11 +54,21 @@ function Constellation() {
             strokeLinecap="round"
             strokeLinejoin="round"
           />
+          <path
+            className="v4c-future-signal"
+            d="M416 290 520 268 599 322 632 237 737 257 807 191"
+            pathLength="1"
+            fill="none"
+            stroke="#a1f3ff"
+            strokeWidth="2.4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
           <g fill="url(#v4c-future-halo)">
-            <circle cx="306" cy="415" r="31" />
-            <circle cx="520" cy="268" r="56" />
+            <circle className="v4c-future-halo-near" cx="306" cy="415" r="31" />
+            <circle className="v4c-future-halo-center" cx="520" cy="268" r="56" />
             <circle cx="632" cy="237" r="26" />
-            <circle cx="766" cy="112" r="30" />
+            <circle className="v4c-future-halo-far" cx="766" cy="112" r="30" />
           </g>
           <g fill="none" stroke="#9de4ff">
             <circle cx="520" cy="268" r="18" opacity=".65" />
@@ -70,7 +83,7 @@ function Constellation() {
           <circle cx="520" cy="268" r="3.5" fill="#f4f6fc" />
         </g>
       </svg>
-    </div>
+    </ConstellationField>
   );
 }
 
