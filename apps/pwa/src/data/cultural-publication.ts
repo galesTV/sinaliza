@@ -257,12 +257,12 @@ function getContentPublicationProblems(
       problems.push(`library metadata "${key}" is unknown`);
     }
   }
-  if (!entry.library.creators?.length) {
+  if (!entry.library.creators?.some((creator) => creator.trim())) {
     problems.push("library content lacks creators");
   }
   if (!entry.library.format) problems.push("library content lacks format");
   if (!entry.library.access) problems.push("library content lacks access");
-  if (!entry.library.languages?.length) {
+  if (!entry.library.languages?.some((language) => language.trim())) {
     problems.push("library content lacks languages");
   }
   return problems;
@@ -277,7 +277,15 @@ export function getCulturalPublicationBlockers(
   entry: CulturalCatalogEntry,
   allEntries: readonly CulturalCatalogEntry[],
 ): string[] {
-  const problems = validateCulturalEntry(entry, allEntries);
+  const catalogIds = new Set(allEntries.map((item) => item.id));
+  const validationEntry = {
+    ...entry,
+    relatedEntries: entry.relatedEntries.filter(
+      (relation) =>
+        relation.kind !== "unverified-candidate" || catalogIds.has(relation.targetId),
+    ),
+  };
+  const problems = validateCulturalEntry(validationEntry, allEntries);
 
   if (!CULTURAL_CATEGORIES.includes(entry.category)) {
     problems.push("category is not part of the public cultural taxonomy");
@@ -286,7 +294,9 @@ export function getCulturalPublicationBlockers(
   if (entry.validationStatus !== "expert-validated") {
     problems.push("entry has not completed expert validation");
   } else {
-    problems.push(...getCulturalReviewChainProblems(entry));
+    problems.push(
+      ...getCulturalReviewChainProblems(entry, getCulturalContentFingerprint(entry)),
+    );
     problems.push(...getFingerprintPublicationProblems(entry));
   }
 
@@ -302,6 +312,14 @@ export function getCulturalPublicationBlockers(
     }
     if (authorization.version !== entry.version) {
       problems.push("final publication authorization covers an outdated editorial version");
+    }
+    const latestReviewDate = entry.reviews
+      .filter((review) => review.version === entry.version)
+      .map((review) => review.date)
+      .sort()
+      .at(-1);
+    if (latestReviewDate && authorization.date < latestReviewDate) {
+      problems.push("final publication authorization predates the review chain");
     }
   }
 
@@ -415,14 +433,18 @@ function toPublicEntry(
     ...base,
     category: "library",
     library: {
-      ...(entry.library.creators ? { creators: [...entry.library.creators] } : {}),
+      ...(entry.library.creators
+        ? { creators: entry.library.creators.filter((creator) => creator.trim()) }
+        : {}),
       ...(entry.library.publicationYear !== undefined
         ? { publicationYear: entry.library.publicationYear }
         : {}),
       ...(entry.library.publisher ? { publisher: entry.library.publisher } : {}),
       ...(entry.library.format ? { format: entry.library.format } : {}),
       ...(entry.library.access ? { access: entry.library.access } : {}),
-      ...(entry.library.languages ? { languages: [...entry.library.languages] } : {}),
+      ...(entry.library.languages
+        ? { languages: entry.library.languages.filter((language) => language.trim()) }
+        : {}),
     },
   };
 }

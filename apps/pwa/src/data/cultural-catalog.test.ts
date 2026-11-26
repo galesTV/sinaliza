@@ -99,7 +99,7 @@ describe("validateCulturalEntry", () => {
     const problems = validateCulturalEntry(entry, culturalCatalog).join("\n");
     expect(problems).toContain("slug");
     expect(problems).toContain("missing title");
-    expect(problems).toContain("url must use https");
+    expect(problems).toContain("valid https URL");
   });
 
   it("flags relations to unknown targets", () => {

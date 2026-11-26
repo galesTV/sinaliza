@@ -279,6 +279,7 @@ export function getCulturalReviewChainProblems(
     CulturalCatalogEntry,
     "validationStatus" | "version" | "reviews"
   >,
+  contentFingerprint?: string,
 ): string[] {
   const problems: string[] = [];
   const required = REQUIRED_CULTURAL_REVIEWS[entry.validationStatus];
@@ -290,7 +291,9 @@ export function getCulturalReviewChainProblems(
       (review) =>
         review.type === type &&
         isValidCulturalReview(review) &&
-        review.version === entry.version,
+        review.version === entry.version &&
+        (contentFingerprint === undefined ||
+          review.contentFingerprint === contentFingerprint),
     );
     currentPositions.push(currentIndex);
 
@@ -321,6 +324,15 @@ export function getCulturalReviewChainProblems(
   return problems;
 }
 
+export function isValidHttpsUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" && Boolean(url.hostname);
+  } catch {
+    return false;
+  }
+}
+
 function validateSlug(slug: string): boolean {
   return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug);
 }
@@ -349,8 +361,8 @@ export function validateCulturalEntry(
       problems.push(`${at}: duplicate id "${reference.id}"`);
     }
     referenceIds.add(reference.id);
-    if (!/^https:\/\//.test(reference.url)) {
-      problems.push(`${at}: url must use https`);
+    if (!isValidHttpsUrl(reference.url)) {
+      problems.push(`${at}: url must be a valid https URL`);
     }
     if (
       reference.consultedAt !== undefined &&
@@ -408,11 +420,11 @@ export function validateCulturalEntry(
       problems.push(`${at}: duplicate id "${asset.id}"`);
     }
     assetIds.add(asset.id);
-    if (asset.sourceUrl && !/^https:\/\//.test(asset.sourceUrl)) {
-      problems.push(`${at}: sourceUrl must use https`);
+    if (asset.sourceUrl && !isValidHttpsUrl(asset.sourceUrl)) {
+      problems.push(`${at}: sourceUrl must be a valid https URL`);
     }
-    if (asset.licenseUrl && !/^https:\/\//.test(asset.licenseUrl)) {
-      problems.push(`${at}: licenseUrl must use https`);
+    if (asset.licenseUrl && !isValidHttpsUrl(asset.licenseUrl)) {
+      problems.push(`${at}: licenseUrl must be a valid https URL`);
     }
   });
   if (

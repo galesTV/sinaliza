@@ -293,6 +293,28 @@ describe("isCulturalPublishable", () => {
     expect(problems).toContain("research review lacks a content fingerprint");
     expect(problems).toContain("final publication authorization lacks a content fingerprint");
   });
+
+  it("rejects authorization predating reviews, orphan candidate targets, invalid URLs, and blank library metadata", () => {
+    const earlyAuth = makePublishableHistory();
+    earlyAuth.reviews = earlyAuth.reviews.map((review) => ({ ...review, date: "2026-11-27" }));
+    earlyAuth.publicationAuthorization!.date = "2026-11-26";
+    expect(getCulturalPublicationBlockers(earlyAuth, [earlyAuth]).join("\n")).toContain(
+      "authorization predates",
+    );
+
+    const orphan = makePublishableHistory({
+      relatedEntries: [{ targetId: "MISSING", kind: "unverified-candidate", evidenceReferenceIds: [] }],
+    });
+    expect(isCulturalPublishable(orphan, [orphan])).toBe(true);
+    expect(projectPublicCulturalEntries([orphan])[0].relatedEntries).toEqual([]);
+
+    const invalidUrl = makePublishableHistory({
+      references: [{ ...makePublishableHistory().references[0], url: "https://" }],
+    });
+    expect(getCulturalPublicationBlockers(invalidUrl, [invalidUrl]).join("\n")).toContain(
+      "valid https URL",
+    );
+  });
 });
 
 describe("projectPublicCulturalEntries", () => {
