@@ -9,17 +9,27 @@ import { HonestNote } from "@/components/honest-note";
 import { IconArrowRight, IconFlask } from "@/components/icons";
 import {
   alphabetSpecimens,
+  hasDisplayPermission,
   getSpecimenUrl,
+  specimenAvailabilityLabel,
 } from "@/data/alphabet-specimens";
+import { prepareSpecimenForEnvironment } from "@/data/review-media-environment";
 
 export const metadata: Metadata = {
   title: "Laboratório — Curadoria do alfabeto manual",
   description:
-    "Espécimes visuais do alfabeto manual de Libras em curadoria: demonstrações ainda não validadas e sem licença de uso confirmada.",
+    "Espécimes visuais do alfabeto manual de Libras em curadoria: demonstrações ainda não validadas; parte já licenciada para uso educativo em prévia local.",
   robots: { index: false, follow: false },
 };
 
 export default function AlphabetSpecimensPage() {
+  const displaySpecimens = alphabetSpecimens.map((specimen) =>
+    prepareSpecimenForEnvironment(specimen),
+  );
+  const licensedMediaAuthorized = displaySpecimens.some((specimen) =>
+    hasDisplayPermission(specimen),
+  );
+
   return (
     <div className="flex flex-col gap-10">
       <section aria-labelledby="specimens-title" className="flex flex-col gap-6">
@@ -31,9 +41,9 @@ export default function AlphabetSpecimensPage() {
           Curadoria do alfabeto manual
         </h1>
         <p className="max-w-xl text-base leading-relaxed text-muted">
-          Espécimes visuais das primeiras letras em curadoria — demonstrações
-          ainda em produção, aguardando revisão linguística e confirmação de
-          licenças.
+          {licensedMediaAuthorized
+            ? "Espécimes visuais das primeiras letras em curadoria — quatro demonstrações têm uso educativo documentado pela Fiocruz Imagens para a prévia local; os visores mostram se cada arquivo está efetivamente disponível. Revisão linguística e publicação seguem pendentes."
+            : "Espécimes visuais das primeiras letras em curadoria — as demonstrações com uso educativo confirmado pela Fiocruz Imagens são restritas à prévia local e não aparecem neste ambiente público; revisão linguística e publicação seguem pendentes."}
         </p>
 
         <HonestNote
@@ -55,14 +65,15 @@ export default function AlphabetSpecimensPage() {
               <span aria-hidden="true" className="mt-2 h-1 w-1 shrink-0 rounded-full bg-accent" />
               Mídia só aparece em prévia com evidência de autorização
               registrada; publicação como lição continua exigindo
-              validação especializada da versão atual.
+              validação especializada e esclarecimento sobre hospedagem
+              e distribuição públicas.
             </li>
           </ul>
         </HonestNote>
       </section>
 
       <ul className="flex flex-col gap-3" aria-label="Espécimes catalogados">
-        {alphabetSpecimens.map((specimen) => (
+        {displaySpecimens.map((specimen) => (
           <li key={specimen.id}>
             <Link
               href={getSpecimenUrl(specimen.letter)}
@@ -76,9 +87,7 @@ export default function AlphabetSpecimensPage() {
                   <ValidationStatusBadge status={specimen.validationStatus} />
                 </span>
                 <span className="text-sm text-muted">
-                  {specimen.media
-                    ? "Demonstração disponível para revisão."
-                    : "Mídia em produção — licença não confirmada."}
+                  {specimenAvailabilityLabel(specimen)}
                 </span>
               </span>
               <IconArrowRight className="h-4 w-4 shrink-0 text-muted transition-colors group-hover:text-foreground" />

@@ -329,14 +329,14 @@ describe("validateCatalogEntry", () => {
   });
 });
 
-describe("primeiras-letras draft-5", () => {
+describe("primeiras-letras draft-6", () => {
   const entry = getCatalogEntry(
     "alfabeto/primeiros-passos/primeiras-letras",
   )!;
 
   it("stays a draft: never publishable, lesson never available", () => {
     expect(entry.validationStatus).toBe("draft");
-    expect(entry.version).toBe("draft-5");
+    expect(entry.version).toBe("draft-6");
     expect(isPublishable(entry)).toBe(false);
     const parsed = parseLessonKey(entry.lessonKey)!;
     expect(
@@ -346,24 +346,48 @@ describe("primeiras-letras draft-5", () => {
     expect(validateCatalogEntry(entry)).toEqual([]);
   });
 
-  it("declares one gated media slot per taught letter", () => {
+  it("declares one licensed media slot per taught letter", () => {
     const mediaBlocks = entry.draft!.blocks.flatMap((block) =>
       block.kind === "media" ? [block] : [],
     );
     expect(mediaBlocks.length).toBe(4);
     for (const block of mediaBlocks) {
       expect(block.media.type).toBe("image");
-      expect(block.media.src).toMatch(
-        /^\/media\/alfabeto\/primeiros-passos\/letra-[abil]\.jpg$/,
+      // The catalog stores an opaque local-review reference; server-only
+      // environment preparation resolves it to the local file path.
+      expect(block.media.src).toMatch(/^local-review:fiocruz:[abil]$/);
+      if (block.media.type !== "image") throw new Error("fixture");
+      expect(block.media.alt).toMatch(/mão|dedo|punho/);
+      // Educational use was confirmed by Fiocruz Imagens, so evidence is
+      // recorded and the gate opens — for local review surfaces only:
+      // the lesson stays draft and never publishable without reviews
+      // or redistribution evidence.
+      expect(block.attribution.permissionEvidence?.trim()).toBeTruthy();
+      expect(block.attribution.displayScope).toBe("local-review");
+      expect(block.attribution.publicationEvidence).toBeUndefined();
+      expect(hasMediaDisplayPermission(block.attribution)).toBe(true);
+      expect(block.attribution.sourceUrl).toMatch(
+        /^https:\/\/www\.fiocruzimagens\.fiocruz\.br\/s\/fiocruzimagens\/item\//,
       );
-      // No evidence was recorded: the fail-closed gate must keep every
-      // slot in the "em produção" state instead of rendering the asset.
-      expect(block.attribution.permissionEvidence).toBeUndefined();
-      expect(hasMediaDisplayPermission(block.attribution)).toBe(false);
+      expect(block.attribution.licenseUrl).toMatch(/^https:\/\//);
     }
   });
 
-  it("gates both visual exercises and offers a description variant", () => {
+  it("keeps local-review media ineligible for publication even with full reviews", () => {
+    // The Fiocruz evidence authorizes educational display for review, not
+    // redistribution of the asset files as published lesson media.
+    const fullyReviewed = {
+      ...entry,
+      validationStatus: "expert-validated" as const,
+      reviews: FULL_REVIEW_CHAIN.map((review) => ({
+        ...review,
+        version: entry.version,
+      })),
+    };
+    expect(isPublishable(fullyReviewed)).toBe(false);
+  });
+
+  it("permits both visual exercises and keeps a description variant", () => {
     const visual = entry.draft!.blocks.flatMap((block) =>
       block.kind === "exercise" &&
       (block.exercise.promptMedia ||
@@ -373,8 +397,21 @@ describe("primeiras-letras draft-5", () => {
     );
     expect(visual.length).toBeGreaterThanOrEqual(2);
     for (const exercise of visual) {
-      expect(isExerciseVisuallyPermitted(exercise)).toBe(false);
+      // Licensed media carries recorded evidence, so the exercises are
+      // visually permitted in the review preview; the description
+      // variant stays available as the accessible alternative.
+      expect(isExerciseVisuallyPermitted(exercise)).toBe(true);
       expect(exercise.descriptionVariant).toBeDefined();
+      for (const item of [
+        ...(exercise.promptMedia ? [exercise.promptMedia] : []),
+        ...exercise.options.flatMap((option) => (option.media ? [option.media] : [])),
+      ]) {
+        if (item.media.type !== "image") throw new Error("fixture");
+        // Exercise media may describe the visible hand configuration, but
+        // never name the letter being asked for.
+        expect(item.media.alt).not.toMatch(/letra [ABIL]/);
+        expect(item.media.alt).toMatch(/mão|dedo|punho/);
+      }
     }
   });
 

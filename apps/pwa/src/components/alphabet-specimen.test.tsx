@@ -46,12 +46,25 @@ function makeSpecimen(
 
 describe("SpecimenViewer", () => {
   it("renders the honest unavailable state when there is no media", () => {
+    // Letter C is the catalogued letter still without licensed media.
     const html = renderToStaticMarkup(
-      <SpecimenViewer specimen={getSpecimen("A")!} />,
+      <SpecimenViewer specimen={getSpecimen("C")!} />,
     );
     expect(html).toContain("em produção");
     expect(html).not.toContain("<img");
     expect(html).not.toContain("<video");
+  });
+
+  it("renders the licensed Fiocruz photo with the required credit", () => {
+    const html = renderToStaticMarkup(
+      <SpecimenViewer specimen={getSpecimen("A")!} />,
+    );
+    expect(html).toContain("<img");
+    expect(html).toContain(
+      "Imagem: <a href=\"https://www.fiocruzimagens.fiocruz.br/s/fiocruzimagens/item/127847\"",
+    );
+    expect(html).toContain("Mauro Campello | Acervo Fiocruz Imagens");
+    expect(html).toContain("Licença");
   });
 
   it("renders licensed media through the accessible media component", () => {
@@ -92,6 +105,30 @@ describe("SpecimenViewer", () => {
       expect(html).not.toContain("<img");
       expect(html).toContain("em produção");
     }
+  });
+
+  it("explains local-review restriction instead of reporting an unconfirmed license", () => {
+    const specimen = makeSpecimen({
+      media: { type: "image", src: "", alt: "Configuração de mão." },
+      attribution: {
+        source: "Fonte externa",
+        license: "Uso educativo restrito",
+        permissionEvidence: "",
+        displayScope: "local-review",
+      },
+    });
+    const note = renderToStaticMarkup(
+      <SpecimenReviewNote specimen={specimen} />,
+    );
+    const viewer = renderToStaticMarkup(
+      <SpecimenViewer specimen={specimen} />,
+    );
+    expect(note).toContain("autorização documentada para revisão local");
+    expect(note).toContain("não aparece neste ambiente público");
+    expect(note).not.toContain("depende de material licenciado");
+    expect(viewer).toContain("autorização documentada para revisão local");
+    expect(viewer).toContain("não é exibida neste ambiente público");
+    expect(viewer).not.toContain("licença confirmada está disponível");
   });
 
   it("previews licensed media while the unvalidated-review note shows", () => {

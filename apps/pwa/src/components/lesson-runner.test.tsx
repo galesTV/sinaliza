@@ -177,7 +177,7 @@ describe("visual exercises", () => {
                 media: {
                   type: "image",
                   src: "/media/fixtures/shape-triangle.svg",
-                  alt: "Demonstração visual da opção 1.",
+                  alt: "Forma geométrica com três lados e três vértices.",
                 },
                 attribution: permitted,
               },
@@ -189,7 +189,7 @@ describe("visual exercises", () => {
                 media: {
                   type: "image",
                   src: "/media/fixtures/shape-square.svg",
-                  alt: "Demonstração visual da opção 2.",
+                  alt: "Forma geométrica com quatro lados iguais e quatro ângulos retos.",
                 },
                 attribution: permitted,
               },
@@ -200,9 +200,12 @@ describe("visual exercises", () => {
         })}
       />,
     );
-    expect(html).toContain("Créditos das imagens das alternativas:");
-    // Same attribution on both options is rendered once.
-    expect(html.match(/Fonte — Licença/g)?.length).toBe(1);
+    // Photo-first cards carry each option's own credit right under the
+    // photograph, keeping the photo↔item association explicit.
+    expect(html.match(/Imagem: Fonte — Licença/g)?.length).toBe(2);
+    // Option images expose their authored visual description; exercise-media
+    // alt text must describe what is visible without naming the answer.
+    expect(html).toContain('alt="Forma geométrica com três lados e três vértices."');
   });
 
   it("renders a resources block with safe external links", () => {

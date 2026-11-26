@@ -44,8 +44,10 @@ export function LessonMedia({
   };
 
   const caption = (
-    <figcaption className="text-xs leading-relaxed text-muted/70">
-      Fonte:{" "}
+    <figcaption className="text-xs leading-relaxed text-muted">
+      {/* Required credit format (e.g. "Imagem: autor | acervo") for
+          photographs; other media types keep the generic source label. */}
+      {media.type === "image" ? "Imagem:" : "Fonte:"}{" "}
       {attribution.sourceUrl ? (
         <a
           href={attribution.sourceUrl}
@@ -95,16 +97,16 @@ export function LessonMedia({
 
   return (
     <figure className="flex flex-col gap-3">
-      <div className="aspect-video w-full overflow-hidden rounded-2xl border border-border bg-black/60">
-        {failed ? (
-          <div
-            role="alert"
-            className="grid h-full place-items-center p-6 text-center text-sm leading-relaxed text-muted"
-          >
-            Não foi possível carregar a mídia agora. A descrição abaixo cobre o
-            conteúdo deste passo.
-          </div>
-        ) : media.type === "video" ? (
+      {failed ? (
+        <div
+          role="alert"
+          className="grid aspect-video w-full place-items-center rounded-2xl border border-border bg-black/60 p-6 text-center text-sm leading-relaxed text-muted"
+        >
+          Não foi possível carregar a mídia agora. A descrição abaixo cobre o
+          conteúdo deste passo.
+        </div>
+      ) : media.type === "video" ? (
+        <div className="aspect-video w-full overflow-hidden rounded-2xl border border-border bg-black/60">
           <video
             controls
             playsInline
@@ -125,16 +127,18 @@ export function LessonMedia({
               />
             )}
           </video>
-        ) : (
-          // eslint-disable-next-line @next/next/no-img-element -- lesson media stays dependency-free; next/image is not used in this app
-          <img
-            src={media.src}
-            alt={media.alt}
-            className="h-full w-full object-contain"
-            onError={handleError}
-          />
-        )}
-      </div>
+        </div>
+      ) : (
+        // Photographs render at their natural aspect ratio — no fixed-height
+        // frame letterboxing portrait shots into dark side bars, no crop.
+        // eslint-disable-next-line @next/next/no-img-element -- lesson media stays dependency-free; next/image is not used in this app
+        <img
+          src={media.src}
+          alt={media.alt}
+          className="mx-auto h-auto w-auto max-w-full max-h-[70vh] rounded-2xl border border-border object-contain"
+          onError={handleError}
+        />
+      )}
 
       <p className="text-sm leading-relaxed text-muted">{block.description}</p>
 

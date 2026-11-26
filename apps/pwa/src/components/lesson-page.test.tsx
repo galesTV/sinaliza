@@ -191,7 +191,10 @@ describe("LessonContentArea", () => {
     });
     const runner = findElement(element, LessonRunner);
     expect(runner).not.toBeNull();
-    expect((runner!.props as { content?: unknown }).content).toBe(
+    // The server environment boundary may copy the object while resolving
+    // opaque review-media references, but it must still carry exactly the
+    // reviewed draft content rather than a second content source.
+    expect((runner!.props as { content?: unknown }).content).toStrictEqual(
       entry.draft,
     );
     expect((runner!.props as { lessonKey?: string }).lessonKey).toBe(

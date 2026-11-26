@@ -53,6 +53,9 @@ export function runnerCopy(recordsProgress: boolean) {
 const OPTION_BUTTON_BASE =
   "flex min-h-11 w-full items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm font-medium transition-colors duration-200 focus-visible:outline-none";
 
+const OPTION_CARD_BASE =
+  "flex h-full min-h-11 w-full flex-col gap-3 rounded-xl border p-3 text-left text-sm font-medium transition-colors duration-200 focus-visible:outline-none";
+
 const OPTION_TONES = {
   idle: "border-border bg-white/[0.025] text-foreground hover:bg-white/[0.07]",
   selected: "border-primary/50 bg-primary/10 text-foreground",
@@ -60,6 +63,80 @@ const OPTION_TONES = {
   incorrect: "border-destructive/50 bg-destructive/10 text-foreground",
   disabled: "border-border bg-white/[0.015] text-muted",
 } as const;
+
+/**
+ * Neutral selection indicator for exercise options. Letter badges (A, B,
+ * C, D) were dropped because they read as part of the answer in
+ * letter-identification exercises ("A — Letra B"). State is shown by
+ * shape, not colour alone: empty circle → filled dot when selected →
+ * check on the correct option once solved → x on a wrong selection.
+ */
+function OptionIndicator({
+  selected,
+  correct,
+  incorrect,
+}: {
+  selected: boolean;
+  correct: boolean;
+  incorrect: boolean;
+}) {
+  return (
+    <span
+      aria-hidden="true"
+      className={cn(
+        "grid h-5 w-5 shrink-0 place-items-center rounded-full border",
+        selected ? "border-current" : "border-border text-muted",
+      )}
+    >
+      {correct ? (
+        <IconCheck className="h-3 w-3" />
+      ) : incorrect ? (
+        <IconX className="h-3 w-3" />
+      ) : selected ? (
+        <span className="h-2.5 w-2.5 rounded-full bg-current" />
+      ) : null}
+    </span>
+  );
+}
+
+/** Compact credit kept under each visual option's own photograph. */
+function OptionMediaCredit({
+  media,
+}: {
+  media: NonNullable<LessonExerciseOption["media"]>;
+}) {
+  const { attribution } = media;
+  return (
+    <p className="px-1 text-[10px] leading-snug text-muted">
+      {media.media.type === "image" ? "Imagem: " : "Fonte: "}
+      {attribution.sourceUrl ? (
+        <a
+          href={attribution.sourceUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="underline underline-offset-2 transition-colors hover:text-foreground"
+        >
+          {attribution.source}
+        </a>
+      ) : (
+        attribution.source
+      )}
+      {" — "}
+      {attribution.licenseUrl ? (
+        <a
+          href={attribution.licenseUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="underline underline-offset-2 transition-colors hover:text-foreground"
+        >
+          {attribution.license}
+        </a>
+      ) : (
+        attribution.license
+      )}
+    </p>
+  );
+}
 
 function BackButton({
   onBack,
@@ -84,6 +161,7 @@ function ExerciseBlock({
   answeredInVariant,
   onSelect,
   onSelectVariant,
+  onClearIncorrect,
   onAdvance,
   onBack,
   canGoBack,
@@ -98,6 +176,7 @@ function ExerciseBlock({
   answeredInVariant: boolean;
   onSelect: (index: number) => void;
   onSelectVariant: (index: number) => void;
+  onClearIncorrect: () => void;
   onAdvance: () => void;
   onBack: () => void;
   canGoBack: boolean;
@@ -141,6 +220,18 @@ function ExerciseBlock({
     ? variant!.correctIndex
     : exercise.correctIndex;
 
+  // Photo-first card presentation when every option carries a permitted
+  // image — the photograph itself is the choice being evaluated, so it
+  // needs enough area for the hand details instead of a thumbnail row.
+  const visualOptions =
+    !useVariant &&
+    options.length > 0 &&
+    options.every(
+      (option) =>
+        option.media?.media.type === "image" &&
+        hasMediaDisplayPermission(option.media.attribution),
+    );
+
   // Feedback, option highlighting and the answer key always follow the
   // modality the answer was recorded in — never the modality currently on
   // screen. A media failure after answering may flip the view but cannot
@@ -174,10 +265,10 @@ function ExerciseBlock({
                 !failedSrcs.has(option.media.media.src),
             )
             .map((option) => {
-              const attribution = option.media!.attribution;
+              const media = option.media!;
               return [
-                `${attribution.source} ${attribution.license}`,
-                attribution,
+                `${media.media.type} ${media.attribution.source} ${media.attribution.license}`,
+                media,
               ] as const;
             }),
         ).values(),
@@ -202,7 +293,7 @@ function ExerciseBlock({
         ref={headingRef}
         tabIndex={-1}
         id="lesson-runner-title"
-        className="font-display text-xl font-semibold tracking-tight text-foreground focus-visible:outline-none"
+        className="scroll-mt-24 font-display text-xl font-semibold tracking-tight text-foreground focus-visible:outline-none"
       >
         {prompt}
       </h2>
@@ -242,7 +333,14 @@ function ExerciseBlock({
         </HonestNote>
       )}
 
-      <fieldset className="flex flex-col gap-2.5" disabled={blocked}>
+      <fieldset
+        className={cn(
+          visualOptions
+            ? "grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3"
+            : "flex flex-col gap-2.5",
+        )}
+        disabled={blocked}
+      >
         <legend className="sr-only">{prompt}</legend>
         {options.map((option, index) => {
           const isSelected = answeredInShownMode && selectedOption === index;
@@ -257,71 +355,99 @@ function ExerciseBlock({
                 ? OPTION_TONES.selected
                 : OPTION_TONES.idle;
           return (
-            <label key={option.label} className="block">
-              <input
-                type="radio"
-                name={`${exercise.prompt}${useVariant ? " (descrição)" : ""}`}
-                className="peer sr-only"
-                checked={!blocked && isSelected}
-                disabled={solved || blocked}
-                onChange={() => handleSelect(index)}
-              />
-              <span
-                className={cn(
-                  OPTION_BUTTON_BASE,
-                  "peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-ring",
-                  solved || blocked ? "cursor-default" : "cursor-pointer",
-                  tone,
-                )}
-              >
+            <div key={option.label} className="flex flex-col gap-1.5">
+              <label className="block h-full">
+                <input
+                  type="radio"
+                  name={`${exercise.prompt}${useVariant ? " (descrição)" : ""}`}
+                  className="peer sr-only"
+                  checked={!blocked && isSelected}
+                  disabled={solved || blocked}
+                  onChange={() => handleSelect(index)}
+                />
                 <span
-                  aria-hidden="true"
                   className={cn(
-                    "grid h-5 w-5 shrink-0 place-items-center rounded-full border text-[10px]",
-                    isSelected ? "border-current" : "border-border text-muted",
+                    visualOptions ? OPTION_CARD_BASE : OPTION_BUTTON_BASE,
+                    "peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-ring",
+                    solved || blocked ? "cursor-default" : "cursor-pointer",
+                    tone,
                   )}
                 >
-                  {solved && isCorrect ? (
-                    <IconCheck className="h-3 w-3" />
+                  {visualOptions ? (
+                    <>
+                      <span className="flex items-center gap-2.5">
+                        <OptionIndicator
+                          selected={isSelected}
+                          correct={solved && isCorrect}
+                          incorrect={result === "incorrect" && isSelected}
+                        />
+                        <span className="text-sm font-medium">
+                          {option.label}
+                        </span>
+                      </span>
+                      {option.media && (
+                        // eslint-disable-next-line @next/next/no-img-element -- lesson media stays dependency-free; next/image is not used in this app
+                        <img
+                          src={option.media.media.src}
+                          // Exercise media alt text is authored to describe the
+                          // visible configuration without naming the answer.
+                          alt={option.media.media.alt}
+                          className="h-auto w-full rounded-lg border border-border bg-black/40 object-contain"
+                          onError={() => markFailed(option.media!.media.src)}
+                        />
+                      )}
+                    </>
                   ) : (
-                    String.fromCharCode(65 + index)
+                    <>
+                      <OptionIndicator
+                        selected={isSelected}
+                        correct={solved && isCorrect}
+                        incorrect={result === "incorrect" && isSelected}
+                      />
+                      <span className="flex min-w-0 flex-1 items-center gap-3">
+                        {!useVariant && option.media && (
+                          // eslint-disable-next-line @next/next/no-img-element -- lesson media stays dependency-free; next/image is not used in this app
+                          <img
+                            src={option.media.media.src}
+                            alt={option.media.media.alt}
+                            className="h-16 w-16 shrink-0 rounded-lg border border-border bg-black/40 object-contain"
+                            onError={() => markFailed(option.media!.media.src)}
+                          />
+                        )}
+                        {option.label}
+                      </span>
+                    </>
                   )}
                 </span>
-                <span className="flex min-w-0 flex-1 items-center gap-3">
-                  {!useVariant && option.media && (
-                    // eslint-disable-next-line @next/next/no-img-element -- lesson media stays dependency-free; next/image is not used in this app
-                    <img
-                      src={option.media.media.src}
-                      alt={option.media.media.alt}
-                      className="h-16 w-16 shrink-0 rounded-lg border border-border bg-black/40 object-contain"
-                      onError={() => markFailed(option.media!.media.src)}
-                    />
-                  )}
-                  {option.label}
-                </span>
-              </span>
-            </label>
+              </label>
+              {visualOptions && option.media && (
+                <OptionMediaCredit media={option.media} />
+              )}
+            </div>
           );
         })}
       </fieldset>
 
-      {optionAttributions.length > 0 && (
+      {!visualOptions && optionAttributions.length > 0 && (
         <p className="text-[11px] leading-relaxed text-muted">
           Créditos das imagens das alternativas:{" "}
           {optionAttributions
             .map(
-              (attribution) =>
-                `${attribution.source} — ${attribution.license}`,
+              ({ media, attribution }) =>
+                `${media.type === "image" ? "Imagem: " : "Fonte: "}${attribution.source} — ${attribution.license}`,
             )
             .join(" · ")}
         </p>
       )}
 
-      {variant && !mediaUnavailable && !solved && result === null && (
+      {variant && !mediaUnavailable && !solved && (
         <button
           type="button"
           aria-pressed={prefersDescription}
-          onClick={() => setPrefersDescription((value) => !value)}
+          onClick={() => {
+            if (result === "incorrect") onClearIncorrect();
+            setPrefersDescription((value) => !value);
+          }}
           className="self-start text-sm font-medium text-muted underline underline-offset-4 transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
         >
           {prefersDescription
@@ -404,9 +530,13 @@ export function LessonRunner({
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   // Move focus to the new step so keyboard and screen-reader users are not
-  // left stranded on a removed/disabled control.
+  // left stranded on a removed/disabled control, and bring the prompt back
+  // into view (below the sticky navbar, via the heading's scroll-margin).
   useEffect(() => {
-    headingRef.current?.focus();
+    const heading = headingRef.current;
+    if (!heading) return;
+    heading.focus({ preventScroll: true });
+    heading.scrollIntoView({ block: "start" });
   }, [snapshot.stepIndex]);
 
   const { block, stepIndex, stepCount } = snapshot;
@@ -443,7 +573,7 @@ export function LessonRunner({
               ref={headingRef}
               tabIndex={-1}
               id="lesson-runner-title"
-              className="font-display text-xl font-semibold tracking-tight text-foreground focus-visible:outline-none"
+              className="scroll-mt-24 font-display text-xl font-semibold tracking-tight text-foreground focus-visible:outline-none"
             >
               {block.heading}
             </h2>
@@ -474,7 +604,7 @@ export function LessonRunner({
             ref={headingRef}
             tabIndex={-1}
             id="lesson-runner-title"
-            className="font-display text-xl font-semibold tracking-tight text-foreground focus-visible:outline-none"
+            className="scroll-mt-24 font-display text-xl font-semibold tracking-tight text-foreground focus-visible:outline-none"
           >
             {block.title}
           </h2>
@@ -503,7 +633,7 @@ export function LessonRunner({
               ref={headingRef}
               tabIndex={-1}
               id="lesson-runner-title"
-              className="font-display text-xl font-semibold tracking-tight text-foreground focus-visible:outline-none"
+              className="scroll-mt-24 font-display text-xl font-semibold tracking-tight text-foreground focus-visible:outline-none"
             >
               {block.heading}
             </h2>
@@ -568,6 +698,7 @@ export function LessonRunner({
             answeredInVariant={snapshot.answeredInVariant}
             onSelect={runner.select}
             onSelectVariant={runner.selectVariant}
+            onClearIncorrect={runner.clearIncorrectSelection}
             onAdvance={runner.advance}
             onBack={runner.back}
             canGoBack={snapshot.canGoBack}
@@ -592,7 +723,7 @@ export function LessonRunner({
                 ref={headingRef}
                 tabIndex={-1}
                 id="lesson-runner-title"
-                className="font-display text-xl font-semibold tracking-tight text-foreground focus-visible:outline-none"
+                className="scroll-mt-24 font-display text-xl font-semibold tracking-tight text-foreground focus-visible:outline-none"
               >
                 {snapshot.completed ? completionLabel : "Tudo certo por aqui"}
               </h2>

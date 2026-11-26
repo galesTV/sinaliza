@@ -12,8 +12,11 @@ import { IconArrowRight, IconFlask } from "@/components/icons";
 import { LessonRunner } from "@/components/lesson-runner";
 import {
   alphabetSpecimens,
+  hasDisplayPermission,
   getSpecimenUrl,
+  specimenAvailabilityLabel,
 } from "@/data/alphabet-specimens";
+import { prepareSpecimenForEnvironment } from "@/data/review-media-environment";
 import { guidedExperience } from "@/data/lesson-content";
 
 export const metadata: Metadata = {
@@ -24,6 +27,13 @@ export const metadata: Metadata = {
 };
 
 export default function GuidedExperiencePage() {
+  const displaySpecimens = alphabetSpecimens.map((specimen) =>
+    prepareSpecimenForEnvironment(specimen),
+  );
+  const licensedMediaAuthorized = displaySpecimens.some((specimen) =>
+    hasDisplayPermission(specimen),
+  );
+
   return (
     <div className="flex flex-col gap-10">
       <Breadcrumb
@@ -95,7 +105,7 @@ export default function GuidedExperiencePage() {
         </div>
 
         <ul className="flex flex-col gap-3" aria-label="Espécimes em curadoria">
-          {alphabetSpecimens.map((specimen) => (
+          {displaySpecimens.map((specimen) => (
             <li key={specimen.id}>
               <Link
                 href={getSpecimenUrl(specimen.letter)}
@@ -109,9 +119,7 @@ export default function GuidedExperiencePage() {
                     <ValidationStatusBadge status={specimen.validationStatus} />
                   </span>
                   <span className="text-sm text-muted">
-                    {specimen.media
-                      ? "Demonstração disponível para revisão."
-                      : "Mídia em produção — licença não confirmada."}
+                    {specimenAvailabilityLabel(specimen)}
                   </span>
                 </span>
                 <IconArrowRight className="h-4 w-4 shrink-0 text-muted transition-colors group-hover:text-foreground" />
@@ -120,17 +128,17 @@ export default function GuidedExperiencePage() {
           ))}
         </ul>
 
-        <HonestNote title="Demonstrações visuais em produção">
-          Nenhuma das cinco letras tem mídia licenciada ainda — os visores
-          abaixo mostram o estado real de cada espécime, sem imagens
-          provisórias ou demonstrações inventadas.
+        <HonestNote title="Demonstrações visuais em curadoria">
+          {licensedMediaAuthorized
+            ? "Quatro espécimes têm fotografias licenciadas para uso educativo não comercial (acervo Fiocruz Imagens) na prévia local — a letra C segue sem mídia licenciada. A licença autoriza a revisão local, mas não garante a presença do arquivo nem a publicação: os visores abaixo mostram o estado real de cada espécime, sem imagens provisórias ou demonstrações inventadas."
+            : "As fotografias licenciadas do acervo Fiocruz Imagens são restritas à prévia local de revisão e não são exibidas neste ambiente público. Os visores abaixo mostram o estado real de cada espécime, sem imagens provisórias ou demonstrações inventadas."}
         </HonestNote>
 
         <ul
           className="grid gap-5 sm:grid-cols-2"
           aria-label="Visores dos espécimes"
         >
-          {alphabetSpecimens.map((specimen) => (
+          {displaySpecimens.map((specimen) => (
             <li key={specimen.id} className="flex flex-col gap-2">
               <SpecimenViewer specimen={specimen} />
               <p className="text-xs leading-relaxed text-muted">

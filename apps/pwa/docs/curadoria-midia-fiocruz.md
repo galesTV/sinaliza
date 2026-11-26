@@ -149,3 +149,31 @@ Produção própria das quatro demonstrações com autorização de imagem por
 escrito (procedimento já descrito em `docs/curadoria-alfabeto.md`) —
 caminho definitivo para publicação, independentemente da decisão sobre a
 série Fiocruz.
+
+## Atualização de status — 24/11/2026
+
+A Equipe Fiocruz Imagens confirmou por e-mail institucional que **"o uso
+para fins educativos está de acordo com os termos de uso"** do acervo
+(autor copiado para ciência — ciência registrada, não autorização
+adicional do autor). Consequências registradas:
+
+- **Aprovada para exibição na prévia local de revisão pedagógica** —
+  a lição `primeiras-letras` (`draft-6`) e os espécimes A, B, I e L
+  (`draft-2`) exibem as fotografias em `/laboratorio/`, com o crédito
+  exigido "Imagem: Mauro Campello | Acervo Fiocruz Imagens".
+- Os quatro arquivos foram obtidos pela rota de download exposta nas
+  páginas oficiais (sem autenticação), processados para 1200×1600 px
+  (JPEG q80, sem recorte/alteração) e mantidos **fora do Git** — a
+  redistribuição pública dos arquivos **não** está autorizada.
+- As pendências permanecem abertas em
+  `docs/evidencia-permissao-fiocruz.md`: hospedagem/redistribuição
+  pública (P1), direito de imagem (P2) e uso em vídeo de demonstração
+  (P3).
+- **Segue não autorizada para publicação**: a cadeia completa de
+  revisão sobre a versão vigente, evidência separada de redistribuição
+  (`publicationEvidence`) e a resolução das pendências são
+  pré-requisitos inalterados. As atribuições trazem
+  `displayScope: "local-review"`; em deploys públicos Vercel
+  (`preview`/`production`), as rotas removem evidência de exibição e
+  caminho do arquivo antes do runtime cliente, então as fotos não são
+  requisitadas nem exibidas fora da prévia local.

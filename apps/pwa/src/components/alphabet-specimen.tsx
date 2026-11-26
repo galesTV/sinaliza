@@ -49,8 +49,9 @@ export function SpecimenViewer({
         className="grid aspect-video w-full place-items-center rounded-2xl border border-dashed border-border bg-surface/50 p-6"
       >
         <p className="max-w-sm text-center text-sm leading-relaxed text-muted">
-          Demonstração visual da letra {specimen.letter} em produção —
-          nenhum material com licença confirmada está disponível ainda.
+          {specimen.attribution?.displayScope === "local-review"
+            ? `A demonstração da letra ${specimen.letter} tem autorização documentada para revisão local, mas não é exibida neste ambiente público.`
+            : `Demonstração visual da letra ${specimen.letter} em produção — nenhum material com licença confirmada está disponível ainda.`}
         </p>
       </div>
     );
@@ -73,11 +74,14 @@ export function SpecimenReviewNote({
       title="Prévia em revisão — espécime não validado"
       icon={<IconFlask className="h-5 w-5" />}
     >
-      Este espécime visual da letra {specimen.letter} está em curadoria: a
-      demonstração ainda depende
-      de revisão linguística especializada e de confirmação de direitos de
-      uso antes de ser publicada na lição. Visualizar esta página não
-      registra progresso nem marca a lição como concluída.
+      Este espécime visual da letra {specimen.letter} está em curadoria.
+      {hasDisplayPermission(specimen)
+        ? " A fotografia exibida tem uso educativo não comercial confirmado pela Fiocruz Imagens e aparece apenas nesta prévia local: hospedagem e distribuição públicas ainda dependem de esclarecimento, e a demonstração aguarda revisão linguística especializada antes de ser publicada na lição."
+        : specimen.attribution?.displayScope === "local-review"
+          ? " A demonstração tem autorização documentada para revisão local, mas não aparece neste ambiente público; publicação e revisão linguística especializada seguem pendentes."
+          : " A demonstração ainda depende de material licenciado e de revisão linguística especializada antes de ser publicada na lição."}{" "}
+      Visualizar esta página não registra progresso nem marca a lição como
+      concluída.
     </HonestNote>
   );
 }

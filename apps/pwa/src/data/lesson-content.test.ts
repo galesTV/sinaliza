@@ -6,8 +6,10 @@ import {
   demoLesson,
   guidedExperience,
   hasMediaDisplayPermission,
+  hasMediaPublicationPermission,
   isExerciseVisuallyPermitted,
   validateLessonContent,
+  validateLessonPublicationMedia,
   visualExerciseDemo,
   type LessonContent,
   type LessonExercise,
@@ -285,6 +287,65 @@ describe("media permission gate", () => {
         license: "Licença",
       }),
     ).toBe(false);
+  });
+
+  it("requires separate publication evidence beyond display permission", () => {
+    expect(hasMediaPublicationPermission(baseAttribution)).toBe(false);
+    expect(
+      hasMediaPublicationPermission({
+        ...baseAttribution,
+        publicationEvidence: "autorização de distribuição",
+      }),
+    ).toBe(true);
+    expect(
+      hasMediaPublicationPermission({
+        ...baseAttribution,
+        publicationEvidence: "autorização de distribuição",
+        displayScope: "local-review",
+      }),
+    ).toBe(false);
+  });
+
+  it("reports media without publication evidence as not publishable", () => {
+    const displayOnly: LessonContent = {
+      intro: "intro",
+      blocks: [makeMediaBlock({ attribution: baseAttribution })],
+    };
+    expect(validateLessonPublicationMedia(displayOnly)).toHaveLength(1);
+
+    const distributable: LessonContent = {
+      intro: "intro",
+      blocks: [
+        makeMediaBlock({
+          attribution: {
+            ...baseAttribution,
+            publicationEvidence: "autorização de distribuição",
+          },
+        }),
+      ],
+    };
+    expect(validateLessonPublicationMedia(distributable)).toEqual([]);
+
+    const unresolvedReference: LessonContent = {
+      intro: "intro",
+      blocks: [
+        makeMediaBlock({
+          media: {
+            type: "image",
+            src: "local-review:fiocruz:b",
+            alt: "Configuração de mão.",
+          },
+          attribution: {
+            ...baseAttribution,
+            publicationEvidence: "autorização de distribuição",
+            displayScope: "public",
+          },
+        }),
+      ],
+    };
+    expect(validateLessonPublicationMedia(unresolvedReference).join()).toContain(
+      "unresolved local-review media reference",
+    );
   });
 
   it("gates an exercise when any required media lacks evidence", () => {

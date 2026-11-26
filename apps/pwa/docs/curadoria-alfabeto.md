@@ -76,7 +76,7 @@ páginas — situação registrada como "não confirmada" em cada fonte.
       versão atual (`version`)
 - [ ] `validateSpecimen()` retorna `[]` e `isSpecimenPublishable()` é `true`
 - [ ] `npm run lint`, `npm run test`, `npm run build`, `git diff --check` limpos
-- [ ] Prévia conferida em `next start` (estado de mídia, licença, aviso)
+- [ ] Revisão visual local conferida em `next dev`; `next start` reservado à verificação do bloqueio de mídia local-restrita em produção
 - [ ] Status da lição alterado para `available` somente após os itens acima
 
 ## Pendências

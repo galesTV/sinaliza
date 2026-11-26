@@ -7,9 +7,11 @@ import {
   ValidationStatusBadge,
 } from "@/components/draft-preview";
 import { Eyebrow } from "@/components/eyebrow";
+import { IconArrowRight } from "@/components/icons";
 import { LessonRunner } from "@/components/lesson-runner";
 import { getCatalogEntry, lessonCatalog } from "@/data/lesson-catalog";
 import { getLessonContext } from "@/data/learning-paths";
+import { prepareLessonContentForEnvironment } from "@/data/review-media-environment";
 
 interface DraftPreviewProps {
   params: Promise<{ key: string[] }>;
@@ -74,38 +76,37 @@ export default async function DraftPreviewPage({
       <DraftReviewNote status={entry.validationStatus} />
 
       <LessonRunner
-        content={entry.draft}
+        content={prepareLessonContentForEnvironment(entry.draft)}
         completionLabel="Prévia concluída"
       />
 
-      <section
-        aria-labelledby="references-title"
-        className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-6"
-      >
-        <h2
-          id="references-title"
-          className="font-display text-lg font-semibold tracking-tight text-foreground"
-        >
+      {/* Native details/summary: keyboard-operable, with the open state
+          announced to assistive tech — no custom disclosure logic. */}
+      <details className="group rounded-2xl border border-border bg-surface">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-6 font-display text-lg font-semibold tracking-tight text-foreground marker:hidden [&::-webkit-details-marker]:hidden">
           Referências do catálogo
-        </h2>
-        <ul className="flex flex-col gap-3">
-          {entry.references.map((reference) => (
-            <li key={reference.url} className="flex flex-col gap-0.5">
-              <a
-                href={reference.url}
-                target="_blank"
-                rel="noreferrer"
-                className="text-sm font-medium text-accent underline-offset-4 hover:underline"
-              >
-                {reference.institution}
-              </a>
-              <span className="text-xs leading-relaxed text-muted">
-                {reference.purpose} Consultado em {reference.consultedAt}.
-              </span>
-            </li>
-          ))}
-        </ul>
-      </section>
+          <IconArrowRight className="h-4 w-4 shrink-0 text-muted transition-transform duration-200 group-open:rotate-90" />
+        </summary>
+        <div className="px-6 pb-6">
+          <ul className="flex flex-col gap-3">
+            {entry.references.map((reference) => (
+              <li key={reference.url} className="flex flex-col gap-0.5">
+                <a
+                  href={reference.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-sm font-medium text-accent underline-offset-4 hover:underline"
+                >
+                  {reference.institution}
+                </a>
+                <span className="text-xs leading-relaxed text-muted">
+                  {reference.purpose} Consultado em {reference.consultedAt}.
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </details>
     </div>
   );
 }

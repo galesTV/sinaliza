@@ -9,13 +9,12 @@ import {
 import { Breadcrumb } from "@/components/breadcrumb";
 import { ValidationStatusBadge } from "@/components/draft-preview";
 import { Eyebrow } from "@/components/eyebrow";
-import { IconFlask } from "@/components/icons";
+import { IconArrowRight, IconFlask } from "@/components/icons";
 import {
   alphabetSpecimens,
   getSpecimen,
 } from "@/data/alphabet-specimens";
-import { getLessonContext } from "@/data/learning-paths";
-import { parseLessonKey } from "@/lib/progress";
+import { prepareSpecimenForEnvironment } from "@/data/review-media-environment";
 
 interface SpecimenPreviewProps {
   params: Promise<{ letter: string }>;
@@ -47,11 +46,7 @@ export default async function SpecimenPreviewPage({
   const specimen = getSpecimen(letter);
   if (!specimen) notFound();
 
-  const parsed = parseLessonKey(specimen.lessonKey);
-  const context =
-    parsed &&
-    getLessonContext(parsed.pathSlug, parsed.moduleSlug, parsed.lessonSlug);
-
+  const displaySpecimen = prepareSpecimenForEnvironment(specimen);
   return (
     <div className="flex flex-col gap-10">
       <Breadcrumb
@@ -67,8 +62,7 @@ export default async function SpecimenPreviewPage({
 
       <header className="flex flex-col gap-5">
         <Eyebrow>
-          Laboratório · Alfabeto manual
-          {context ? ` · ${context.module.title}` : ""}
+          Laboratório · Alfabeto manual · Espécime em curadoria
         </Eyebrow>
         <h1 className="max-w-2xl font-display text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
           {specimen.title}
@@ -78,7 +72,7 @@ export default async function SpecimenPreviewPage({
         </div>
       </header>
 
-      <SpecimenReviewNote specimen={specimen} />
+      <SpecimenReviewNote specimen={displaySpecimen} />
 
       <section aria-labelledby="media-title" className="flex flex-col gap-4">
         <h2
@@ -87,7 +81,7 @@ export default async function SpecimenPreviewPage({
         >
           Demonstração visual
         </h2>
-        <SpecimenViewer specimen={specimen} />
+        <SpecimenViewer specimen={displaySpecimen} />
         {specimen.description && (
           <p className="max-w-xl text-sm leading-relaxed text-muted">
             {specimen.description}
@@ -95,34 +89,31 @@ export default async function SpecimenPreviewPage({
         )}
       </section>
 
-      <section
-        aria-labelledby="references-title"
-        className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-6"
-      >
-        <h2
-          id="references-title"
-          className="font-display text-lg font-semibold tracking-tight text-foreground"
-        >
+      <details className="group rounded-2xl border border-border bg-surface">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-6 font-display text-lg font-semibold tracking-tight text-foreground marker:hidden [&::-webkit-details-marker]:hidden">
           Referências de curadoria
-        </h2>
-        <ul className="flex flex-col gap-3">
-          {specimen.references.map((reference) => (
-            <li key={reference.url} className="flex flex-col gap-0.5">
-              <a
-                href={reference.url}
-                target="_blank"
-                rel="noreferrer"
-                className="text-sm font-medium text-accent underline-offset-4 hover:underline"
-              >
-                {reference.institution}
-              </a>
-              <span className="text-xs leading-relaxed text-muted">
-                {reference.purpose} Consultado em {reference.consultedAt}.
-              </span>
-            </li>
-          ))}
-        </ul>
-      </section>
+          <IconArrowRight className="h-4 w-4 shrink-0 text-muted transition-transform duration-200 group-open:rotate-90" />
+        </summary>
+        <div className="px-6 pb-6">
+          <ul className="flex flex-col gap-3">
+            {specimen.references.map((reference) => (
+              <li key={reference.url} className="flex flex-col gap-0.5">
+                <a
+                  href={reference.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-sm font-medium text-accent underline-offset-4 hover:underline"
+                >
+                  {reference.institution}
+                </a>
+                <span className="text-xs leading-relaxed text-muted">
+                  {reference.purpose} Consultado em {reference.consultedAt}.
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </details>
 
       <Link
         href="/laboratorio/experiencia"

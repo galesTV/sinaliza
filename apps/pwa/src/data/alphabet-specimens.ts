@@ -13,12 +13,15 @@ import {
   REQUIRED_REVIEWS,
   hasCurrentReview,
   isValidReview,
+  licensedLetterMedia,
   type LessonReference,
   type LessonReview,
   type LessonValidationStatus,
 } from "./lesson-catalog";
 import {
   hasMediaDisplayPermission,
+  hasMediaPublicationPermission,
+  isLocalReviewMediaReference,
   validateLessonMedia,
   type LessonMedia,
   type LessonMediaAttribution,
@@ -112,9 +115,10 @@ export const alphabetSpecimens: AlphabetSpecimen[] = [
     lessonKey: "alfabeto/letras-a-e/letra-a",
     letter: "A",
     title: "Letra A",
+    ...licensedLetterMedia("A"),
     references: [...DEFAULT_REFERENCES],
     validationStatus: "draft",
-    version: "draft-1",
+    version: "draft-2",
     reviews: [],
   },
   {
@@ -122,9 +126,10 @@ export const alphabetSpecimens: AlphabetSpecimen[] = [
     lessonKey: "alfabeto/letras-a-e/letra-b",
     letter: "B",
     title: "Letra B",
+    ...licensedLetterMedia("B"),
     references: [...DEFAULT_REFERENCES],
     validationStatus: "draft",
-    version: "draft-1",
+    version: "draft-2",
     reviews: [],
   },
   {
@@ -142,9 +147,10 @@ export const alphabetSpecimens: AlphabetSpecimen[] = [
     lessonKey: "alfabeto/letras-f-j/letra-i",
     letter: "I",
     title: "Letra I",
+    ...licensedLetterMedia("I"),
     references: [...DEFAULT_REFERENCES],
     validationStatus: "draft",
-    version: "draft-1",
+    version: "draft-2",
     reviews: [],
   },
   {
@@ -152,9 +158,10 @@ export const alphabetSpecimens: AlphabetSpecimen[] = [
     lessonKey: "alfabeto/letras-k-o/letra-l",
     letter: "L",
     title: "Letra L",
+    ...licensedLetterMedia("L"),
     references: [...DEFAULT_REFERENCES],
     validationStatus: "draft",
-    version: "draft-1",
+    version: "draft-2",
     reviews: [],
   },
 ];
@@ -176,6 +183,17 @@ export function getSpecimenByLessonKey(
 
 export function getSpecimenUrl(letter: string): string {
   return `/laboratorio/alfabeto/${letter.trim().toLowerCase()}`;
+}
+
+/** Short honest availability label for review listings. */
+export function specimenAvailabilityLabel(specimen: AlphabetSpecimen): string {
+  if (hasDisplayPermission(specimen)) {
+    return "Autorização local documentada — disponibilidade mostrada no visor.";
+  }
+  if (specimen.attribution?.displayScope === "local-review") {
+    return "Restrita à revisão local — não exibida neste ambiente público.";
+  }
+  return "Mídia em produção — licença não confirmada.";
 }
 
 /**
@@ -209,6 +227,8 @@ export function isSpecimenPublishable(specimen: AlphabetSpecimen): boolean {
       hasCurrentReview(specimen.reviews, specimen.version, type),
     ) &&
     hasDisplayPermission(specimen) &&
+    hasMediaPublicationPermission(specimen.attribution) &&
+    !isLocalReviewMediaReference(specimen.media!.src) &&
     validateLessonMedia(specimen.media!).length === 0
   );
 }
