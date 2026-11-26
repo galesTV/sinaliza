@@ -117,15 +117,18 @@ describe("SpecimenViewer", () => {
         displayScope: "local-review",
       },
     });
-    const html = renderToStaticMarkup(
-      <>
-        <SpecimenReviewNote specimen={specimen} />
-        <SpecimenViewer specimen={specimen} />
-      </>,
+    const note = renderToStaticMarkup(
+      <SpecimenReviewNote specimen={specimen} />,
     );
-    expect(html).toContain("autorização documentada para revisão local");
-    expect(html).toContain("não é exibida neste ambiente público");
-    expect(html).not.toContain("licença confirmada está disponível");
+    const viewer = renderToStaticMarkup(
+      <SpecimenViewer specimen={specimen} />,
+    );
+    expect(note).toContain("autorização documentada para revisão local");
+    expect(note).toContain("não aparece neste ambiente público");
+    expect(note).not.toContain("depende de material licenciado");
+    expect(viewer).toContain("autorização documentada para revisão local");
+    expect(viewer).toContain("não é exibida neste ambiente público");
+    expect(viewer).not.toContain("licença confirmada está disponível");
   });
 
   it("previews licensed media while the unvalidated-review note shows", () => {
