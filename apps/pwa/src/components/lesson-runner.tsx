@@ -302,7 +302,9 @@ function ExerciseBlock({
     const previousResult = previousResultRef.current;
     previousResultRef.current = result;
     if (previousResult !== "correct" && result === "correct") {
-      advanceButtonRef.current?.focus({ preventScroll: true });
+      const advanceButton = advanceButtonRef.current;
+      advanceButton?.focus({ preventScroll: true });
+      advanceButton?.scrollIntoView({ block: "nearest" });
     }
   }, [result]);
 
@@ -521,7 +523,7 @@ function ExerciseBlock({
               ref={advanceButtonRef}
               type="button"
               onClick={onAdvance}
-              className="btn-primary"
+              className="btn-primary scroll-mb-20 md:scroll-mb-0"
             >
               {isLastBlock ? finishLabel : "Continuar"}
               <IconArrowRight className="h-4 w-4" />

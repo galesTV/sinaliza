@@ -1,5 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 
+import { expectActiveElementClearOfFixedChrome } from "./accessibility";
+
 const PROGRESS_KEY = "sinaliza.progress.v1";
 
 async function expectNoProgressRecorded(page: Page) {
@@ -310,6 +312,44 @@ test.describe("visual exercise infrastructure", () => {
     await option(page, "Triângulo").click();
     await expect(page.getByText("Correto!")).toBeVisible();
 
+    await expectNoProgressRecorded(page);
+  });
+
+  test("keeps the focused advance action visible after a correct keyboard answer in a short viewport", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 560 });
+    await page.goto("/laboratorio/licao-visual");
+    await page.getByRole("button", { name: "Continuar" }).click();
+    await option(page, "Círculo").click();
+    await page.getByRole("button", { name: "Continuar" }).click();
+
+    let reachedRadio = false;
+    for (let attempt = 0; attempt < 20; attempt += 1) {
+      await page.keyboard.press("Tab");
+      reachedRadio = await page.evaluate(
+        () =>
+          document.activeElement instanceof HTMLInputElement &&
+          document.activeElement.type === "radio",
+      );
+      if (reachedRadio) break;
+    }
+    expect(reachedRadio).toBe(true);
+
+    // In this unselected group, ArrowDown moves from Imagem 1 to the correct
+    // Imagem 2. The image options stack vertically at this width, pushing the
+    // advance action far down the page.
+    await page.keyboard.press("ArrowDown");
+    await expect(page.getByText("Correto!")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Continuar" })).toBeFocused();
+    await expectActiveElementClearOfFixedChrome(page);
+
+    await page.keyboard.press("Enter");
+    await expect(
+      page.getByRole("heading", {
+        name: /Pela descrição: a forma tem todos os pontos/,
+      }),
+    ).toBeVisible();
     await expectNoProgressRecorded(page);
   });
 

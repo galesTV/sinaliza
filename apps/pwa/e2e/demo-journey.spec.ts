@@ -1,5 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 
+import { expectActiveElementClearOfFixedChrome } from "./accessibility";
+
 const PROGRESS_KEY = "sinaliza.progress.v1";
 
 async function expectNoProgressRecorded(page: Page) {
@@ -185,19 +187,12 @@ async function completeGuidedDemoFromFirstStep(page: Page) {
 async function expectFocusedStepHeadingVisible(page: Page) {
   await expect
     .poll(() =>
-      page.evaluate(() => {
-        const heading = document.querySelector("#lesson-runner-title");
-        if (!heading || document.activeElement !== heading) return false;
-        const rect = heading.getBoundingClientRect();
-        const headerBottom =
-          document.querySelector("header")?.getBoundingClientRect().bottom ?? 0;
-        return (
-          rect.top >= headerBottom &&
-          rect.bottom <= window.innerHeight
-        );
-      }),
+      page.evaluate(
+        () => document.activeElement === document.querySelector("#lesson-runner-title"),
+      ),
     )
     .toBe(true);
+  await expectActiveElementClearOfFixedChrome(page);
 }
 
 test.describe("guided public demo constellation", () => {
