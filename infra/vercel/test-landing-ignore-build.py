@@ -343,23 +343,11 @@ def case_manual_redeploy_same_sha():
 
 
 WRAPPER_COMMAND = (
-    'script=../../infra/vercel/landing-ignore-build.sh; '
-    'if [ "${VERCEL_ENV:-}" != "preview" ] || [ "${VERCEL_TARGET_ENV:-}" != "preview" ]; then '
-    "echo 'BUILD: environment is not positively identified as preview'; exit 1; fi; "
-    'if [ ! -r "$script" ]; then '
-    "echo 'BUILD: ignore-build script is absent or unreadable in this branch'; exit 1; fi; "
-    'if ! bash -n "$script"; then '
-    "echo 'BUILD: ignore-build script failed bash syntax validation'; exit 1; fi; "
-    'out=$(mktemp "${TMPDIR:-/tmp}/sinaliza-wrapper-out.XXXXXX") || { '
-    "echo 'BUILD: unable to create wrapper output capture'; exit 1; }; "
-    'err=$(mktemp "${TMPDIR:-/tmp}/sinaliza-wrapper-err.XXXXXX") || { '
-    'rm -f -- "$out"; echo \'BUILD: unable to create wrapper error capture\'; exit 1; }; '
-    'cleanup() { rm -f -- "$out" "$err"; }; trap cleanup EXIT; '
-    'bash "$script" >"$out" 2>"$err"; code=$?; cat "$out"; cat "$err" >&2; '
-    'skip_lines=$(grep -c \'^SKIP: \' "$out" 2>/dev/null || true); '
-    'total_lines=$(wc -l <"$out" | tr -d \' \'); '
-    'if [ "$code" -eq 0 ] && [ "$skip_lines" = "1" ] && [ "$total_lines" = "1" ] && [ ! -s "$err" ]; then exit 0; fi; '
-    'echo "BUILD: ignore-build script did not produce exactly one unambiguous successful SKIP confirmation (exit $code)"; exit 1'
+    's=../../infra/vercel/landing-ignore-build.sh;'
+    '[ "$VERCEL_ENV/$VERCEL_TARGET_ENV" = preview/preview ]&&bash -n "$s"||{ echo BUILD;exit 1;};'
+    'o=$(bash "$s" 2>&1);c=$?;echo "$o";'
+    '[ $c = 0 ]&&[[ "$o" == SKIP:\\ * && "$o" != *$\'\\n\'* ]]&&exit 0;'
+    'echo BUILD:$c;exit 1'
 )
 
 
@@ -404,7 +392,7 @@ def case_script_absent_in_old_branch():
     write(repo, "apps/pwa/new.txt")
     head = commit_all(repo, "pwa change")
     code, output = run_wrapper(repo, base, head)
-    record("script absent in old branch", 1, code, output, base, head, "absent or unreadable")
+    record("script absent in old branch", 1, code, output, base, head, "BUILD")
     tmp.cleanup()
 
 
@@ -649,14 +637,14 @@ def case_empty_diff():
 def case_wrapper_syntax_error():
     tmp, repo, base, head = prepare_wrapper_repo("this is not valid bash (((\n")
     code, output = run_wrapper(repo, base, head)
-    record("wrapper normalizes script syntax error", 1, code, output, base, head, "failed bash syntax validation")
+    record("wrapper normalizes script syntax error", 1, code, output, base, head, "syntax error")
     tmp.cleanup()
 
 
 def case_wrapper_unexpected_exit_code():
     tmp, repo, base, head = prepare_wrapper_repo("#!/usr/bin/env bash\nexit 2\n")
     code, output = run_wrapper(repo, base, head)
-    record("wrapper normalizes unexpected script exit code", 1, code, output, base, head, "exit 2")
+    record("wrapper normalizes unexpected script exit code", 1, code, output, base, head, "BUILD:2")
     tmp.cleanup()
 
 
@@ -668,7 +656,7 @@ def case_wrapper_production_protection():
         head,
         extra_env={"VERCEL_ENV": "production", "VERCEL_TARGET_ENV": "production"},
     )
-    record("production protected directly by wrapper", 1, code, output, base, head, "environment is not positively identified")
+    record("production protected directly by wrapper", 1, code, output, base, head, "BUILD")
     tmp.cleanup()
 
 
@@ -680,14 +668,14 @@ def wrapper_script_case(name, script_content, reason):
 
 
 def case_wrapper_empty_script():
-    wrapper_script_case("wrapper rejects empty script without SKIP confirmation", "", "exactly one unambiguous successful SKIP")
+    wrapper_script_case("wrapper rejects empty script without SKIP confirmation", "", "BUILD")
 
 
 def case_wrapper_exit_zero_without_skip():
     wrapper_script_case(
         "wrapper rejects exit zero without SKIP confirmation",
         "#!/usr/bin/env bash\necho 'execution finished'\nexit 0\n",
-        "exactly one unambiguous successful SKIP",
+        "BUILD",
     )
 
 
@@ -695,7 +683,7 @@ def case_wrapper_skip_message_with_nonzero_exit():
     wrapper_script_case(
         "wrapper rejects SKIP message with nonzero exit",
         "#!/usr/bin/env bash\necho 'SKIP: misleading confirmation'\nexit 2\n",
-        "exactly one unambiguous successful SKIP",
+        "BUILD",
     )
 
 
@@ -703,7 +691,15 @@ def case_wrapper_skip_with_extra_output():
     wrapper_script_case(
         "wrapper rejects ambiguous SKIP with extra output",
         "#!/usr/bin/env bash\necho noise\necho 'SKIP: mixed output'\nexit 0\n",
-        "exactly one unambiguous successful SKIP",
+        "BUILD",
+    )
+
+
+def case_wrapper_skip_with_unterminated_extra_output():
+    wrapper_script_case(
+        "wrapper rejects SKIP followed by unterminated extra output",
+        "#!/usr/bin/env bash\nprintf 'SKIP: valid-looking line\\nextra without newline'\nexit 0\n",
+        "BUILD",
     )
 
 
@@ -720,7 +716,7 @@ def case_wrapper_unreadable_script():
         )
     else:
         code, output = run_wrapper(repo, base, head)
-        record("wrapper rejects unreadable script", 1, code, output, base, head, "absent or unreadable")
+        record("wrapper rejects unreadable script", 1, code, output, base, head, "BUILD")
     tmp.cleanup()
 
 
@@ -824,6 +820,7 @@ def main():
         case_wrapper_exit_zero_without_skip,
         case_wrapper_skip_message_with_nonzero_exit,
         case_wrapper_skip_with_extra_output,
+        case_wrapper_skip_with_unterminated_extra_output,
         case_wrapper_unreadable_script,
         case_accumulated_skips_then_landing,
     ]

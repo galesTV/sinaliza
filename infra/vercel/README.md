@@ -47,19 +47,19 @@ O script versionado segue este contrato:
 - imprime uma linha `BUILD: ...` e sai com `1` para qualquer incerteza, falha ou mudança relevante;
 - imprime exatamente uma linha `SKIP: ...` e sai com `0` somente para um skip válido.
 
-O wrapper exige confirmação explícita: exit `0` sozinho não basta. Ele só aceita SKIP quando a execução termina com exit `0`, stderr está vazio e stdout contém exatamente uma linha não ambígua começando com `SKIP: `. Qualquer saída adicional, mensagem ausente, múltiplas confirmações, exit inesperado ou erro resulta em exit `1`.
+O wrapper exige confirmação explícita: exit `0` sozinho não basta. Ele captura stdout/stderr, preserva essa saída nos logs e só aceita SKIP quando a execução termina com exit `0` e a saída capturada é uma única linha não ambígua começando com `SKIP: `. Qualquer saída adicional — mesmo sem newline final — mensagem ausente, múltiplas confirmações, exit inesperado ou erro resulta em exit `1`.
 
 Essa proteção evita erros acidentais e regressões simples. Ela **não** é uma fronteira de segurança contra um script deliberadamente modificado na branch: o script avaliado é conteúdo do commit em avaliação, portanto alterações futuras nele exigem revisão humana.
 
 ## Comando completo do wrapper
 
-Este é o comando proposto para o campo Ignored Build Step do projeto da landing. Ele ainda não foi aplicado:
+Este é o comando proposto para o campo Ignored Build Step do projeto da landing. Ele ainda não foi aplicado. O comando tem 254 caracteres, abaixo do limite de 256 documentado no schema oficial de `ignoreCommand`:
 
 ```bash
-script=../../infra/vercel/landing-ignore-build.sh; if [ "${VERCEL_ENV:-}" != "preview" ] || [ "${VERCEL_TARGET_ENV:-}" != "preview" ]; then echo 'BUILD: environment is not positively identified as preview'; exit 1; fi; if [ ! -r "$script" ]; then echo 'BUILD: ignore-build script is absent or unreadable in this branch'; exit 1; fi; if ! bash -n "$script"; then echo 'BUILD: ignore-build script failed bash syntax validation'; exit 1; fi; out=$(mktemp "${TMPDIR:-/tmp}/sinaliza-wrapper-out.XXXXXX") || { echo 'BUILD: unable to create wrapper output capture'; exit 1; }; err=$(mktemp "${TMPDIR:-/tmp}/sinaliza-wrapper-err.XXXXXX") || { rm -f -- "$out"; echo 'BUILD: unable to create wrapper error capture'; exit 1; }; cleanup() { rm -f -- "$out" "$err"; }; trap cleanup EXIT; bash "$script" >"$out" 2>"$err"; code=$?; cat "$out"; cat "$err" >&2; skip_lines=$(grep -c '^SKIP: ' "$out" 2>/dev/null || true); total_lines=$(wc -l <"$out" | tr -d ' '); if [ "$code" -eq 0 ] && [ "$skip_lines" = "1" ] && [ "$total_lines" = "1" ] && [ ! -s "$err" ]; then exit 0; fi; echo "BUILD: ignore-build script did not produce exactly one unambiguous successful SKIP confirmation (exit $code)"; exit 1
+s=../../infra/vercel/landing-ignore-build.sh;[ "$VERCEL_ENV/$VERCEL_TARGET_ENV" = preview/preview ]&&bash -n "$s"||{ echo BUILD;exit 1;};o=$(bash "$s" 2>&1);c=$?;echo "$o";[ $c = 0 ]&&[[ "$o" == SKIP:\ * && "$o" != *$'\n'* ]]&&exit 0;echo BUILD:$c;exit 1
 ```
 
-Branches antigas sem `infra/vercel/landing-ignore-build.sh` continuam em BUILD por causa da verificação de existência/leitura.
+Branches antigas sem `infra/vercel/landing-ignore-build.sh` continuam em BUILD porque `bash -n` falha ao abrir/ler o script antes da execução.
 
 ## Execução local dos testes
 
