@@ -66,7 +66,7 @@ redistribuição exige revisar e alterar esse escopo deliberadamente.
 
 `displayScope: "local-review"` marca ativos autorizados apenas para avaliação
 local. O catálogo guarda esses ativos como referências opacas
-(`local-review:<fonte>/<id>`), não como o caminho distribuído do arquivo —
+(`local-review:fiocruz:<letra>`, no esquema atual), não como o caminho distribuído do arquivo —
 assim mesmo módulos de catálogo/progresso incluídos em bundles cliente não
 carregam a URL restrita. Nas rotas servidoras de revisão/publicação, esse
 escopo é preparado por
