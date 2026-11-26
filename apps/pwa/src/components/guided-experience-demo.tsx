@@ -45,6 +45,13 @@ export function GuidedExperienceDemo() {
   }, []);
 
   useEffect(() => {
+    document.documentElement.dataset.sinalizaGuidedDemoHydrated = "true";
+    return () => {
+      delete document.documentElement.dataset.sinalizaGuidedDemoHydrated;
+    };
+  }, []);
+
+  useEffect(() => {
     if (demoState.completed) completionHeadingRef.current?.focus();
   }, [demoState.completed]);
 

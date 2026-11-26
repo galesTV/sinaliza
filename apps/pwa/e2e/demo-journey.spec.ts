@@ -150,6 +150,10 @@ async function reachFirstGuidedExercise(page: Page) {
   await page.goto("/laboratorio/experiencia");
   await expect(demoConstellation(page)).toBeVisible();
   await expect(demoConstellation(page)).toHaveAttribute("data-correct", "0");
+  await expect(page.locator("html")).toHaveAttribute(
+    "data-sinaliza-guided-demo-hydrated",
+    "true",
+  );
   await page.getByRole("button", { name: "Continuar" }).click();
   await expect(page.getByText("Passo 2 de 6")).toBeVisible();
   await page.getByRole("button", { name: "Continuar" }).click();
