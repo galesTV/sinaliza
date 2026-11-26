@@ -232,7 +232,7 @@ test.describe("guided public demo constellation", () => {
 
     await expect(
       page.getByRole("heading", { name: "Demonstração concluída" }),
-    ).toBeVisible();
+    ).toBeFocused();
     await expect(demoConstellation(page)).toHaveAttribute(
       "data-completed",
       "true",

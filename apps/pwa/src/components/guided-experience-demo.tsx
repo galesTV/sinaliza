@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   DemoConstellation,
@@ -37,9 +37,15 @@ export function GuidedExperienceDemo() {
     ),
   );
 
+  const completionHeadingRef = useRef<HTMLHeadingElement>(null);
+
   const handleSnapshot = useCallback((snapshot: LessonRunnerSnapshot) => {
     setDemoState((current) => reduceDemoConstellation(current, snapshot));
   }, []);
+
+  useEffect(() => {
+    if (demoState.completed) completionHeadingRef.current?.focus();
+  }, [demoState.completed]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -74,8 +80,10 @@ export function GuidedExperienceDemo() {
         >
           <div className="flex flex-col gap-2">
             <h2
+              ref={completionHeadingRef}
+              tabIndex={-1}
               id="demo-completion-title"
-              className="font-display text-xl font-semibold tracking-tight text-foreground"
+              className="font-display text-xl font-semibold tracking-tight text-foreground focus-visible:outline-none"
             >
               Demonstração concluída
             </h2>
