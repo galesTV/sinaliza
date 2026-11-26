@@ -244,13 +244,15 @@ export function hasMediaDisplayPermission(
  * Publication gate for lesson media. It is intentionally separate from
  * display permission: an asset can be cleared for a local review preview
  * while its public redistribution remains unresolved. Published lessons
- * require explicit distribution evidence for every media item.
+ * require explicit distribution evidence for every media item, and a
+ * `local-review` scope must be deliberately changed before publication.
  */
 export function hasMediaPublicationPermission(
   attribution?: LessonMediaAttribution,
 ): boolean {
   return (
     hasMediaDisplayPermission(attribution) &&
+    attribution!.displayScope !== "local-review" &&
     Boolean(attribution!.publicationEvidence?.trim())
   );
 }

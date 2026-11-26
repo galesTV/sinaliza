@@ -60,7 +60,9 @@ Exibição e distribuição são permissões distintas. `publicationEvidence`
 registra a autorização para distribuir o arquivo como mídia publicada;
 `isPublishable`/`isSpecimenPublishable` são fail-closed quando qualquer mídia
 da lição ou do espécime não tem essa evidência, mesmo que
-`permissionEvidence` permita exibi-la em revisão.
+`permissionEvidence` permita exibi-la em revisão. Um ativo ainda marcado
+`displayScope: "local-review"` também não publica: obter a autorização de
+redistribuição exige revisar e alterar esse escopo deliberadamente.
 
 `displayScope: "local-review"` marca ativos autorizados apenas para avaliação
 local. Nas rotas servidoras de revisão/publicação, esse escopo é preparado por

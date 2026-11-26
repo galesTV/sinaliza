@@ -297,6 +297,13 @@ describe("media permission gate", () => {
         publicationEvidence: "autorização de distribuição",
       }),
     ).toBe(true);
+    expect(
+      hasMediaPublicationPermission({
+        ...baseAttribution,
+        publicationEvidence: "autorização de distribuição",
+        displayScope: "local-review",
+      }),
+    ).toBe(false);
   });
 
   it("reports media without publication evidence as not publishable", () => {
