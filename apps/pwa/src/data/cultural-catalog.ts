@@ -7,6 +7,7 @@
  * are server-side editorial data: public surfaces must consume the explicit
  * projection from `cultural-public.ts`, never this registry.
  */
+import "server-only";
 import type { CulturalCatalogEntry } from "./cultural-catalog-model";
 
 export const culturalCatalog: CulturalCatalogEntry[] = [

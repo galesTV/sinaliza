@@ -67,17 +67,22 @@ export interface CulturalReview {
   date: string;
   /** Editorial version covered by this review. */
   version: string;
+  /** Deterministic fingerprint of the exact reviewed editorial content. */
+  contentFingerprint?: string;
   notes?: string;
 }
 
 /**
  * Final publication authorization. It is deliberately separate from expert
- * review and is valid only while `version` matches the entry version.
+ * review and is valid only while `version` and `contentFingerprint` match
+ * the current entry.
  */
 export interface CulturalPublicationAuthorization {
   authorizer: string;
   date: string;
   version: string;
+  /** Deterministic fingerprint of the exact authorized editorial content. */
+  contentFingerprint?: string;
   scope: "public-web";
   notes?: string;
 }
@@ -245,7 +250,9 @@ export function isValidCulturalReview(review: CulturalReview): boolean {
   return (
     review.reviewer.trim().length > 0 &&
     isValidISODate(review.date) &&
-    review.version.trim().length > 0
+    review.version.trim().length > 0 &&
+    (review.contentFingerprint === undefined ||
+      /^[a-f0-9]{64}$/.test(review.contentFingerprint))
   );
 }
 
@@ -381,6 +388,12 @@ export function validateCulturalEntry(
     }
     if (!authorization.version.trim()) {
       problems.push("publication authorization: missing version");
+    }
+    if (
+      authorization.contentFingerprint !== undefined &&
+      !/^[a-f0-9]{64}$/.test(authorization.contentFingerprint)
+    ) {
+      problems.push("publication authorization: invalid content fingerprint");
     }
     if (authorization.scope !== "public-web") {
       problems.push("publication authorization: unsupported scope");

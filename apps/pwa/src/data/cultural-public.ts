@@ -4,6 +4,7 @@
  * Pages may consume these functions, but client components must receive the
  * resulting DTOs — they must never import the editorial registry directly.
  */
+import "server-only";
 import { culturalCatalog } from "./cultural-catalog";
 import type { CulturalCategory } from "./cultural-catalog-model";
 import {

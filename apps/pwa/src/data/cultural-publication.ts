@@ -3,6 +3,8 @@
  * entries. This module is data-free: callers provide the editorial registry,
  * so importing these helpers never imports candidate records.
  */
+import { createHash } from "node:crypto";
+
 import {
   CULTURAL_CATEGORIES,
   getCulturalReviewChainProblems,
@@ -13,6 +15,74 @@ import {
   type CulturalRelationKind,
   type CulturalRights,
 } from "./cultural-catalog-model";
+
+
+function stableStringify(value: unknown): string {
+  if (Array.isArray(value)) {
+    return `[${value.map((item) => stableStringify(item)).join(",")}]`;
+  }
+  if (value && typeof value === "object") {
+    const record = value as Record<string, unknown>;
+    const entries = Object.keys(record)
+      .filter((key) => record[key] !== undefined)
+      .sort()
+      .map((key) => `${JSON.stringify(key)}:${stableStringify(record[key])}`);
+    return `{${entries.join(",")}}`;
+  }
+  return JSON.stringify(value);
+}
+
+/**
+ * Deterministic SHA-256 fingerprint of the editorial material reviewers saw.
+ * Workflow fields are excluded so status, review metadata, authorization,
+ * editorial version labels and internal pending notes do not alter it.
+ */
+export function getCulturalContentFingerprint(
+  entry: CulturalCatalogEntry,
+): string {
+  const reviewedContent: Record<string, unknown> = { ...entry };
+  delete reviewedContent.version;
+  delete reviewedContent.validationStatus;
+  delete reviewedContent.reviews;
+  delete reviewedContent.publicationAuthorization;
+  delete reviewedContent.internalPending;
+  return createHash("sha256")
+    .update(stableStringify(reviewedContent))
+    .digest("hex");
+}
+
+function getFingerprintPublicationProblems(
+  entry: CulturalCatalogEntry,
+): string[] {
+  const fingerprint = getCulturalContentFingerprint(entry);
+  const problems: string[] = [];
+
+  for (const type of ["research", "technical", "expert"] as const) {
+    const currentVersionReviews = entry.reviews.filter(
+      (item) => item.type === type && item.version === entry.version,
+    );
+    if (currentVersionReviews.some((review) => !review.contentFingerprint)) {
+      problems.push(`${type} review lacks a content fingerprint`);
+    } else if (
+      !currentVersionReviews.some(
+        (review) => review.contentFingerprint === fingerprint,
+      )
+    ) {
+      problems.push(`${type} review covers a different content fingerprint`);
+    }
+  }
+
+  const authorization = entry.publicationAuthorization;
+  if (!authorization?.contentFingerprint) {
+    problems.push("final publication authorization lacks a content fingerprint");
+  } else if (authorization.contentFingerprint !== fingerprint) {
+    problems.push(
+      "final publication authorization covers a different content fingerprint",
+    );
+  }
+
+  return problems;
+}
 
 export type CompleteCulturalReference = CulturalReference & {
   institution: string;
@@ -31,15 +101,19 @@ export type PublishableCulturalEntry = CulturalCatalogEntry extends infer T
     ? Omit<
         T,
         | "references"
+        | "reviews"
         | "validationStatus"
         | "publicationAuthorization"
         | "internalPending"
       > & {
         references: CompleteCulturalReference[];
+        reviews: Array<
+          T["reviews"][number] & { contentFingerprint: string }
+        >;
         validationStatus: "expert-validated";
         publicationAuthorization: NonNullable<
           T["publicationAuthorization"]
-        >;
+        > & { contentFingerprint: string };
         internalPending: [];
       }
     : never
@@ -213,6 +287,7 @@ export function getCulturalPublicationBlockers(
     problems.push("entry has not completed expert validation");
   } else {
     problems.push(...getCulturalReviewChainProblems(entry));
+    problems.push(...getFingerprintPublicationProblems(entry));
   }
 
   const authorization = entry.publicationAuthorization;
@@ -248,14 +323,6 @@ export function getCulturalPublicationBlockers(
     problems.push("entry has claims without references");
   }
 
-  for (const relation of entry.relatedEntries) {
-    if (relation.kind === "unverified-candidate") {
-      problems.push(`relation to "${relation.targetId}" has unverified semantics`);
-    }
-    if (relation.evidenceReferenceIds.length === 0) {
-      problems.push(`relation to "${relation.targetId}" has no evidence`);
-    }
-  }
 
   problems.push(...getContentPublicationProblems(entry));
   problems.push(...getRightsPublicationProblems(entry.rights));
@@ -295,6 +362,7 @@ function toPublicEntry(
       .filter(
         (relation) =>
           relation.kind !== "unverified-candidate" &&
+          relation.evidenceReferenceIds.length > 0 &&
           publishableIds.has(relation.targetId),
       )
       .map((relation) => ({

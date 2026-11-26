@@ -8,6 +8,8 @@ O catálogo editorial completo fica em `src/data/cultural-catalog.ts` e é trata
 
 A superfície pública nunca deve consumir esse registro cru. O módulo `src/data/cultural-publication.ts` deriva uma projeção pública por allowlist, contendo somente campos necessários à apresentação. A fachada server-side fica em `src/data/cultural-public.ts`.
 
+O catálogo editorial e a fachada importam `server-only`. No Next.js, isso gera erro de build quando um Client Component entra no grafo de importação desses módulos. A proteção não depende apenas de convenção. Os módulos de tipos/validação e o módulo puro de publicação permanecem sem essa marca quando apropriado, para permitir testes e reuso controlado.
+
 A projeção pública remove:
 
 - rascunhos e registros não elegíveis;
@@ -25,9 +27,11 @@ Componentes client-side devem receber DTOs públicos já projetados. Não devem 
 
 Cada registro tem `version`. A migração D.2 usa `candidate-1` como versão técnica inicial, sem afirmar revisão ou aprovação.
 
-Qualquer mudança substantiva em conteúdo editorial, afirmações, fontes usadas como evidência ou materiais de terceiros exige nova versão. Revisões e autorização final só são válidas quando seu campo `version` coincide exatamente com a versão atual do registro.
+Qualquer mudança substantiva em conteúdo editorial, afirmações, fontes usadas como evidência, relações, direitos ou materiais de terceiros exige nova versão. Revisões e autorização final só são válidas quando seu campo `version` coincide exatamente com a versão atual do registro.
 
-Essa regra torna invalidação explícita: ao editar o conteúdo sem preservar a mesma versão, revisões e autorização anteriores deixam de contar. Não há comparação profunda de conteúdo; a disciplina de versionamento é parte da garantia, assim como no catálogo pedagógico.
+Além da versão, revisões e autorização carregam `contentFingerprint`: um SHA-256 determinístico do conteúdo editorial revisado, calculado por serialização estável. O fingerprint inclui identidade, slug, categoria, título, resumo, conteúdo específico, referências, afirmações, direitos/assets e relações. Ele exclui somente campos de fluxo: versão, status, revisões, autorização e pendências internas.
+
+Essa regra torna invalidação efetiva mesmo quando alguém altera o conteúdo e esquece de incrementar a versão: revisões e autorização antigas deixam de corresponder ao fingerprint atual. O fingerprint não substitui revisão humana nem prova veracidade; ele apenas vincula a decisão humana ao material exato revisado.
 
 ## 3. Cadeia obrigatória
 
@@ -52,9 +56,11 @@ Além da cadeia de revisão, `isCulturalPublishable` exige:
 - toda afirmação associada a referência;
 - referências com instituição, finalidade, URL HTTPS e data de consulta;
 - nenhuma pendência editorial interna aberta;
-- relações com semântica e evidência;
+- relações publicadas com semântica, evidência e destino publicável;
 - direitos compatíveis com o uso pretendido;
 - nenhum asset público sem evidência de permissão e redistribuição.
+
+Relações são enriquecimento opcional. Relações candidatas ou sem evidência são omitidas da projeção e não impedem a publicação de uma ficha independente aprovada. Uma relação só aparece publicamente quando tiver semântica verificada, evidência e destino também publicável.
 
 A validação estrutural de uma referência não comprova sua veracidade. Ela apenas impede publicação por omissão de metadados; a verificação factual permanece humana.
 

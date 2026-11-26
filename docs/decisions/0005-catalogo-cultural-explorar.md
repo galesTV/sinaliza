@@ -27,7 +27,7 @@ A área Explorar precisa apresentar conteúdo cultural sem enfraquecer as regras
 ## Consequências
 
 - O catálogo real pode funcionar corretamente com zero registros publicáveis.
-- A implementação pública posterior deve consumir somente DTOs projetados; rascunhos não podem aparecer em rotas, busca, relações ou payloads.
-- Editar conteúdo editorial exige nova versão; revisões/autorizações de versões anteriores deixam de valer.
+- A implementação pública posterior deve consumir somente DTOs projetados; o catálogo cru e a fachada pública usam `server-only`, fazendo importação indevida por Client Component falhar no build.
+- Editar conteúdo editorial exige nova versão; revisões/autorizações também carregam fingerprint SHA-256 do material revisado e deixam de valer se o conteúdo mudar mesmo sem incremento manual da versão.
 - Nenhum asset de terceiros entra no MVP sem evidência específica de permissão e redistribuição.
 - A extração de primitivas compartilhadas com o catálogo pedagógico fica para depois, evitando alterar mecanismos em uso pela jornada principal.

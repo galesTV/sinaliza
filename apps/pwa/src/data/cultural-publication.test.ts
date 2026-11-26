@@ -6,6 +6,7 @@ import type {
   CulturalReview,
 } from "./cultural-catalog-model";
 import {
+  getCulturalContentFingerprint,
   getCulturalPublicationBlockers,
   isCulturalPublishable,
   projectPublicCulturalEntries,
@@ -27,7 +28,7 @@ function makeReview(
 function makePublishableHistory(
   overrides: Partial<CulturalHistoryEntry> = {},
 ): CulturalHistoryEntry {
-  return {
+  const entry: CulturalHistoryEntry = {
     id: "TEST-001",
     slug: "registro-sintetico",
     category: "history",
@@ -64,6 +65,19 @@ function makePublishableHistory(
     history: { year: 2026, unknownMetadata: [] },
     ...overrides,
   };
+
+  const contentFingerprint = getCulturalContentFingerprint(entry);
+  entry.reviews = entry.reviews.map((review) => ({
+    ...review,
+    contentFingerprint,
+  }));
+  if (entry.publicationAuthorization) {
+    entry.publicationAuthorization = {
+      ...entry.publicationAuthorization,
+      contentFingerprint,
+    };
+  }
+  return entry;
 }
 
 describe("isCulturalPublishable", () => {
@@ -184,24 +198,100 @@ describe("isCulturalPublishable", () => {
     expect(problems).toContain("scope is not public");
   });
 
-  it("rejects unverified or evidence-free semantic relations", () => {
+  it("does not block otherwise approved content because optional relations are unpublished", () => {
     const unverified = makePublishableHistory({
       relatedEntries: [
         { targetId: "TEST-002", kind: "unverified-candidate", evidenceReferenceIds: [] },
       ],
     });
-    expect(getCulturalPublicationBlockers(unverified, [unverified]).join("\n")).toContain(
-      "unverified semantics",
-    );
+    const draftTarget = makePublishableHistory({
+      id: "TEST-002",
+      slug: "alvo-sintetico",
+      validationStatus: "draft",
+      reviews: [],
+      publicationAuthorization: undefined,
+      internalPending: ["Pendente."],
+    });
+    expect(isCulturalPublishable(unverified, [unverified, draftTarget])).toBe(true);
+    expect(projectPublicCulturalEntries([unverified, draftTarget])[0].relatedEntries).toEqual([]);
 
     const withoutEvidence = makePublishableHistory({
       relatedEntries: [
         { targetId: "TEST-002", kind: "historical-context", evidenceReferenceIds: [] },
       ],
     });
-    expect(
-      getCulturalPublicationBlockers(withoutEvidence, [withoutEvidence]).join("\n"),
-    ).toContain("has no evidence");
+    expect(isCulturalPublishable(withoutEvidence, [withoutEvidence, draftTarget])).toBe(true);
+    expect(projectPublicCulturalEntries([withoutEvidence, draftTarget])[0].relatedEntries).toEqual([]);
+  });
+
+  it("is deterministic and independent of workflow-only fields", () => {
+    const first = makePublishableHistory();
+    const second = makePublishableHistory({
+      version: "v2",
+      validationStatus: "draft",
+      reviews: [],
+      publicationAuthorization: undefined,
+      internalPending: ["Workflow note only."],
+    });
+    expect(getCulturalContentFingerprint(first)).toMatch(/^[a-f0-9]{64}$/);
+    expect(getCulturalContentFingerprint(first)).toBe(getCulturalContentFingerprint(second));
+  });
+
+  it.each([
+    ["entry text", (entry: CulturalHistoryEntry) => ({ ...entry, title: "Texto alterado" })],
+    [
+      "claims",
+      (entry: CulturalHistoryEntry) => ({
+        ...entry,
+        claims: [{ ...entry.claims[0], text: "Afirmação alterada." }],
+      }),
+    ],
+    [
+      "references",
+      (entry: CulturalHistoryEntry) => ({
+        ...entry,
+        references: [{ ...entry.references[0], purpose: "Finalidade alterada" }],
+      }),
+    ],
+    [
+      "rights",
+      (entry: CulturalHistoryEntry) => ({
+        ...entry,
+        rights: { ...entry.rights, notes: "Nota de direitos alterada" },
+      }),
+    ],
+    [
+      "media",
+      (entry: CulturalHistoryEntry) => ({
+        ...entry,
+        rights: {
+          mode: "licensed-assets" as const,
+          assets: [{ id: "asset-1", kind: "image" as const, scope: "public" as const }],
+        },
+      }),
+    ],
+  ])("rejects reused approvals when %s change without a new review", (_name, mutate) => {
+    const mutated = mutate(makePublishableHistory());
+    const problems = getCulturalPublicationBlockers(mutated, [mutated]).join("\n");
+    expect(isCulturalPublishable(mutated, [mutated])).toBe(false);
+    expect(problems).toContain("review covers a different content fingerprint");
+    expect(problems).toContain("authorization covers a different content fingerprint");
+  });
+
+  it("rejects reviews and authorization that lack fingerprints", () => {
+    const entry = makePublishableHistory();
+    entry.reviews = entry.reviews.map((review) => {
+      const copy = { ...review };
+      delete copy.contentFingerprint;
+      return copy;
+    });
+    entry.publicationAuthorization = {
+      ...entry.publicationAuthorization!,
+      contentFingerprint: undefined,
+    };
+    const problems = getCulturalPublicationBlockers(entry, [entry]).join("\n");
+    expect(problems).toContain("research review lacks a content fingerprint");
+    expect(problems).toContain("final publication authorization lacks a content fingerprint");
   });
 });
 
@@ -224,6 +314,29 @@ describe("projectPublicCulturalEntries", () => {
     expect(serialized).not.toContain("Revisor research");
     expect(serialized).not.toContain("Responsável sintético");
     expect(serialized).not.toContain("permissionEvidence");
+  });
+
+
+  it("drops non-allowlisted nested fields even when injected at runtime", () => {
+    const entry = makePublishableHistory() as CulturalHistoryEntry & {
+      editorDebug: string;
+      references: Array<CulturalHistoryEntry["references"][number] & { privateNote: string }>;
+      history: CulturalHistoryEntry["history"] & { internalTrace: string };
+    };
+    entry.editorDebug = "internal-editor-debug";
+    entry.references[0].privateNote = "private-source-note";
+    entry.history.internalTrace = "internal-history-trace";
+    const fingerprint = getCulturalContentFingerprint(entry);
+    entry.reviews = entry.reviews.map((review) => ({ ...review, contentFingerprint: fingerprint }));
+    entry.publicationAuthorization!.contentFingerprint = fingerprint;
+
+    const [publicEntry] = projectPublicCulturalEntries([entry]);
+    const serialized = JSON.stringify(publicEntry);
+    expect(serialized).not.toContain("internal-editor-debug");
+    expect(serialized).not.toContain("private-source-note");
+    expect(serialized).not.toContain("internal-history-trace");
+    expect(serialized).not.toContain("rights");
+    expect(serialized).not.toContain("claims");
   });
 
   it("omits relations whose targets are not publishable", () => {
