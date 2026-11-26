@@ -162,6 +162,44 @@ async function reachFirstGuidedExercise(page: Page) {
   await expect(page.getByText("Passo 4 de 6")).toBeVisible();
 }
 
+async function completeGuidedDemoFromFirstStep(page: Page) {
+  await page.getByRole("button", { name: "Continuar" }).click();
+  await expect(page.getByText("Passo 2 de 6")).toBeVisible();
+  await page.getByRole("button", { name: "Continuar" }).click();
+  await expect(page.getByText("Passo 3 de 6")).toBeVisible();
+  await page.getByRole("button", { name: "Continuar" }).click();
+  await expect(page.getByText("Passo 4 de 6")).toBeVisible();
+  await answerGuidedExercise(page, FIRST_RIGHT);
+  await page.getByRole("button", { name: "Continuar" }).click();
+  await expect(page.getByText("Passo 5 de 6")).toBeVisible();
+  await page.getByRole("button", { name: "Continuar" }).click();
+  await expect(page.getByText("Passo 6 de 6")).toBeVisible();
+  await answerGuidedExercise(page, SECOND_RIGHT);
+  await page.getByRole("button", { name: "Finalizar experiência" }).click();
+  await page.getByRole("button", { name: "Concluir experiência" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Demonstração concluída" }),
+  ).toBeFocused();
+}
+
+async function expectFocusedStepHeadingVisible(page: Page) {
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const heading = document.querySelector("#lesson-runner-title");
+        if (!heading || document.activeElement !== heading) return false;
+        const rect = heading.getBoundingClientRect();
+        const headerBottom =
+          document.querySelector("header")?.getBoundingClientRect().bottom ?? 0;
+        return (
+          rect.top >= headerBottom &&
+          rect.bottom <= window.innerHeight
+        );
+      }),
+    )
+    .toBe(true);
+}
+
 test.describe("guided public demo constellation", () => {
   test("home offers the experience as the immediate action", async ({ page }) => {
     await page.goto("/");
@@ -173,6 +211,35 @@ test.describe("guided public demo constellation", () => {
     await expect(
       page.getByRole("heading", { name: "Experiência guiada de aprendizagem" }),
     ).toBeVisible();
+  });
+
+  test("keeps focus on the advance action after a correct keyboard answer", async ({
+    page,
+  }) => {
+    await reachFirstGuidedExercise(page);
+
+    let reachedRadio = false;
+    for (let attempt = 0; attempt < 20; attempt += 1) {
+      await page.keyboard.press("Tab");
+      reachedRadio = await page.evaluate(
+        () =>
+          document.activeElement instanceof HTMLInputElement &&
+          document.activeElement.type === "radio",
+      );
+      if (reachedRadio) break;
+    }
+    expect(reachedRadio).toBe(true);
+
+    // The first radio owns focus in an unselected group; ArrowDown selects
+    // the second option, which is the correct answer in this exercise.
+    await page.keyboard.press("ArrowDown");
+    await expect(page.getByText("Correto!")).toBeVisible();
+    const continueButton = page.getByRole("button", { name: "Continuar" });
+    await expect(continueButton).toBeFocused();
+
+    await page.keyboard.press("Enter");
+    await expect(page.getByText("Passo 5 de 6")).toBeVisible();
+    await expectNoProgressRecorded(page);
   });
 
   test("incorrect answers give feedback without evolving the simulation", async ({
@@ -280,6 +347,9 @@ test.describe("guided public demo constellation", () => {
     );
     await expect(demoConstellation(page)).toHaveAttribute("data-correct", "2");
     await expect(page.getByText(/nenhum progresso foi salvo/i)).toBeVisible();
+    await expect(
+      page.getByText(/Essa constelação é apenas uma simulação visual/i),
+    ).toBeVisible();
     const handLabLink = page.getByRole("link", {
       name: "Experimentar laboratório de mãos",
     });
@@ -364,6 +434,47 @@ test.describe("guided public demo constellation", () => {
       "data-completed",
       "false",
     );
+  });
+
+  test("restart keeps the focused first step visible across repeated desktop restarts", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1365, height: 900 });
+    await page.goto("/laboratorio/experiencia");
+    await expect(page.locator("html")).toHaveAttribute(
+      "data-sinaliza-guided-demo-hydrated",
+      "true",
+    );
+
+    for (let cycle = 0; cycle < 2; cycle += 1) {
+      await completeGuidedDemoFromFirstStep(page);
+      await page.getByRole("button", { name: "Recomeçar" }).click();
+      await expect(page.getByText("Passo 1 de 6")).toBeVisible();
+      await expect(demoConstellation(page)).toHaveAttribute(
+        "data-completed",
+        "false",
+      );
+      await expectFocusedStepHeadingVisible(page);
+    }
+    await expectNoProgressRecorded(page);
+  });
+
+  test("restart keeps the focused first step visible on mobile with reduced motion", async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/laboratorio/experiencia");
+    await expect(page.locator("html")).toHaveAttribute(
+      "data-sinaliza-guided-demo-hydrated",
+      "true",
+    );
+
+    await completeGuidedDemoFromFirstStep(page);
+    await page.getByRole("button", { name: "Recomeçar" }).click();
+    await expect(page.getByText("Passo 1 de 6")).toBeVisible();
+    await expectFocusedStepHeadingVisible(page);
+    await expectNoProgressRecorded(page);
   });
 
   test("correct-answer animation is disabled under reduced motion", async ({

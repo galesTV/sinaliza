@@ -207,11 +207,11 @@ function ExerciseBlock({
     () => answeredInVariant && Boolean(variant),
   );
 
+  const mediaLoadFailed = exerciseMediaList(exercise).some((item) =>
+    failedSrcs.has(item.media.src),
+  );
   const mediaUnavailable =
-    !isExerciseVisuallyPermitted(exercise) ||
-    exerciseMediaList(exercise).some((item) =>
-      failedSrcs.has(item.media.src),
-    );
+    !isExerciseVisuallyPermitted(exercise) || mediaLoadFailed;
 
   const useVariant = Boolean(variant) && (mediaUnavailable || prefersDescription);
   const blocked = mediaUnavailable && !variant;
@@ -291,6 +291,21 @@ function ExerciseBlock({
     else onSelect(index);
   };
 
+  const previousResultRef = useRef(result);
+  const advanceButtonRef = useRef<HTMLButtonElement>(null);
+
+  // A correct answer disables the radio that may currently own focus. Move
+  // focus once to the newly available advance action instead of letting the
+  // browser drop it to BODY; revisiting an already solved step must not
+  // steal focus from the step heading managed by the parent runner.
+  useEffect(() => {
+    const previousResult = previousResultRef.current;
+    previousResultRef.current = result;
+    if (previousResult !== "correct" && result === "correct") {
+      advanceButtonRef.current?.focus({ preventScroll: true });
+    }
+  }, [result]);
+
   return (
     <div className="flex flex-col gap-5">
       <h2
@@ -321,7 +336,14 @@ function ExerciseBlock({
       {/* Announced politely so assistive tech hears the modality change. */}
       <div aria-live="polite">
         {useVariant && (
-          <HonestNote>
+          <HonestNote
+            title={
+              mediaLoadFailed ? "Não foi possível carregar a mídia" : undefined
+            }
+          >
+            {mediaLoadFailed
+              ? "Uma ou mais mídias deste exercício não puderam ser carregadas agora. "
+              : ""}
             Versão por descrição: avalia a compreensão da descrição da
             demonstração, não a identificação visual. Não é uma equivalência
             pedagógica validada.
@@ -495,7 +517,12 @@ function ExerciseBlock({
       {(solved || canGoBack) && (
         <div className="flex flex-wrap gap-3">
           {solved && (
-            <button type="button" onClick={onAdvance} className="btn-primary">
+            <button
+              ref={advanceButtonRef}
+              type="button"
+              onClick={onAdvance}
+              className="btn-primary"
+            >
               {isLastBlock ? finishLabel : "Continuar"}
               <IconArrowRight className="h-4 w-4" />
             </button>
@@ -513,6 +540,7 @@ export function LessonRunner({
   completionLabel = "Lição concluída",
   onSnapshot,
   headerAccessory,
+  onRestart,
 }: {
   content: LessonContent;
   /** When set, completing the lesson records it in the real progress store. */
@@ -525,6 +553,12 @@ export function LessonRunner({
   onSnapshot?: (snapshot: LessonRunnerSnapshot) => void;
   /** Optional compact status visualization rendered in the runner header. */
   headerAccessory?: ReactNode;
+  /**
+   * Optional restart owner for demonstrations whose parent must coordinate
+   * layout/state outside the runner. Regular lessons keep the internal
+   * runner restart when this prop is absent.
+   */
+  onRestart?: () => void;
 }) {
   // Created once per mounted component; pure — safe to build during SSR.
   const [runner] = useState(() =>
@@ -770,7 +804,7 @@ export function LessonRunner({
             ) : (
               <button
                 type="button"
-                onClick={runner.restart}
+                onClick={onRestart ?? runner.restart}
                 className="btn-secondary"
               >
                 <IconRefresh className="h-4 w-4" />

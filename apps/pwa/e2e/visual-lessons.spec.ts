@@ -377,6 +377,9 @@ test.describe("visual exercise infrastructure", () => {
     await expect(
       page.locator('img[src="/media/fixtures/shape-circle.svg"]'),
     ).toHaveCount(0);
+    await expect(
+      page.getByText("Não foi possível carregar a mídia"),
+    ).toHaveCount(0);
     await option(page, "Círculo").click();
     await expect(page.getByText("Correto!")).toBeVisible();
     await page.getByRole("button", { name: "Continuar" }).click();
@@ -389,8 +392,17 @@ test.describe("visual exercise infrastructure", () => {
         name: /Pela descrição: a forma tem três lados/,
       }),
     ).toBeVisible();
+    await expect(
+      page.getByText("Não foi possível carregar a mídia"),
+    ).toBeVisible();
+    await expect(
+      page.getByText(/Uma ou mais mídias deste exercício não puderam ser carregadas/),
+    ).toBeVisible();
     await option(page, "Triângulo").click();
     await expect(page.getByText("Correto!")).toBeVisible();
+    await expect(
+      page.getByText("Não foi possível carregar a mídia"),
+    ).toBeVisible();
     await page.getByRole("button", { name: "Finalizar experiência" }).click();
     await page.getByRole("button", { name: "Concluir experiência" }).click();
     await expect(page.getByText("Demonstração concluída")).toBeVisible();
