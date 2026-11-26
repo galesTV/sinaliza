@@ -182,6 +182,21 @@ export function createLessonRunner(
   }
 
   /**
+   * Clears an incorrect selection on the current exercise. Used when the
+   * learner changes modality after a failed attempt: the old attempt belongs
+   * to the other modality and must not follow them into the new one. Correct
+   * answers are never cleared.
+   */
+  function clearIncorrectSelection() {
+    const state = currentState();
+    if (!state || state.result !== "incorrect") return;
+    state.selectedOption = null;
+    state.result = null;
+    state.answeredInVariant = false;
+    emit();
+  }
+
+  /**
    * Moves to the next block. Text blocks always advance; exercises only
    * advance after a correct answer. No-op at the end.
    */
@@ -237,6 +252,7 @@ export function createLessonRunner(
     getSnapshot: () => snapshot,
     select,
     selectVariant,
+    clearIncorrectSelection,
     advance,
     back,
     complete,

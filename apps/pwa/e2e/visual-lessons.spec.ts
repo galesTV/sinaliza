@@ -481,6 +481,16 @@ test.describe("draft preview", () => {
     await expect(
       page.getByRole("button", { name: "Responder por descrição" }),
     ).toBeVisible();
+    // A wrong visual answer does not remove the description alternative:
+    // switching modality clears that cross-modality attempt and lets the
+    // learner answer the description version honestly.
+    await option(page, "Letra L").click();
+    await expect(page.getByText("Ainda não — tente novamente")).toBeVisible();
+    await page.getByRole("button", { name: "Responder por descrição" }).click();
+    await expect(page.getByText("Versão por descrição")).toBeVisible();
+    await expect(
+      page.getByText("Ainda não — tente novamente"),
+    ).not.toBeVisible();
     await option(page, "Letra B").click();
     await expect(page.getByText("Correto!")).toBeVisible();
     await page.getByRole("button", { name: "Continuar" }).click();

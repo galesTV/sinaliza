@@ -417,6 +417,24 @@ describe("visual exercise gating", () => {
     expect(runner.complete()).toBe(true);
   });
 
+  it("clears only incorrect selections when changing modality", () => {
+    const runner = createLessonRunner(
+      visualContent({ permitted: true, withVariant: true }),
+    );
+
+    runner.select(1);
+    expect(runner.getSnapshot().result).toBe("incorrect");
+    runner.clearIncorrectSelection();
+    expect(runner.getSnapshot().selectedOption).toBeNull();
+    expect(runner.getSnapshot().result).toBeNull();
+    expect(runner.getSnapshot().answeredInVariant).toBe(false);
+
+    runner.selectVariant(1);
+    expect(runner.getSnapshot().result).toBe("correct");
+    runner.clearIncorrectSelection();
+    expect(runner.getSnapshot().result).toBe("correct");
+  });
+
   it("ignores selectVariant() when the exercise has no variant", () => {
     const runner = createLessonRunner(
       visualContent({ permitted: false, withVariant: false }),

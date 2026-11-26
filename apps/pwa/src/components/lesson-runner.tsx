@@ -161,6 +161,7 @@ function ExerciseBlock({
   answeredInVariant,
   onSelect,
   onSelectVariant,
+  onClearIncorrect,
   onAdvance,
   onBack,
   canGoBack,
@@ -175,6 +176,7 @@ function ExerciseBlock({
   answeredInVariant: boolean;
   onSelect: (index: number) => void;
   onSelectVariant: (index: number) => void;
+  onClearIncorrect: () => void;
   onAdvance: () => void;
   onBack: () => void;
   canGoBack: boolean;
@@ -440,11 +442,14 @@ function ExerciseBlock({
         </p>
       )}
 
-      {variant && !mediaUnavailable && !solved && result === null && (
+      {variant && !mediaUnavailable && !solved && (
         <button
           type="button"
           aria-pressed={prefersDescription}
-          onClick={() => setPrefersDescription((value) => !value)}
+          onClick={() => {
+            if (result === "incorrect") onClearIncorrect();
+            setPrefersDescription((value) => !value);
+          }}
           className="self-start text-sm font-medium text-muted underline underline-offset-4 transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
         >
           {prefersDescription
@@ -695,6 +700,7 @@ export function LessonRunner({
             answeredInVariant={snapshot.answeredInVariant}
             onSelect={runner.select}
             onSelectVariant={runner.selectVariant}
+            onClearIncorrect={runner.clearIncorrectSelection}
             onAdvance={runner.advance}
             onBack={runner.back}
             canGoBack={snapshot.canGoBack}
