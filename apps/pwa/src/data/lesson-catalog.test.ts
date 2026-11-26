@@ -353,9 +353,9 @@ describe("primeiras-letras draft-6", () => {
     expect(mediaBlocks.length).toBe(4);
     for (const block of mediaBlocks) {
       expect(block.media.type).toBe("image");
-      expect(block.media.src).toMatch(
-        /^\/media\/alfabeto\/primeiros-passos\/letra-[abil]\.jpg$/,
-      );
+      // The catalog stores an opaque local-review reference; server-only
+      // environment preparation resolves it to the local file path.
+      expect(block.media.src).toMatch(/^local-review:fiocruz:[abil]$/);
       if (block.media.type !== "image") throw new Error("fixture");
       expect(block.media.alt).toMatch(/mão|dedo|punho/);
       // Educational use was confirmed by Fiocruz Imagens, so evidence is

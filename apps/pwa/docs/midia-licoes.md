@@ -65,7 +65,11 @@ da lição ou do espécime não tem essa evidência, mesmo que
 redistribuição exige revisar e alterar esse escopo deliberadamente.
 
 `displayScope: "local-review"` marca ativos autorizados apenas para avaliação
-local. Nas rotas servidoras de revisão/publicação, esse escopo é preparado por
+local. O catálogo guarda esses ativos como referências opacas
+(`local-review:<fonte>/<id>`), não como o caminho distribuído do arquivo —
+assim mesmo módulos de catálogo/progresso incluídos em bundles cliente não
+carregam a URL restrita. Nas rotas servidoras de revisão/publicação, esse
+escopo é preparado por
 `prepareLessonContentForEnvironment`/`prepareSpecimenForEnvironment`: em
 deploys Vercel `preview`/`production`, a evidência de exibição e o `src` do
 ativo são removidos antes de serializar o conteúdo para o runtime cliente. O

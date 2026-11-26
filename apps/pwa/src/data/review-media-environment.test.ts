@@ -87,10 +87,29 @@ describe("review media environment guard", () => {
   it("keeps local-review media displayable outside public deployments", () => {
     delete process.env.VERCEL_ENV;
     const content = makeContent();
-    expect(prepareLessonContentForEnvironment(content)).toBe(content);
+    expect(prepareLessonContentForEnvironment(content)).toEqual(content);
     expect(prepareSpecimenForEnvironment(makeSpecimen()).attribution).toEqual(
       localReviewAttribution,
     );
+  });
+
+  it("resolves opaque local-review references only outside public deployments", () => {
+    delete process.env.VERCEL_ENV;
+    const content = makeContent();
+    const mediaBlock = content.blocks[0];
+    if (mediaBlock.kind !== "media") throw new Error("fixture");
+    mediaBlock.media = {
+      ...mediaBlock.media,
+      src: "local-review:fiocruz:b",
+    };
+
+    const prepared = prepareLessonContentForEnvironment(content);
+    const preparedBlock = prepared.blocks[0];
+    if (preparedBlock.kind !== "media") throw new Error("fixture");
+    expect(preparedBlock.media.src).toBe(
+      "/media/alfabeto/primeiros-passos/letra-b.jpg",
+    );
+    expect(mediaBlock.media.src).toBe("local-review:fiocruz:b");
   });
 
   it("strips display permission from every local-review media slot in public deployments", () => {

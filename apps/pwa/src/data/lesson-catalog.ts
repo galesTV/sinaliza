@@ -193,7 +193,10 @@ const FIOCRUZ_CANDIDATES: Record<
 };
 
 /**
- * Licensed media slot for one letter demonstration. The file lives at
+ * Licensed media slot for one letter demonstration. The catalog carries
+ * an opaque `local-review:` reference rather than the distributable file
+ * path; server-rendered review surfaces resolve that reference only outside
+ * public deployments. The file itself lives at
  * `public/media/<trilha>/<modulo>/letra-*.jpg` as a processed local copy
  * (≈1200 px, git-ignored, never committed) — see Fase B of the
  * integration plan. `permissionEvidence` is recorded, so the display
@@ -209,7 +212,7 @@ export function licensedLetterMedia(letter: keyof typeof FIOCRUZ_CANDIDATES): {
   return {
     media: {
       type: "image",
-      src: `/media/alfabeto/primeiros-passos/letra-${letter.toLowerCase()}.jpg`,
+      src: `local-review:fiocruz:${letter.toLowerCase()}`,
       alt: `Demonstração fotográfica da letra ${letter} do alfabeto manual de Libras: ${FIOCRUZ_CONFIGURATION_ALT[letter]}.`,
     },
     attribution: {
