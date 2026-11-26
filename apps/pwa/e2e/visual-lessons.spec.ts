@@ -159,11 +159,24 @@ test.describe("visual exercise infrastructure", () => {
       page.getByText("um quadrado tem quatro lados retos"),
     ).toBeVisible();
 
-    // After answering, the modality toggle is no longer offered.
+    // An incorrect answer must not lock the learner into the modality where
+    // it happened. Returning to the visual version clears that cross-modality
+    // attempt; solving in either modality is what finally removes the toggle.
+    const backAfterMiss = page.getByRole("button", {
+      name: "Voltar à versão com imagem",
+    });
+    await expect(backAfterMiss).toBeVisible();
+    await backAfterMiss.click();
     await expect(
-      page.getByRole("button", { name: "Voltar à versão com imagem" }),
-    ).toHaveCount(0);
+      page.getByText("Ainda não — tente novamente"),
+    ).not.toBeVisible();
+    await expect(
+      page.locator('img[src="/media/fixtures/shape-circle.svg"]').first(),
+    ).toBeVisible();
 
+    await page
+      .getByRole("button", { name: "Responder por descrição" })
+      .click();
     await option(page, "Círculo").click();
     await expect(page.getByText("Correto!")).toBeVisible();
     await expectNoProgressRecorded(page);
