@@ -531,7 +531,7 @@ export const lessonCatalog: LessonCatalogEntry[] = [
     },
     draft: {
       intro:
-        "Nesta lição, você vai dar os primeiros passos no alfabeto manual de Libras conhecendo quatro letras — B, L, A e I — observando a forma de cada configuração de mão e os cuidados para não confundir letras parecidas. Cada letra tem uma demonstração fotográfica do acervo Fiocruz Imagens, licenciada para uso educativo não comercial e exibida nesta prévia de revisão — a publicação ainda depende de esclarecimentos sobre hospedagem e distribuição, e a lição segue aguardando validação pedagógica e linguística.",
+        "Nesta lição, você vai dar os primeiros passos no alfabeto manual de Libras conhecendo quatro letras — B, L, A e I — observando a forma de cada configuração de mão e os cuidados para não confundir letras parecidas. Cada letra tem uma demonstração fotográfica do acervo Fiocruz Imagens, licenciada para uso educativo não comercial e reservada à prévia local de revisão quando o ambiente permite exibi-la — a publicação ainda depende de esclarecimentos sobre hospedagem e distribuição, e a lição segue aguardando validação pedagógica e linguística.",
       blocks: [
         {
           kind: "text",
@@ -737,7 +737,7 @@ export const lessonCatalog: LessonCatalogEntry[] = [
         {
           kind: "text",
           heading: "Recapitulando",
-          body: "Você conheceu as configurações de mão de quatro letras do alfabeto manual — B, L, A e I — e aprendeu a observar a forma dos dedos e a orientação da mão. Nesta prévia, os exercícios de identificação já mostram as fotografias licenciadas; a versão por descrição continua disponível como alternativa — e ambas seguem aguardando a validação especializada antes de qualquer publicação.",
+          body: "Você conheceu as configurações de mão de quatro letras do alfabeto manual — B, L, A e I — e aprendeu a observar a forma dos dedos e a orientação da mão. Quando as fotografias licenciadas podem ser exibidas na prévia local, os exercícios de identificação as utilizam como estímulo visual; quando a exibição não é permitida pelo ambiente, a versão por descrição assume a avaliação — e ambas seguem aguardando a validação especializada antes de qualquer publicação.",
         },
         {
           kind: "resources",
