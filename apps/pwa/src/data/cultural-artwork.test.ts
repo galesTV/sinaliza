@@ -136,7 +136,7 @@ describe("cultural artwork metadata", () => {
   });
 
   it("rejects inherited-prototype and conventional unknown motifs fail-closed", () => {
-    for (const motif of ["constructor", "toString", "proto", "hasOwnProperty", "unknown"]) {
+    for (const motif of ["constructor", "toString", "proto", "__proto__", "hasOwnProperty", "unknown"]) {
       const entry = {
         ...makePublishableHistory(),
         artwork: { motif },
@@ -370,10 +370,11 @@ describe("cultural artwork metadata", () => {
     }
   });
 
-  it("preserves the real registry without artwork or public projection", () => {
+  it("preserves the real registry draft state and public projection after V.3.3", () => {
     expect(culturalCatalog).toHaveLength(41);
-    // Temporary current-state assertions: zero real artworks and fourteen editorial bodies must evolve consciously during R.5.3-C/V.3.3 with dedicated baselines and traceability.
-    expect(culturalCatalog.every((entry) => entry.artwork === undefined)).toBe(true);
+    // Current-state assertions after V.3.3: exactly eight artworks and fourteen editorial bodies are controlled by the independent V.3.3 transition baseline and must evolve only through explicitly traceable migrations.
+    expect(culturalCatalog.filter((entry) => entry.artwork !== undefined)).toHaveLength(8);
+    expect(culturalCatalog.filter((entry) => entry.artwork === undefined)).toHaveLength(33);
     expect(culturalCatalog.filter((entry) => entry.editorialBody)).toHaveLength(14);
     expect(culturalCatalog.every((entry) => entry.reviews.length === 0)).toBe(true);
     expect(culturalCatalog.every((entry) => entry.publicationAuthorization === undefined)).toBe(true);

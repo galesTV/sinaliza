@@ -62,7 +62,7 @@ describe("culturalCatalog migration", () => {
         claimIds: expectedClaimIds,
       });
       expect(entry.editorialBody?.paragraphs[0], entry.id).toBe(sourceById.get(entry.id));
-      expect(entry.version, entry.id).toBe("candidate-3");
+      expect(entry.version, entry.id).toBe("candidate-4");
       for (const claimId of expectedClaimIds) {
         expect(
           entry.claims.some((claim) => claim.id === claimId),
@@ -174,14 +174,15 @@ describe("culturalCatalog migration", () => {
   it("keeps versions aligned to the authorized editorial migration stages and reference IDs unique", () => {
 
     for (const entry of culturalCatalog) {
-      const complementaryCandidate3 = new Set(["HIST-008", "CUR-002", "CUR-006", "PER-001", "BIB-003", "BIB-004", "BIB-005", "BIB-010", "BIB-011"]);
-      const complementaryCandidate2 = new Set(["PER-002", "BIB-002"]);
+      const v33Candidate5 = new Set(["CUR-002", "CUR-006", "PER-001", "BIB-003", "BIB-005"]);
+      const complementaryCandidate4 = new Set(["HIST-008", "BIB-004", "BIB-010", "BIB-011"]);
+      const complementaryCandidate3 = new Set(["PER-002", "BIB-002"]);
       expect(entry.version, entry.id).toBe(
-        complementaryCandidate3.has(entry.id)
-          ? "candidate-4"
-          : complementaryCandidate2.has(entry.id)
-            ? "candidate-3"
-            : approvedEditorialBodyEntryIds.has(entry.id)
+        v33Candidate5.has(entry.id)
+          ? "candidate-5"
+          : complementaryCandidate4.has(entry.id) || approvedEditorialBodyEntryIds.has(entry.id)
+            ? "candidate-4"
+            : complementaryCandidate3.has(entry.id)
               ? "candidate-3"
               : "candidate-1",
       );
@@ -737,9 +738,12 @@ describe("cultural V2 migration integrity hardening", () => {
       const entry = culturalCatalog.find((item) => item.id === entryId)!;
       const beforeEntry = structuredClone(entry);
       delete beforeEntry.editorialBody;
+      delete beforeEntry.artwork;
+      const historicalAfterEntry = structuredClone(entry);
+      delete historicalAfterEntry.artwork;
       const fingerprints = expected[entry.id as keyof typeof expected];
       expect(getCulturalContentFingerprint(beforeEntry), `${entry.id}:before`).toBe(fingerprints.before);
-      expect(getCulturalContentFingerprint(entry), `${entry.id}:after`).toBe(fingerprints.after);
+      expect(getCulturalContentFingerprint(historicalAfterEntry), `${entry.id}:after`).toBe(fingerprints.after);
       expect(fingerprints.after, entry.id).not.toBe(fingerprints.before);
     }
   });
@@ -783,10 +787,12 @@ describe("cultural V2 migration integrity hardening", () => {
       const before = baselineById.get(entryId)!;
       expect(entry.version, entryId).toBe(
         entryId === "HIST-001" || entryId === "HIST-006" || entryId === "CUR-001"
-          ? "candidate-3"
+          ? "candidate-4"
           : entryId === "PER-002" || entryId === "BIB-002"
             ? "candidate-3"
-            : "candidate-4",
+            : entryId === "CUR-002" || entryId === "CUR-006" || entryId === "PER-001" || entryId === "BIB-003" || entryId === "BIB-005"
+              ? "candidate-5"
+              : "candidate-4",
       );
 
       for (const previousClaim of before.claims) {
@@ -907,14 +913,14 @@ describe("cultural V2.1 complementary evidence migration", () => {
   it("preserves the post-R.5.3-B.2 records while the R.5.3-C transition owns the body assertions", () => {
     const expectedVersions = {
       "HIST-008": "candidate-4",
-      "CUR-002": "candidate-4",
-      "CUR-006": "candidate-4",
-      "PER-001": "candidate-4",
+      "CUR-002": "candidate-5",
+      "CUR-006": "candidate-5",
+      "PER-001": "candidate-5",
       "PER-002": "candidate-3",
       "BIB-002": "candidate-3",
-      "BIB-003": "candidate-4",
+      "BIB-003": "candidate-5",
       "BIB-004": "candidate-4",
-      "BIB-005": "candidate-4",
+      "BIB-005": "candidate-5",
       "BIB-010": "candidate-4",
       "BIB-011": "candidate-4",
     } as const;

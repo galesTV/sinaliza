@@ -9,6 +9,10 @@ import {
   culturalPreR53CFingerprintBaseline,
   culturalR53B2PostMigrationBaseline,
 } from "./cultural-r53c-baseline";
+import {
+  culturalPreV33Baseline,
+  culturalV33ArtworkEntryIds,
+} from "./cultural-v33-baseline";
 
 export const r53cMigratedEntryIds = [
   "HIST-008",
@@ -50,6 +54,34 @@ const afterVersions: Record<(typeof r53cMigratedEntryIds)[number], string> = {
   "BIB-005": "candidate-4",
   "BIB-010": "candidate-4",
   "BIB-011": "candidate-4",
+};
+
+const expectedR53CClassifications: Record<(typeof r53cMigratedEntryIds)[number], string> = {
+  "HIST-008": "A",
+  "CUR-002": "B",
+  "CUR-006": "B",
+  "PER-001": "B",
+  "PER-002": "B",
+  "BIB-002": "B",
+  "BIB-003": "B",
+  "BIB-004": "B",
+  "BIB-005": "A",
+  "BIB-010": "B",
+  "BIB-011": "A",
+};
+
+const expectedR53CCaveats: Record<(typeof r53cMigratedEntryIds)[number], string> = {
+  "HIST-008": "nenhuma ressalva adicional; pendências editoriais permanecem",
+  "CUR-002": "F1/F4 são sínteses pedagógicas; decisão aprovada sobre datilologia preservada",
+  "CUR-006": "C03 é fonte secundária; C04 limita-se ao resumo acadêmico, sem leitura integral",
+  "PER-001": "usa C01–C07 sem claim-1; C04 é referência institucional alternativa HTTPS, sem equivalência binária presumida",
+  "PER-002": "divergência singular/plural do título bibliográfico e folha de rosto não conferida permanecem",
+  "BIB-002": "recomendação editorial/juízo de candidatura, não afirmação factual nova",
+  "BIB-003": "consulta parcial à apresentação e sumário; não leitura integral; direitos de mídia independentes",
+  "BIB-004": "consulta de C05 limitada às primeiras oito páginas do PDF",
+  "BIB-005": "nenhuma ressalva adicional; direitos de mídia independentes",
+  "BIB-010": "título histórico preservado como registro de época, não terminologia contemporânea",
+  "BIB-011": "texto revisado V2.1; atribuição institucional INES — TV INES / DEBASI",
 };
 
 export const r53cE4EntryIds = ["CUR-001", "HIST-001", "HIST-006"] as const;
@@ -150,8 +182,26 @@ export function materializeR53B2BaselineEntry(content: unknown, version: string,
   } as unknown as CulturalCatalogEntry;
 }
 
-export function validateR53CTransition(catalog: CulturalCatalogEntry[], rows: R53CTraceRow[]) {
+export function validateR53CTransition(currentCatalog: CulturalCatalogEntry[], rows: R53CTraceRow[]) {
   const problems: string[] = [];
+  const expectedCatalogIds = Object.keys(culturalPreR53CFingerprintBaseline).sort();
+  const actualCatalogIds = currentCatalog.map((entry) => entry.id);
+  if (new Set(actualCatalogIds).size !== actualCatalogIds.length) problems.push("duplicate cultural record id");
+  if (!isDeepStrictEqual([...actualCatalogIds].sort(), expectedCatalogIds)) problems.push("cultural record id set differs from frozen baseline");
+
+  const preV33Baseline = culturalPreV33Baseline as unknown as Record<string, { version: string; content?: Record<string, unknown> }>;
+  for (const entryId of culturalV33ArtworkEntryIds) {
+    const content = preV33Baseline[entryId]?.content;
+    if (content && "artwork" in content) problems.push(`frozen pre-V3.3 baseline unexpectedly contains artwork ${entryId}`);
+  }
+  const catalog = currentCatalog.map((entry) => {
+    if (!(culturalV33ArtworkEntryIds as readonly string[]).includes(entry.id)) return entry;
+    const copy = structuredClone(entry);
+    copy.version = preV33Baseline[entry.id].version;
+    delete copy.artwork;
+    return copy;
+  });
+
   const bodies = sourceBodies();
   const expectedBodyIds = [...r53cMigratedEntryIds, ...r53cE4EntryIds].sort();
   const actualBodyIds = catalog.filter((entry) => entry.editorialBody).map((entry) => entry.id).sort();
@@ -172,6 +222,8 @@ export function validateR53CTransition(catalog: CulturalCatalogEntry[], rows: R5
       problems.push(`missing migrated editorial body ${entryId}`);
       continue;
     }
+    if (row.classification !== expectedR53CClassifications[entryId]) problems.push(`documentary classification changed ${entryId}`);
+    if (row.caveats !== expectedR53CCaveats[entryId]) problems.push(`essential caveats changed ${entryId}`);
     const expectedBody = bodies.get(entryId)!;
     if (entry.editorialBody.paragraphs.length !== 1 || entry.editorialBody.paragraphs[0] !== expectedBody) {
       problems.push(`editorial body differs from independent source ${entryId}`);

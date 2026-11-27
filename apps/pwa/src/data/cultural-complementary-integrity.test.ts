@@ -678,8 +678,8 @@ describe("R.5.3-C editorial body transition", () => {
     expect(validate(additionalClaim)).toContain("wrong claim collection PER-001");
 
     const notIncremented = structuredClone(culturalCatalog);
-    notIncremented.find((entry) => entry.id === "CUR-002")!.version = "candidate-3";
-    expect(validate(notIncremented)).toContain("after version mismatch CUR-002");
+    notIncremented.find((entry) => entry.id === "BIB-004")!.version = "candidate-3";
+    expect(validate(notIncremented)).toContain("after version mismatch BIB-004");
 
     const unauthorizedField = structuredClone(culturalCatalog);
     unauthorizedField.find((entry) => entry.id === "CUR-002")!.summary = "campo não autorizado alterado";
@@ -698,5 +698,20 @@ describe("R.5.3-C editorial body transition", () => {
     const outsideScope = structuredClone(culturalCatalog);
     outsideScope.find((entry) => entry.id === "HIST-002")!.title = "alteração fora do escopo";
     expect(validate(outsideScope)).toContain("out-of-scope fingerprint change HIST-002");
+
+    const duplicateRecord = structuredClone(culturalCatalog);
+    duplicateRecord.push(structuredClone(duplicateRecord.find((entry) => entry.id === "HIST-002")!));
+    expect(validate(duplicateRecord)).toContain("duplicate cultural record id");
+
+    const missingRecord = structuredClone(culturalCatalog).filter((entry) => entry.id !== "HIST-002");
+    expect(validate(missingRecord)).toContain("cultural record id set differs");
+
+    const reclassifiedRows = structuredClone(transitionParsed.rows);
+    reclassifiedRows.find((row) => row.entryId === "HIST-008")!.classification = "B";
+    expect(validate(culturalCatalog, reclassifiedRows)).toContain("documentary classification changed HIST-008");
+
+    const alteredCaveats = structuredClone(transitionParsed.rows);
+    alteredCaveats.find((row) => row.entryId === "CUR-006")!.caveats = "ressalva indevidamente alterada";
+    expect(validate(culturalCatalog, alteredCaveats)).toContain("essential caveats changed CUR-006");
   });
 });
