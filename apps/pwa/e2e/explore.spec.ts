@@ -1,0 +1,104 @@
+import { expect, test } from "@playwright/test";
+
+const CATEGORIES = [
+  { href: "/explorar/historia", heading: "História" },
+  { href: "/explorar/curiosidades", heading: "Curiosidades" },
+  { href: "/explorar/personalidades", heading: "Personalidades" },
+  { href: "/explorar/biblioteca", heading: "Biblioteca Cultural" },
+];
+
+async function expectNoHorizontalOverflow(page: import("@playwright/test").Page) {
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
+  );
+  expect(overflow).toBe(false);
+}
+
+test.describe("explorar — descoberta cultural", () => {
+  test("renders the discovery page with four distinct public category entries", async ({ page }) => {
+    await page.goto("/explorar");
+    await expect(
+      page.getByRole("heading", { name: "Uma língua. Muitas histórias." }),
+    ).toBeVisible();
+
+    for (const category of CATEGORIES) {
+      await expect(page.locator(`a[href="${category.href}"]`).first()).toBeVisible();
+    }
+
+    await expect(page.getByText("Nada publicado ainda")).toBeVisible();
+    await expectNoHorizontalOverflow(page);
+  });
+
+  test("navigates from the discovery page to a category and back", async ({ page }) => {
+    await page.goto("/explorar");
+    await page.locator('a[href="/explorar/historia"]').first().click();
+    await expect(page).toHaveURL(/\/explorar\/historia$/);
+    await expect(page.getByRole("heading", { name: "História" })).toBeVisible();
+
+    await page.goto("/explorar/historia");
+    await page.getByRole("link", { name: "Explorar", exact: true }).first().click();
+    await expect(page).toHaveURL(/\/explorar$/);
+  });
+
+  for (const category of CATEGORIES) {
+    test(`${category.href} renders an honest empty state without candidate content`, async ({ page }) => {
+      await page.goto(category.href);
+      await expect(page.getByRole("heading", { name: category.heading })).toBeVisible();
+      await expect(page.getByText("Nada publicado ainda")).toBeVisible();
+      await expect(page.getByText("Ernest Huet")).toHaveCount(0);
+      await expect(page.getByText("Flausino")).toHaveCount(0);
+      await expectNoHorizontalOverflow(page);
+    });
+  }
+
+  test("keeps Explore out of the main navigation while the launch gate is closed", async ({ page }) => {
+    await page.goto("/");
+    const navTexts = await page
+      .locator('nav[aria-label="Navegação principal"]')
+      .allInnerTexts();
+    expect(navTexts.join("\n")).not.toContain("Explorar");
+  });
+
+  test("preserves the existing pedagogical journey", async ({ page }) => {
+    await page.goto("/trilhas");
+    await expect(
+      page.getByRole("heading", { name: "Trilhas de aprendizagem" }),
+    ).toBeVisible();
+    await expect(page.getByText(/0 de \d+ publicadas/).first()).toBeVisible();
+  });
+});
+
+test.describe("explorar — publication guards", () => {
+  test("returns 404 for a real non-publishable candidate slug", async ({ page }) => {
+    const response = await page.goto(
+      "/explorar/historia/1857-fundacao-do-instituto-que-se-tornou-o-ines",
+    );
+    expect(response?.status()).toBe(404);
+    await expect(page.getByRole("heading", { name: "Página não encontrada" })).toBeVisible();
+  });
+
+  test("returns 404 for an incompatible category and for unknown categories", async ({ page }) => {
+    const wrongCategory = await page.goto(
+      "/explorar/curiosidades/1857-fundacao-do-instituto-que-se-tornou-o-ines",
+    );
+    expect(wrongCategory?.status()).toBe(404);
+
+    const unknownCategory = await page.goto("/explorar/categoria-inexistente/registro");
+    expect(unknownCategory?.status()).toBe(404);
+  });
+
+  test("does not expose raw editorial data in HTML or the embedded RSC payload", async ({ page }) => {
+    for (const path of ["/explorar", "/explorar/historia", "/explorar/biblioteca"]) {
+      const response = await page.request.get(path);
+      expect(response.status()).toBe(200);
+      const html = await response.text();
+      expect(html).not.toContain("internalPending");
+      expect(html).not.toContain("unverified-candidate");
+      expect(html).not.toContain("validationStatus");
+      expect(html).not.toContain("publicationAuthorization");
+      expect(html).not.toContain("Ernest Huet");
+      expect(html).not.toContain("Iconographia de Flausino");
+      expect(html).not.toContain("Conferir cronologia");
+    }
+  });
+});

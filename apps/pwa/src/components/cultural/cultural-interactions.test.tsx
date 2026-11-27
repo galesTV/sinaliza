@@ -1,0 +1,120 @@
+// @vitest-environment jsdom
+
+import { act } from "react";
+import { createRoot, type Root } from "react-dom/client";
+import { afterEach, describe, expect, it } from "vitest";
+
+import {
+  fixtureCuriosityEntries,
+  fixtureLibraryEntries,
+} from "@/test/cultural-fixtures";
+
+import { CuriosityCards } from "./curiosity-cards";
+import { LibraryBrowser } from "./library-browser";
+
+const mounted: Array<{ root: Root; container: HTMLDivElement }> = [];
+
+(
+  globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }
+).IS_REACT_ACT_ENVIRONMENT = true;
+
+function render(element: React.ReactElement): HTMLDivElement {
+  const container = document.createElement("div");
+  document.body.appendChild(container);
+  const root = createRoot(container);
+  act(() => root.render(element));
+  mounted.push({ root, container });
+  return container;
+}
+
+afterEach(() => {
+  while (mounted.length > 0) {
+    const item = mounted.pop()!;
+    act(() => item.root.unmount());
+    item.container.remove();
+  }
+});
+
+function click(element: Element) {
+  act(() => {
+    element.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  });
+}
+
+function setInputValue(input: HTMLInputElement, value: string) {
+  const setter = Object.getOwnPropertyDescriptor(
+    HTMLInputElement.prototype,
+    "value",
+  )?.set;
+  act(() => {
+    setter?.call(input, value);
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+}
+
+function setSelectValue(select: HTMLSelectElement, value: string) {
+  const setter = Object.getOwnPropertyDescriptor(
+    HTMLSelectElement.prototype,
+    "value",
+  )?.set;
+  act(() => {
+    setter?.call(select, value);
+    select.dispatchEvent(new Event("change", { bubbles: true }));
+  });
+}
+
+describe("cultural interactive components", () => {
+  it("reveals and hides curiosity answers with accessible button state", () => {
+    const container = render(<CuriosityCards entries={fixtureCuriosityEntries} />);
+    const button = container.querySelector("button[aria-expanded]");
+    expect(button).not.toBeNull();
+    expect(button?.getAttribute("aria-expanded")).toBe("false");
+
+    const answerId = button?.getAttribute("aria-controls");
+    expect(answerId).toBeTruthy();
+    const answer = container.querySelector(`#${answerId}`);
+    expect(answer?.hasAttribute("hidden")).toBe(true);
+
+    click(button!);
+    expect(button?.getAttribute("aria-expanded")).toBe("true");
+    expect(answer?.hasAttribute("hidden")).toBe(false);
+    expect(answer?.textContent).toContain("verificar a revelação voluntária");
+
+    click(button!);
+    expect(button?.getAttribute("aria-expanded")).toBe("false");
+    expect(answer?.hasAttribute("hidden")).toBe(true);
+  });
+
+  it("filters the library locally by accent-insensitive search text", () => {
+    const container = render(<LibraryBrowser entries={fixtureLibraryEntries} />);
+    expect(container.textContent).toContain("2 registros publicados encontrados");
+
+    const input = container.querySelector<HTMLInputElement>("#library-search");
+    expect(input).not.toBeNull();
+    setInputValue(input!, "constelacao");
+
+    expect(container.textContent).toContain("1 registro publicado encontrado");
+    expect(container.textContent).toContain("Vídeo Fictício Constelação");
+    expect(container.textContent).not.toContain("Livro Fictício Alfabeto Visual");
+
+    setInputValue(input!, "termo sem resultado");
+    expect(container.textContent).toContain("Nenhum resultado nesta busca");
+  });
+
+  it("filters the library by format and access without touching unpublished records", () => {
+    const container = render(<LibraryBrowser entries={fixtureLibraryEntries} />);
+    const format = container.querySelector<HTMLSelectElement>("#library-format");
+    const access = container.querySelector<HTMLSelectElement>("#library-access");
+    expect(format).not.toBeNull();
+    expect(access).not.toBeNull();
+
+    setSelectValue(format!, "book");
+    expect(container.textContent).toContain("Livro Fictício Alfabeto Visual");
+    expect(container.textContent).not.toContain("Vídeo Fictício Constelação");
+
+    setSelectValue(format!, "all");
+    setSelectValue(access!, "external-website");
+    expect(container.textContent).toContain("Vídeo Fictício Constelação");
+    expect(container.textContent).not.toContain("Livro Fictício Alfabeto Visual");
+  });
+});
