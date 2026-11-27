@@ -2,6 +2,7 @@
 
 import {
   useEffect,
+  useId,
   useRef,
   useState,
   useSyncExternalStore,
@@ -67,6 +68,8 @@ const OPTION_TONES = {
   incorrect: "border-destructive/50 bg-destructive/10 text-foreground",
   disabled: "border-border bg-white/[0.015] text-muted",
 } as const;
+
+const STEP_STATUS_ID = "lesson-runner-step-status";
 
 /**
  * Neutral selection indicator for exercise options. Letter badges (A, B,
@@ -253,6 +256,10 @@ function ExerciseBlock({
     recordedMode === "description" && variant
       ? variant.explanation
       : exercise.explanation;
+  const hasFeedback =
+    result !== null &&
+    selectedOption !== null &&
+    selectedOption < feedbackOptions.length;
 
   // Discreet credits for the option thumbnails actually on screen — the
   // same attribution metadata the media blocks show. Hidden media never
@@ -286,28 +293,53 @@ function ExerciseBlock({
       return next;
     });
 
-  const handleSelect = (index: number) => {
-    if (useVariant) onSelectVariant(index);
-    else onSelect(index);
+  const optionDescriptionBaseId = useId();
+  const [pendingSelection, setPendingSelection] = useState<{
+    variant: boolean;
+    index: number;
+  } | null>(null);
+  const pendingOption =
+    pendingSelection?.variant === useVariant ? pendingSelection.index : null;
+
+  const recordedSelection = answeredInShownMode ? selectedOption : null;
+  const checkedOption = pendingOption ?? recordedSelection;
+  const confirmationOption =
+    pendingOption ?? (result === "incorrect" ? recordedSelection : null);
+
+  const handlePendingSelect = (index: number) => {
+    if (solved || blocked) return;
+    setPendingSelection({ variant: useVariant, index });
+    if (
+      result === "incorrect" &&
+      (!answeredInShownMode || selectedOption !== index)
+    ) {
+      onClearIncorrect();
+    }
+  };
+
+  const handleConfirm = () => {
+    if (confirmationOption === null || solved || blocked) return;
+    if (useVariant) onSelectVariant(confirmationOption);
+    else onSelect(confirmationOption);
   };
 
   const previousResultRef = useRef(result);
-  const correctOptionLabelRef = useRef<HTMLLabelElement>(null);
+  const feedbackRef = useRef<HTMLDivElement>(null);
 
-  // A correct answer disables the radio that may currently own focus. Keep
-  // focus on that answer's visible label instead of letting the browser drop
-  // it to BODY; the next Tab then reaches the advance action naturally.
-  // Revisiting an already solved step must not steal focus from the step
-  // heading managed by the parent runner.
+  // Confirming a correct answer removes the confirmation button that may
+  // currently own focus. Move focus to the feedback instead of letting the
+  // browser drop it to BODY; the next Tab then reaches the advance action
+  // naturally. Revisiting an already solved step must not steal focus from
+  // the step heading managed by the parent runner.
   useEffect(() => {
     const previousResult = previousResultRef.current;
     previousResultRef.current = result;
     if (previousResult !== "correct" && result === "correct") {
-      const correctOptionLabel = correctOptionLabelRef.current;
-      correctOptionLabel?.focus({ preventScroll: true });
+      const feedback = feedbackRef.current;
+      feedback?.focus({ preventScroll: true });
       const frame = requestAnimationFrame(() => {
-        if (!correctOptionLabel) return;
-        const rect = correctOptionLabel.getBoundingClientRect();
+        if (!feedback) return;
+        const rect = feedback.getBoundingClientRect();
         const topBoundary =
           document.querySelector("header")?.getBoundingClientRect().bottom ?? 0;
         const bottomBoundary = Array.from(document.querySelectorAll("nav")).reduce(
@@ -325,7 +357,14 @@ function ExerciseBlock({
         const clearOfFixedChrome =
           rect.top >= topBoundary && rect.bottom <= bottomBoundary;
         if (!clearOfFixedChrome) {
-          correctOptionLabel.scrollIntoView({ block: "start" });
+          const focusPadding = 8;
+          const availableHeight =
+            bottomBoundary - topBoundary - focusPadding * 2;
+          const delta =
+            rect.height >= availableHeight || rect.top < topBoundary
+              ? rect.top - topBoundary - focusPadding
+              : rect.bottom - bottomBoundary + focusPadding;
+          window.scrollBy({ top: delta, behavior: "instant" });
         }
       });
       return () => cancelAnimationFrame(frame);
@@ -338,6 +377,7 @@ function ExerciseBlock({
         ref={headingRef}
         tabIndex={-1}
         id="lesson-runner-title"
+        aria-describedby={STEP_STATUS_ID}
         className="scroll-mt-24 font-display text-xl font-semibold tracking-tight text-foreground focus-visible:outline-none"
       >
         {prompt}
@@ -395,31 +435,40 @@ function ExerciseBlock({
       >
         <legend className="sr-only">{prompt}</legend>
         {options.map((option, index) => {
-          const isSelected = answeredInShownMode && selectedOption === index;
+          const isChecked = !blocked && checkedOption === index;
+          const isIncorrect =
+            result === "incorrect" &&
+            answeredInShownMode &&
+            selectedOption === index;
           const isCorrect = answeredInShownMode && index === correctIndex;
+          const optionMediaDescriptionId = option.media
+            ? `${optionDescriptionBaseId}-option-${index}-media`
+            : undefined;
           const tone = solved
             ? isCorrect
               ? OPTION_TONES.correct
               : OPTION_TONES.disabled
-            : result === "incorrect" && isSelected
+            : isIncorrect
               ? OPTION_TONES.incorrect
-              : isSelected
+              : isChecked
                 ? OPTION_TONES.selected
                 : OPTION_TONES.idle;
           return (
             <div key={option.label} className="flex flex-col gap-1.5">
-              <label
-                ref={solved && isCorrect ? correctOptionLabelRef : undefined}
-                tabIndex={solved && isCorrect ? -1 : undefined}
-                className="group block h-full scroll-mt-20 scroll-mb-20 focus:outline-none md:scroll-mb-0"
-              >
+              <label className="group block h-full scroll-mt-20 scroll-mb-20 focus:outline-none md:scroll-mb-0">
                 <input
                   type="radio"
                   name={`${exercise.prompt}${useVariant ? " (descrição)" : ""}`}
                   className="peer sr-only"
-                  checked={!blocked && isSelected}
+                  checked={isChecked}
                   disabled={solved || blocked}
-                  onChange={() => handleSelect(index)}
+                  aria-label={option.label}
+                  aria-describedby={
+                    !useVariant && option.media
+                      ? optionMediaDescriptionId
+                      : undefined
+                  }
+                  onChange={() => handlePendingSelect(index)}
                 />
                 <span
                   className={cn(
@@ -433,9 +482,9 @@ function ExerciseBlock({
                     <>
                       <span className="flex items-center gap-2.5">
                         <OptionIndicator
-                          selected={isSelected}
+                          selected={isChecked}
                           correct={solved && isCorrect}
-                          incorrect={result === "incorrect" && isSelected}
+                          incorrect={isIncorrect}
                         />
                         <span className="text-sm font-medium">
                           {option.label}
@@ -444,6 +493,7 @@ function ExerciseBlock({
                       {option.media && (
                         // eslint-disable-next-line @next/next/no-img-element -- lesson media stays dependency-free; next/image is not used in this app
                         <img
+                          id={optionMediaDescriptionId}
                           src={option.media.media.src}
                           // Exercise media alt text is authored to describe the
                           // visible configuration without naming the answer.
@@ -458,14 +508,15 @@ function ExerciseBlock({
                   ) : (
                     <>
                       <OptionIndicator
-                        selected={isSelected}
+                        selected={isChecked}
                         correct={solved && isCorrect}
-                        incorrect={result === "incorrect" && isSelected}
+                        incorrect={isIncorrect}
                       />
                       <span className="flex min-w-0 flex-1 items-center gap-3">
                         {!useVariant && option.media && (
                           // eslint-disable-next-line @next/next/no-img-element -- lesson media stays dependency-free; next/image is not used in this app
                           <img
+                            id={optionMediaDescriptionId}
                             src={option.media.media.src}
                             alt={option.media.media.alt}
                             width={option.media.media.width}
@@ -488,6 +539,23 @@ function ExerciseBlock({
         })}
       </fieldset>
 
+      {!solved && !blocked && (
+        <div className="flex flex-col gap-2.5">
+          <p className="text-sm leading-relaxed text-muted">
+            Escolha uma alternativa e depois confirme sua resposta. Navegar
+            entre as alternativas não registra uma tentativa.
+          </p>
+          <button
+            type="button"
+            onClick={handleConfirm}
+            disabled={confirmationOption === null}
+            className="btn-primary self-start"
+          >
+            Confirmar resposta
+          </button>
+        </div>
+      )}
+
       {!visualOptions && optionAttributions.length > 0 && (
         <p className="text-[11px] leading-relaxed text-muted">
           Créditos das imagens das alternativas:{" "}
@@ -506,6 +574,7 @@ function ExerciseBlock({
           aria-pressed={prefersDescription}
           onClick={() => {
             if (result === "incorrect") onClearIncorrect();
+            setPendingSelection(null);
             setPrefersDescription((value) => !value);
           }}
           className="self-start text-sm font-medium text-muted underline underline-offset-4 transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
@@ -516,37 +585,71 @@ function ExerciseBlock({
         </button>
       )}
 
-      {result &&
-        selectedOption !== null &&
-        selectedOption < feedbackOptions.length && (
-        <div
-          role="status"
-          className={cn(
-            "flex flex-col gap-2 rounded-xl border px-4 py-3.5 text-sm leading-relaxed",
-            solved
-              ? "border-success/40 bg-success/10 text-foreground"
-              : "border-destructive/40 bg-destructive/10 text-foreground",
-          )}
-        >
-          <p className="flex items-center gap-2 font-semibold">
-            {solved ? (
-              <>
-                <IconCheck className="h-4 w-4 text-success" />
-                Correto!
-              </>
-            ) : (
-              <>
-                <IconX className="h-4 w-4 text-destructive" />
-                Ainda não — tente novamente
-              </>
+      <div
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        aria-labelledby={
+          hasFeedback ? `${optionDescriptionBaseId}-feedback-title` : undefined
+        }
+        aria-describedby={
+          hasFeedback
+            ? `${optionDescriptionBaseId}-feedback-body${
+                solved ? ` ${optionDescriptionBaseId}-feedback-explanation` : ""
+              }`
+            : undefined
+        }
+        ref={feedbackRef}
+        tabIndex={-1}
+        className={cn(
+          "scroll-mt-20 scroll-mb-20 focus:outline-2 focus:outline-offset-2 focus:outline-ring md:scroll-mb-0",
+          hasFeedback
+            ? cn(
+                "flex flex-col gap-2 rounded-xl border px-4 py-3.5 text-sm leading-relaxed",
+                solved
+                  ? "border-success/40 bg-success/10 text-foreground"
+                  : "border-destructive/40 bg-destructive/10 text-foreground",
+              )
+            : "sr-only",
+        )}
+      >
+        {result &&
+          selectedOption !== null &&
+          selectedOption < feedbackOptions.length && (
+          <>
+            <p
+              id={`${optionDescriptionBaseId}-feedback-title`}
+              className="flex items-center gap-2 font-semibold"
+            >
+              {solved ? (
+                <>
+                  <IconCheck className="h-4 w-4 text-success" />
+                  Correto!
+                </>
+              ) : (
+                <>
+                  <IconX className="h-4 w-4 text-destructive" />
+                  Ainda não — tente novamente
+                </>
+              )}
+            </p>
+            <p
+              id={`${optionDescriptionBaseId}-feedback-body`}
+              className="text-muted"
+            >
+              {feedbackOptions[selectedOption].feedback}
+            </p>
+            {solved && (
+              <p
+                id={`${optionDescriptionBaseId}-feedback-explanation`}
+                className="text-muted"
+              >
+                {feedbackExplanation}
+              </p>
             )}
-          </p>
-          <p className="text-muted">
-            {feedbackOptions[selectedOption].feedback}
-          </p>
-          {solved && <p className="text-muted">{feedbackExplanation}</p>}
-        </div>
-      )}
+          </>
+        )}
+      </div>
 
       {(solved || canGoBack) && (
         <div className="flex flex-wrap gap-3">
@@ -621,7 +724,10 @@ export function LessonRunner({
     const heading = headingRef.current;
     if (!heading) return;
     heading.focus({ preventScroll: true });
-    sectionRef.current?.scrollIntoView({ block: "start" });
+    sectionRef.current?.scrollIntoView({
+      block: "start",
+      behavior: "instant",
+    });
   }, [snapshot.stepIndex]);
 
   const { block, stepIndex, stepCount } = snapshot;
@@ -630,14 +736,15 @@ export function LessonRunner({
   return (
     <section
       ref={sectionRef}
-      aria-labelledby="lesson-runner-title"
       className="flex scroll-mt-24 flex-col gap-6 rounded-3xl border border-border bg-surface-elevated p-6 shadow-[0_20px_60px_rgba(0,0,0,0.2)] sm:p-8"
     >
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-5">
         <div className="flex flex-wrap items-center gap-3">
-          <Badge tone="accent">
-            Passo {Math.min(stepIndex + 1, stepCount)} de {stepCount}
-          </Badge>
+          <span id={STEP_STATUS_ID} className="inline-flex">
+            <Badge tone="accent">
+              Passo {Math.min(stepIndex + 1, stepCount)} de {stepCount}
+            </Badge>
+          </span>
           <Badge>
             {snapshot.solvedExercises} de {snapshot.totalExercises} exercícios
             resolvidos
@@ -662,6 +769,7 @@ export function LessonRunner({
               ref={headingRef}
               tabIndex={-1}
               id="lesson-runner-title"
+              aria-describedby={STEP_STATUS_ID}
               className="scroll-mt-24 font-display text-xl font-semibold tracking-tight text-foreground focus-visible:outline-none"
             >
               {block.heading}
@@ -693,6 +801,7 @@ export function LessonRunner({
             ref={headingRef}
             tabIndex={-1}
             id="lesson-runner-title"
+            aria-describedby={STEP_STATUS_ID}
             className="scroll-mt-24 font-display text-xl font-semibold tracking-tight text-foreground focus-visible:outline-none"
           >
             {block.title}
@@ -722,6 +831,7 @@ export function LessonRunner({
               ref={headingRef}
               tabIndex={-1}
               id="lesson-runner-title"
+              aria-describedby={STEP_STATUS_ID}
               className="scroll-mt-24 font-display text-xl font-semibold tracking-tight text-foreground focus-visible:outline-none"
             >
               {block.heading}
@@ -812,6 +922,7 @@ export function LessonRunner({
                 ref={headingRef}
                 tabIndex={-1}
                 id="lesson-runner-title"
+                aria-describedby={STEP_STATUS_ID}
                 className="scroll-mt-24 font-display text-xl font-semibold tracking-tight text-foreground focus-visible:outline-none"
               >
                 {snapshot.completed ? completionLabel : "Tudo certo por aqui"}
