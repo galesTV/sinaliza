@@ -372,9 +372,9 @@ describe("cultural artwork metadata", () => {
 
   it("preserves the real registry without artwork or public projection", () => {
     expect(culturalCatalog).toHaveLength(41);
-    // Temporary current-state assertions: zero real artworks and three editorial bodies must evolve consciously during R.5.3-C/V.3.3 with dedicated baselines and traceability.
+    // Temporary current-state assertions: zero real artworks and fourteen editorial bodies must evolve consciously during R.5.3-C/V.3.3 with dedicated baselines and traceability.
     expect(culturalCatalog.every((entry) => entry.artwork === undefined)).toBe(true);
-    expect(culturalCatalog.filter((entry) => entry.editorialBody)).toHaveLength(3);
+    expect(culturalCatalog.filter((entry) => entry.editorialBody)).toHaveLength(14);
     expect(culturalCatalog.every((entry) => entry.reviews.length === 0)).toBe(true);
     expect(culturalCatalog.every((entry) => entry.publicationAuthorization === undefined)).toBe(true);
     expect(projectPublicCulturalEntries(culturalCatalog)).toEqual([]);
