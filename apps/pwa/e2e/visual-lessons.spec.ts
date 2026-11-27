@@ -17,10 +17,15 @@ function option(page: Page, text: string | RegExp) {
   return page.locator("fieldset label", { hasText: text });
 }
 
+async function answerOption(page: Page, text: string | RegExp) {
+  await option(page, text).click();
+  await page.getByRole("button", { name: "Confirmar resposta" }).click();
+}
+
 async function reachImageOptionsExercise(page: Page) {
   await page.goto("/laboratorio/licao-visual");
   await page.getByRole("button", { name: "Continuar" }).click();
-  await option(page, "Círculo").click();
+  await answerOption(page, "Círculo");
   await page.getByRole("button", { name: "Continuar" }).click();
 
   // Answer only after the visual choices have their final dimensions; fast
@@ -59,11 +64,11 @@ async function focusFirstRadioByKeyboard(page: Page) {
   expect(reachedRadio).toBe(true);
 }
 
-async function expectFocusedVisualOptionOutline(page: Page, text: string) {
-  const card = page.locator("label", { hasText: text }).locator(":scope > span");
+async function expectFocusedFeedbackOutline(page: Page) {
+  const feedback = page.locator('[role="status"]');
   await expect
     .poll(() =>
-      card.evaluate((element) => {
+      feedback.evaluate((element) => {
         const style = getComputedStyle(element);
         return `${style.outlineStyle}:${style.outlineWidth}`;
       }),
@@ -81,10 +86,10 @@ test.describe("textual lesson demo", () => {
     await page.getByRole("button", { name: "Continuar" }).click();
 
     // Wrong answer gives feedback and does not unlock advancing.
-    await option(page, "Imediatamente, antes de escolher").click();
+    await answerOption(page, "Imediatamente, antes de escolher");
     await expect(page.getByText("Ainda não")).toBeVisible();
 
-    await option(page, "Somente depois de acertar").click();
+    await answerOption(page, "Somente depois de acertar");
     await expect(page.getByText("Correto!")).toBeVisible();
     await page.getByRole("button", { name: "Continuar" }).click();
 
@@ -93,7 +98,7 @@ test.describe("textual lesson demo", () => {
     await page.getByRole("button", { name: "Continuar" }).click();
     await page.getByRole("button", { name: "Continuar" }).click();
 
-    await option(page, "Nada é registrado").click();
+    await answerOption(page, "Nada é registrado");
     await page.getByRole("button", { name: "Finalizar experiência" }).click();
     await page
       .getByRole("button", { name: "Concluir experiência" })
@@ -130,8 +135,55 @@ test.describe("textual lesson demo", () => {
       attempts += 1;
     }
     await page.keyboard.press("Space");
-    // Feedback region announces the result for assistive tech.
+    await expect(page.locator('[role="status"]')).toHaveClass(/sr-only/);
+
+    await page.keyboard.press("Tab");
+    await expect(
+      page.getByRole("button", { name: "Confirmar resposta" }),
+    ).toBeFocused();
+    await page.keyboard.press("Enter");
+    // The persistent feedback region announces the evaluated result.
     await expect(page.locator('[role="status"]')).toBeVisible();
+    await expectNoProgressRecorded(page);
+  });
+
+  test("keeps keyboard evaluation intentional through an incorrect retry", async ({
+    page,
+  }) => {
+    await page.goto("/laboratorio/licao");
+    await page.getByRole("button", { name: "Continuar" }).click();
+    await focusFirstRadioByKeyboard(page);
+
+    await page.keyboard.press("Space");
+    const feedback = page.locator('[role="status"]');
+    const confirmButton = page.getByRole("button", {
+      name: "Confirmar resposta",
+    });
+    await expect(confirmButton).toBeEnabled();
+    await expect(feedback).toHaveClass(/sr-only/);
+
+    await page.keyboard.press("Tab");
+    await expect(confirmButton).toBeFocused();
+    await page.keyboard.press("Enter");
+    await expect(page.getByText("Ainda não — tente novamente")).toBeVisible();
+    await expect(confirmButton).toBeFocused();
+
+    await page.keyboard.press("Shift+Tab");
+    await expect(
+      page.getByRole("radio", { name: /Imediatamente, antes de escolher/ }),
+    ).toBeFocused();
+    await page.keyboard.press("ArrowDown");
+    await expect(page.getByText("Ainda não — tente novamente")).not.toBeVisible();
+    await expect(page.getByText("Correto!")).not.toBeVisible();
+
+    await page.keyboard.press("Tab");
+    await expect(confirmButton).toBeFocused();
+    await page.keyboard.press("Enter");
+    await expect(page.getByText("Correto!")).toBeVisible();
+    await expect(feedback).toBeFocused();
+
+    await page.keyboard.press("Tab");
+    await expect(page.getByRole("button", { name: "Continuar" })).toBeFocused();
     await expectNoProgressRecorded(page);
   });
 });
@@ -148,7 +200,7 @@ test.describe("visual exercise infrastructure", () => {
       'img[src="/media/fixtures/shape-circle.svg"]',
     );
     await expect(stimulus.first()).toBeVisible();
-    await option(page, "Círculo").click();
+    await answerOption(page, "Círculo");
     await expect(page.getByText("Correto!")).toBeVisible();
     await page.getByRole("button", { name: "Continuar" }).click();
 
@@ -159,8 +211,63 @@ test.describe("visual exercise infrastructure", () => {
     await expect(
       page.locator('img[src="/media/fixtures/shape-square.svg"]'),
     ).toBeVisible();
-    await option(page, "Imagem 2").click();
+    await answerOption(page, "Imagem 2");
     await expect(page.getByText("Correto!")).toBeVisible();
+  });
+
+  test("exposes concise option names, group semantics and feedback descriptions", async ({
+    page,
+  }) => {
+    await reachImageOptionsExercise(page);
+
+    await expect(
+      page.getByRole("group", {
+        name: "Qual das imagens abaixo mostra um quadrado?",
+      }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", {
+        name: "Qual das imagens abaixo mostra um quadrado?",
+      }),
+    ).toHaveAttribute("aria-describedby", "lesson-runner-step-status");
+
+    for (const [name, alt] of [
+      ["Imagem 1", "Forma geométrica com três lados e três vértices."],
+      [
+        "Imagem 2",
+        "Forma geométrica com quatro lados iguais e quatro ângulos retos.",
+      ],
+    ] as const) {
+      const radio = page.getByRole("radio", { name, exact: true });
+      await expect(radio).toHaveAttribute("aria-label", name);
+      const descriptionId = await radio.getAttribute("aria-describedby");
+      expect(descriptionId).toBeTruthy();
+      await expect(page.locator(`[id="${descriptionId}"]`)).toHaveAttribute(
+        "alt",
+        alt,
+      );
+    }
+
+    await answerOption(page, "Imagem 2");
+    const status = page.locator('[role="status"]');
+    await expect(status).toBeVisible();
+    await expect(status).toBeFocused();
+    await expect(status).toHaveAttribute("aria-atomic", "true");
+
+    const labelledBy = await status.getAttribute("aria-labelledby");
+    const describedBy = await status.getAttribute("aria-describedby");
+    expect(labelledBy).toBeTruthy();
+    expect(describedBy).toBeTruthy();
+    const feedbackText = await page.evaluate(
+      (ids) =>
+        ids
+          .map((id) => document.getElementById(id)?.textContent ?? "")
+          .join(" "),
+      [labelledBy!, ...describedBy!.split(" ")],
+    );
+    expect(feedbackText).toContain("Correto!");
+    expect(feedbackText).toContain("a imagem 2 mostra um quadrado");
+    expect(feedbackText).toContain("O quadrado tem quatro lados iguais");
   });
 
   test("switches to description mode through the accessible toggle", async ({
@@ -209,7 +316,7 @@ test.describe("visual exercise infrastructure", () => {
     await page
       .getByRole("button", { name: "Responder por descrição" })
       .click();
-    await option(page, "Quadrado").click();
+    await answerOption(page, "Quadrado");
     await expect(page.getByText("Ainda não")).toBeVisible();
     await expect(
       page.getByText("um quadrado tem quatro lados retos"),
@@ -233,7 +340,7 @@ test.describe("visual exercise infrastructure", () => {
     await page
       .getByRole("button", { name: "Responder por descrição" })
       .click();
-    await option(page, "Círculo").click();
+    await answerOption(page, "Círculo");
     await expect(page.getByText("Correto!")).toBeVisible();
     await expectNoProgressRecorded(page);
   });
@@ -248,7 +355,7 @@ test.describe("visual exercise infrastructure", () => {
     await page
       .getByRole("button", { name: "Responder por descrição" })
       .click();
-    await option(page, "Círculo").click();
+    await answerOption(page, "Círculo");
     await expect(page.getByText("Correto!")).toBeVisible();
     await page.getByRole("button", { name: "Continuar" }).click();
 
@@ -262,7 +369,7 @@ test.describe("visual exercise infrastructure", () => {
     await expect(
       page.locator('img[src="/media/fixtures/shape-square.svg"]'),
     ).toBeVisible();
-    await option(page, "Imagem 2").click();
+    await answerOption(page, "Imagem 2");
     await expect(page.getByText("Correto!")).toBeVisible();
     await page.getByRole("button", { name: "Continuar" }).click();
 
@@ -333,14 +440,14 @@ test.describe("visual exercise infrastructure", () => {
 
     await page.goto("/laboratorio/licao-visual");
     await page.getByRole("button", { name: "Continuar" }).click();
-    await option(page, "Círculo").click();
+    await answerOption(page, "Círculo");
     await page.getByRole("button", { name: "Continuar" }).click();
-    await option(page, "Imagem 2").click();
+    await answerOption(page, "Imagem 2");
     await page.getByRole("button", { name: "Continuar" }).click();
 
     // Exercise 3 (gated → variant) answered by description.
     await expect(page.getByText("Versão por descrição")).toBeVisible();
-    await option(page, "Círculo").click();
+    await answerOption(page, "Círculo");
     await page.getByRole("button", { name: "Continuar" }).click();
 
     // Exercise 4: the first load fails — variant offered instead.
@@ -363,7 +470,7 @@ test.describe("visual exercise infrastructure", () => {
     ).toBeVisible();
 
     // The visual exercise is answerable after recovery.
-    await option(page, "Triângulo").click();
+    await answerOption(page, "Triângulo");
     await expect(page.getByText("Correto!")).toBeVisible();
 
     await expectNoProgressRecorded(page);
@@ -377,13 +484,21 @@ test.describe("visual exercise infrastructure", () => {
     await focusFirstRadioByKeyboard(page);
 
     // In this unselected group, ArrowDown moves from Imagem 1 to the correct
-    // Imagem 2. The image options stack vertically at this width, pushing the
-    // advance action far down the page.
+    // Imagem 2 without evaluating it. Confirmation is a separate action.
     await page.keyboard.press("ArrowDown");
+    await expect(page.getByText("Correto!")).not.toBeVisible();
+
+    await page.keyboard.press("Tab");
+    const confirmButton = page.getByRole("button", {
+      name: "Confirmar resposta",
+    });
+    await expect(confirmButton).toBeFocused();
+    await page.keyboard.press("Enter");
+
     await expect(page.getByText("Correto!")).toBeVisible();
-    await expect(page.locator("label", { hasText: "Imagem 2" })).toBeFocused();
-    await expectFocusedVisualOptionOutline(page, "Imagem 2");
-    await expectActiveElementClearOfFixedChrome(page, ":scope > span");
+    await expect(page.locator('[role="status"]')).toBeFocused();
+    await expectFocusedFeedbackOutline(page);
+    await expectActiveElementClearOfFixedChrome(page);
 
     await page.keyboard.press("Tab");
     await expect(page.getByRole("button", { name: "Continuar" })).toBeFocused();
@@ -406,10 +521,16 @@ test.describe("visual exercise infrastructure", () => {
     await focusFirstRadioByKeyboard(page);
 
     await page.keyboard.press("ArrowDown");
+    await expect(page.getByText("Correto!")).not.toBeVisible();
+    await page.keyboard.press("Tab");
+    await expect(
+      page.getByRole("button", { name: "Confirmar resposta" }),
+    ).toBeFocused();
+    await page.keyboard.press("Enter");
     await expect(page.getByText("Correto!")).toBeVisible();
-    await expect(page.locator("label", { hasText: "Imagem 2" })).toBeFocused();
-    await expectFocusedVisualOptionOutline(page, "Imagem 2");
-    await expectActiveElementClearOfFixedChrome(page, ":scope > span");
+    await expect(page.locator('[role="status"]')).toBeFocused();
+    await expectFocusedFeedbackOutline(page);
+    await expectActiveElementClearOfFixedChrome(page);
     await expectNoProgressRecorded(page);
   });
 
@@ -423,7 +544,7 @@ test.describe("visual exercise infrastructure", () => {
     await expect(
       page.locator('img[src="/media/fixtures/shape-circle.svg"]'),
     ).toBeVisible();
-    await option(page, "Quadrado").click();
+    await answerOption(page, "Quadrado");
     await expect(page.getByText("Ainda não")).toBeVisible();
 
     // The stimulus fails AFTER the wrong answer was recorded. The variant
@@ -460,9 +581,9 @@ test.describe("visual exercise infrastructure", () => {
   }) => {
     await page.goto("/laboratorio/licao-visual");
     await page.getByRole("button", { name: "Continuar" }).click();
-    await option(page, "Círculo").click();
+    await answerOption(page, "Círculo");
     await page.getByRole("button", { name: "Continuar" }).click();
-    await option(page, "Imagem 2").click();
+    await answerOption(page, "Imagem 2");
     await page.getByRole("button", { name: "Continuar" }).click();
 
     // Exercise 3: stimulus without permission evidence — the image is never
@@ -480,7 +601,7 @@ test.describe("visual exercise infrastructure", () => {
     await expect(
       page.getByText("Não foi possível carregar a mídia"),
     ).toHaveCount(0);
-    await option(page, "Círculo").click();
+    await answerOption(page, "Círculo");
     await expect(page.getByText("Correto!")).toBeVisible();
     await page.getByRole("button", { name: "Continuar" }).click();
 
@@ -498,7 +619,7 @@ test.describe("visual exercise infrastructure", () => {
     await expect(
       page.getByText(/Uma ou mais mídias deste exercício não puderam ser carregadas/),
     ).toBeVisible();
-    await option(page, "Triângulo").click();
+    await answerOption(page, "Triângulo");
     await expect(page.getByText("Correto!")).toBeVisible();
     await expect(
       page.getByText("Não foi possível carregar a mídia"),
@@ -609,14 +730,14 @@ test.describe("draft preview", () => {
     // A wrong visual answer does not remove the description alternative:
     // switching modality clears that cross-modality attempt and lets the
     // learner answer the description version honestly.
-    await option(page, "Letra L").click();
+    await answerOption(page, "Letra L");
     await expect(page.getByText("Ainda não — tente novamente")).toBeVisible();
     await page.getByRole("button", { name: "Responder por descrição" }).click();
     await expect(page.getByText("Versão por descrição")).toBeVisible();
     await expect(
       page.getByText("Ainda não — tente novamente"),
     ).not.toBeVisible();
-    await option(page, "Letra B").click();
+    await answerOption(page, "Letra B");
     await expect(page.getByText("Correto!")).toBeVisible();
     await page.getByRole("button", { name: "Continuar" }).click();
 
@@ -643,12 +764,12 @@ test.describe("draft preview", () => {
     await expect(
       page.getByText(/Imagem: Mauro Campello \| Acervo Fiocruz Imagens \(item 127856\)/),
     ).toBeVisible();
-    await option(page, "Imagem 2").click();
+    await answerOption(page, "Imagem 2");
     await expect(page.getByText("Correto!")).toBeVisible();
     await page.getByRole("button", { name: "Continuar" }).click();
 
     // Step 13: plain textual exercise (no media involved).
-    await option(page, /forma dos dedos/).click();
+    await answerOption(page, /forma dos dedos/);
     await expect(page.getByText("Correto!")).toBeVisible();
     await page.getByRole("button", { name: "Continuar" }).click();
 
@@ -716,7 +837,7 @@ test.describe("draft preview", () => {
       await page.getByRole("button", { name: "Continuar" }).click();
     }
     await expect(page.getByText("Versão por descrição")).toBeVisible();
-    await option(page, "Letra B").click();
+    await answerOption(page, "Letra B");
     await expect(page.getByText("Correto!")).toBeVisible();
 
     await expectNoProgressRecorded(page);
