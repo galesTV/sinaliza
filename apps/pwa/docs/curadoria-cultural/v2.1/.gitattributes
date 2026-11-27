@@ -1,0 +1,2 @@
+# Preserve byte-exact archival artifacts across platforms.
+pacote-original/** -text

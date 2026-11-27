@@ -1,0 +1,18 @@
+{
+  "originalManifestVerified": 16,
+  "originalClaims": 31,
+  "newClaims": 22,
+  "recoveredClaims": 5,
+  "consolidatedClaims": 53,
+  "records": 14,
+  "unchangedBodies": 13,
+  "revisedBodies": 1,
+  "firecrawlCalls": 0,
+  "runtimeAudit": false,
+  "publicationAuthorized": 0,
+  "limitations": [
+    "Sem verificação independente das fontes R.1–R.4 nesta etapa",
+    "Sem auditoria de colisões ou cobertura frase a frase",
+    "Instituições e referenceIds devem ser resolvidos na auditoria runtime"
+  ]
+}
