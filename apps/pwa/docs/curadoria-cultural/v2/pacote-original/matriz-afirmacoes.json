@@ -1,0 +1,250 @@
+[
+  {
+    "entryId": "HIST-001",
+    "id": "HIST-001-C01",
+    "text": "Huet apresentou a proposta em 1855.",
+    "url": "https://seer.ines.gov.br/index.php/revista-espaco/article/download/703/708/2042",
+    "locator": "Visitando o Acervo do INES, cronologia",
+    "consultation": "content-checked"
+  },
+  {
+    "entryId": "HIST-001",
+    "id": "HIST-001-C02",
+    "text": "As aulas começaram em 1º de janeiro de 1856.",
+    "url": "https://seer.ines.gov.br/index.php/revista-espaco/article/download/703/708/2042",
+    "locator": "Cronologia institucional",
+    "consultation": "content-checked"
+  },
+  {
+    "entryId": "HIST-001",
+    "id": "HIST-001-C03",
+    "text": "A Lei 939 é de 26 de setembro de 1857.",
+    "url": "https://seer.ines.gov.br/index.php/revista-espaco/article/download/703/708/2042",
+    "locator": "Cronologia institucional",
+    "consultation": "content-checked"
+  },
+  {
+    "entryId": "HIST-006",
+    "id": "HIST-006-C01",
+    "text": "Lei datada de 24 de abril de 2002.",
+    "url": "https://www.planalto.gov.br/ccivil_03/leis/2002/l10436.htm",
+    "locator": "Identificação do ato",
+    "consultation": "content-checked"
+  },
+  {
+    "entryId": "HIST-006",
+    "id": "HIST-006-C02",
+    "text": "Reconhecimento como meio legal de comunicação e expressão.",
+    "url": "https://www.planalto.gov.br/ccivil_03/leis/2002/l10436.htm",
+    "locator": "Art. 1º",
+    "consultation": "content-checked"
+  },
+  {
+    "entryId": "HIST-006",
+    "id": "HIST-006-C03",
+    "text": "Estrutura gramatical própria.",
+    "url": "https://www.planalto.gov.br/ccivil_03/leis/2002/l10436.htm",
+    "locator": "Art. 1º, parágrafo único",
+    "consultation": "content-checked"
+  },
+  {
+    "entryId": "HIST-006",
+    "id": "HIST-006-C04",
+    "text": "Apoio ao uso e difusão.",
+    "url": "https://www.planalto.gov.br/ccivil_03/leis/2002/l10436.htm",
+    "locator": "Art. 2º",
+    "consultation": "content-checked"
+  },
+  {
+    "entryId": "HIST-008",
+    "id": "HIST-008-C01",
+    "text": "Inclusão da modalidade na LDB.",
+    "url": "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2021/lei/l14191.htm",
+    "locator": "Art. 2º, capítulo V-A",
+    "consultation": "content-checked"
+  },
+  {
+    "entryId": "HIST-008",
+    "id": "HIST-008-C02",
+    "text": "Libras primeira língua e português escrito segunda, para optantes abrangidos.",
+    "url": "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2021/lei/l14191.htm",
+    "locator": "Art. 60-A",
+    "consultation": "content-checked"
+  },
+  {
+    "entryId": "HIST-008",
+    "id": "HIST-008-C03",
+    "text": "Materiais didáticos e professores bilíngues.",
+    "url": "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2021/lei/l14191.htm",
+    "locator": "Art. 60-B",
+    "consultation": "content-checked"
+  },
+  {
+    "entryId": "CUR-001",
+    "id": "CUR-001-C01",
+    "text": "Não existe língua de sinais universal.",
+    "url": "https://wfdeaf.org/contact/faqs/",
+    "locator": "FAQ sobre universalidade",
+    "consultation": "content-checked"
+  },
+  {
+    "entryId": "CUR-001",
+    "id": "CUR-001-C02",
+    "text": "Há diferenças entre países e regiões.",
+    "url": "https://wfdeaf.org/contact/faqs/",
+    "locator": "FAQ sobre universalidade",
+    "consultation": "content-checked"
+  },
+  {
+    "entryId": "CUR-002",
+    "id": "CUR-002-C01",
+    "text": "Libras possui estrutura gramatical própria.",
+    "url": "https://www.planalto.gov.br/ccivil_03/leis/2002/l10436.htm",
+    "locator": "Art. 1º, parágrafo único",
+    "consultation": "content-checked"
+  },
+  {
+    "entryId": "CUR-002",
+    "id": "CUR-002-C02",
+    "text": "Elementos não manuais têm funções linguísticas.",
+    "url": "https://ojsrevista.furb.br/ojs/index.php/linguagens/article/download/7287/4653/32619",
+    "locator": "Estudo sobre expressões não manuais",
+    "consultation": "content-checked"
+  },
+  {
+    "entryId": "CUR-002",
+    "id": "CUR-002-C03",
+    "text": "Forma, localização, movimento e expressão facial são discutidos no estudo de Capovilla e Cecconi.",
+    "url": "https://doi.org/10.51207/2179-4057.20220014",
+    "locator": "Resumo do artigo",
+    "consultation": "content-checked"
+  },
+  {
+    "entryId": "CUR-006",
+    "id": "CUR-006-C01",
+    "text": "Ritmo, repetição e simetria são recursos poéticos.",
+    "url": "https://librando.paginas.ufsc.br/poemas/",
+    "locator": "Introdução do acervo",
+    "consultation": "content-checked"
+  },
+  {
+    "entryId": "CUR-006",
+    "id": "CUR-006-C02",
+    "text": "O acervo lista poemas sinalizados.",
+    "url": "https://librando.paginas.ufsc.br/poemas/",
+    "locator": "Lista de obras",
+    "consultation": "content-checked"
+  },
+  {
+    "entryId": "PER-001",
+    "id": "PER-001-C01",
+    "text": "Atuação em educação, pesquisa e cinema.",
+    "url": "https://indl.iphan.gov.br/pessoas-de-referencia/nelson-pimenta-de-castro/",
+    "locator": "Perfil institucional",
+    "consultation": "content-checked"
+  },
+  {
+    "entryId": "PER-001",
+    "id": "PER-001-C02",
+    "text": "Trajetória artística e formação acadêmica.",
+    "url": "https://nuestra.ufsc.br/vocab/index.php?tema=42&/nelson-pimenta-de-castro",
+    "locator": "Perfil NUESTRA",
+    "consultation": "content-checked"
+  },
+  {
+    "entryId": "PER-001",
+    "id": "PER-001-C03",
+    "text": "Tese sobre prosódia em ASL e Libras, 2019.",
+    "url": "https://repositorio.ufsc.br/handle/123456789/204538",
+    "locator": "Registro da tese",
+    "consultation": "located"
+  },
+  {
+    "entryId": "PER-001",
+    "id": "PER-001-C04",
+    "text": "Dissertação sobre tradução de fábulas, 2012.",
+    "url": "http://tede.ufsc.br/teses/PGET0138-D.pdf",
+    "locator": "Registro localizado",
+    "consultation": "located"
+  },
+  {
+    "entryId": "PER-002",
+    "id": "PER-002-C01",
+    "text": "Obra gramatical atribuída a Lucinda Ferreira Brito.",
+    "url": "https://seer.ufu.br/index.php/EducacaoFilosofia/article/view/29990",
+    "locator": "Resenha acadêmica",
+    "consultation": "located"
+  },
+  {
+    "entryId": "BIB-002",
+    "id": "BIB-002-C01",
+    "text": "Quarta edição, Editora UFSC, 2016.",
+    "url": "https://editora.ufsc.br/2016/10/10/lancamento-as-imagens-do-outro-sobre-a-cultura-surda/",
+    "locator": "Notícia de lançamento",
+    "consultation": "located"
+  },
+  {
+    "entryId": "BIB-003",
+    "id": "BIB-003-C01",
+    "text": "Publicação INES de 2023, 511 páginas.",
+    "url": "https://repositorio.ufsc.br/handle/123456789/262318?show=full",
+    "locator": "Metadados completos",
+    "consultation": "metadata-checked"
+  },
+  {
+    "entryId": "BIB-003",
+    "id": "BIB-003-C02",
+    "text": "Organizadores: Ronice Müller de Quadros, Jair Barbosa da Silva, Miriam Royer e Vinícius Rodrigues da Silva.",
+    "url": "https://repositorio.ufsc.br/handle/123456789/262318?show=full",
+    "locator": "Créditos do repositório",
+    "consultation": "metadata-checked"
+  },
+  {
+    "entryId": "BIB-004",
+    "id": "BIB-004-C01",
+    "text": "Autoria, tradução e edição de 2021.",
+    "url": "https://repositorio.ufsc.br/xmlui/handle/123456789/259641",
+    "locator": "Metadados do repositório",
+    "consultation": "metadata-checked"
+  },
+  {
+    "entryId": "BIB-004",
+    "id": "BIB-004-C02",
+    "text": "O LIBRANDO indica acesso textual e vídeos em Libras.",
+    "url": "https://librando.paginas.ufsc.br/livros-2/",
+    "locator": "Lista de livros",
+    "consultation": "content-checked"
+  },
+  {
+    "entryId": "BIB-005",
+    "id": "BIB-005-C01",
+    "text": "Autoria e terceira edição de 2011, 36 páginas.",
+    "url": "https://librando.paginas.ufsc.br/signwrite/",
+    "locator": "Entrada Cinderela Surda",
+    "consultation": "metadata-checked"
+  },
+  {
+    "entryId": "BIB-010",
+    "id": "BIB-010-C01",
+    "text": "Obra de Flausino publicada em 1875.",
+    "url": "https://seer.ines.gov.br/index.php/serie-historica/issue/view/167",
+    "locator": "Apresentação do fac-símile",
+    "consultation": "content-checked"
+  },
+  {
+    "entryId": "BIB-010",
+    "id": "BIB-010-C02",
+    "text": "Matriz francesa de Pierre Pélissier.",
+    "url": "https://www.scielo.br/j/rbee/a/S5Gyt4gMNzzQJJmLYqMcqCC/abstract/?lang=pt",
+    "locator": "Resumo do estudo de Sofiato e Reily",
+    "consultation": "located"
+  },
+  {
+    "entryId": "BIB-011",
+    "id": "BIB-011-C01",
+    "text": "Série de animações literárias traduzidas para Libras.",
+    "url": "https://debasi.ines.gov.br/tv-ines/conta%C3%A7%C3%A3o-de-hist%C3%B3rias",
+    "locator": "Descrição institucional da série",
+    "consultation": "content-checked"
+  }
+]

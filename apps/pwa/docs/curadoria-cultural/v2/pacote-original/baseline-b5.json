@@ -1,0 +1,1733 @@
+{
+  "stage": "D.2.2-B.5",
+  "note": "Consolidação retrospectiva da pesquisa anterior; fontes externas não reabertas nesta rodada. Não é catálogo TypeScript importável.",
+  "records": [
+    {
+      "id": "HIST-001",
+      "title": "1857 — Fundação do instituto que se tornou o INES",
+      "original": {
+        "id": "HIST-001",
+        "title": "1857 — Fundação do instituto que se tornou o INES",
+        "summary": "A iniciativa de Ernest Huet antecedeu a oficialização do instituto em 1857. A instituição é um marco da educação de surdos, não a origem da Libras.",
+        "metadataNote": "",
+        "sources": [
+          "https://seer.ines.gov.br/index.php/revista-espaco/article/download/703/708/2042"
+        ],
+        "pending": "Conferir cronologia 1855–1857 e Lei 939.",
+        "reviewStatus": "candidate",
+        "rightsStatus": "external-link-only",
+        "publishable": false,
+        "relatedEntryIds": [
+          "BIB-010",
+          "HIST-002",
+          "PER-007"
+        ]
+      },
+      "editorialBody": "Em 1855, Ernest Huet apresentou uma proposta de educação de surdos. As aulas começaram em 1º de janeiro de 1856. A Lei nº 939, de 26 de setembro de 1857, integra a cronologia institucional do atual INES. Trata-se de um marco educacional, não de uma data de nascimento da Libras.",
+      "priority": true,
+      "claims": [
+        {
+          "id": "HIST-001-C01",
+          "text": "Huet apresentou a proposta em 1855.",
+          "url": "https://seer.ines.gov.br/index.php/revista-espaco/article/download/703/708/2042",
+          "locator": "Visitando o Acervo do INES, cronologia",
+          "consultation": "content-checked"
+        },
+        {
+          "id": "HIST-001-C02",
+          "text": "As aulas começaram em 1º de janeiro de 1856.",
+          "url": "https://seer.ines.gov.br/index.php/revista-espaco/article/download/703/708/2042",
+          "locator": "Cronologia institucional",
+          "consultation": "content-checked"
+        },
+        {
+          "id": "HIST-001-C03",
+          "text": "A Lei 939 é de 26 de setembro de 1857.",
+          "url": "https://seer.ines.gov.br/index.php/revista-espaco/article/download/703/708/2042",
+          "locator": "Cronologia institucional",
+          "consultation": "content-checked"
+        }
+      ],
+      "sourceUrls": [
+        "https://seer.ines.gov.br/index.php/revista-espaco/article/download/703/708/2042"
+      ],
+      "metadata": {
+        "year": 1857,
+        "caveat": "A história linguística exige fonte complementar; não atribuir origem da Libras à instituição."
+      },
+      "additionalSourceNote": null,
+      "validationStatus": "draft",
+      "reviews": [],
+      "rightsPolicy": "external-link-only",
+      "publicationAuthorized": false,
+      "pending": [
+        "Conferir cronologia 1855–1857 e Lei 939.",
+        "Revisão de pesquisa, técnica e especializada; autorização final pendentes."
+      ]
+    },
+    {
+      "id": "HIST-002",
+      "title": "1875 — Iconographia de Flausino",
+      "original": {
+        "id": "HIST-002",
+        "title": "1875 — Iconographia de Flausino",
+        "summary": "Flausino José da Gama produziu uma obra iconográfica baseada na obra francesa de Pierre Pélissier. É patrimônio histórico, não um inventário independente da Libras atual.",
+        "metadataNote": "",
+        "sources": [
+          "https://seer.ines.gov.br/index.php/serie-historica/issue/view/167",
+          "https://www.scielo.br/j/rbee/a/S5Gyt4gMNzzQJJmLYqMcqCC/abstract/?lang=pt"
+        ],
+        "pending": "Conferir estudo comparativo integral e direitos do fac-símile.",
+        "reviewStatus": "candidate",
+        "rightsStatus": "external-link-only",
+        "publishable": false,
+        "relatedEntryIds": [
+          "BIB-010",
+          "HIST-001",
+          "PER-007"
+        ]
+      },
+      "editorialBody": "Flausino José da Gama produziu uma obra iconográfica baseada na obra francesa de Pierre Pélissier. É patrimônio histórico, não um inventário independente da Libras atual.",
+      "priority": false,
+      "claims": [],
+      "sourceUrls": [
+        "https://seer.ines.gov.br/index.php/serie-historica/issue/view/167",
+        "https://www.scielo.br/j/rbee/a/S5Gyt4gMNzzQJJmLYqMcqCC/abstract/?lang=pt"
+      ],
+      "metadata": {},
+      "additionalSourceNote": null,
+      "validationStatus": "draft",
+      "reviews": [],
+      "rightsPolicy": "external-link-only",
+      "publicationAuthorized": false,
+      "pending": [
+        "Conferir estudo comparativo integral e direitos do fac-símile.",
+        "Revisão de pesquisa, técnica e especializada; autorização final pendentes.",
+        "Mapear afirmações individualmente."
+      ]
+    },
+    {
+      "id": "HIST-003",
+      "title": "1880 — Congresso de Milão",
+      "original": {
+        "id": "HIST-003",
+        "title": "1880 — Congresso de Milão",
+        "summary": "Resoluções favoreceram o oralismo na educação de surdos. Não constituíram uma lei mundial. Em 2010, o congresso de Vancouver rejeitou essas resoluções.",
+        "metadataNote": "",
+        "sources": [
+          "https://www.libras.ufsc.br/colecaoLetrasLibras/eixoFormacaoEspecifica/historiaDaEducacaoDeSurdos/assets/258/TextoBase_HistoriaEducacaoSurdos.pdf",
+          "https://wfdeaf.org/international-congress-of-the-deaf-iced-july-18-22-2010-vancouver-canada/"
+        ],
+        "pending": "Verificar texto integral e efeitos específicos no Brasil.",
+        "reviewStatus": "candidate",
+        "rightsStatus": "external-link-only",
+        "publishable": false,
+        "relatedEntryIds": []
+      },
+      "editorialBody": "Resoluções favoreceram o oralismo na educação de surdos. Não constituíram uma lei mundial. Em 2010, o congresso de Vancouver rejeitou essas resoluções.",
+      "priority": false,
+      "claims": [],
+      "sourceUrls": [
+        "https://www.libras.ufsc.br/colecaoLetrasLibras/eixoFormacaoEspecifica/historiaDaEducacaoDeSurdos/assets/258/TextoBase_HistoriaEducacaoSurdos.pdf",
+        "https://wfdeaf.org/international-congress-of-the-deaf-iced-july-18-22-2010-vancouver-canada/"
+      ],
+      "metadata": {},
+      "additionalSourceNote": null,
+      "validationStatus": "draft",
+      "reviews": [],
+      "rightsPolicy": "external-link-only",
+      "publicationAuthorized": false,
+      "pending": [
+        "Verificar texto integral e efeitos específicos no Brasil.",
+        "Revisão de pesquisa, técnica e especializada; autorização final pendentes.",
+        "Mapear afirmações individualmente."
+      ]
+    },
+    {
+      "id": "HIST-004",
+      "title": "1987 — Fundação da FENEIS",
+      "original": {
+        "id": "HIST-004",
+        "title": "1987 — Fundação da FENEIS",
+        "summary": "A Federação Nacional de Educação e Integração dos Surdos foi fundada em 16 de maio de 1987, marco de organização coletiva.",
+        "metadataNote": "",
+        "sources": [
+          "https://feneis.org.br/o-que-e/"
+        ],
+        "pending": "Não apresentar como início do movimento surdo.",
+        "reviewStatus": "candidate",
+        "rightsStatus": "external-link-only",
+        "publishable": false,
+        "relatedEntryIds": []
+      },
+      "editorialBody": "A Federação Nacional de Educação e Integração dos Surdos foi fundada em 16 de maio de 1987, marco de organização coletiva.",
+      "priority": false,
+      "claims": [],
+      "sourceUrls": [
+        "https://feneis.org.br/o-que-e/"
+      ],
+      "metadata": {},
+      "additionalSourceNote": null,
+      "validationStatus": "draft",
+      "reviews": [],
+      "rightsPolicy": "external-link-only",
+      "publicationAuthorized": false,
+      "pending": [
+        "Não apresentar como início do movimento surdo.",
+        "Revisão de pesquisa, técnica e especializada; autorização final pendentes.",
+        "Mapear afirmações individualmente."
+      ]
+    },
+    {
+      "id": "HIST-005",
+      "title": "1999 — A educação que nós surdos queremos",
+      "original": {
+        "id": "HIST-005",
+        "title": "1999 — A educação que nós surdos queremos",
+        "summary": "Documento coletivo associado à mobilização de participantes surdos no contexto do V Congresso Latino-Americano.",
+        "metadataNote": "",
+        "sources": [
+          "https://seer.ines.gov.br/index.php/revista-espaco/article/download/1740/1675/5213"
+        ],
+        "pending": "Localizar original institucional; não reproduzir trechos.",
+        "reviewStatus": "candidate",
+        "rightsStatus": "external-link-only",
+        "publishable": false,
+        "relatedEntryIds": []
+      },
+      "editorialBody": "Documento coletivo associado à mobilização de participantes surdos no contexto do V Congresso Latino-Americano.",
+      "priority": false,
+      "claims": [],
+      "sourceUrls": [
+        "https://seer.ines.gov.br/index.php/revista-espaco/article/download/1740/1675/5213"
+      ],
+      "metadata": {},
+      "additionalSourceNote": null,
+      "validationStatus": "draft",
+      "reviews": [],
+      "rightsPolicy": "external-link-only",
+      "publicationAuthorized": false,
+      "pending": [
+        "Localizar original institucional; não reproduzir trechos.",
+        "Revisão de pesquisa, técnica e especializada; autorização final pendentes.",
+        "Mapear afirmações individualmente."
+      ]
+    },
+    {
+      "id": "HIST-006",
+      "title": "2002 — Lei de Libras",
+      "original": {
+        "id": "HIST-006",
+        "title": "2002 — Lei de Libras",
+        "summary": "A Lei 10.436 reconheceu a Libras como meio legal de comunicação e expressão, com estrutura gramatical própria.",
+        "metadataNote": "",
+        "sources": [
+          "https://www.planalto.gov.br/ccivil_03/leis/2002/l10436.htm"
+        ],
+        "pending": "Não chamar de segunda língua oficial do Brasil.",
+        "reviewStatus": "candidate",
+        "rightsStatus": "external-link-only",
+        "publishable": false,
+        "relatedEntryIds": []
+      },
+      "editorialBody": "Em 24 de abril de 2002, a Lei nº 10.436 reconheceu a Libras como meio legal de comunicação e expressão. A lei reconhece sua estrutura gramatical própria e prevê apoio ao uso e à difusão. Reconhecimento jurídico não equivale à criação da língua.",
+      "priority": true,
+      "claims": [
+        {
+          "id": "HIST-006-C01",
+          "text": "Lei datada de 24 de abril de 2002.",
+          "url": "https://www.planalto.gov.br/ccivil_03/leis/2002/l10436.htm",
+          "locator": "Identificação do ato",
+          "consultation": "content-checked"
+        },
+        {
+          "id": "HIST-006-C02",
+          "text": "Reconhecimento como meio legal de comunicação e expressão.",
+          "url": "https://www.planalto.gov.br/ccivil_03/leis/2002/l10436.htm",
+          "locator": "Art. 1º",
+          "consultation": "content-checked"
+        },
+        {
+          "id": "HIST-006-C03",
+          "text": "Estrutura gramatical própria.",
+          "url": "https://www.planalto.gov.br/ccivil_03/leis/2002/l10436.htm",
+          "locator": "Art. 1º, parágrafo único",
+          "consultation": "content-checked"
+        },
+        {
+          "id": "HIST-006-C04",
+          "text": "Apoio ao uso e difusão.",
+          "url": "https://www.planalto.gov.br/ccivil_03/leis/2002/l10436.htm",
+          "locator": "Art. 2º",
+          "consultation": "content-checked"
+        }
+      ],
+      "sourceUrls": [
+        "https://www.planalto.gov.br/ccivil_03/leis/2002/l10436.htm"
+      ],
+      "metadata": {
+        "year": 2002,
+        "caveat": "Não chamar de segunda língua oficial."
+      },
+      "additionalSourceNote": null,
+      "validationStatus": "draft",
+      "reviews": [],
+      "rightsPolicy": "external-link-only",
+      "publicationAuthorized": false,
+      "pending": [
+        "Não chamar de segunda língua oficial do Brasil.",
+        "Revisão de pesquisa, técnica e especializada; autorização final pendentes."
+      ]
+    },
+    {
+      "id": "HIST-007",
+      "title": "2005 — Decreto 5.626",
+      "original": {
+        "id": "HIST-007",
+        "title": "2005 — Decreto 5.626",
+        "summary": "Regulamentou a Lei de Libras e estabeleceu disposições sobre formação, ensino e acessibilidade.",
+        "metadataNote": "",
+        "sources": [
+          "https://www2.camara.leg.br/legin/fed/decret/2005/decreto-5626-22-dezembro-2005-539842-publicacaooriginal-39399-pe.html"
+        ],
+        "pending": "Distinguir texto original de legislação consolidada.",
+        "reviewStatus": "candidate",
+        "rightsStatus": "external-link-only",
+        "publishable": false,
+        "relatedEntryIds": []
+      },
+      "editorialBody": "Regulamentou a Lei de Libras e estabeleceu disposições sobre formação, ensino e acessibilidade.",
+      "priority": false,
+      "claims": [],
+      "sourceUrls": [
+        "https://www2.camara.leg.br/legin/fed/decret/2005/decreto-5626-22-dezembro-2005-539842-publicacaooriginal-39399-pe.html"
+      ],
+      "metadata": {},
+      "additionalSourceNote": null,
+      "validationStatus": "draft",
+      "reviews": [],
+      "rightsPolicy": "external-link-only",
+      "publicationAuthorized": false,
+      "pending": [
+        "Distinguir texto original de legislação consolidada.",
+        "Revisão de pesquisa, técnica e especializada; autorização final pendentes.",
+        "Mapear afirmações individualmente."
+      ]
+    },
+    {
+      "id": "HIST-008",
+      "title": "2021 — Educação bilíngue de surdos",
+      "original": {
+        "id": "HIST-008",
+        "title": "2021 — Educação bilíngue de surdos",
+        "summary": "A Lei 14.191 inseriu a modalidade de educação bilíngue de surdos na LDB, com Libras como primeira língua e português escrito como segunda, para estudantes optantes.",
+        "metadataNote": "",
+        "sources": [
+          "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2021/lei/l14191.htm"
+        ],
+        "pending": "Preservar condições legais e público abrangido.",
+        "reviewStatus": "candidate",
+        "rightsStatus": "external-link-only",
+        "publishable": false,
+        "relatedEntryIds": []
+      },
+      "editorialBody": "A Lei nº 14.191, de 3 de agosto de 2021, incluiu a educação bilíngue de surdos na LDB. A modalidade prevê Libras como primeira língua e português escrito como segunda para os educandos abrangidos que optem por ela. A lei também prevê materiais didáticos e professores bilíngues.",
+      "priority": true,
+      "claims": [
+        {
+          "id": "HIST-008-C01",
+          "text": "Inclusão da modalidade na LDB.",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2021/lei/l14191.htm",
+          "locator": "Art. 2º, capítulo V-A",
+          "consultation": "content-checked"
+        },
+        {
+          "id": "HIST-008-C02",
+          "text": "Libras primeira língua e português escrito segunda, para optantes abrangidos.",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2021/lei/l14191.htm",
+          "locator": "Art. 60-A",
+          "consultation": "content-checked"
+        },
+        {
+          "id": "HIST-008-C03",
+          "text": "Materiais didáticos e professores bilíngues.",
+          "url": "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2021/lei/l14191.htm",
+          "locator": "Art. 60-B",
+          "consultation": "content-checked"
+        }
+      ],
+      "sourceUrls": [
+        "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2021/lei/l14191.htm"
+      ],
+      "metadata": {
+        "year": 2021
+      },
+      "additionalSourceNote": null,
+      "validationStatus": "draft",
+      "reviews": [],
+      "rightsPolicy": "external-link-only",
+      "publicationAuthorized": false,
+      "pending": [
+        "Preservar condições legais e público abrangido.",
+        "Revisão de pesquisa, técnica e especializada; autorização final pendentes."
+      ]
+    },
+    {
+      "id": "CUR-001",
+      "title": "Existe uma língua de sinais universal?",
+      "original": {
+        "id": "CUR-001",
+        "title": "Existe uma língua de sinais universal?",
+        "summary": "Não. Existem diferentes línguas de sinais, como Libras, ASL e BSL.",
+        "metadataNote": "",
+        "sources": [
+          "https://wfdeaf.org/contact/faqs/"
+        ],
+        "pending": "Não usar contagem mundial sem fonte.",
+        "reviewStatus": "candidate",
+        "rightsStatus": "external-link-only",
+        "publishable": false,
+        "relatedEntryIds": []
+      },
+      "editorialBody": "Não existe uma língua de sinais universal. Comunidades de diferentes países e regiões utilizam línguas de sinais distintas. Aprender uma delas não garante compreender todas as outras.",
+      "priority": true,
+      "claims": [
+        {
+          "id": "CUR-001-C01",
+          "text": "Não existe língua de sinais universal.",
+          "url": "https://wfdeaf.org/contact/faqs/",
+          "locator": "FAQ sobre universalidade",
+          "consultation": "content-checked"
+        },
+        {
+          "id": "CUR-001-C02",
+          "text": "Há diferenças entre países e regiões.",
+          "url": "https://wfdeaf.org/contact/faqs/",
+          "locator": "FAQ sobre universalidade",
+          "consultation": "content-checked"
+        }
+      ],
+      "sourceUrls": [
+        "https://wfdeaf.org/contact/faqs/"
+      ],
+      "metadata": {
+        "caveat": "Exemplos ASL/BSL exigem referência específica; evitar contagem mundial fixa."
+      },
+      "additionalSourceNote": null,
+      "validationStatus": "draft",
+      "reviews": [],
+      "rightsPolicy": "external-link-only",
+      "publicationAuthorized": false,
+      "pending": [
+        "Não usar contagem mundial sem fonte.",
+        "Revisão de pesquisa, técnica e especializada; autorização final pendentes."
+      ]
+    },
+    {
+      "id": "CUR-002",
+      "title": "Libras é português feito com as mãos?",
+      "original": {
+        "id": "CUR-002",
+        "title": "Libras é português feito com as mãos?",
+        "summary": "Não. Libras possui estrutura gramatical própria.",
+        "metadataNote": "",
+        "sources": [
+          "https://www.planalto.gov.br/ccivil_03/leis/2002/l10436.htm"
+        ],
+        "pending": "Exemplos gramaticais exigem revisão.",
+        "reviewStatus": "candidate",
+        "rightsStatus": "external-link-only",
+        "publishable": false,
+        "relatedEntryIds": [
+          "BIB-001",
+          "BIB-003",
+          "PER-002",
+          "PER-006"
+        ]
+      },
+      "editorialBody": "Libras não é português representado pelas mãos. Possui estrutura gramatical própria. Configurações de mão, localização, movimento e elementos não manuais participam da sinalização. Aprender o alfabeto manual não equivale a dominar a língua.",
+      "priority": true,
+      "claims": [
+        {
+          "id": "CUR-002-C01",
+          "text": "Libras possui estrutura gramatical própria.",
+          "url": "https://www.planalto.gov.br/ccivil_03/leis/2002/l10436.htm",
+          "locator": "Art. 1º, parágrafo único",
+          "consultation": "content-checked"
+        },
+        {
+          "id": "CUR-002-C02",
+          "text": "Elementos não manuais têm funções linguísticas.",
+          "url": "https://ojsrevista.furb.br/ojs/index.php/linguagens/article/download/7287/4653/32619",
+          "locator": "Estudo sobre expressões não manuais",
+          "consultation": "content-checked"
+        },
+        {
+          "id": "CUR-002-C03",
+          "text": "Forma, localização, movimento e expressão facial são discutidos no estudo de Capovilla e Cecconi.",
+          "url": "https://doi.org/10.51207/2179-4057.20220014",
+          "locator": "Resumo do artigo",
+          "consultation": "content-checked"
+        }
+      ],
+      "sourceUrls": [
+        "https://www.planalto.gov.br/ccivil_03/leis/2002/l10436.htm",
+        "https://ojsrevista.furb.br/ojs/index.php/linguagens/article/download/7287/4653/32619",
+        "https://doi.org/10.51207/2179-4057.20220014"
+      ],
+      "metadata": {
+        "extraSource": "https://repositorio.ufsc.br/handle/123456789/262318?show=full",
+        "caveat": "Conferir capítulos específicos da gramática; não universalizar a terminologia de um autor."
+      },
+      "additionalSourceNote": null,
+      "validationStatus": "draft",
+      "reviews": [],
+      "rightsPolicy": "external-link-only",
+      "publicationAuthorized": false,
+      "pending": [
+        "Exemplos gramaticais exigem revisão.",
+        "Revisão de pesquisa, técnica e especializada; autorização final pendentes."
+      ]
+    },
+    {
+      "id": "CUR-003",
+      "title": "O rosto também participa da gramática?",
+      "original": {
+        "id": "CUR-003",
+        "title": "O rosto também participa da gramática?",
+        "summary": "Expressões não manuais, incluindo rosto, cabeça e corpo, podem desempenhar funções linguísticas.",
+        "metadataNote": "",
+        "sources": [
+          "https://ojsrevista.furb.br/ojs/index.php/linguagens/article/download/7287/4653/32619"
+        ],
+        "pending": "Não reduzir expressões a emoções; laboratório de mãos não avalia língua completa.",
+        "reviewStatus": "candidate",
+        "rightsStatus": "external-link-only",
+        "publishable": false,
+        "relatedEntryIds": []
+      },
+      "editorialBody": "Expressões não manuais, incluindo rosto, cabeça e corpo, podem desempenhar funções linguísticas.",
+      "priority": false,
+      "claims": [],
+      "sourceUrls": [
+        "https://ojsrevista.furb.br/ojs/index.php/linguagens/article/download/7287/4653/32619"
+      ],
+      "metadata": {},
+      "additionalSourceNote": null,
+      "validationStatus": "draft",
+      "reviews": [],
+      "rightsPolicy": "external-link-only",
+      "publicationAuthorized": false,
+      "pending": [
+        "Não reduzir expressões a emoções; laboratório de mãos não avalia língua completa.",
+        "Revisão de pesquisa, técnica e especializada; autorização final pendentes.",
+        "Mapear afirmações individualmente."
+      ]
+    },
+    {
+      "id": "CUR-004",
+      "title": "Existem variações na Libras?",
+      "original": {
+        "id": "CUR-004",
+        "title": "Existem variações na Libras?",
+        "summary": "Sim. Línguas apresentam variações regionais e sociais; diferentes formas podem ser legítimas.",
+        "metadataNote": "",
+        "sources": [
+          "https://corpuslibras.ufsc.br/publicacoes",
+          "https://periodicos.ufsc.br/index.php/forum/article/view/77334"
+        ],
+        "pending": "Artigo não extraído; confirmar antes de publicar exemplos.",
+        "reviewStatus": "candidate",
+        "rightsStatus": "external-link-only",
+        "publishable": false,
+        "relatedEntryIds": [
+          "BIB-008",
+          "BIB-009"
+        ]
+      },
+      "editorialBody": "Sim. Línguas apresentam variações regionais e sociais; diferentes formas podem ser legítimas.",
+      "priority": false,
+      "claims": [],
+      "sourceUrls": [
+        "https://corpuslibras.ufsc.br/publicacoes",
+        "https://periodicos.ufsc.br/index.php/forum/article/view/77334"
+      ],
+      "metadata": {},
+      "additionalSourceNote": null,
+      "validationStatus": "draft",
+      "reviews": [],
+      "rightsPolicy": "external-link-only",
+      "publicationAuthorized": false,
+      "pending": [
+        "Artigo não extraído; confirmar antes de publicar exemplos.",
+        "Revisão de pesquisa, técnica e especializada; autorização final pendentes.",
+        "Mapear afirmações individualmente."
+      ]
+    },
+    {
+      "id": "CUR-005",
+      "title": "Toda pessoa surda usa Libras?",
+      "original": {
+        "id": "CUR-005",
+        "title": "Toda pessoa surda usa Libras?",
+        "summary": "Não. Trajetórias linguísticas são diversas. A PNS 2019 registrou conhecimento de Libras em 22,4% das pessoas de 5 a 40 anos com deficiência auditiva, conforme definição da pesquisa.",
+        "metadataNote": "",
+        "sources": [
+          "https://agenciadenoticias.ibge.gov.br/agencia-sala-de-imprensa/2013-agencia-de-noticias/releases/31445-pns-2019-pais-tem-17-3-milhoes-de-pessoas-com-algum-tipo-de-deficiencia"
+        ],
+        "pending": "Não generalizar para toda população surda ou para 2026.",
+        "reviewStatus": "candidate",
+        "rightsStatus": "external-link-only",
+        "publishable": false,
+        "relatedEntryIds": []
+      },
+      "editorialBody": "Não. Trajetórias linguísticas são diversas. A PNS 2019 registrou conhecimento de Libras em 22,4% das pessoas de 5 a 40 anos com deficiência auditiva, conforme definição da pesquisa.",
+      "priority": false,
+      "claims": [],
+      "sourceUrls": [
+        "https://agenciadenoticias.ibge.gov.br/agencia-sala-de-imprensa/2013-agencia-de-noticias/releases/31445-pns-2019-pais-tem-17-3-milhoes-de-pessoas-com-algum-tipo-de-deficiencia"
+      ],
+      "metadata": {},
+      "additionalSourceNote": null,
+      "validationStatus": "draft",
+      "reviews": [],
+      "rightsPolicy": "external-link-only",
+      "publicationAuthorized": false,
+      "pending": [
+        "Não generalizar para toda população surda ou para 2026.",
+        "Revisão de pesquisa, técnica e especializada; autorização final pendentes.",
+        "Mapear afirmações individualmente."
+      ]
+    },
+    {
+      "id": "CUR-006",
+      "title": "Existe poesia em Libras?",
+      "original": {
+        "id": "CUR-006",
+        "title": "Existe poesia em Libras?",
+        "summary": "Sim. Literatura sinalizada pode explorar movimento, espaço, ritmo e configurações de mão.",
+        "metadataNote": "",
+        "sources": [
+          "https://petletras.paginas.ufsc.br/2023/09/08/literatura-surda-os-conceitos-de-karnopp-mourao-e-sutton-spence/",
+          "https://librando.paginas.ufsc.br/artigos/"
+        ],
+        "pending": "Selecionar poema e autorização específica.",
+        "reviewStatus": "candidate",
+        "rightsStatus": "external-link-only",
+        "publishable": false,
+        "relatedEntryIds": [
+          "BIB-004",
+          "BIB-005",
+          "BIB-006",
+          "BIB-007",
+          "BIB-011",
+          "CUR-007",
+          "PER-003"
+        ]
+      },
+      "editorialBody": "A poesia em Libras explora recursos visuais e linguísticos, como ritmo, repetição e simetria. A produção poética sinalizada permite expressar experiências e criar narrativas artísticas. O acervo LIBRANDO reúne exemplos de poemas.",
+      "priority": true,
+      "claims": [
+        {
+          "id": "CUR-006-C01",
+          "text": "Ritmo, repetição e simetria são recursos poéticos.",
+          "url": "https://librando.paginas.ufsc.br/poemas/",
+          "locator": "Introdução do acervo",
+          "consultation": "content-checked"
+        },
+        {
+          "id": "CUR-006-C02",
+          "text": "O acervo lista poemas sinalizados.",
+          "url": "https://librando.paginas.ufsc.br/poemas/",
+          "locator": "Lista de obras",
+          "consultation": "content-checked"
+        }
+      ],
+      "sourceUrls": [
+        "https://petletras.paginas.ufsc.br/2023/09/08/literatura-surda-os-conceitos-de-karnopp-mourao-e-sutton-spence/",
+        "https://librando.paginas.ufsc.br/artigos/",
+        "https://librando.paginas.ufsc.br/poemas/"
+      ],
+      "metadata": {
+        "caveat": "Vídeos individuais e permissões ainda não verificados."
+      },
+      "additionalSourceNote": null,
+      "validationStatus": "draft",
+      "reviews": [],
+      "rightsPolicy": "external-link-only",
+      "publicationAuthorized": false,
+      "pending": [
+        "Selecionar poema e autorização específica.",
+        "Revisão de pesquisa, técnica e especializada; autorização final pendentes."
+      ]
+    },
+    {
+      "id": "CUR-007",
+      "title": "Línguas de sinais podem ser escritas?",
+      "original": {
+        "id": "CUR-007",
+        "title": "Línguas de sinais podem ser escritas?",
+        "summary": "SignWriting é um dos sistemas de escrita de línguas de sinais, estudado por Marianne Stumpf.",
+        "metadataNote": "",
+        "sources": [
+          "https://www.libras.ufsc.br/colecaoLetrasLibras/eixoFormacaoEspecifica/escritaDeSinaisIII/scos/cap10898/1.html"
+        ],
+        "pending": "Não apresentar como obrigatório ou universal.",
+        "reviewStatus": "candidate",
+        "rightsStatus": "external-link-only",
+        "publishable": false,
+        "relatedEntryIds": [
+          "BIB-004",
+          "BIB-005",
+          "BIB-006",
+          "BIB-007",
+          "BIB-011",
+          "CUR-006",
+          "PER-003"
+        ]
+      },
+      "editorialBody": "SignWriting é um dos sistemas de escrita de línguas de sinais, estudado por Marianne Stumpf.",
+      "priority": false,
+      "claims": [],
+      "sourceUrls": [
+        "https://www.libras.ufsc.br/colecaoLetrasLibras/eixoFormacaoEspecifica/escritaDeSinaisIII/scos/cap10898/1.html",
+        "https://corpusels.paginas.ufsc.br/files/2021/03/APRENDIZAGEM-DE-ESCRITA-DE-L%C3%8DNGUA-DE-SINAIS-PELO-SISTEMA-SIGNWRITINGLINGUAS-DE-SINAIS-NO-PAPEL-E-NO-COMPUTADOR-Marianne-Stumpf.pdf"
+      ],
+      "metadata": {},
+      "additionalSourceNote": [
+        "https://corpusels.paginas.ufsc.br/files/2021/03/APRENDIZAGEM-DE-ESCRITA-DE-L%C3%8DNGUA-DE-SINAIS-PELO-SISTEMA-SIGNWRITINGLINGUAS-DE-SINAIS-NO-PAPEL-E-NO-COMPUTADOR-Marianne-Stumpf.pdf",
+        "Tese localizada; não examinada integralmente."
+      ],
+      "validationStatus": "draft",
+      "reviews": [],
+      "rightsPolicy": "external-link-only",
+      "publicationAuthorized": false,
+      "pending": [
+        "Não apresentar como obrigatório ou universal.",
+        "Revisão de pesquisa, técnica e especializada; autorização final pendentes.",
+        "Mapear afirmações individualmente."
+      ]
+    },
+    {
+      "id": "CUR-008",
+      "title": "O que é cultura surda?",
+      "original": {
+        "id": "CUR-008",
+        "title": "O que é cultura surda?",
+        "summary": "Experiências, práticas culturais, identidades e formas de pertencimento podem ser construídas em comunidades surdas diversas.",
+        "metadataNote": "",
+        "sources": [
+          "https://repositorio.ufsc.br/handle/123456789/91978"
+        ],
+        "pending": "Evitar homogeneização e revisar com pessoas surdas.",
+        "reviewStatus": "candidate",
+        "rightsStatus": "external-link-only",
+        "publishable": false,
+        "relatedEntryIds": [
+          "BIB-002",
+          "PER-004",
+          "PER-005"
+        ]
+      },
+      "editorialBody": "Experiências, práticas culturais, identidades e formas de pertencimento podem ser construídas em comunidades surdas diversas.",
+      "priority": false,
+      "claims": [],
+      "sourceUrls": [
+        "https://repositorio.ufsc.br/handle/123456789/91978"
+      ],
+      "metadata": {},
+      "additionalSourceNote": null,
+      "validationStatus": "draft",
+      "reviews": [],
+      "rightsPolicy": "external-link-only",
+      "publicationAuthorized": false,
+      "pending": [
+        "Evitar homogeneização e revisar com pessoas surdas.",
+        "Revisão de pesquisa, técnica e especializada; autorização final pendentes.",
+        "Mapear afirmações individualmente."
+      ]
+    },
+    {
+      "id": "PER-001",
+      "title": "Nelson Pimenta",
+      "original": {
+        "id": "PER-001",
+        "title": "Nelson Pimenta",
+        "summary": "Referência em produções e estudos de Libras e literatura sinalizada.",
+        "metadataNote": "",
+        "sources": [
+          "https://www.revistas.editora.ufcg.edu.br/index.php/RLR/article/view/1742"
+        ],
+        "pending": "Confirmar biografia, obras e autodeclaração em fontes primárias.",
+        "reviewStatus": "candidate",
+        "rightsStatus": "external-link-only",
+        "publishable": false,
+        "relatedEntryIds": []
+      },
+      "editorialBody": "Nelson Pimenta de Castro é uma liderança surda com atuação na arte, educação e pesquisa. Sua trajetória inclui teatro, cinema e estudos da tradução. Entre seus trabalhos acadêmicos estão uma dissertação sobre tradução de fábulas e uma tese sobre prosódia em ASL e Libras.",
+      "priority": true,
+      "claims": [
+        {
+          "id": "PER-001-C01",
+          "text": "Atuação em educação, pesquisa e cinema.",
+          "url": "https://indl.iphan.gov.br/pessoas-de-referencia/nelson-pimenta-de-castro/",
+          "locator": "Perfil institucional",
+          "consultation": "content-checked"
+        },
+        {
+          "id": "PER-001-C02",
+          "text": "Trajetória artística e formação acadêmica.",
+          "url": "https://nuestra.ufsc.br/vocab/index.php?tema=42&/nelson-pimenta-de-castro",
+          "locator": "Perfil NUESTRA",
+          "consultation": "content-checked"
+        },
+        {
+          "id": "PER-001-C03",
+          "text": "Tese sobre prosódia em ASL e Libras, 2019.",
+          "url": "https://repositorio.ufsc.br/handle/123456789/204538",
+          "locator": "Registro da tese",
+          "consultation": "located"
+        },
+        {
+          "id": "PER-001-C04",
+          "text": "Dissertação sobre tradução de fábulas, 2012.",
+          "url": "http://tede.ufsc.br/teses/PGET0138-D.pdf",
+          "locator": "Registro localizado",
+          "consultation": "located"
+        }
+      ],
+      "sourceUrls": [
+        "https://www.revistas.editora.ufcg.edu.br/index.php/RLR/article/view/1742",
+        "https://indl.iphan.gov.br/pessoas-de-referencia/nelson-pimenta-de-castro/",
+        "https://nuestra.ufsc.br/vocab/index.php?tema=42&/nelson-pimenta-de-castro",
+        "https://repositorio.ufsc.br/handle/123456789/204538",
+        "http://tede.ufsc.br/teses/PGET0138-D.pdf"
+      ],
+      "metadata": {
+        "name": "Nelson Pimenta de Castro",
+        "caveat": "Não afirmar pioneirismo absoluto ou cargo atual sem confirmação."
+      },
+      "additionalSourceNote": null,
+      "validationStatus": "draft",
+      "reviews": [],
+      "rightsPolicy": "external-link-only",
+      "publicationAuthorized": false,
+      "pending": [
+        "Confirmar biografia, obras e autodeclaração em fontes primárias.",
+        "Revisão de pesquisa, técnica e especializada; autorização final pendentes."
+      ]
+    },
+    {
+      "id": "PER-002",
+      "title": "Lucinda Ferreira Brito",
+      "original": {
+        "id": "PER-002",
+        "title": "Lucinda Ferreira Brito",
+        "summary": "Pesquisadora pioneira dos estudos linguísticos das línguas de sinais no Brasil; autora de Por uma gramática de línguas de sinais.",
+        "metadataNote": "",
+        "sources": [
+          "https://seer.ufu.br/index.php/EducacaoFilosofia/article/view/29990"
+        ],
+        "pending": "Confirmar trajetória e datas.",
+        "reviewStatus": "candidate",
+        "rightsStatus": "external-link-only",
+        "publishable": false,
+        "relatedEntryIds": [
+          "BIB-001",
+          "BIB-003",
+          "CUR-002",
+          "PER-006"
+        ]
+      },
+      "editorialBody": "Lucinda Ferreira Brito é uma referência nos estudos linguísticos das línguas de sinais no Brasil. Sua obra Por uma gramática de línguas de sinais, originalmente publicada em 1995, integra a bibliografia sobre a descrição linguística da Libras.",
+      "priority": true,
+      "claims": [
+        {
+          "id": "PER-002-C01",
+          "text": "Obra gramatical atribuída a Lucinda Ferreira Brito.",
+          "url": "https://seer.ufu.br/index.php/EducacaoFilosofia/article/view/29990",
+          "locator": "Resenha acadêmica",
+          "consultation": "located"
+        }
+      ],
+      "sourceUrls": [
+        "https://seer.ufu.br/index.php/EducacaoFilosofia/article/view/29990"
+      ],
+      "metadata": {
+        "caveat": "Confirmar título exato por edição, trajetória e datas em fonte institucional."
+      },
+      "additionalSourceNote": null,
+      "validationStatus": "draft",
+      "reviews": [],
+      "rightsPolicy": "external-link-only",
+      "publicationAuthorized": false,
+      "pending": [
+        "Confirmar trajetória e datas.",
+        "Revisão de pesquisa, técnica e especializada; autorização final pendentes."
+      ]
+    },
+    {
+      "id": "PER-003",
+      "title": "Marianne Rossi Stumpf",
+      "original": {
+        "id": "PER-003",
+        "title": "Marianne Rossi Stumpf",
+        "summary": "Pesquisadora da escrita de línguas de sinais e da educação, autora de tese sobre SignWriting.",
+        "metadataNote": "",
+        "sources": [
+          "https://www.libras.ufsc.br/colecaoLetrasLibras/eixoFormacaoEspecifica/escritaDeSinaisIII/scos/cap10898/1.html"
+        ],
+        "pending": "Não inferir cargos atuais de apresentação histórica.",
+        "reviewStatus": "candidate",
+        "rightsStatus": "external-link-only",
+        "publishable": false,
+        "relatedEntryIds": [
+          "BIB-004",
+          "BIB-005",
+          "BIB-006",
+          "BIB-007",
+          "BIB-011",
+          "CUR-006",
+          "CUR-007"
+        ]
+      },
+      "editorialBody": "Pesquisadora da escrita de línguas de sinais e da educação, autora de tese sobre SignWriting.",
+      "priority": false,
+      "claims": [],
+      "sourceUrls": [
+        "https://www.libras.ufsc.br/colecaoLetrasLibras/eixoFormacaoEspecifica/escritaDeSinaisIII/scos/cap10898/1.html"
+      ],
+      "metadata": {},
+      "additionalSourceNote": null,
+      "validationStatus": "draft",
+      "reviews": [],
+      "rightsPolicy": "external-link-only",
+      "publicationAuthorized": false,
+      "pending": [
+        "Não inferir cargos atuais de apresentação histórica.",
+        "Revisão de pesquisa, técnica e especializada; autorização final pendentes.",
+        "Mapear afirmações individualmente."
+      ]
+    },
+    {
+      "id": "PER-004",
+      "title": "Karin Lilian Strobel",
+      "original": {
+        "id": "PER-004",
+        "title": "Karin Lilian Strobel",
+        "summary": "Pesquisadora de cultura e história surda, autora de tese sobre vestígios culturais.",
+        "metadataNote": "",
+        "sources": [
+          "https://repositorio.ufsc.br/handle/123456789/91978"
+        ],
+        "pending": "Confirmar biografia e edição das obras.",
+        "reviewStatus": "candidate",
+        "rightsStatus": "external-link-only",
+        "publishable": false,
+        "relatedEntryIds": [
+          "BIB-002",
+          "CUR-008",
+          "PER-005"
+        ]
+      },
+      "editorialBody": "Pesquisadora de cultura e história surda, autora de tese sobre vestígios culturais.",
+      "priority": false,
+      "claims": [],
+      "sourceUrls": [
+        "https://repositorio.ufsc.br/handle/123456789/91978",
+        "https://noticias.ufsc.br/2016/12/reflexoes-sobre-a-cultura-a-surda/"
+      ],
+      "metadata": {},
+      "additionalSourceNote": [
+        "https://noticias.ufsc.br/2016/12/reflexoes-sobre-a-cultura-a-surda/",
+        "Notícia institucional sobre obra e trajetória."
+      ],
+      "validationStatus": "draft",
+      "reviews": [],
+      "rightsPolicy": "external-link-only",
+      "publicationAuthorized": false,
+      "pending": [
+        "Confirmar biografia e edição das obras.",
+        "Revisão de pesquisa, técnica e especializada; autorização final pendentes.",
+        "Mapear afirmações individualmente."
+      ]
+    },
+    {
+      "id": "PER-005",
+      "title": "Gladis Perlin",
+      "original": {
+        "id": "PER-005",
+        "title": "Gladis Perlin",
+        "summary": "Referência candidata em identidade e educação de surdos.",
+        "metadataNote": "",
+        "sources": [
+          "https://librando.paginas.ufsc.br/artigos/"
+        ],
+        "pending": "Fonte específica da biografia ainda necessária; confirmar grafia e obras.",
+        "reviewStatus": "candidate",
+        "rightsStatus": "external-link-only",
+        "publishable": false,
+        "relatedEntryIds": [
+          "BIB-002",
+          "CUR-008",
+          "PER-004"
+        ]
+      },
+      "editorialBody": "Referência candidata em identidade e educação de surdos.",
+      "priority": false,
+      "claims": [],
+      "sourceUrls": [
+        "https://librando.paginas.ufsc.br/artigos/",
+        "https://lume.ufrgs.br/handle/10183/5880"
+      ],
+      "metadata": {},
+      "additionalSourceNote": [
+        "https://lume.ufrgs.br/handle/10183/5880",
+        "Tese de Gladis Teresinha Taschetto Perlin, 2003; identidade e alteridade."
+      ],
+      "validationStatus": "draft",
+      "reviews": [],
+      "rightsPolicy": "external-link-only",
+      "publicationAuthorized": false,
+      "pending": [
+        "Fonte específica da biografia ainda necessária; confirmar grafia e obras.",
+        "Revisão de pesquisa, técnica e especializada; autorização final pendentes.",
+        "Mapear afirmações individualmente."
+      ]
+    },
+    {
+      "id": "PER-006",
+      "title": "Ronice Müller de Quadros",
+      "original": {
+        "id": "PER-006",
+        "title": "Ronice Müller de Quadros",
+        "summary": "Pesquisadora de linguística das línguas de sinais e organizadora de Gramática da Libras.",
+        "metadataNote": "",
+        "sources": [
+          "https://repositorio.ufsc.br/handle/123456789/262318"
+        ],
+        "pending": "Confirmar trajetória e cargos em fonte institucional.",
+        "reviewStatus": "candidate",
+        "rightsStatus": "external-link-only",
+        "publishable": false,
+        "relatedEntryIds": [
+          "BIB-001",
+          "BIB-003",
+          "CUR-002",
+          "PER-002"
+        ]
+      },
+      "editorialBody": "Pesquisadora de linguística das línguas de sinais e organizadora de Gramática da Libras.",
+      "priority": false,
+      "claims": [],
+      "sourceUrls": [
+        "https://repositorio.ufsc.br/handle/123456789/262318",
+        "https://repositorio.ufsc.br/handle/123456789/262318?show=full"
+      ],
+      "metadata": {},
+      "additionalSourceNote": [
+        "https://repositorio.ufsc.br/handle/123456789/262318?show=full",
+        "Créditos de organização da gramática."
+      ],
+      "validationStatus": "draft",
+      "reviews": [],
+      "rightsPolicy": "external-link-only",
+      "publicationAuthorized": false,
+      "pending": [
+        "Confirmar trajetória e cargos em fonte institucional.",
+        "Revisão de pesquisa, técnica e especializada; autorização final pendentes.",
+        "Mapear afirmações individualmente."
+      ]
+    },
+    {
+      "id": "PER-007",
+      "title": "Flausino José da Gama",
+      "original": {
+        "id": "PER-007",
+        "title": "Flausino José da Gama",
+        "summary": "Ex-aluno do instituto que se tornou o INES e responsável pela Iconographia de 1875.",
+        "metadataNote": "",
+        "sources": [
+          "https://seer.ines.gov.br/index.php/serie-historica/issue/view/167"
+        ],
+        "pending": "Contextualizar matriz francesa; não inventar retrato.",
+        "reviewStatus": "candidate",
+        "rightsStatus": "external-link-only",
+        "publishable": false,
+        "relatedEntryIds": [
+          "BIB-010",
+          "HIST-001",
+          "HIST-002"
+        ]
+      },
+      "editorialBody": "Ex-aluno do instituto que se tornou o INES e responsável pela Iconographia de 1875.",
+      "priority": false,
+      "claims": [],
+      "sourceUrls": [
+        "https://seer.ines.gov.br/index.php/serie-historica/issue/view/167"
+      ],
+      "metadata": {},
+      "additionalSourceNote": null,
+      "validationStatus": "draft",
+      "reviews": [],
+      "rightsPolicy": "external-link-only",
+      "publicationAuthorized": false,
+      "pending": [
+        "Contextualizar matriz francesa; não inventar retrato.",
+        "Revisão de pesquisa, técnica e especializada; autorização final pendentes.",
+        "Mapear afirmações individualmente."
+      ]
+    },
+    {
+      "id": "BIB-001",
+      "title": "Por uma gramática de línguas de sinais",
+      "original": {
+        "id": "BIB-001",
+        "title": "Por uma gramática de línguas de sinais",
+        "summary": "Estudos linguísticos; resenha, sem edição integral localizada.",
+        "metadataNote": "Lucinda Ferreira Brito · 1995 · Tempo Brasileiro",
+        "sources": [
+          "https://seer.ufu.br/index.php/EducacaoFilosofia/article/view/29990"
+        ],
+        "pending": "Conferir metadados e acesso; sem autorização de mídia.",
+        "reviewStatus": "candidate",
+        "rightsStatus": "external-link-only",
+        "publishable": false,
+        "relatedEntryIds": [
+          "BIB-003",
+          "CUR-002",
+          "PER-002",
+          "PER-006"
+        ]
+      },
+      "editorialBody": "Estudos linguísticos; resenha, sem edição integral localizada.",
+      "priority": false,
+      "claims": [],
+      "sourceUrls": [
+        "https://seer.ufu.br/index.php/EducacaoFilosofia/article/view/29990"
+      ],
+      "metadata": {},
+      "additionalSourceNote": null,
+      "validationStatus": "draft",
+      "reviews": [],
+      "rightsPolicy": "external-link-only",
+      "publicationAuthorized": false,
+      "pending": [
+        "Conferir metadados e acesso; sem autorização de mídia.",
+        "Revisão de pesquisa, técnica e especializada; autorização final pendentes.",
+        "Mapear afirmações individualmente."
+      ]
+    },
+    {
+      "id": "BIB-002",
+      "title": "As imagens do outro sobre a cultura surda",
+      "original": {
+        "id": "BIB-002",
+        "title": "As imagens do outro sobre a cultura surda",
+        "summary": "Cultura e representações; referência editorial.",
+        "metadataNote": "Karin Strobel · 4ª ed. 2016 · Editora UFSC",
+        "sources": [
+          "https://editora.ufsc.br/2016/10/10/lancamento-as-imagens-do-outro-sobre-a-cultura-surda/"
+        ],
+        "pending": "Conferir metadados e acesso; sem autorização de mídia.",
+        "reviewStatus": "candidate",
+        "rightsStatus": "external-link-only",
+        "publishable": false,
+        "relatedEntryIds": [
+          "CUR-008",
+          "PER-004",
+          "PER-005"
+        ]
+      },
+      "editorialBody": "Obra de Karin Lilian Strobel voltada às representações da cultura surda. A quarta edição foi lançada pela Editora UFSC em 2016. É uma leitura candidata para conhecer perspectivas culturais e identitárias.",
+      "priority": true,
+      "claims": [
+        {
+          "id": "BIB-002-C01",
+          "text": "Quarta edição, Editora UFSC, 2016.",
+          "url": "https://editora.ufsc.br/2016/10/10/lancamento-as-imagens-do-outro-sobre-a-cultura-surda/",
+          "locator": "Notícia de lançamento",
+          "consultation": "located"
+        }
+      ],
+      "sourceUrls": [
+        "https://editora.ufsc.br/2016/10/10/lancamento-as-imagens-do-outro-sobre-a-cultura-surda/"
+      ],
+      "metadata": {
+        "creators": [
+          "Karin Lilian Strobel"
+        ],
+        "year": 2016,
+        "edition": "4ª",
+        "isbn": "9788532807786",
+        "publisher": "Editora UFSC",
+        "subject": [
+          "cultura surda"
+        ],
+        "accessNote": "Disponibilidade comercial não confirmada."
+      },
+      "additionalSourceNote": null,
+      "validationStatus": "draft",
+      "reviews": [],
+      "rightsPolicy": "external-link-only",
+      "publicationAuthorized": false,
+      "pending": [
+        "Conferir metadados e acesso; sem autorização de mídia.",
+        "Revisão de pesquisa, técnica e especializada; autorização final pendentes."
+      ]
+    },
+    {
+      "id": "BIB-003",
+      "title": "Gramática da Libras — Volume 1",
+      "original": {
+        "id": "BIB-003",
+        "title": "Gramática da Libras — Volume 1",
+        "summary": "Linguística; PDF institucional.",
+        "metadataNote": "Quadros, Jair Barbosa da Silva, Miriam Royer e Vinícius Rodrigues da Silva (org., a conferir) · INES · 2023",
+        "sources": [
+          "https://repositorio.ufsc.br/handle/123456789/262318"
+        ],
+        "pending": "Conferir metadados e acesso; sem autorização de mídia.",
+        "reviewStatus": "candidate",
+        "rightsStatus": "external-link-only",
+        "publishable": false,
+        "relatedEntryIds": [
+          "BIB-001",
+          "CUR-002",
+          "PER-002",
+          "PER-006"
+        ]
+      },
+      "editorialBody": "Gramática da Libras — Volume 1 reúne estudos linguísticos em uma publicação do INES de 2023. O registro institucional identifica quatro organizadores e uma equipe ampla de autores. O PDF está disponível no repositório da UFSC.",
+      "priority": true,
+      "claims": [
+        {
+          "id": "BIB-003-C01",
+          "text": "Publicação INES de 2023, 511 páginas.",
+          "url": "https://repositorio.ufsc.br/handle/123456789/262318?show=full",
+          "locator": "Metadados completos",
+          "consultation": "metadata-checked"
+        },
+        {
+          "id": "BIB-003-C02",
+          "text": "Organizadores: Ronice Müller de Quadros, Jair Barbosa da Silva, Miriam Royer e Vinícius Rodrigues da Silva.",
+          "url": "https://repositorio.ufsc.br/handle/123456789/262318?show=full",
+          "locator": "Créditos do repositório",
+          "consultation": "metadata-checked"
+        }
+      ],
+      "sourceUrls": [
+        "https://repositorio.ufsc.br/handle/123456789/262318",
+        "https://repositorio.ufsc.br/handle/123456789/262318?show=full"
+      ],
+      "metadata": {
+        "creators": [
+          "Ronice Müller de Quadros",
+          "Jair Barbosa da Silva",
+          "Miriam Royer",
+          "Vinícius Rodrigues da Silva"
+        ],
+        "creatorRole": "organizadores",
+        "year": 2023,
+        "pages": 511,
+        "isbn": "9788563240156",
+        "publisher": "INES",
+        "subject": [
+          "linguística"
+        ],
+        "accessOptions": [
+          {
+            "url": "https://repositorio.ufsc.br/handle/123456789/262318?show=full",
+            "mode": "institutional-digital"
+          }
+        ],
+        "caveat": "ISBN registrado em campo ISSN no repositório; conferir ficha catalográfica. Fernanda Machado consta entre autores, sem implicar aprovação."
+      },
+      "additionalSourceNote": null,
+      "validationStatus": "draft",
+      "reviews": [],
+      "rightsPolicy": "external-link-only",
+      "publicationAuthorized": false,
+      "pending": [
+        "Conferir metadados e acesso; sem autorização de mídia.",
+        "Revisão de pesquisa, técnica e especializada; autorização final pendentes."
+      ]
+    },
+    {
+      "id": "BIB-004",
+      "title": "Literatura em Libras",
+      "original": {
+        "id": "BIB-004",
+        "title": "Literatura em Libras",
+        "summary": "Literatura sinalizada; versões em português e Libras a conferir.",
+        "metadataNote": "Rachel Sutton-Spence · 2021 · Arara Azul",
+        "sources": [
+          "https://repositorio.ufsc.br/xmlui/handle/123456789/259641"
+        ],
+        "pending": "Conferir metadados e acesso; sem autorização de mídia.",
+        "reviewStatus": "candidate",
+        "rightsStatus": "external-link-only",
+        "publishable": false,
+        "relatedEntryIds": [
+          "BIB-005",
+          "BIB-006",
+          "BIB-007",
+          "BIB-011",
+          "CUR-006",
+          "CUR-007",
+          "PER-003"
+        ]
+      },
+      "editorialBody": "Literatura em Libras, de Rachel Sutton-Spence, com tradução de Gustavo Gusmão, apresenta estudos sobre literatura sinalizada. A primeira edição é de 2021, pela Arara Azul. O LIBRANDO indica modalidades textuais e audiovisuais.",
+      "priority": true,
+      "claims": [
+        {
+          "id": "BIB-004-C01",
+          "text": "Autoria, tradução e edição de 2021.",
+          "url": "https://repositorio.ufsc.br/xmlui/handle/123456789/259641",
+          "locator": "Metadados do repositório",
+          "consultation": "metadata-checked"
+        },
+        {
+          "id": "BIB-004-C02",
+          "text": "O LIBRANDO indica acesso textual e vídeos em Libras.",
+          "url": "https://librando.paginas.ufsc.br/livros-2/",
+          "locator": "Lista de livros",
+          "consultation": "content-checked"
+        }
+      ],
+      "sourceUrls": [
+        "https://repositorio.ufsc.br/xmlui/handle/123456789/259641",
+        "https://librando.paginas.ufsc.br/livros-2/"
+      ],
+      "metadata": {
+        "creators": [
+          "Rachel Sutton-Spence"
+        ],
+        "translator": "Gustavo Gusmão",
+        "year": 2021,
+        "edition": "1ª",
+        "publisher": "Arara Azul",
+        "subject": [
+          "literatura sinalizada"
+        ],
+        "accessOptions": [
+          {
+            "url": "https://repositorio.ufsc.br/xmlui/handle/123456789/259641",
+            "mode": "institutional-digital"
+          },
+          {
+            "url": "https://www.youtube.com/playlist?list=PL1FZ-Ods_um2_gOYoasJB6G5baeZes_LJ",
+            "mode": "video",
+            "verification": "located"
+          }
+        ]
+      },
+      "additionalSourceNote": null,
+      "validationStatus": "draft",
+      "reviews": [],
+      "rightsPolicy": "external-link-only",
+      "publicationAuthorized": false,
+      "pending": [
+        "Conferir metadados e acesso; sem autorização de mídia.",
+        "Revisão de pesquisa, técnica e especializada; autorização final pendentes."
+      ]
+    },
+    {
+      "id": "BIB-005",
+      "title": "Cinderela Surda",
+      "original": {
+        "id": "BIB-005",
+        "title": "Cinderela Surda",
+        "summary": "Literatura infantil; releitura cultural.",
+        "metadataNote": "Carolina Hessel, Fabiano Rosa e Lodenir Karnopp · edição localizada 2011",
+        "sources": [
+          "https://librando.paginas.ufsc.br/signwrite/"
+        ],
+        "pending": "Conferir metadados e acesso; sem autorização de mídia.",
+        "reviewStatus": "candidate",
+        "rightsStatus": "external-link-only",
+        "publishable": false,
+        "relatedEntryIds": [
+          "BIB-004",
+          "BIB-006",
+          "BIB-007",
+          "BIB-011",
+          "CUR-006",
+          "CUR-007",
+          "PER-003"
+        ]
+      },
+      "editorialBody": "Cinderela Surda é uma releitura literária infantil que integra o acervo de obras com escrita de sinais do LIBRANDO. A edição localizada é a terceira, de 2011, publicada pela ULBRA.",
+      "priority": true,
+      "claims": [
+        {
+          "id": "BIB-005-C01",
+          "text": "Autoria e terceira edição de 2011, 36 páginas.",
+          "url": "https://librando.paginas.ufsc.br/signwrite/",
+          "locator": "Entrada Cinderela Surda",
+          "consultation": "metadata-checked"
+        }
+      ],
+      "sourceUrls": [
+        "https://librando.paginas.ufsc.br/signwrite/"
+      ],
+      "metadata": {
+        "creators": [
+          "Carolina Hessel",
+          "Fabiano Rosa",
+          "Lodenir Becker Karnopp"
+        ],
+        "year": 2011,
+        "edition": "3ª",
+        "pages": 36,
+        "publisher": "ULBRA",
+        "subject": [
+          "literatura infantil",
+          "cultura surda"
+        ],
+        "accessNote": "Referência bibliográfica; acesso integral não confirmado."
+      },
+      "additionalSourceNote": null,
+      "validationStatus": "draft",
+      "reviews": [],
+      "rightsPolicy": "external-link-only",
+      "publicationAuthorized": false,
+      "pending": [
+        "Conferir metadados e acesso; sem autorização de mídia.",
+        "Revisão de pesquisa, técnica e especializada; autorização final pendentes."
+      ]
+    },
+    {
+      "id": "BIB-006",
+      "title": "Rapunzel Surda",
+      "original": {
+        "id": "BIB-006",
+        "title": "Rapunzel Surda",
+        "summary": "Literatura infantil com protagonista surda.",
+        "metadataNote": "Carolina Hessel Silveira, Lodenir Karnopp e Fabiano Souto Rosa · edição localizada 2005",
+        "sources": [
+          "https://librando.paginas.ufsc.br/signwrite/"
+        ],
+        "pending": "Conferir metadados e acesso; sem autorização de mídia.",
+        "reviewStatus": "candidate",
+        "rightsStatus": "external-link-only",
+        "publishable": false,
+        "relatedEntryIds": [
+          "BIB-004",
+          "BIB-005",
+          "BIB-007",
+          "BIB-011",
+          "CUR-006",
+          "CUR-007",
+          "PER-003"
+        ]
+      },
+      "editorialBody": "Literatura infantil com protagonista surda.",
+      "priority": false,
+      "claims": [],
+      "sourceUrls": [
+        "https://librando.paginas.ufsc.br/signwrite/"
+      ],
+      "metadata": {},
+      "additionalSourceNote": null,
+      "validationStatus": "draft",
+      "reviews": [],
+      "rightsPolicy": "external-link-only",
+      "publicationAuthorized": false,
+      "pending": [
+        "Conferir metadados e acesso; sem autorização de mídia.",
+        "Revisão de pesquisa, técnica e especializada; autorização final pendentes.",
+        "Mapear afirmações individualmente."
+      ]
+    },
+    {
+      "id": "BIB-007",
+      "title": "O Feijãozinho Surdo",
+      "original": {
+        "id": "BIB-007",
+        "title": "O Feijãozinho Surdo",
+        "summary": "Literatura infantil e representatividade.",
+        "metadataNote": "Liêge Gemelli Kuchenbecker · 2009",
+        "sources": [
+          "https://librando.paginas.ufsc.br/signwrite/"
+        ],
+        "pending": "Conferir metadados e acesso; sem autorização de mídia.",
+        "reviewStatus": "candidate",
+        "rightsStatus": "external-link-only",
+        "publishable": false,
+        "relatedEntryIds": [
+          "BIB-004",
+          "BIB-005",
+          "BIB-006",
+          "BIB-011",
+          "CUR-006",
+          "CUR-007",
+          "PER-003"
+        ]
+      },
+      "editorialBody": "Literatura infantil e representatividade.",
+      "priority": false,
+      "claims": [],
+      "sourceUrls": [
+        "https://librando.paginas.ufsc.br/signwrite/"
+      ],
+      "metadata": {},
+      "additionalSourceNote": null,
+      "validationStatus": "draft",
+      "reviews": [],
+      "rightsPolicy": "external-link-only",
+      "publicationAuthorized": false,
+      "pending": [
+        "Conferir metadados e acesso; sem autorização de mídia.",
+        "Revisão de pesquisa, técnica e especializada; autorização final pendentes.",
+        "Mapear afirmações individualmente."
+      ]
+    },
+    {
+      "id": "BIB-008",
+      "title": "Novo Deit-Libras",
+      "original": {
+        "id": "BIB-008",
+        "title": "Novo Deit-Libras",
+        "summary": "Dicionário ilustrado; disponibilidade comercial a conferir.",
+        "metadataNote": "Fernando Capovilla, Walkiria Raphael e Aline Mauricio · Edusp",
+        "sources": [
+          "https://www.edusp.com.br/livros/novo-deit-libras/"
+        ],
+        "pending": "Conferir metadados e acesso; sem autorização de mídia.",
+        "reviewStatus": "candidate",
+        "rightsStatus": "external-link-only",
+        "publishable": false,
+        "relatedEntryIds": [
+          "BIB-009",
+          "CUR-004"
+        ]
+      },
+      "editorialBody": "Dicionário ilustrado; disponibilidade comercial a conferir.",
+      "priority": false,
+      "claims": [],
+      "sourceUrls": [
+        "https://www.edusp.com.br/livros/novo-deit-libras/"
+      ],
+      "metadata": {},
+      "additionalSourceNote": null,
+      "validationStatus": "draft",
+      "reviews": [],
+      "rightsPolicy": "external-link-only",
+      "publicationAuthorized": false,
+      "pending": [
+        "Conferir metadados e acesso; sem autorização de mídia.",
+        "Revisão de pesquisa, técnica e especializada; autorização final pendentes.",
+        "Mapear afirmações individualmente."
+      ]
+    },
+    {
+      "id": "BIB-009",
+      "title": "Dicionário Digital da Libras",
+      "original": {
+        "id": "BIB-009",
+        "title": "Dicionário Digital da Libras",
+        "summary": "Consulta digital de sinais.",
+        "metadataNote": "INES / Acessibilidade Brasil",
+        "sources": [
+          "https://dicionario.ines.gov.br/"
+        ],
+        "pending": "Conferir metadados e acesso; sem autorização de mídia.",
+        "reviewStatus": "candidate",
+        "rightsStatus": "external-link-only",
+        "publishable": false,
+        "relatedEntryIds": [
+          "BIB-008",
+          "CUR-004"
+        ]
+      },
+      "editorialBody": "Consulta digital de sinais.",
+      "priority": false,
+      "claims": [],
+      "sourceUrls": [
+        "https://dicionario.ines.gov.br/"
+      ],
+      "metadata": {},
+      "additionalSourceNote": null,
+      "validationStatus": "draft",
+      "reviews": [],
+      "rightsPolicy": "external-link-only",
+      "publicationAuthorized": false,
+      "pending": [
+        "Conferir metadados e acesso; sem autorização de mídia.",
+        "Revisão de pesquisa, técnica e especializada; autorização final pendentes.",
+        "Mapear afirmações individualmente."
+      ]
+    },
+    {
+      "id": "BIB-010",
+      "title": "Iconographia dos Signaes dos Surdos-Mudos",
+      "original": {
+        "id": "BIB-010",
+        "title": "Iconographia dos Signaes dos Surdos-Mudos",
+        "summary": "Patrimônio histórico; título original de época, não terminologia atual.",
+        "metadataNote": "Flausino José da Gama · 1875",
+        "sources": [
+          "https://seer.ines.gov.br/index.php/serie-historica/issue/view/167"
+        ],
+        "pending": "Conferir metadados e acesso; sem autorização de mídia.",
+        "reviewStatus": "candidate",
+        "rightsStatus": "external-link-only",
+        "publishable": false,
+        "relatedEntryIds": [
+          "HIST-001",
+          "HIST-002",
+          "PER-007"
+        ]
+      },
+      "editorialBody": "A Iconographia dos Signaes dos Surdos-Mudos, de 1875, é um documento histórico associado a Flausino José da Gama. Estudos comparativos apontam sua matriz na obra francesa de Pierre Pélissier. O título original é preservado como registro de época, não como terminologia contemporânea.",
+      "priority": true,
+      "claims": [
+        {
+          "id": "BIB-010-C01",
+          "text": "Obra de Flausino publicada em 1875.",
+          "url": "https://seer.ines.gov.br/index.php/serie-historica/issue/view/167",
+          "locator": "Apresentação do fac-símile",
+          "consultation": "content-checked"
+        },
+        {
+          "id": "BIB-010-C02",
+          "text": "Matriz francesa de Pierre Pélissier.",
+          "url": "https://www.scielo.br/j/rbee/a/S5Gyt4gMNzzQJJmLYqMcqCC/abstract/?lang=pt",
+          "locator": "Resumo do estudo de Sofiato e Reily",
+          "consultation": "located"
+        }
+      ],
+      "sourceUrls": [
+        "https://seer.ines.gov.br/index.php/serie-historica/issue/view/167",
+        "https://www.scielo.br/j/rbee/a/S5Gyt4gMNzzQJJmLYqMcqCC/abstract/?lang=pt"
+      ],
+      "metadata": {
+        "creators": [
+          "Flausino José da Gama"
+        ],
+        "year": 1875,
+        "subject": [
+          "história"
+        ],
+        "accessOptions": [
+          {
+            "url": "https://seer.ines.gov.br/index.php/serie-historica/issue/view/167",
+            "mode": "institutional-digital"
+          }
+        ],
+        "caveat": "Não tratar como inventário independente de Libras atual; reprodução não autorizada."
+      },
+      "additionalSourceNote": null,
+      "validationStatus": "draft",
+      "reviews": [],
+      "rightsPolicy": "external-link-only",
+      "publicationAuthorized": false,
+      "pending": [
+        "Conferir metadados e acesso; sem autorização de mídia.",
+        "Revisão de pesquisa, técnica e especializada; autorização final pendentes."
+      ]
+    },
+    {
+      "id": "BIB-011",
+      "title": "Contação de Histórias",
+      "original": {
+        "id": "BIB-011",
+        "title": "Contação de Histórias",
+        "summary": "Série audiovisual de literatura infantil e juvenil.",
+        "metadataNote": "TV INES",
+        "sources": [
+          "https://debasi.ines.gov.br/tv-ines/conta%C3%A7%C3%A3o-de-hist%C3%B3rias"
+        ],
+        "pending": "Conferir metadados e acesso; sem autorização de mídia.",
+        "reviewStatus": "candidate",
+        "rightsStatus": "external-link-only",
+        "publishable": false,
+        "relatedEntryIds": [
+          "BIB-004",
+          "BIB-005",
+          "BIB-006",
+          "BIB-007",
+          "CUR-006",
+          "CUR-007",
+          "PER-003"
+        ]
+      },
+      "editorialBody": "Contação de Histórias é uma série da TV INES que apresenta animações de obras de autores e ilustradores nacionais traduzidas para Libras, destinadas ao público infantil e juvenil.",
+      "priority": true,
+      "claims": [
+        {
+          "id": "BIB-011-C01",
+          "text": "Série de animações literárias traduzidas para Libras.",
+          "url": "https://debasi.ines.gov.br/tv-ines/conta%C3%A7%C3%A3o-de-hist%C3%B3rias",
+          "locator": "Descrição institucional da série",
+          "consultation": "content-checked"
+        }
+      ],
+      "sourceUrls": [
+        "https://debasi.ines.gov.br/tv-ines/conta%C3%A7%C3%A3o-de-hist%C3%B3rias"
+      ],
+      "metadata": {
+        "creators": [
+          "TV INES"
+        ],
+        "subject": [
+          "literatura infantil",
+          "audiovisual"
+        ],
+        "accessOptions": [
+          {
+            "url": "https://debasi.ines.gov.br/tv-ines/conta%C3%A7%C3%A3o-de-hist%C3%B3rias",
+            "mode": "external-website"
+          }
+        ],
+        "caveat": "Créditos e direitos de cada episódio precisam de verificação."
+      },
+      "additionalSourceNote": null,
+      "validationStatus": "draft",
+      "reviews": [],
+      "rightsPolicy": "external-link-only",
+      "publicationAuthorized": false,
+      "pending": [
+        "Conferir metadados e acesso; sem autorização de mídia.",
+        "Revisão de pesquisa, técnica e especializada; autorização final pendentes."
+      ]
+    },
+    {
+      "id": "BIB-012",
+      "title": "A Vida em Libras",
+      "original": {
+        "id": "BIB-012",
+        "title": "A Vida em Libras",
+        "summary": "Série audiovisual sobre situações cotidianas.",
+        "metadataNote": "TV INES · Heveraldo Ferreira (apresentação a conferir)",
+        "sources": [
+          "https://debasi.ines.gov.br/tv-ines/a-vida-em-libras"
+        ],
+        "pending": "Conferir metadados e acesso; sem autorização de mídia.",
+        "reviewStatus": "candidate",
+        "rightsStatus": "external-link-only",
+        "publishable": false,
+        "relatedEntryIds": []
+      },
+      "editorialBody": "Série audiovisual sobre situações cotidianas.",
+      "priority": false,
+      "claims": [],
+      "sourceUrls": [
+        "https://debasi.ines.gov.br/tv-ines/a-vida-em-libras"
+      ],
+      "metadata": {},
+      "additionalSourceNote": null,
+      "validationStatus": "draft",
+      "reviews": [],
+      "rightsPolicy": "external-link-only",
+      "publicationAuthorized": false,
+      "pending": [
+        "Conferir metadados e acesso; sem autorização de mídia.",
+        "Revisão de pesquisa, técnica e especializada; autorização final pendentes.",
+        "Mapear afirmações individualmente."
+      ]
+    }
+  ]
+}
