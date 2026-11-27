@@ -49,6 +49,15 @@ describe("cultural fixture rendering", () => {
     expect(html).not.toContain("<img");
   });
 
+  it("renders a history detail without relations when the public DTO has none", () => {
+    const [entryWithoutRelations] = fixtureHistoryEntries;
+    const html = renderToStaticMarkup(
+      <CulturalDetail entry={entryWithoutRelations} relations={[]} />,
+    );
+    expect(html).toContain("Contexto histórico");
+    expect(html).not.toContain("Relações culturais");
+  });
+
   it("renders detail content, public references and public relations only", () => {
     const [target, source] = fixtureHistoryEntries;
     const html = renderToStaticMarkup(
