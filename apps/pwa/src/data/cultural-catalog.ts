@@ -389,7 +389,7 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "history",
     "title": "2021 — Educação bilíngue de surdos",
     "summary": "A Lei 14.191 inseriu a modalidade de educação bilíngue de surdos na LDB, com Libras como primeira língua e português escrito como segunda, para estudantes optantes.",
-    "version": "candidate-2",
+    "version": "candidate-3",
     "references": [
       {
         "id": "source-1",
@@ -421,6 +421,13 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
       {
         "id": "HIST-008-C03",
         "text": "Materiais didáticos e professores bilíngues.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "HIST-008-C04",
+        "text": "A Lei nº 14.191 é de 3 de agosto de 2021.",
         "referenceIds": [
           "source-1"
         ]
@@ -507,7 +514,7 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "curiosity",
     "title": "Libras é português feito com as mãos?",
     "summary": "Não. Libras possui estrutura gramatical própria.",
-    "version": "candidate-2",
+    "version": "candidate-3",
     "references": [
       {
         "id": "source-1",
@@ -520,6 +527,13 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
       {
         "id": "source-3",
         "url": "https://doi.org/10.51207/2179-4057.20220014"
+      },
+      {
+        "id": "source-4",
+        "url": "https://letraslibras.paginas.ufsc.br/files/2022/12/LSB7106-Libras-Iniciante.pdf",
+        "institution": "UFSC — Letras Libras",
+        "purpose": "Ementa, objetivos, conteúdo programático e cronograma de 30/03/2023",
+        "consultedAt": "2026-11-27"
       }
     ],
     "claims": [
@@ -549,6 +563,27 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
         "text": "Forma, localização, movimento e expressão facial são discutidos no estudo de Capovilla e Cecconi.",
         "referenceIds": [
           "source-3"
+        ]
+      },
+      {
+        "id": "CUR-002-C04",
+        "text": "A Libras apresenta organização linguística em níveis como fonologia, léxico e sintaxe.",
+        "referenceIds": [
+          "source-2"
+        ]
+      },
+      {
+        "id": "CUR-002-C05",
+        "text": "Configuração de mão, localização, movimento, orientação da mão e elementos não manuais são componentes estudados na fonologia das línguas de sinais.",
+        "referenceIds": [
+          "source-2"
+        ]
+      },
+      {
+        "id": "CUR-002-C06",
+        "text": "A datilologia corresponde à soletração manual e constitui uma das competências trabalhadas no ensino de Libras, ao lado de competências comunicativas e gramaticais.",
+        "referenceIds": [
+          "source-4"
         ]
       }
     ],
@@ -721,7 +756,7 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "curiosity",
     "title": "Existe poesia em Libras?",
     "summary": "Sim. Literatura sinalizada pode explorar movimento, espaço, ritmo e configurações de mão.",
-    "version": "candidate-2",
+    "version": "candidate-3",
     "references": [
       {
         "id": "source-1",
@@ -734,6 +769,13 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
       {
         "id": "source-3",
         "url": "https://librando.paginas.ufsc.br/poemas/"
+      },
+      {
+        "id": "source-4",
+        "url": "https://www.revistaglauks.ufv.br/Glauks/article/view/377",
+        "institution": "UFV — Revista Glauks",
+        "purpose": "Resumo",
+        "consultedAt": "2026-11-27"
       }
     ],
     "claims": [
@@ -757,6 +799,20 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
         "text": "O acervo lista poemas sinalizados.",
         "referenceIds": [
           "source-3"
+        ]
+      },
+      {
+        "id": "CUR-006-C03",
+        "text": "A literatura surda sinalizada pode representar experiências visuais, culturais e identitárias das pessoas surdas.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "CUR-006-C04",
+        "text": "Recursos poéticos e icônicos da Libras podem ser utilizados na construção de narrativas interpretativas.",
+        "referenceIds": [
+          "source-4"
         ]
       }
     ],
@@ -943,7 +999,7 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "personality",
     "title": "Nelson Pimenta",
     "summary": "Referência em produções e estudos de Libras e literatura sinalizada.",
-    "version": "candidate-2",
+    "version": "candidate-3",
     "references": [
       {
         "id": "source-1",
@@ -956,6 +1012,20 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
       {
         "id": "source-3",
         "url": "https://nuestra.ufsc.br/vocab/index.php?tema=42&/nelson-pimenta-de-castro"
+      },
+      {
+        "id": "source-4",
+        "url": "https://repositorio.ufsc.br/handle/123456789/204538",
+        "institution": "UFSC — Repositório Institucional",
+        "purpose": "Registro da tese",
+        "consultedAt": "2026-11-27"
+      },
+      {
+        "id": "source-5",
+        "url": "https://repositorio.ufsc.br/handle/123456789/100721",
+        "institution": "UFSC — Repositório Institucional",
+        "purpose": "Título, autoria, resumo e data do registro institucional",
+        "consultedAt": "2026-11-27"
       }
     ],
     "claims": [
@@ -976,6 +1046,41 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
       {
         "id": "PER-001-C02",
         "text": "Trajetória artística e formação acadêmica.",
+        "referenceIds": [
+          "source-3"
+        ]
+      },
+      {
+        "id": "PER-001-C03",
+        "text": "Tese sobre prosódia em ASL e Libras, 2019.",
+        "referenceIds": [
+          "source-4"
+        ]
+      },
+      {
+        "id": "PER-001-C04",
+        "text": "Dissertação sobre tradução de fábulas, 2012.",
+        "referenceIds": [
+          "source-5"
+        ]
+      },
+      {
+        "id": "PER-001-C05",
+        "text": "Nelson Pimenta de Castro é identificado como uma liderança surda pelo Inventário Nacional da Diversidade Linguística.",
+        "referenceIds": [
+          "source-2"
+        ]
+      },
+      {
+        "id": "PER-001-C06",
+        "text": "Nelson Pimenta de Castro possui trajetória artística no teatro, incluindo atuação no espetáculo Nelson 6 ao Vivo.",
+        "referenceIds": [
+          "source-3"
+        ]
+      },
+      {
+        "id": "PER-001-C07",
+        "text": "Nelson Pimenta de Castro concluiu mestrado e doutorado em Estudos da Tradução pela Universidade Federal de Santa Catarina.",
         "referenceIds": [
           "source-3"
         ]
@@ -1002,17 +1107,52 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "personality",
     "title": "Lucinda Ferreira Brito",
     "summary": "Pesquisadora pioneira dos estudos linguísticos das línguas de sinais no Brasil; autora de Por uma gramática de línguas de sinais.",
-    "version": "candidate-1",
+    "version": "candidate-2",
     "references": [
       {
         "id": "source-1",
         "url": "https://seer.ufu.br/index.php/EducacaoFilosofia/article/view/29990"
+      },
+      {
+        "id": "source-2",
+        "url": "https://www.gov.br/fundaj/pt-br/composicao/dimeca/biblioteca/acervos/inventarios-documentais-e-indices/libras_25_4_2012.pdf",
+        "institution": "Fundação Joaquim Nabuco",
+        "purpose": "Referência nº 24",
+        "consultedAt": "2026-11-27"
       }
     ],
     "claims": [
       {
         "id": "claim-1",
         "text": "Pesquisadora pioneira dos estudos linguísticos das línguas de sinais no Brasil; autora de Por uma gramática de línguas de sinais.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "PER-002-C02",
+        "text": "A obra foi originalmente publicada em 1995 e reimpressa em 2010.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "PER-002-C03",
+        "text": "A obra constitui uma contribuição pioneira à descrição linguística da Libras.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "PER-002-C04",
+        "text": "O inventário bibliográfico da Fundação Joaquim Nabuco registra a obra Por uma gramática de línguas de sinais, de Lucinda Ferreira Brito, publicada em 1995.",
+        "referenceIds": [
+          "source-2"
+        ]
+      },
+      {
+        "id": "PER-002-C01",
+        "text": "Obra gramatical atribuída a Lucinda Ferreira Brito.",
         "referenceIds": [
           "source-1"
         ]
@@ -1415,7 +1555,7 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "library",
     "title": "As imagens do outro sobre a cultura surda",
     "summary": "Cultura e representações; referência editorial.",
-    "version": "candidate-1",
+    "version": "candidate-2",
     "references": [
       {
         "id": "source-1",
@@ -1426,6 +1566,20 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
       {
         "id": "claim-1",
         "text": "Cultura e representações; referência editorial.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "BIB-002-C02",
+        "text": "A obra de Karin Strobel aborda representações e perspectivas sobre a cultura surda.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "BIB-002-C01",
+        "text": "Quarta edição, Editora UFSC, 2016.",
         "referenceIds": [
           "source-1"
         ]
@@ -1475,11 +1629,18 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "library",
     "title": "Gramática da Libras — Volume 1",
     "summary": "Linguística; PDF institucional.",
-    "version": "candidate-2",
+    "version": "candidate-3",
     "references": [
       {
         "id": "source-1",
         "url": "https://repositorio.ufsc.br/handle/123456789/262318"
+      },
+      {
+        "id": "source-2",
+        "url": "https://www.researchgate.net/publication/385893948_A_Fonetica_e_a_Fonologia_das_Linguas_de_Sinais",
+        "institution": "INES — cópia parcial hospedada no ResearchGate",
+        "purpose": "Apresentação editorial e sumário, capítulos 1–4",
+        "consultedAt": "2026-11-27"
       }
     ],
     "claims": [
@@ -1500,6 +1661,27 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
       {
         "id": "BIB-003-C02",
         "text": "Organizadores: Ronice Müller de Quadros, Jair Barbosa da Silva, Miriam Royer e Vinícius Rodrigues da Silva.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "BIB-003-C03",
+        "text": "A Gramática da Libras — Volume 1 reúne estudos sobre a descrição linguística da Libras, incluindo fundamentos gramaticais, documentação linguística, fonética e fonologia.",
+        "referenceIds": [
+          "source-2"
+        ]
+      },
+      {
+        "id": "BIB-003-C04",
+        "text": "O registro institucional do Volume 1 apresenta 37 entradas de autoria, incluindo os quatro organizadores.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "BIB-003-C05",
+        "text": "O Repositório Institucional da UFSC disponibiliza um arquivo PDF da Gramática da Libras — Volume 1.",
         "referenceIds": [
           "source-1"
         ]
@@ -1554,7 +1736,7 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "library",
     "title": "Literatura em Libras",
     "summary": "Literatura sinalizada; versões em português e Libras a conferir.",
-    "version": "candidate-2",
+    "version": "candidate-3",
     "references": [
       {
         "id": "source-1",
@@ -1563,6 +1745,13 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
       {
         "id": "source-2",
         "url": "https://librando.paginas.ufsc.br/livros-2/"
+      },
+      {
+        "id": "source-3",
+        "url": "https://repositorio.ufsc.br/xmlui/bitstream/handle/123456789/259641/Literatura_em_Libras_Rachel_Sutton_Spence.pdf?sequence=1&isAllowed=y",
+        "institution": "UFSC — Repositório Institucional",
+        "purpose": "Ficha catalográfica e ficha técnica",
+        "consultedAt": "2026-11-27"
       }
     ],
     "claims": [
@@ -1585,6 +1774,27 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
         "text": "O LIBRANDO indica acesso textual e vídeos em Libras.",
         "referenceIds": [
           "source-2"
+        ]
+      },
+      {
+        "id": "BIB-004-C03",
+        "text": "Literatura em Libras é uma obra de Rachel Sutton-Spence, com tradução de Gustavo Gusmão.",
+        "referenceIds": [
+          "source-3"
+        ]
+      },
+      {
+        "id": "BIB-004-C04",
+        "text": "A primeira edição foi publicada pela Editora Arara Azul em 2021.",
+        "referenceIds": [
+          "source-3"
+        ]
+      },
+      {
+        "id": "BIB-004-C05",
+        "text": "A obra aborda conceitos, narrativas, recursos estéticos e aspectos sociais da literatura em Libras.",
+        "referenceIds": [
+          "source-3"
         ]
       }
     ],
@@ -1652,7 +1862,7 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "library",
     "title": "Cinderela Surda",
     "summary": "Literatura infantil; releitura cultural.",
-    "version": "candidate-2",
+    "version": "candidate-3",
     "references": [
       {
         "id": "source-1",
@@ -1670,6 +1880,27 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
       {
         "id": "BIB-005-C01",
         "text": "Autoria e terceira edição de 2011, 36 páginas.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "BIB-005-C02",
+        "text": "Cinderela Surda é uma releitura de um conto clássico da literatura infantil que valoriza a cultura surda.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "BIB-005-C03",
+        "text": "A obra integra a seção de escrita de sinais do acervo LIBRANDO.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "BIB-005-C04",
+        "text": "A terceira edição foi publicada pela Editora da ULBRA em 2011.",
         "referenceIds": [
           "source-1"
         ]
@@ -2009,11 +2240,18 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "library",
     "title": "Iconographia dos Signaes dos Surdos-Mudos",
     "summary": "Patrimônio histórico; título original de época, não terminologia atual.",
-    "version": "candidate-2",
+    "version": "candidate-3",
     "references": [
       {
         "id": "source-1",
         "url": "https://seer.ines.gov.br/index.php/serie-historica/issue/view/167"
+      },
+      {
+        "id": "source-2",
+        "url": "https://www.scielo.br/j/rbee/a/S5Gyt4gMNzzQJJmLYqMcqCC/abstract/?lang=pt",
+        "institution": "SciELO",
+        "purpose": "Resumo do estudo de Sofiato e Reily",
+        "consultedAt": "2026-11-27"
       }
     ],
     "claims": [
@@ -2029,6 +2267,13 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
         "text": "Obra de Flausino publicada em 1875.",
         "referenceIds": [
           "source-1"
+        ]
+      },
+      {
+        "id": "BIB-010-C02",
+        "text": "Matriz francesa de Pierre Pélissier.",
+        "referenceIds": [
+          "source-2"
         ]
       }
     ],
@@ -2076,11 +2321,18 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "library",
     "title": "Contação de Histórias",
     "summary": "Série audiovisual de literatura infantil e juvenil.",
-    "version": "candidate-2",
+    "version": "candidate-3",
     "references": [
       {
         "id": "source-1",
         "url": "https://debasi.ines.gov.br/tv-ines/conta%C3%A7%C3%A3o-de-hist%C3%B3rias"
+      },
+      {
+        "id": "source-2",
+        "url": "https://debasi.ines.gov.br/tv-ines",
+        "institution": "INES — TV INES / DEBASI",
+        "purpose": "Categoria Infantil",
+        "consultedAt": "2026-11-27"
       }
     ],
     "claims": [
@@ -2094,6 +2346,27 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
       {
         "id": "BIB-011-C01",
         "text": "Série de animações literárias traduzidas para Libras.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "BIB-011-C02",
+        "text": "Contação de Histórias integra a programação da TV INES.",
+        "referenceIds": [
+          "source-2"
+        ]
+      },
+      {
+        "id": "BIB-011-C03",
+        "text": "As animações contemplam obras de autores e ilustradores nacionais traduzidas para Libras.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "BIB-011-C04",
+        "text": "A série busca tornar a literatura infantil e juvenil acessível à comunidade surda de todas as idades.",
         "referenceIds": [
           "source-1"
         ]
