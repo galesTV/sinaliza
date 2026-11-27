@@ -184,6 +184,17 @@ describe("cultural editorial artwork", () => {
     expect(html).not.toContain("retrato");
   });
 
+  it("keeps the portrait presentation single-column and centered", () => {
+    const css = readFileSync(
+      join(process.cwd(), "src/components/cultural/editorial/editorial-artwork.module.css"),
+      "utf8",
+    );
+
+    expect(css).toMatch(/\.portraitSurface \.inner \{[^}]*grid-template-columns: minmax\(0, 1fr\)/);
+    expect(css).toMatch(/\.portraitSurface \.visual \{[^}]*grid-column: 1;[^}]*grid-row: 2;/);
+    expect(css).toMatch(/\.portraitSurface \.monogramVisual \{[^}]*justify-content: center;/);
+  });
+
   it("keeps legal-document ornament free of seals and coats of arms", () => {
     const html = render(editorialLegalDocumentFixture);
     expect(html).toContain("Documento legal fictício de teste visual");

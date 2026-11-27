@@ -512,8 +512,36 @@
 }
 
 
+.portraitSurface .inner {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.portraitSurface .visual {
+  grid-column: 1;
+  grid-row: 2;
+  align-self: stretch;
+}
+
 .portraitSurface .monogramVisual {
   justify-content: center;
+}
+
+.portraitSurface .monogramVisual .motifSvg {
+  transform: translateX(-21%) scale(1.35);
+  transform-origin: center;
+}
+
+.portraitSurface .monogramVisual .motifSvg circle:first-child {
+  stroke-opacity: 0.34;
+}
+
+.portraitSurface .monogramVisual .motifSvg circle:nth-child(2) {
+  stroke-opacity: 0.56;
+}
+
+.portraitSurface .monogramVisual .motifSvg path {
+  stroke-opacity: 0.3;
 }
 
 .portraitSurface .monogramInitials {
