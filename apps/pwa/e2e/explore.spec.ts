@@ -142,6 +142,8 @@ test.describe("explorar — publication guards", () => {
       expect(html).not.toContain("unverified-candidate");
       expect(html).not.toContain("validationStatus");
       expect(html).not.toContain("publicationAuthorization");
+      expect(html).not.toContain("editorialBody");
+      expect(html).not.toContain("claimIds");
       expect(html).not.toContain("Ernest Huet");
       expect(html).not.toContain("Iconographia de Flausino");
       expect(html).not.toContain("Conferir cronologia");

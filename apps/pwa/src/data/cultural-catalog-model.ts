@@ -60,6 +60,17 @@ export interface CulturalClaim {
   referenceIds: string[];
 }
 
+/**
+ * Optional long-form educational body. Paragraphs are plain text only: they
+ * are preserved byte-for-byte, rendered as text and never interpreted as HTML
+ * or Markdown. `claimIds` is internal provenance linking the body to the
+ * claims reviewers must validate; it is not public evidence by itself.
+ */
+export interface CulturalEditorialBody {
+  paragraphs: string[];
+  claimIds: string[];
+}
+
 export interface CulturalReview {
   reviewer: string;
   type: "research" | "technical" | "expert";
@@ -148,6 +159,8 @@ interface CulturalEntryBase {
   category: CulturalCategory;
   title: string;
   summary: string;
+  /** Optional long-form educational text, distinct from the short summary. */
+  editorialBody?: CulturalEditorialBody;
   /** Editorial version. Any substantive content change requires a new value. */
   version: string;
   references: CulturalReference[];
@@ -453,6 +466,69 @@ export function validateCulturalEntry(
   entry.internalPending.forEach((pending, index) => {
     if (!pending.trim()) problems.push(`internal pending ${index}: empty text`);
   });
+
+  if (entry.editorialBody !== undefined) {
+    const body: unknown = entry.editorialBody;
+    if (body === null || typeof body !== "object" || Array.isArray(body)) {
+      problems.push("editorial body: invalid structure");
+    } else {
+      const bodyRecord = body as Record<string, unknown>;
+      const paragraphs = bodyRecord.paragraphs;
+      if (!("paragraphs" in bodyRecord) || (Array.isArray(paragraphs) && paragraphs.length === 0)) {
+        problems.push("editorial body: missing paragraphs");
+      } else if (!Array.isArray(paragraphs)) {
+        problems.push("editorial body: paragraphs must be an array");
+      } else {
+        paragraphs.forEach((paragraph, index) => {
+          if (typeof paragraph !== "string") {
+            problems.push(`editorial body paragraph ${index}: non-string text`);
+          } else if (!paragraph.trim()) {
+            problems.push(`editorial body paragraph ${index}: empty text`);
+          }
+        });
+      }
+
+      const bodyClaimIds = bodyRecord.claimIds;
+      if (!("claimIds" in bodyRecord) || (Array.isArray(bodyClaimIds) && bodyClaimIds.length === 0)) {
+        problems.push("editorial body: missing claim ids");
+      } else if (!Array.isArray(bodyClaimIds)) {
+        problems.push("editorial body: claim ids must be an array");
+      } else {
+        const seenBodyClaimIds = new Set<string>();
+        const foreignClaimIds = new Set(
+          allEntries
+            .filter((item) => item.id !== entry.id)
+            .flatMap((item) => item.claims.map((claim) => claim.id)),
+        );
+        let validBodyClaimCount = 0;
+        bodyClaimIds.forEach((claimId, index) => {
+          const at = `editorial body claim ${index}`;
+          if (typeof claimId !== "string") {
+            problems.push(`${at}: non-string id`);
+            return;
+          }
+          if (!claimId.trim()) {
+            problems.push(`${at}: empty id`);
+            return;
+          }
+          if (seenBodyClaimIds.has(claimId)) {
+            problems.push(`${at}: duplicate id "${claimId}"`);
+          }
+          seenBodyClaimIds.add(claimId);
+          if (claimIds.has(claimId)) {
+            validBodyClaimCount += 1;
+          } else if (foreignClaimIds.has(claimId)) {
+            problems.push(`${at}: claim "${claimId}" belongs to another record`);
+          } else {
+            problems.push(`${at}: unknown claim "${claimId}"`);
+          }
+        });
+        if (bodyClaimIds.length > 0 && validBodyClaimCount === 0) {
+          problems.push("editorial body: no valid claims");
+        }
+      }
+    }
+  }
 
   if (entry.category === "history") {
     if (
