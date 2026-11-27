@@ -15,13 +15,23 @@ import { updateSession } from "@/lib/supabase/session";
  * the service worker also serves, so auth logic can never delay or break
  * static delivery.
  */
+function decodePathSegment(segment: string): string {
+  try {
+    return decodeURIComponent(segment);
+  } catch {
+    return segment;
+  }
+}
+
 export function proxy(request: NextRequest) {
   const exploreMatch = /^\/explorar\/([^/]+)\/([^/]+)\/?$/.exec(
     request.nextUrl.pathname,
   );
 
   if (exploreMatch) {
-    const [, categorySegment, slug] = exploreMatch.map(decodeURIComponent);
+    const [, rawCategorySegment, rawSlug] = exploreMatch;
+    const categorySegment = decodePathSegment(rawCategorySegment);
+    const slug = decodePathSegment(rawSlug);
     const category = getCulturalCategoryBySegment(categorySegment);
     const entry = category
       ? getPublicCulturalEntryBySlug(category, slug)
