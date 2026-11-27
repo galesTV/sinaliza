@@ -134,7 +134,7 @@ test.describe("explorar — publication guards", () => {
   });
 
   test("does not expose raw editorial data in HTML or the embedded RSC payload", async ({ page }) => {
-    for (const path of ["/explorar", "/explorar/historia", "/explorar/biblioteca"]) {
+    for (const path of ["/explorar", "/explorar/historia", "/explorar/curiosidades", "/explorar/biblioteca"]) {
       const response = await page.request.get(path);
       expect(response.status()).toBe(200);
       const html = await response.text();
@@ -151,6 +151,10 @@ test.describe("explorar — publication guards", () => {
       expect(html).not.toContain("Fernanda de Araújo Machado");
       expect(html).not.toContain("Dicionário da Língua de Sinais do Brasil");
       const matrix = JSON.parse(readFileSync(join(process.cwd(), "docs/curadoria-cultural/v2/pacote-original/matriz-afirmacoes.json"), "utf8")) as Array<{ id: string; text: string; consultation: string }>;
+      const acervo = JSON.parse(readFileSync(join(process.cwd(), "docs/curadoria-cultural/v2/pacote-original/acervo-editorial.json"), "utf8")) as { records: Array<{ id: string; editorialBody: string }> };
+      for (const record of acervo.records.filter((item) => ["HIST-001", "HIST-006", "CUR-001"].includes(item.id))) {
+        expect(html).not.toContain(record.editorialBody);
+      }
       const blocked = new Set(["PER-001-C03", "PER-001-C04", "PER-002-C01", "BIB-002-C01", "BIB-010-C02"]);
       for (const claim of matrix.filter((item) => !blocked.has(item.id))) {
         expect(html).not.toContain(claim.id);

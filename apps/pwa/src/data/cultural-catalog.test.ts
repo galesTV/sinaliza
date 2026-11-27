@@ -14,6 +14,16 @@ import {
   type CulturalCatalogEntry,
 } from "./cultural-catalog-model";
 
+
+const approvedEditorialBodyClaimIds = {
+  "HIST-001": ["HIST-001-C01", "HIST-001-C02", "HIST-001-C03", "claim-1"],
+  "HIST-006": ["HIST-006-C01", "HIST-006-C02", "HIST-006-C03", "HIST-006-C04"],
+  "CUR-001": ["CUR-001-C01", "CUR-001-C02"],
+} as const;
+const approvedEditorialBodyEntryIds = new Set<string>(
+  Object.keys(approvedEditorialBodyClaimIds),
+);
+
 describe("culturalCatalog migration", () => {
   it("contains exactly the 41 cultural candidates, without benchmarks", () => {
     expect(culturalCatalog).toHaveLength(41);
@@ -34,9 +44,38 @@ describe("culturalCatalog migration", () => {
   });
 
 
-  it("does not migrate any real editorial body in the contract-only stage", () => {
+  it("migrates exactly the three approved editorial bodies byte-exactly", () => {
+    const acervo = JSON.parse(
+      readFileSync(join(process.cwd(), "docs/curadoria-cultural/v2/pacote-original/acervo-editorial.json"), "utf8"),
+    ) as { records: Array<{ id: string; editorialBody: string }> };
+    const sourceById = new Map(acervo.records.map((record) => [record.id, record.editorialBody]));
+    const withBody = culturalCatalog.filter((entry) => entry.editorialBody !== undefined);
+
+    expect(withBody.map((entry) => entry.id).sort()).toEqual(
+      [...approvedEditorialBodyEntryIds].sort(),
+    );
     for (const entry of culturalCatalog) {
-      expect(entry.editorialBody, entry.id).toBeUndefined();
+      if (!approvedEditorialBodyEntryIds.has(entry.id)) {
+        expect(entry.editorialBody, entry.id).toBeUndefined();
+        continue;
+      }
+      const expectedClaimIds = [
+        ...approvedEditorialBodyClaimIds[
+          entry.id as keyof typeof approvedEditorialBodyClaimIds
+        ],
+      ];
+      expect(entry.editorialBody, entry.id).toEqual({
+        paragraphs: [sourceById.get(entry.id)],
+        claimIds: expectedClaimIds,
+      });
+      expect(entry.editorialBody?.paragraphs[0], entry.id).toBe(sourceById.get(entry.id));
+      expect(entry.version, entry.id).toBe("candidate-3");
+      for (const claimId of expectedClaimIds) {
+        expect(
+          entry.claims.some((claim) => claim.id === claimId),
+          `${entry.id}:${claimId}`,
+        ).toBe(true);
+      }
     }
   });
 
@@ -126,10 +165,16 @@ describe("culturalCatalog migration", () => {
     }
   });
 
-  it("versions only the 12 authorized records as candidate-2 and keeps reference IDs unique", () => {
+  it("versions only the authorized candidate-2/candidate-3 records and keeps reference IDs unique", () => {
     const authorized = new Set(["HIST-001", "HIST-006", "HIST-008", "CUR-001", "CUR-002", "CUR-006", "PER-001", "BIB-003", "BIB-004", "BIB-005", "BIB-010", "BIB-011"]);
     for (const entry of culturalCatalog) {
-      expect(entry.version, entry.id).toBe(authorized.has(entry.id) ? "candidate-2" : "candidate-1");
+      expect(entry.version, entry.id).toBe(
+        approvedEditorialBodyEntryIds.has(entry.id)
+          ? "candidate-3"
+          : authorized.has(entry.id)
+            ? "candidate-2"
+            : "candidate-1",
+      );
       const referenceIds = entry.references.map((reference) => reference.id);
       expect(new Set(referenceIds).size, entry.id).toBe(referenceIds.length);
     }
@@ -576,7 +621,114 @@ describe("cultural V2 migration integrity hardening", () => {
     );
   });
 
-  it("preserves 29 baseline records and changes only authorized claim/reference/version content", () => {
+  function validateApprovedEditorialBodyMigration(
+    entry: CulturalCatalogEntry,
+    sourceBody: string,
+  ): string[] {
+    const problems: string[] = [];
+    if (!approvedEditorialBodyEntryIds.has(entry.id)) {
+      problems.push(`record ${entry.id} is not authorized for editorial body migration`);
+    }
+    if (!entry.editorialBody) {
+      problems.push(`record ${entry.id} is missing editorial body`);
+      return problems;
+    }
+    const expectedClaimIds = approvedEditorialBodyEntryIds.has(entry.id)
+      ? [
+          ...approvedEditorialBodyClaimIds[
+            entry.id as keyof typeof approvedEditorialBodyClaimIds
+          ],
+        ]
+      : [];
+    if (!isDeepStrictEqual(entry.editorialBody.paragraphs, [sourceBody])) {
+      problems.push(`record ${entry.id} editorial body differs byte-for-byte from the V2 source`);
+    }
+    if (!isDeepStrictEqual(entry.editorialBody.claimIds, expectedClaimIds)) {
+      problems.push(`record ${entry.id} editorial body claim ids differ from the approved set`);
+    }
+    for (const claimId of entry.editorialBody.claimIds) {
+      if (!entry.claims.some((claim) => claim.id === claimId)) {
+        problems.push(`record ${entry.id} editorial body references non-local claim ${claimId}`);
+      }
+    }
+    return problems;
+  }
+
+  it("validates the three approved body migrations through a shared byte-exact helper", () => {
+    const acervo = JSON.parse(readFileSync(
+      join(process.cwd(), "docs/curadoria-cultural/v2/pacote-original/acervo-editorial.json"),
+      "utf8",
+    )) as { records: Array<{ id: string; editorialBody: string }> };
+    const sourceById = new Map(acervo.records.map((record) => [record.id, record.editorialBody]));
+    for (const entryId of approvedEditorialBodyEntryIds) {
+      const entry = culturalCatalog.find((item) => item.id === entryId)!;
+      expect(
+        validateApprovedEditorialBodyMigration(entry, sourceById.get(entryId)!),
+        entryId,
+      ).toEqual([]);
+    }
+  });
+
+  it("rejects altered, removed, mislinked or unauthorized editorial bodies through the shared helper", () => {
+    const hist = structuredClone(getCulturalEntryById("HIST-001")!);
+    const sourceBody = hist.editorialBody!.paragraphs[0];
+
+    const altered = structuredClone(hist);
+    altered.editorialBody!.paragraphs[0] = `${sourceBody} alterado`;
+    expect(validateApprovedEditorialBodyMigration(altered, sourceBody).join("\n")).toContain(
+      "differs byte-for-byte",
+    );
+
+    const removed = structuredClone(hist);
+    delete removed.editorialBody;
+    expect(validateApprovedEditorialBodyMigration(removed, sourceBody).join("\n")).toContain(
+      "missing editorial body",
+    );
+
+    const mislinked = structuredClone(hist);
+    mislinked.editorialBody!.claimIds = ["HIST-001-C01", "HIST-001-C02", "HIST-001-C03", "claim-404"];
+    expect(validateApprovedEditorialBodyMigration(mislinked, sourceBody).join("\n")).toContain(
+      "non-local claim claim-404",
+    );
+
+    const unauthorized = structuredClone(getCulturalEntryById("CUR-002")!);
+    unauthorized.editorialBody = structuredClone(hist.editorialBody!);
+    expect(validateApprovedEditorialBodyMigration(unauthorized, sourceBody).join("\n")).toContain(
+      "not authorized",
+    );
+  });
+
+  it("changes exactly the three approved editorial-body fingerprints", () => {
+    const expected = {
+      "HIST-001": {
+        before: "9d6f9296d64c8be186862f7282e106354ff498003977a2c4b4c57606e5a2834d",
+        after: "7cc13fbb7fa0a15b092e0e80782b686c91273581fc18174ff72cc5594451d98b",
+      },
+      "HIST-006": {
+        before: "c25000fefb706576b2ddcb58206a359bddaefa8962e6640a2eccb3c94e947960",
+        after: "caddc7d4e35b1f164e41081775f6fdad6387993db49bda556a6f4ee60d8979ae",
+      },
+      "CUR-001": {
+        before: "068140ac553c02221af7c6ad07f9b2546e9868b8a6d847687fdcc08ef77177fc",
+        after: "b4da839e9fd3a3f9a2480fb21680873e1dd29118521fc960088d36f21fc2bab2",
+      },
+    } as const;
+
+    for (const entry of culturalCatalog) {
+      if (!approvedEditorialBodyEntryIds.has(entry.id)) {
+        expect(entry.editorialBody, entry.id).toBeUndefined();
+        continue;
+      }
+      const beforeEntry = structuredClone(entry);
+      delete beforeEntry.editorialBody;
+      const fingerprints = expected[entry.id as keyof typeof expected];
+      expect(getCulturalContentFingerprint(beforeEntry), `${entry.id}:before`).toBe(fingerprints.before);
+      expect(getCulturalContentFingerprint(entry), `${entry.id}:after`).toBe(fingerprints.after);
+      expect(fingerprints.after, entry.id).not.toBe(fingerprints.before);
+    }
+  });
+
+  it("preserves baseline records and changes only authorized claim/reference/version/editorial-body content", () => {
     const baseline = JSON.parse(JSON.stringify(culturalMigrationBaseline)) as typeof culturalCatalog;
     const baselineById = new Map(baseline.map((entry) => [entry.id, entry]));
     for (const entry of culturalCatalog) {
@@ -593,6 +745,9 @@ describe("cultural V2 migration integrity hardening", () => {
           delete copy.version;
           delete copy.references;
           delete copy.claims;
+          if (approvedEditorialBodyEntryIds.has(item.id)) {
+            delete copy.editorialBody;
+          }
           return copy;
         };
         expect(strip(entry), entry.id).toEqual(strip(before));
@@ -611,7 +766,9 @@ describe("cultural V2 migration integrity hardening", () => {
     for (const entryId of authorizedEntryIds) {
       const entry = culturalCatalog.find((item) => item.id === entryId)!;
       const before = baselineById.get(entryId)!;
-      expect(entry.version, entryId).toBe("candidate-2");
+      expect(entry.version, entryId).toBe(
+        approvedEditorialBodyEntryIds.has(entryId) ? "candidate-3" : "candidate-2",
+      );
 
       for (const previousClaim of before.claims) {
         expect(
