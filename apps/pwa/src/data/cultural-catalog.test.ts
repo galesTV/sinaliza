@@ -9,13 +9,13 @@ import {
 } from "./cultural-catalog-model";
 
 describe("culturalCatalog migration", () => {
-  it("contains exactly the 35 cultural candidates, without benchmarks", () => {
-    expect(culturalCatalog).toHaveLength(35);
+  it("contains exactly the 41 cultural candidates, without benchmarks", () => {
+    expect(culturalCatalog).toHaveLength(41);
     expect(culturalCatalog.every((entry) => !entry.id.startsWith("BEN-"))).toBe(true);
     expect(culturalCatalog.filter((entry) => entry.category === "history")).toHaveLength(8);
     expect(culturalCatalog.filter((entry) => entry.category === "curiosity")).toHaveLength(8);
-    expect(culturalCatalog.filter((entry) => entry.category === "personality")).toHaveLength(7);
-    expect(culturalCatalog.filter((entry) => entry.category === "library")).toHaveLength(12);
+    expect(culturalCatalog.filter((entry) => entry.category === "personality")).toHaveLength(9);
+    expect(culturalCatalog.filter((entry) => entry.category === "library")).toHaveLength(16);
   });
 
   it("keeps every real record blocked as an unreviewed draft", () => {
@@ -44,6 +44,26 @@ describe("culturalCatalog migration", () => {
       for (const relation of entry.relatedEntries) {
         expect(relation.kind, `${entry.id}->${relation.targetId}`).toBe("unverified-candidate");
         expect(relation.evidenceReferenceIds, `${entry.id}->${relation.targetId}`).toEqual([]);
+      }
+    }
+  });
+
+
+  it("keeps the six V2 candidates as minimal unpublished drafts", () => {
+    const expected = new Set(["PER-008", "PER-009", "BIB-013", "BIB-014", "BIB-015", "BIB-016"]);
+    const entries = culturalCatalog.filter((entry) => expected.has(entry.id));
+    expect(entries).toHaveLength(6);
+    for (const entry of entries) {
+      expect(entry.version, entry.id).toBe("candidate-1");
+      expect(entry.claims, entry.id).toEqual([]);
+      expect(entry.reviews, entry.id).toEqual([]);
+      expect(entry.publicationAuthorization, entry.id).toBeUndefined();
+      expect(entry.rights, entry.id).toEqual({ mode: "external-link-only", assets: [] });
+      expect(entry.relatedEntries, entry.id).toEqual([]);
+      expect(entry.internalPending.length, entry.id).toBeGreaterThan(0);
+      expect(entry.references.length, entry.id).toBeGreaterThan(0);
+      for (const reference of entry.references) {
+        expect(reference.url, `${entry.id}:${reference.id}`).toMatch(/^https:\/\//);
       }
     }
   });
