@@ -135,6 +135,22 @@ describe("cultural artwork metadata", () => {
     }
   });
 
+  it("rejects inherited-prototype and conventional unknown motifs fail-closed", () => {
+    for (const motif of ["constructor", "toString", "proto", "hasOwnProperty", "unknown"]) {
+      const entry = {
+        ...makePublishableHistory(),
+        artwork: { motif },
+      } as unknown as CulturalHistoryEntry;
+      let blockers: string[] = [];
+      expect(() => {
+        blockers = getCulturalPublicationBlockers(entry, [entry]);
+      }, motif).not.toThrow();
+      expect(blockers.join("\n"), motif).toContain("unknown motif");
+      expect(isCulturalPublishable(entry, [entry]), motif).toBe(false);
+      expect(projectPublicCulturalEntries([entry]), motif).toEqual([]);
+    }
+  });
+
   it("validates timeline events structurally without reordering or semantic parsing", () => {
     const cases: Array<[string, unknown, string]> = [
       ["null events", { motif: "timeline", events: null }, "must be an array"],
@@ -153,6 +169,29 @@ describe("cultural artwork metadata", () => {
       const entry = withArtwork("history", artwork);
       expect(validateCulturalEntry(entry, [entry]).join("\n"), name).toContain(expected);
     }
+  });
+
+  it("rejects sparse event arrays and invalid field types without throwing", () => {
+    const sparseEvents = new Array(2);
+    sparseEvents[1] = { year: 1855, label: "Proposta", claimId: "claim-1" };
+    const sparseEntry = withArtwork("history", { motif: "timeline", events: sparseEvents });
+    expect(validateCulturalEntry(sparseEntry, [sparseEntry]).join("\n")).toContain("artwork event 0: invalid structure");
+
+    const invalidTypesEntry = withArtwork("history", {
+      motif: "timeline",
+      events: [
+        { year: BigInt(1855), label: "Proposta", claimId: "claim-1" },
+        { year: 1856, label: 42, claimId: "claim-1" },
+        { year: 1857, label: "Lei", claimId: 42 },
+      ],
+    });
+    let problems = "";
+    expect(() => {
+      problems = validateCulturalEntry(invalidTypesEntry, [invalidTypesEntry]).join("\n");
+    }).not.toThrow();
+    expect(problems).toContain("artwork event 0: year must be an integer");
+    expect(problems).toContain("artwork event 1: label must be a string");
+    expect(problems).toContain("artwork event 2: claim id must be a string");
   });
 
   it("rejects visual facts and monogram initials with invalid structure", () => {
@@ -190,13 +229,26 @@ describe("cultural artwork metadata", () => {
     const without = baseEntry("history");
     const fingerprintWithout = getCulturalContentFingerprint(without);
     expect(getCulturalContentFingerprint({ ...without })).toBe(fingerprintWithout);
+    expect(getCulturalContentFingerprint({ ...without, artwork: undefined })).toBe(fingerprintWithout);
 
+    const eventA = { year: 1855, label: "Proposta", claimId: "claim-1" };
+    const eventB = { year: 1856, label: "Aulas", claimId: "claim-2" };
     const timeline = {
       ...without,
-      artwork: { motif: "timeline", events: [{ year: 1855, label: "Proposta", claimId: "claim-1" }] },
+      artwork: { motif: "timeline", events: [eventA] },
     } as CulturalCatalogEntry;
     const original = getCulturalContentFingerprint(timeline);
     expect(original).not.toBe(fingerprintWithout);
+
+    const orderedAB = {
+      ...without,
+      artwork: { motif: "timeline", events: [eventA, eventB] },
+    } as CulturalCatalogEntry;
+    const orderedBA = {
+      ...without,
+      artwork: { motif: "timeline", events: [eventB, eventA] },
+    } as CulturalCatalogEntry;
+    expect(getCulturalContentFingerprint(orderedAB)).not.toBe(getCulturalContentFingerprint(orderedBA));
 
     const variants = [
       { ...timeline, artwork: { motif: "legal-document" } },
@@ -225,6 +277,11 @@ describe("cultural artwork metadata", () => {
         "documentDate value",
         withArtwork("history", { motif: "legal-document", documentDate: { value: "1º de janeiro", claimId: "claim-1" } }),
         withArtwork("history", { motif: "legal-document", documentDate: { value: "2 de janeiro", claimId: "claim-1" } }),
+      ],
+      [
+        "documentDate claim",
+        withArtwork("history", { motif: "legal-document", documentDate: { value: "1º de janeiro", claimId: "claim-1" } }),
+        withArtwork("history", { motif: "legal-document", documentDate: { value: "1º de janeiro", claimId: "claim-2" } }),
       ],
       [
         "initials",
@@ -282,19 +339,40 @@ describe("cultural artwork metadata", () => {
     });
   });
 
-  it("keeps malformed artwork fail-closed without throwing in publication or fingerprinting", () => {
-    const entry = {
-      ...makePublishableHistory(),
-      artwork: null,
-    } as unknown as CulturalHistoryEntry;
-    expect(() => getCulturalContentFingerprint(entry)).not.toThrow();
-    expect(() => getCulturalPublicationBlockers(entry, [entry])).not.toThrow();
-    expect(isCulturalPublishable(entry, [entry])).toBe(false);
-    expect(projectPublicCulturalEntries([entry])).toEqual([]);
+  it("keeps JSON-compatible malformed artwork fail-closed without throwing in publication or fingerprinting", () => {
+    const cases: Array<[string, unknown, string]> = [
+      ["null", null, "invalid structure"],
+      ["array", [], "invalid structure"],
+      ["unknown motif", { motif: "unknown" }, "unknown motif"],
+      ["inherited motif", { motif: "constructor" }, "unknown motif"],
+      ["null events", { motif: "timeline", events: null }, "must be an array"],
+      ["empty events", { motif: "timeline", events: [] }, "must not be empty"],
+      ["malformed event", { motif: "timeline", events: [null] }, "invalid structure"],
+      ["invalid event year", { motif: "timeline", events: [{ year: 2101, label: "Proposta", claimId: "claim-1" }] }, "between 0 and 2100"],
+      ["unknown event field", { motif: "timeline", events: [{ year: 1855, label: "Proposta", claimId: "claim-1", extra: true }] }, 'unknown field "extra"'],
+      ["unknown claim", { motif: "timeline", events: [{ year: 1855, label: "Proposta", claimId: "claim-404" }] }, 'unknown claim "claim-404"'],
+      ["incomplete visual fact", { motif: "legal-document", documentNumber: { value: "00.000" } }, "incomplete visual fact"],
+    ];
+
+    for (const [name, artwork, expected] of cases) {
+      const entry = {
+        ...makePublishableHistory(),
+        artwork,
+      } as unknown as CulturalHistoryEntry;
+      expect(() => getCulturalContentFingerprint(entry), name).not.toThrow();
+      let blockers: string[] = [];
+      expect(() => {
+        blockers = getCulturalPublicationBlockers(entry, [entry]);
+      }, name).not.toThrow();
+      expect(blockers.join("\n"), name).toContain(expected);
+      expect(isCulturalPublishable(entry, [entry]), name).toBe(false);
+      expect(projectPublicCulturalEntries([entry]), name).toEqual([]);
+    }
   });
 
   it("preserves the real registry without artwork or public projection", () => {
     expect(culturalCatalog).toHaveLength(41);
+    // Temporary current-state assertions: zero real artworks and three editorial bodies must evolve consciously during R.5.3-C/V.3.3 with dedicated baselines and traceability.
     expect(culturalCatalog.every((entry) => entry.artwork === undefined)).toBe(true);
     expect(culturalCatalog.filter((entry) => entry.editorialBody)).toHaveLength(3);
     expect(culturalCatalog.every((entry) => entry.reviews.length === 0)).toBe(true);

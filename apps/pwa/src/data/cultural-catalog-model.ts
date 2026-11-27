@@ -483,7 +483,7 @@ function validateCulturalArtwork(
 
   const problems: string[] = [];
   const motif = artwork.motif;
-  if (typeof motif !== "string" || !(motif in ARTWORK_ALLOWED_CATEGORIES)) {
+  if (typeof motif !== "string" || !Object.hasOwn(ARTWORK_ALLOWED_CATEGORIES, motif)) {
     problems.push("artwork: unknown motif");
     return problems;
   }
@@ -507,11 +507,16 @@ function validateCulturalArtwork(
         problems.push("artwork events: must not be empty");
       } else {
         const seenEvents = new Set<string>();
-        artwork.events.forEach((event, index) => {
+        for (let index = 0; index < artwork.events.length; index += 1) {
           const at = `artwork event ${index}`;
+          if (!(index in artwork.events)) {
+            problems.push(`${at}: invalid structure`);
+            continue;
+          }
+          const event = artwork.events[index];
           if (!isRuntimeObject(event)) {
             problems.push(`${at}: invalid structure`);
-            return;
+            continue;
           }
           problems.push(...validateUnknownArtworkKeys(event, ["year", "label", "claimId"], at));
           if (!("year" in event) || !("label" in event) || !("claimId" in event)) {
@@ -534,10 +539,16 @@ function validateCulturalArtwork(
             problems.push(`${at}: label is too long`);
           }
           problems.push(...validateArtworkClaimId(event.claimId, at, localClaimIds, foreignClaimIds));
-          const duplicateKey = JSON.stringify([event.year, event.label, event.claimId]);
-          if (seenEvents.has(duplicateKey)) problems.push(`${at}: duplicate event`);
-          seenEvents.add(duplicateKey);
-        });
+          if (
+            typeof event.year === "number" &&
+            typeof event.label === "string" &&
+            typeof event.claimId === "string"
+          ) {
+            const duplicateKey = JSON.stringify([event.year, event.label, event.claimId]);
+            if (seenEvents.has(duplicateKey)) problems.push(`${at}: duplicate event`);
+            seenEvents.add(duplicateKey);
+          }
+        }
       }
     }
     return problems;
