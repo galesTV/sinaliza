@@ -6,10 +6,9 @@ export function CulturalEmptyState({
   categoryLabel: string;
 }) {
   return (
-    <HonestNote title="Nada publicado ainda">
-      A seção de {categoryLabel} está em preparação editorial. Novos registros
-      aparecerão aqui somente depois da revisão especializada, da autorização
-      final de publicação e da verificação de direitos de uso.
+    <HonestNote title="Novos conteúdos em preparação">
+      A seção de {categoryLabel} ainda está sendo preparada. Quando novos
+      conteúdos estiverem prontos, você poderá descobri-los aqui.
     </HonestNote>
   );
 }

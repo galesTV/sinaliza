@@ -33,6 +33,12 @@ export function CulturalDetail({
 }) {
   const presentation = getCulturalCategoryPresentation(entry.category);
   const categoryHref = getCulturalCategoryHref(entry.category);
+  const contentTitle = {
+    history: "Contexto histórico",
+    curiosity: "Aprofundamento",
+    personality: "Trajetória",
+    library: "Informações bibliográficas",
+  }[entry.category];
 
   return (
     <div className="flex flex-col gap-9">
@@ -65,31 +71,28 @@ export function CulturalDetail({
 
       <section aria-labelledby="cultural-content-title" className="flex flex-col gap-5 rounded-2xl border border-border bg-surface p-6 sm:p-7">
         <h2 id="cultural-content-title" className="font-display text-2xl font-semibold tracking-tight text-foreground">
-          Registro cultural
+          {contentTitle}
         </h2>
         {entry.category === "history" && (
-          <dl className="grid gap-3 text-sm sm:grid-cols-2">
-            <div>
-              <dt className="font-semibold text-foreground">Data ou período</dt>
-              <dd className="mt-1 text-muted">{formatHistoryDate(entry)}</dd>
-            </div>
+          <div className="flex flex-col gap-5">
+            <p className="w-fit rounded-full border border-highlight/35 bg-highlight/10 px-4 py-2 font-display text-lg font-semibold text-highlight">
+              {formatHistoryDate(entry)}
+            </p>
             {entry.history.context && (
-              <div>
-                <dt className="font-semibold text-foreground">Contexto</dt>
-                <dd className="mt-1 leading-relaxed text-muted">{entry.history.context}</dd>
-              </div>
+              <p className="max-w-2xl border-l-2 border-accent/45 pl-4 text-base leading-relaxed text-muted">
+                {entry.history.context}
+              </p>
             )}
-          </dl>
+          </div>
         )}
         {entry.category === "curiosity" && (
           <div className="flex flex-col gap-4">
-            <div>
-              <h3 className="text-sm font-semibold text-foreground">Pergunta</h3>
-              <p className="mt-1 text-sm leading-relaxed text-muted">{entry.curiosity.question}</p>
-            </div>
+            <blockquote className="border-l-2 border-highlight/50 pl-4 font-display text-xl font-semibold leading-snug text-foreground">
+              {entry.curiosity.question}
+            </blockquote>
             <div>
               <h3 className="text-sm font-semibold text-foreground">Resposta</h3>
-              <p className="mt-1 text-sm leading-relaxed text-muted">{entry.curiosity.shortAnswer}</p>
+              <p className="mt-1 text-base leading-relaxed text-muted">{entry.curiosity.shortAnswer}</p>
             </div>
             {entry.curiosity.deepening && (
               <div>
@@ -102,12 +105,8 @@ export function CulturalDetail({
         {entry.category === "personality" && (
           <div className="flex flex-col gap-4">
             <div>
-              <h3 className="text-sm font-semibold text-foreground">Nome</h3>
-              <p className="mt-1 text-sm text-muted">{entry.personality.personName}</p>
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold text-foreground">Resumo biográfico</h3>
-              <p className="mt-1 text-sm leading-relaxed text-muted">{entry.personality.biographicalSummary}</p>
+              <h3 className="text-sm font-semibold text-foreground">Sobre {entry.personality.personName}</h3>
+              <p className="mt-1 max-w-2xl text-base leading-relaxed text-muted">{entry.personality.biographicalSummary}</p>
             </div>
             {entry.personality.contributions?.length ? (
               <div>
@@ -193,7 +192,7 @@ export function CulturalDetail({
 
       <section aria-labelledby="cultural-references-title" className="flex flex-col gap-4">
         <h2 id="cultural-references-title" className="font-display text-2xl font-semibold tracking-tight text-foreground">
-          Referências públicas
+          Fontes e leituras complementares
         </h2>
         <ul className="flex flex-col gap-4">
           {entry.references.map((reference) => (

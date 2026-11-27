@@ -5,14 +5,14 @@
 A seção Explorar usa uma liberação conservadora em duas camadas:
 
 1. **Autorização explícita de lançamento** pela variável de ambiente `SINALIZA_EXPLORE_LAUNCHED=true`.
-2. **Conteúdo mínimo publicável**: pelo menos um registro publicável em cada uma das quatro categorias culturais (`history`, `curiosity`, `personality`, `library`).
+2. **Conteúdo mínimo publicável**: pelo menos um registro cultural publicável no catálogo.
 
 A entrada **Explorar** na navegação principal só é renderizada quando as duas condições são verdadeiras. A verificação acontece no servidor, em `src/data/explore-availability.ts`, e o shell envia apenas um booleano aos componentes clientes de navegação. Nenhuma contagem, lista ou registro editorial é exposto para decidir a navegação.
 
 ## Consequências
 
 - Com o valor padrão `SINALIZA_EXPLORE_LAUNCHED=false`, não há entrada pública ativa na navegação principal.
-- Mesmo com a variável em `true`, a entrada permanece oculta enquanto qualquer categoria estiver sem conteúdo publicável.
+- Mesmo com a variável em `true`, a entrada permanece oculta enquanto não houver nenhum conteúdo cultural publicável. Categorias vazias continuam com estados honestos de preparação.
 - As rotas `/explorar` e `/explorar/<categoria>` permanecem honestas quando acessadas diretamente: exibem a estrutura da experiência e estados vazios neutros, sem títulos, contagens internas ou dados de candidatos.
 - Não existe rota pública de preview de rascunhos culturais.
 

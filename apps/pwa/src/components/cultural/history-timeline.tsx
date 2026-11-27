@@ -28,7 +28,7 @@ export function HistoryTimeline({
           </span>
           <article className="flex flex-col gap-4 rounded-2xl border border-border bg-surface p-5 sm:p-6">
             <div className="flex flex-col gap-2">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-highlight">
+              <p className="w-fit rounded-full border border-highlight/35 bg-highlight/10 px-3 py-1 font-display text-sm font-semibold uppercase tracking-[0.12em] text-highlight">
                 {formatHistoryDate(entry)}
               </p>
               <h2 className="font-display text-xl font-semibold tracking-tight text-foreground">

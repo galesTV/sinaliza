@@ -12,10 +12,13 @@ export function PersonalityGallery({
   entries: PublicCulturalPersonalityEntry[];
 }) {
   return (
-    <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3" aria-label="Personalidades culturais">
+    <ul className="grid gap-5 md:grid-cols-2" aria-label="Personalidades culturais">
       {entries.map((entry) => (
         <li key={entry.id}>
-          <article className="flex h-full flex-col gap-5 rounded-2xl border border-border bg-surface p-6">
+          <article className="relative flex h-full flex-col gap-5 overflow-hidden rounded-2xl border border-border bg-surface p-6">
+            <span aria-hidden="true" className="pointer-events-none absolute -bottom-8 right-4 font-display text-8xl font-semibold text-primary/10">
+              {getPersonInitials(entry.personality.personName)}
+            </span>
             <div className="flex items-start gap-4">
               <div
                 aria-hidden="true"
@@ -28,14 +31,14 @@ export function PersonalityGallery({
                   {entry.personality.personName}
                 </h2>
                 {entry.personality.contributions?.[0] && (
-                  <p className="text-sm font-medium text-accent">
+                  <p className="w-fit rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs font-semibold text-accent">
                     {entry.personality.contributions[0]}
                   </p>
                 )}
               </div>
             </div>
 
-            <p className="text-sm leading-relaxed text-muted">
+            <p className="relative max-w-xl text-sm leading-relaxed text-muted">
               {entry.personality.biographicalSummary}
             </p>
 

@@ -22,13 +22,13 @@ export function CuriosityCards({
         const isExpanded = Boolean(expanded[entry.id]);
         return (
           <li key={entry.id}>
-            <article className="flex h-full flex-col gap-5 rounded-2xl border border-border bg-surface p-6">
+            <article className="flex h-full flex-col gap-5 rounded-2xl border border-border bg-surface p-6 shadow-[inset_3px_0_0_rgba(240,168,72,0.35)]">
               <div className="flex flex-col gap-2">
                 <span
                   aria-hidden="true"
                   className="mb-1 h-1.5 w-1.5 rounded-full bg-highlight shadow-[0_0_10px_rgba(240,168,72,0.65)]"
                 />
-                <h2 className="font-display text-xl font-semibold tracking-tight text-foreground">
+                <h2 className="font-display text-2xl font-semibold leading-snug tracking-tight text-foreground">
                   {entry.curiosity.question}
                 </h2>
                 <p className="text-sm leading-relaxed text-muted">{entry.summary}</p>

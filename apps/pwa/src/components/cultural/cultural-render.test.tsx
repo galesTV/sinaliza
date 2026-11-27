@@ -57,8 +57,8 @@ describe("cultural fixture rendering", () => {
         relations={[{ relation: source.relatedEntries[0], entry: target }]}
       />,
     );
-    expect(html).toContain("Registro cultural");
-    expect(html).toContain("Referências públicas");
+    expect(html).toContain("Contexto histórico");
+    expect(html).toContain("Fontes e leituras complementares");
     expect(html).toContain("Relações culturais");
     expect(html).toContain("Instituição Fictícia de Testes");
     expect(html).not.toContain("internalPending");

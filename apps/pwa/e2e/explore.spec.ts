@@ -25,7 +25,7 @@ test.describe("explorar — descoberta cultural", () => {
       await expect(page.locator(`a[href="${category.href}"]`).first()).toBeVisible();
     }
 
-    await expect(page.getByText("Nada publicado ainda")).toBeVisible();
+    await expect(page.getByText("Novos conteúdos em preparação")).toBeVisible();
     await expectNoHorizontalOverflow(page);
   });
 
@@ -44,7 +44,7 @@ test.describe("explorar — descoberta cultural", () => {
     test(`${category.href} renders an honest empty state without candidate content`, async ({ page }) => {
       await page.goto(category.href);
       await expect(page.getByRole("heading", { name: category.heading })).toBeVisible();
-      await expect(page.getByText("Nada publicado ainda")).toBeVisible();
+      await expect(page.getByText("Novos conteúdos em preparação")).toBeVisible();
       await expect(page.getByText("Ernest Huet")).toHaveCount(0);
       await expect(page.getByText("Flausino")).toHaveCount(0);
       await expectNoHorizontalOverflow(page);
@@ -85,6 +85,34 @@ test.describe("explorar — publication guards", () => {
 
     const unknownCategory = await page.goto("/explorar/categoria-inexistente/registro");
     expect(unknownCategory?.status()).toBe(404);
+  });
+
+  test("returns 404 for encoded, malformed and unknown slugs", async ({ page }) => {
+    for (const path of [
+      "/explorar/historia/registro%20inexistente",
+      "/explorar/historia/%",
+      "/explorar/historia/slug-que-nao-existe",
+    ]) {
+      const response = await page.goto(path);
+      expect(response?.status()).toBe(404);
+    }
+  });
+
+  test("reserves enough bottom spacing for the fixed mobile navigation", async ({ page }) => {
+    test.skip((page.viewportSize()?.width ?? 1024) >= 768, "mobile-only fixed bottom navigation");
+    await page.goto("/explorar/biblioteca");
+    const spacing = await page.evaluate(() => {
+      const main = document.querySelector("main");
+      const nav = document.querySelector('nav.fixed.bottom-0');
+      if (!main || !nav) return null;
+      return {
+        paddingBottom: Number.parseFloat(getComputedStyle(main).paddingBottom),
+        navHeight: nav.getBoundingClientRect().height,
+      };
+    });
+    expect(spacing).not.toBeNull();
+    expect(spacing!.paddingBottom).toBeGreaterThanOrEqual(spacing!.navHeight);
+    await expectNoHorizontalOverflow(page);
   });
 
   test("does not expose raw editorial data in HTML or the embedded RSC payload", async ({ page }) => {

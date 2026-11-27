@@ -1,8 +1,20 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+const mocks = vi.hoisted(() => ({
+  publicEntries: [] as object[],
+}));
+
+vi.mock("./cultural-public", () => ({
+  getPublicCulturalEntries: () => mocks.publicEntries,
+}));
 
 import { isExploreNavigationAvailable } from "./explore-availability";
 
 const ORIGINAL = process.env.SINALIZA_EXPLORE_LAUNCHED;
+
+beforeEach(() => {
+  mocks.publicEntries = [];
+});
 
 afterEach(() => {
   if (ORIGINAL === undefined) delete process.env.SINALIZA_EXPLORE_LAUNCHED;
@@ -22,8 +34,14 @@ describe("explore navigation availability", () => {
     expect(isExploreNavigationAvailable()).toBe(false);
   });
 
-  it("stays closed while any cultural category lacks publishable records", () => {
+  it("stays closed while the catalog has no publishable records", () => {
     process.env.SINALIZA_EXPLORE_LAUNCHED = "true";
     expect(isExploreNavigationAvailable()).toBe(false);
+  });
+
+  it("opens with explicit authorization and at least one publishable record", () => {
+    process.env.SINALIZA_EXPLORE_LAUNCHED = "true";
+    mocks.publicEntries = [{ id: "public-fixture" }];
+    expect(isExploreNavigationAvailable()).toBe(true);
   });
 });
