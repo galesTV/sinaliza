@@ -17,7 +17,7 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "history",
     "title": "1857 — Fundação do instituto que se tornou o INES",
     "summary": "A iniciativa de Ernest Huet antecedeu a oficialização do instituto em 1857. A instituição é um marco da educação de surdos, não a origem da Libras.",
-    "version": "candidate-2",
+    "version": "candidate-3",
     "references": [
       {
         "id": "source-1",
@@ -83,6 +83,17 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "history": {
       "year": 1857,
       "unknownMetadata": []
+    },
+    "editorialBody": {
+      "paragraphs": [
+        "Em 1855, Ernest Huet apresentou uma proposta de educação de surdos. As aulas começaram em 1º de janeiro de 1856. A Lei nº 939, de 26 de setembro de 1857, integra a cronologia institucional do atual INES. Trata-se de um marco educacional, não de uma data de nascimento da Libras."
+      ],
+      "claimIds": [
+        "HIST-001-C01",
+        "HIST-001-C02",
+        "HIST-001-C03",
+        "claim-1"
+      ]
     }
   },
   {
@@ -265,7 +276,7 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "history",
     "title": "2002 — Lei de Libras",
     "summary": "A Lei 10.436 reconheceu a Libras como meio legal de comunicação e expressão, com estrutura gramatical própria.",
-    "version": "candidate-2",
+    "version": "candidate-3",
     "references": [
       {
         "id": "source-1",
@@ -322,6 +333,17 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "history": {
       "year": 2002,
       "unknownMetadata": []
+    },
+    "editorialBody": {
+      "paragraphs": [
+        "Em 24 de abril de 2002, a Lei nº 10.436 reconheceu a Libras como meio legal de comunicação e expressão. A lei reconhece sua estrutura gramatical própria e prevê apoio ao uso e à difusão. Reconhecimento jurídico não equivale à criação da língua."
+      ],
+      "claimIds": [
+        "HIST-006-C01",
+        "HIST-006-C02",
+        "HIST-006-C03",
+        "HIST-006-C04"
+      ]
     }
   },
   {
@@ -425,7 +447,7 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "curiosity",
     "title": "Existe uma língua de sinais universal?",
     "summary": "Não. Existem diferentes línguas de sinais, como Libras, ASL e BSL.",
-    "version": "candidate-2",
+    "version": "candidate-3",
     "references": [
       {
         "id": "source-1",
@@ -468,6 +490,15 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "curiosity": {
       "question": "Existe uma língua de sinais universal?",
       "shortAnswer": "Não. Existem diferentes línguas de sinais, como Libras, ASL e BSL."
+    },
+    "editorialBody": {
+      "paragraphs": [
+        "Não existe uma língua de sinais universal. Comunidades de diferentes países e regiões utilizam línguas de sinais distintas. Aprender uma delas não garante compreender todas as outras."
+      ],
+      "claimIds": [
+        "CUR-001-C01",
+        "CUR-001-C02"
+      ]
     }
   },
   {
