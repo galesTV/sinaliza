@@ -17,7 +17,27 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "history",
     "title": "1857 — Fundação do instituto que se tornou o INES",
     "summary": "A iniciativa de Ernest Huet antecedeu a oficialização do instituto em 1857. A instituição é um marco da educação de surdos, não a origem da Libras.",
-    "version": "candidate-3",
+    "version": "candidate-4",
+    "artwork": {
+      "motif": "timeline",
+      "events": [
+        {
+          "year": 1855,
+          "label": "Proposta",
+          "claimId": "HIST-001-C01"
+        },
+        {
+          "year": 1856,
+          "label": "Início das aulas",
+          "claimId": "HIST-001-C02"
+        },
+        {
+          "year": 1857,
+          "label": "Lei nº 939",
+          "claimId": "HIST-001-C03"
+        }
+      ]
+    },
     "references": [
       {
         "id": "source-1",
@@ -276,7 +296,18 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "history",
     "title": "2002 — Lei de Libras",
     "summary": "A Lei 10.436 reconheceu a Libras como meio legal de comunicação e expressão, com estrutura gramatical própria.",
-    "version": "candidate-3",
+    "version": "candidate-4",
+    "artwork": {
+      "motif": "legal-document",
+      "documentNumber": {
+        "value": "10.436",
+        "claimId": "claim-1"
+      },
+      "documentDate": {
+        "value": "2002",
+        "claimId": "HIST-006-C01"
+      }
+    },
     "references": [
       {
         "id": "source-1",
@@ -465,7 +496,10 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "curiosity",
     "title": "Existe uma língua de sinais universal?",
     "summary": "Não. Existem diferentes línguas de sinais, como Libras, ASL e BSL.",
-    "version": "candidate-3",
+    "version": "candidate-4",
+    "artwork": {
+      "motif": "diversity-orbits"
+    },
     "references": [
       {
         "id": "source-1",
@@ -525,7 +559,10 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "curiosity",
     "title": "Libras é português feito com as mãos?",
     "summary": "Não. Libras possui estrutura gramatical própria.",
-    "version": "candidate-4",
+    "version": "candidate-5",
+    "artwork": {
+      "motif": "parallel-structures"
+    },
     "references": [
       {
         "id": "source-1",
@@ -780,7 +817,10 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "curiosity",
     "title": "Existe poesia em Libras?",
     "summary": "Sim. Literatura sinalizada pode explorar movimento, espaço, ritmo e configurações de mão.",
-    "version": "candidate-4",
+    "version": "candidate-5",
+    "artwork": {
+      "motif": "visual-rhythm"
+    },
     "references": [
       {
         "id": "source-1",
@@ -1034,7 +1074,10 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "personality",
     "title": "Nelson Pimenta",
     "summary": "Referência em produções e estudos de Libras e literatura sinalizada.",
-    "version": "candidate-4",
+    "version": "candidate-5",
+    "artwork": {
+      "motif": "monogram"
+    },
     "references": [
       {
         "id": "source-1",
@@ -1698,7 +1741,14 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "library",
     "title": "Gramática da Libras — Volume 1",
     "summary": "Linguística; PDF institucional.",
-    "version": "candidate-4",
+    "version": "candidate-5",
+    "artwork": {
+      "motif": "academic",
+      "volumeNumber": {
+        "value": "I",
+        "claimId": "BIB-003-C04"
+      }
+    },
     "references": [
       {
         "id": "source-1",
@@ -1955,7 +2005,10 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "library",
     "title": "Cinderela Surda",
     "summary": "Literatura infantil; releitura cultural.",
-    "version": "candidate-4",
+    "version": "candidate-5",
+    "artwork": {
+      "motif": "literary"
+    },
     "references": [
       {
         "id": "source-1",
