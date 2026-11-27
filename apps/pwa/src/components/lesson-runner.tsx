@@ -62,11 +62,11 @@ const OPTION_CARD_BASE =
   "flex h-full min-h-11 w-full flex-col gap-3 rounded-xl border p-3 text-left text-sm font-medium transition-colors duration-200 focus-visible:outline-none";
 
 const OPTION_TONES = {
-  idle: "border-border bg-white/[0.025] text-foreground hover:bg-white/[0.07]",
+  idle: "border-border bg-control-quiet text-foreground hover:bg-control-quiet-hover",
   selected: "border-primary/50 bg-primary/10 text-foreground",
   correct: "border-success/50 bg-success/10 text-success",
   incorrect: "border-destructive/50 bg-destructive/10 text-foreground",
-  disabled: "border-border bg-white/[0.015] text-muted",
+  disabled: "border-border bg-control-quiet-disabled text-muted",
 } as const;
 
 const STEP_STATUS_ID = "lesson-runner-step-status";
@@ -500,7 +500,7 @@ function ExerciseBlock({
                           alt={option.media.media.alt}
                           width={option.media.media.width}
                           height={option.media.media.height}
-                          className="h-auto w-full rounded-lg border border-border bg-black/40 object-contain"
+                          className="h-auto w-full rounded-lg border border-border bg-media-surface object-contain"
                           onError={() => markFailed(option.media!.media.src)}
                         />
                       )}
@@ -521,7 +521,7 @@ function ExerciseBlock({
                             alt={option.media.media.alt}
                             width={option.media.media.width}
                             height={option.media.media.height}
-                            className="h-16 w-16 shrink-0 rounded-lg border border-border bg-black/40 object-contain"
+                            className="h-16 w-16 shrink-0 rounded-lg border border-border bg-media-surface object-contain"
                             onError={() => markFailed(option.media!.media.src)}
                           />
                         )}
@@ -736,7 +736,7 @@ export function LessonRunner({
   return (
     <section
       ref={sectionRef}
-      className="flex scroll-mt-24 flex-col gap-6 rounded-3xl border border-border bg-surface-elevated p-6 shadow-[0_20px_60px_rgba(0,0,0,0.2)] sm:p-8"
+      className="flex scroll-mt-24 flex-col gap-6 rounded-3xl border border-border bg-surface-elevated p-6 shadow-[var(--shadow-card)] sm:p-8"
     >
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-5">
         <div className="flex flex-wrap items-center gap-3">
@@ -844,7 +844,7 @@ export function LessonRunner({
             {block.items.map((item) => (
               <li
                 key={item.url}
-                className="flex flex-col gap-1.5 rounded-xl border border-border bg-white/[0.025] p-4"
+                className="flex flex-col gap-1.5 rounded-xl border border-border bg-control-quiet p-4"
               >
                 <a
                   href={item.url}

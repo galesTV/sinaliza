@@ -24,7 +24,7 @@ export function HistoryTimeline({
             aria-hidden="true"
             className="absolute left-0 top-9 grid h-5 w-5 place-items-center rounded-full border border-highlight/60 bg-background sm:left-[6.9rem]"
           >
-            <span className="h-1.5 w-1.5 rounded-full bg-highlight shadow-[0_0_14px_rgba(240,168,72,0.75)]" />
+            <span className="h-1.5 w-1.5 rounded-full bg-highlight shadow-[0_0_14px_var(--glow-highlight)]" />
           </span>
           <time className="font-display text-3xl font-semibold tracking-tight text-highlight sm:pt-1 sm:text-right sm:text-4xl">
             {formatHistoryDate(entry)}

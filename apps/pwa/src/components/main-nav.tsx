@@ -77,12 +77,13 @@ export function DesktopNav({ showExplore = false }: { showExplore?: boolean }) {
                   className={cn(
                     "h-1.5 w-1.5 rounded-full transition-colors duration-200",
                     active
-                      ? "bg-accent shadow-[0_0_8px_rgba(53,201,232,0.7)]"
+                      ? "bg-accent shadow-[0_0_8px_var(--glow-accent-strong)]"
                       : "bg-border",
                   )}
                 />
                 <Icon className="h-4 w-4" />
-                {item.label}
+                <span className="hidden lg:inline">{item.label}</span>
+                <span className="sr-only lg:hidden">{item.label}</span>
               </Link>
             </li>
           );

@@ -45,7 +45,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <DesktopNav showExplore={showExplore} />
             <ThemeSelect />
             <HeaderAuth />
-            <span className="hidden rounded-full border border-border px-3 py-1.5 text-[11px] font-medium tracking-wide text-muted lg:inline-block">
+            <span className="hidden rounded-full border border-border px-3 py-1.5 text-[11px] font-medium tracking-wide text-muted xl:inline-block">
               Versão inicial
             </span>
           </div>

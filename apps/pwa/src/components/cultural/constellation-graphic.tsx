@@ -16,7 +16,7 @@ export function ConstellationGraphic({
   }[variant];
 
   return (
-    <svg viewBox="0 0 160 96" fill="none" aria-hidden="true" className={className}>
+    <svg viewBox="0 0 160 96" fill="none" aria-hidden="true" className={`cultural-constellation-graphic ${className}`}>
       <path
         d={nodes.map(([x, y], index) => `${index === 0 ? "M" : "L"}${x} ${y}`).join(" ")}
         stroke="currentColor"
