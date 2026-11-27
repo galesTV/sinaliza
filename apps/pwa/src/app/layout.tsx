@@ -3,6 +3,7 @@ import { Inter, Sora } from "next/font/google";
 
 import { AppShell } from "@/components/app-shell";
 import { RegisterServiceWorker } from "@/components/register-sw";
+import { THEME_INIT_SCRIPT } from "@/lib/theme";
 
 import "./globals.css";
 
@@ -39,8 +40,16 @@ export default function RootLayout({
     <html
       lang="pt-BR"
       data-scroll-behavior="smooth"
+      data-theme="dark"
+      suppressHydrationWarning
       className={`${inter.variable} ${sora.variable} h-full antialiased`}
     >
+      <head>
+        <script
+          id="theme-init"
+          dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }}
+        />
+      </head>
       <body className="min-h-full">
         <AppShell>{children}</AppShell>
         <RegisterServiceWorker />

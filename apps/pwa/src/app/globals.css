@@ -19,19 +19,78 @@
 
   --muted: #a7b1c8;
   --border: rgba(190, 204, 235, 0.12);
+  --border-strong: rgba(190, 204, 235, 0.34);
 
   --primary: #6957e8;
   --primary-soft: #c7c0ff;
   --on-primary: #ffffff;
   --accent: #35c9e8;
   --highlight: #f0a848;
+  --highlight-fill: var(--highlight);
+  --on-highlight: #10172b;
 
   --success: #83dfb8;
   --destructive: #dc2626;
+  --warning: var(--highlight);
   --ring: var(--accent);
+
+  --control-quiet: rgba(255, 255, 255, 0.025);
+  --control-quiet-hover: rgba(255, 255, 255, 0.07);
+  --media-surface: #050a14;
+  --on-media: #f4f6fc;
+
+  --ambient-primary: rgba(105, 87, 232, 0.16);
+  --ambient-accent: rgba(53, 201, 232, 0.08);
+  --button-primary-start: #6957e8;
+  --button-primary-end: #8272f2;
+  --button-primary-shadow: rgba(105, 87, 232, 0.25);
+  --button-primary-shadow-hover: rgba(105, 87, 232, 0.35);
+  --selection-background: rgba(105, 87, 232, 0.65);
+  --shadow-elevated: 0 18px 48px rgba(0, 0, 0, 0.34);
 
   --font-display: var(--font-sora);
   --font-body: var(--font-inter);
+}
+
+html[data-theme="light"] {
+  color-scheme: light;
+
+  --background: #f6faf9;
+  --foreground: #203451;
+
+  --surface: #ffffff;
+  --surface-elevated: #ddf4f0;
+
+  --muted: #52657a;
+  --border: rgba(32, 52, 81, 0.18);
+  --border-strong: #6f8a96;
+
+  --primary: #007c83;
+  --primary-soft: #5745c7;
+  --on-primary: #ffffff;
+  --accent: #006d77;
+  --highlight: #8a5b00;
+  --highlight-fill: #f4d66d;
+  --on-highlight: #203451;
+
+  --success: #0e7a4f;
+  --destructive: #b42318;
+  --warning: #92400e;
+  --ring: var(--accent);
+
+  --control-quiet: rgba(0, 109, 119, 0.045);
+  --control-quiet-hover: rgba(0, 109, 119, 0.09);
+  --media-surface: #07111f;
+  --on-media: #f4f6fc;
+
+  --ambient-primary: rgba(0, 124, 131, 0.075);
+  --ambient-accent: rgba(244, 214, 109, 0.16);
+  --button-primary-start: #006d77;
+  --button-primary-end: #007c83;
+  --button-primary-shadow: rgba(0, 124, 131, 0.2);
+  --button-primary-shadow-hover: rgba(0, 124, 131, 0.28);
+  --selection-background: rgba(0, 124, 131, 0.28);
+  --shadow-elevated: 0 18px 42px rgba(32, 52, 81, 0.14);
 }
 
 @theme inline {
@@ -43,16 +102,25 @@
 
   --color-muted: var(--muted);
   --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
 
   --color-primary: var(--primary);
   --color-primary-soft: var(--primary-soft);
   --color-on-primary: var(--on-primary);
   --color-accent: var(--accent);
   --color-highlight: var(--highlight);
+  --color-highlight-fill: var(--highlight-fill);
+  --color-on-highlight: var(--on-highlight);
 
   --color-success: var(--success);
   --color-destructive: var(--destructive);
+  --color-warning: var(--warning);
   --color-ring: var(--ring);
+
+  --color-control-quiet: var(--control-quiet);
+  --color-control-quiet-hover: var(--control-quiet-hover);
+  --color-media-surface: var(--media-surface);
+  --color-on-media: var(--on-media);
 
   --font-sans: var(--font-inter);
   --font-display: var(--font-sora);
@@ -81,12 +149,12 @@ body {
   background:
     radial-gradient(
       ellipse at 12% 5%,
-      rgba(105, 87, 232, 0.16),
+      var(--ambient-primary),
       transparent 38rem
     ),
     radial-gradient(
       ellipse at 90% 35%,
-      rgba(53, 201, 232, 0.08),
+      var(--ambient-accent),
       transparent 32rem
     ),
     var(--background);
@@ -95,6 +163,18 @@ body {
 a {
   color: inherit;
   text-decoration: none;
+}
+
+.brand-logo-light {
+  display: none;
+}
+
+html[data-theme="light"] .brand-logo-light {
+  display: block;
+}
+
+html[data-theme="light"] .brand-logo-dark {
+  display: none;
 }
 
 button,
@@ -122,8 +202,8 @@ a {
   border-radius: 11px;
   border: 1px solid rgba(255, 255, 255, 0.15);
 
-  background: linear-gradient(110deg, #6957e8, #8272f2);
-  box-shadow: 0 10px 30px rgba(105, 87, 232, 0.25);
+  background: linear-gradient(110deg, var(--button-primary-start), var(--button-primary-end));
+  box-shadow: 0 10px 30px var(--button-primary-shadow);
 
   color: var(--on-primary);
   font-size: 14px;
@@ -137,14 +217,14 @@ a {
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 14px 36px rgba(105, 87, 232, 0.35);
+  box-shadow: 0 14px 36px var(--button-primary-shadow-hover);
 }
 
 .btn-primary:disabled {
   cursor: not-allowed;
   opacity: 0.45;
   transform: none;
-  box-shadow: 0 10px 30px rgba(105, 87, 232, 0.25);
+  box-shadow: 0 10px 30px var(--button-primary-shadow);
 }
 
 .btn-secondary {
@@ -158,7 +238,7 @@ a {
   border-radius: 11px;
   border: 1px solid var(--border);
 
-  background: rgba(255, 255, 255, 0.025);
+  background: var(--control-quiet);
 
   color: var(--foreground);
   font-size: 14px;
@@ -171,19 +251,23 @@ a {
 }
 
 .btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.07);
+  background: var(--control-quiet-hover);
 }
 
 .btn-secondary:disabled {
   cursor: not-allowed;
   opacity: 0.45;
-  background: rgba(255, 255, 255, 0.025);
+  background: var(--control-quiet);
 }
 }
 
 ::selection {
   color: var(--foreground);
-  background: rgba(105, 87, 232, 0.65);
+  background: var(--selection-background);
+}
+
+html[data-theme="light"] .btn-primary {
+  color: var(--on-primary);
 }
 
 /* ========================================

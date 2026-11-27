@@ -5,6 +5,7 @@ import { isExploreNavigationAvailable } from "@/data/explore-availability";
 
 import { HeaderAuth } from "./auth-nav";
 import { BottomNav, DesktopNav } from "./main-nav";
+import { ThemeSelect } from "./theme-select";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const showExplore = isExploreNavigationAvailable();
@@ -28,11 +29,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               width={120}
               height={36}
               priority
+              className="brand-logo-dark"
+            />
+            <Image
+              src="/brand/sinaliza-horizontal-light.svg"
+              alt=""
+              width={120}
+              height={36}
+              priority
+              className="brand-logo-light"
             />
           </Link>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <DesktopNav showExplore={showExplore} />
+            <ThemeSelect />
             <HeaderAuth />
             <span className="hidden rounded-full border border-border px-3 py-1.5 text-[11px] font-medium tracking-wide text-muted lg:inline-block">
               Versão inicial
