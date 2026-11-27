@@ -59,6 +59,12 @@ export function CulturalDetail({
     personality: "Trajetória",
     library: "Informações bibliográficas",
   }[entry.category];
+  const detailTone = {
+    history: "text-highlight",
+    curiosity: "text-accent",
+    personality: "text-primary-soft",
+    library: "text-success",
+  }[entry.category];
 
   return (
     <article className="flex flex-col gap-10">
@@ -90,7 +96,7 @@ export function CulturalDetail({
           </div>
         </div>
         <div aria-hidden="true" className="relative hidden h-44 lg:block">
-          <ConstellationGraphic variant={entry.category} className="absolute inset-0 h-full w-full text-accent opacity-50" />
+          <ConstellationGraphic variant={entry.category} className={`absolute inset-0 h-full w-full opacity-55 ${detailTone}`} />
         </div>
       </header>
 

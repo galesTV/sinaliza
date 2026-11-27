@@ -11,6 +11,7 @@ import {
 
 import { CuriosityCards } from "./curiosity-cards";
 import { LibraryBrowser } from "./library-browser";
+import { OrbitalShelf } from "./orbital-shelf";
 
 const mounted: Array<{ root: Root; container: HTMLDivElement }> = [];
 
@@ -116,5 +117,66 @@ describe("cultural interactive components", () => {
     setSelectValue(access!, "external-website");
     expect(container.textContent).toContain("Vídeo Fictício Constelação");
     expect(container.textContent).not.toContain("Livro Fictício Alfabeto Visual");
+  });
+
+  it("switches between grid and shelf with explicit pressed state", () => {
+    const container = render(<LibraryBrowser entries={fixtureLibraryEntries} />);
+    const shelfToggle = Array.from(container.querySelectorAll("button")).find(
+      (button) => button.textContent === "Estante",
+    );
+    expect(shelfToggle?.getAttribute("aria-pressed")).toBe("false");
+
+    click(shelfToggle!);
+    expect(shelfToggle?.getAttribute("aria-pressed")).toBe("true");
+    expect(container.textContent).toContain("Estante Orbital");
+    expect(container.textContent).toContain("Obra 1 de 2");
+
+    const gridToggle = Array.from(container.querySelectorAll("button")).find(
+      (button) => button.textContent === "Grade",
+    );
+    click(gridToggle!);
+    expect(gridToggle?.getAttribute("aria-pressed")).toBe("true");
+    expect(container.textContent).not.toContain("Estante Orbital");
+  });
+
+  it("navigates the orbital shelf with controls and keyboard", () => {
+    const container = render(<OrbitalShelf entries={fixtureLibraryEntries} />);
+    expect(container.textContent).toContain("Obra 1 de 2");
+
+    const next = container.querySelector('button[aria-label="Próxima obra"]');
+    click(next!);
+    expect(container.textContent).toContain("Obra 2 de 2");
+
+    const stage = container.querySelector('[aria-label*="Estante orbital"]');
+    act(() => {
+      stage?.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowLeft", bubbles: true }));
+    });
+    expect(container.textContent).toContain("Obra 1 de 2");
+
+    act(() => {
+      stage?.dispatchEvent(new MouseEvent("pointerdown", { clientX: 220, bubbles: true }));
+      stage?.dispatchEvent(new MouseEvent("pointermove", { clientX: 130, bubbles: true }));
+      stage?.dispatchEvent(new MouseEvent("pointerup", { clientX: 130, bubbles: true }));
+    });
+    expect(container.textContent).toContain("Obra 2 de 2");
+  });
+
+  it("keeps a single-item shelf bounded and renders only nearby items in larger collections", () => {
+    const single = render(<OrbitalShelf entries={fixtureLibraryEntries.slice(0, 1)} />);
+    const previous = single.querySelector<HTMLButtonElement>('button[aria-label="Obra anterior"]');
+    const next = single.querySelector<HTMLButtonElement>('button[aria-label="Próxima obra"]');
+    expect(previous?.disabled).toBe(true);
+    expect(next?.disabled).toBe(true);
+
+    const many = fixtureLibraryEntries.flatMap((entry, group) =>
+      Array.from({ length: 4 }, (_, index) => ({
+        ...entry,
+        id: `${entry.id}-${group}-${index}`,
+        slug: `${entry.slug}-${group}-${index}`,
+        title: `${entry.title} ${group}-${index}`,
+      })),
+    );
+    const container = render(<OrbitalShelf entries={many} />);
+    expect(container.querySelectorAll(".orbital-item").length).toBeLessThanOrEqual(7);
   });
 });

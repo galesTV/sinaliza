@@ -13,6 +13,7 @@ import {
 
 import { IconArrowRight } from "../icons";
 import { libraryAccessLabel, libraryFormatLabel } from "./labels";
+import { OrbitalShelf } from "./orbital-shelf";
 
 function searchableText(entry: PublicCulturalLibraryEntry): string {
   return [
@@ -56,6 +57,7 @@ export function LibraryBrowser({
   const [query, setQuery] = useState("");
   const [format, setFormat] = useState("all");
   const [access, setAccess] = useState("all");
+  const [viewMode, setViewMode] = useState<"grade" | "estante">("grade");
 
   const formats = useMemo(() => uniqueLibraryValues(entries, "format"), [entries]);
   const accessModes = useMemo(() => uniqueLibraryValues(entries, "access"), [entries]);
@@ -123,12 +125,40 @@ export function LibraryBrowser({
         </div>
       </form>
 
-      <div className="flex items-end justify-between gap-4">
-        <p aria-live="polite" className="text-sm text-muted">
-          {filtered.length === 1
-            ? "1 registro publicado encontrado"
-            : `${filtered.length} registros publicados encontrados`}
-        </p>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="flex flex-col gap-2">
+          <p aria-live="polite" className="text-sm text-muted">
+            {filtered.length === 1
+              ? "1 registro publicado encontrado"
+              : `${filtered.length} registros publicados encontrados`}
+          </p>
+          <div className="flex gap-2" role="group" aria-label="Modo de visualização da biblioteca">
+            <button
+              type="button"
+              aria-pressed={viewMode === "grade"}
+              onClick={() => setViewMode("grade")}
+              className={`min-h-11 rounded-full border px-4 text-sm font-semibold transition-colors ${
+                viewMode === "grade"
+                  ? "border-accent/50 bg-accent/12 text-accent"
+                  : "border-border text-muted hover:text-foreground"
+              }`}
+            >
+              Grade
+            </button>
+            <button
+              type="button"
+              aria-pressed={viewMode === "estante"}
+              onClick={() => setViewMode("estante")}
+              className={`min-h-11 rounded-full border px-4 text-sm font-semibold transition-colors ${
+                viewMode === "estante"
+                  ? "border-accent/50 bg-accent/12 text-accent"
+                  : "border-border text-muted hover:text-foreground"
+              }`}
+            >
+              Estante
+            </button>
+          </div>
+        </div>
         <p className="hidden text-xs uppercase tracking-[0.2em] text-muted sm:block">
           Acervo em consulta
         </p>
@@ -141,6 +171,8 @@ export function LibraryBrowser({
             Ajuste os filtros ou o termo digitado. A busca considera somente registros culturais já publicados.
           </p>
         </div>
+      ) : viewMode === "estante" ? (
+        <OrbitalShelf entries={filtered} />
       ) : (
         <ul className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3" aria-label="Registros da biblioteca cultural">
           {filtered.map((entry) => (

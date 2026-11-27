@@ -52,12 +52,14 @@ const PORTAL_VISUALS: Record<CulturalCategory, PortalVisual> = {
 
 function HeroConstellation() {
   return (
-    <div aria-hidden="true" className="relative min-h-56 overflow-hidden rounded-[2rem] border border-border/70 bg-surface/45">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(53,201,232,0.18),transparent_18rem),radial-gradient(circle_at_22%_80%,rgba(240,168,72,0.12),transparent_15rem)]" />
-      <ConstellationGraphic variant="home" className="cultural-constellation-drift absolute inset-x-4 top-8 h-44 w-auto text-accent opacity-90" />
-      <span className="absolute left-[18%] top-[24%] h-16 w-16 rounded-full border border-primary/30" />
-      <span className="absolute bottom-8 right-[16%] h-24 w-24 rounded-full border border-highlight/25" />
-      <span className="absolute bottom-10 right-8 max-w-40 text-xs leading-relaxed text-muted">
+    <div aria-hidden="true" className="relative min-h-64 overflow-hidden rounded-[2.5rem] sm:min-h-72">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(53,201,232,0.2),transparent_18rem),radial-gradient(circle_at_22%_80%,rgba(240,168,72,0.13),transparent_15rem)]" />
+      <ConstellationGraphic variant="home" className="cultural-constellation-drift absolute -right-10 top-2 h-56 w-[26rem] max-w-none text-accent opacity-95 sm:h-64" />
+      <span className="absolute left-[16%] top-[22%] h-16 w-16 rounded-full border border-primary/30" />
+      <span className="absolute bottom-9 right-[16%] h-24 w-24 rounded-full border border-highlight/25" />
+      <span className="absolute left-4 top-8 rounded-full border border-accent/20 bg-background/55 px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-accent backdrop-blur-sm">memória</span>
+      <span className="absolute bottom-14 left-[28%] rounded-full border border-highlight/20 bg-background/55 px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-highlight backdrop-blur-sm">tempo</span>
+      <span className="absolute bottom-8 right-5 max-w-40 rounded-2xl bg-background/45 p-3 text-xs leading-relaxed text-muted backdrop-blur-sm">
         Um universo cultural conectado por memória, pessoas e descoberta.
       </span>
     </div>
@@ -75,12 +77,12 @@ export function ExploreHome({ entries }: { entries: PublicCulturalEntry[] }) {
 
   return (
     <div className="flex flex-col gap-14">
-      <section aria-labelledby="explore-title" className="grid items-center gap-8 lg:grid-cols-[1.05fr_0.95fr]">
+      <section aria-labelledby="explore-title" className="grid items-center gap-8 lg:grid-cols-[1.08fr_0.92fr]">
         <div className="flex flex-col gap-5">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-accent">
             Constelação Cultural
           </p>
-          <h1 id="explore-title" className="max-w-3xl font-display text-4xl font-semibold leading-[1.02] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+          <h1 id="explore-title" className="max-w-3xl font-display text-4xl font-semibold leading-[1.02] tracking-tight text-foreground sm:text-5xl lg:text-7xl">
             Uma língua. Muitas histórias.
           </h1>
           <p className="max-w-xl text-base leading-relaxed text-muted sm:text-lg">
@@ -106,7 +108,10 @@ export function ExploreHome({ entries }: { entries: PublicCulturalEntry[] }) {
             const visual = PORTAL_VISUALS[presentation.category];
             const count = counts.get(presentation.category) ?? 0;
             return (
-              <li key={presentation.category} className={visual.span}>
+              <li
+                key={presentation.category}
+                className={`${visual.span} ${presentation.category === "curiosity" ? "lg:translate-y-8" : ""} ${presentation.category === "library" ? "lg:-translate-y-4" : ""}`}
+              >
                 <Link
                   href={getCulturalCategoryHref(presentation.category)}
                   className={`group relative flex h-full min-h-64 flex-col justify-end overflow-hidden rounded-[2rem] border border-border/70 bg-gradient-to-br p-6 transition-[transform,border-color] duration-300 hover:-translate-y-1 hover:border-accent/35 sm:p-7 ${visual.wash}`}
