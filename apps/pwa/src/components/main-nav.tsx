@@ -66,7 +66,7 @@ export function DesktopNav({ showExplore = false }: { showExplore?: boolean }) {
                 href={item.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "inline-flex min-h-11 items-center gap-2.5 rounded-[10px] px-4 text-sm transition-colors duration-200",
+                  "inline-flex min-h-11 items-center gap-2.5 rounded-[10px] px-3 text-sm transition-colors duration-200 xl:px-4",
                   active
                     ? "bg-surface-elevated font-semibold text-accent"
                     : "font-medium text-muted hover:bg-surface hover:text-foreground",

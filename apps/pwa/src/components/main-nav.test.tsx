@@ -14,5 +14,7 @@ describe("DesktopNav responsive labels", () => {
     expect(html).toContain("Explorar");
     expect(html).toContain("hidden lg:inline");
     expect(html).toContain("sr-only lg:hidden");
+    expect(html).toContain("px-3");
+    expect(html).toContain("xl:px-4");
   });
 });
