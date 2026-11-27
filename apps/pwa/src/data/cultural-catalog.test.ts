@@ -4,6 +4,8 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { culturalCatalog, getCulturalEntryById } from "./cultural-catalog";
+import { culturalMigrationBaseline } from "./cultural-migration-baseline";
+import { getCulturalContentFingerprint } from "./cultural-publication";
 import {
   CULTURAL_CATEGORIES,
   validateCulturalCatalog,
@@ -190,5 +192,70 @@ describe("validateCulturalEntry", () => {
       "personality",
       "library",
     ]);
+  });
+});
+
+
+describe("cultural V2 migration integrity hardening", () => {
+  it("binds every migrated claim to the exact authorized source URL", () => {
+    const matrix = JSON.parse(readFileSync(join(process.cwd(), "docs/curadoria-cultural/v2/pacote-original/matriz-afirmacoes.json"), "utf8")) as Array<{ id: string; entryId: string; text: string; url: string }>;
+    const blocked = new Set(["PER-001-C03", "PER-001-C04", "PER-002-C01", "BIB-002-C01", "BIB-010-C02"]);
+    for (const source of matrix.filter((claim) => !blocked.has(claim.id))) {
+      const entry = culturalCatalog.find((item) => item.id === source.entryId)!;
+      const claim = entry.claims.find((item) => item.id === source.id)!;
+      const expectedUrl = source.entryId === "BIB-003" && source.url.endsWith("?show=full") ? source.url.slice(0, -"?show=full".length) : source.url;
+      expect(claim.referenceIds).toHaveLength(1);
+      const reference = entry.references.find((item) => item.id === claim.referenceIds[0]);
+      expect(reference, source.id).toBeDefined();
+      expect(reference!.url, source.id).toBe(expectedUrl);
+    }
+  });
+
+  it("detects an incorrect reference association in a negative fixture", () => {
+    const entry = structuredClone(getCulturalEntryById("HIST-001")!);
+    entry.references.push({ id: "source-wrong", url: "https://example.org/wrong" });
+    const claim = entry.claims.find((item) => item.id === "HIST-001-C01")!;
+    claim.referenceIds = ["source-wrong"];
+    const reference = entry.references.find((item) => item.id === claim.referenceIds[0])!;
+    expect(reference.url).not.toBe("https://seer.ines.gov.br/index.php/revista-espaco/article/download/703/708/2042");
+  });
+
+  it("keeps the traceability document aligned with the matrix and runtime catalog", () => {
+    const traceability = readFileSync(join(process.cwd(), "docs/curadoria-cultural/v2/rastreabilidade-d23d2.md"), "utf8");
+    const matrix = JSON.parse(readFileSync(join(process.cwd(), "docs/curadoria-cultural/v2/pacote-original/matriz-afirmacoes.json"), "utf8")) as Array<{ id: string; entryId: string; text: string; consultation: string }>;
+    const blocked = new Set(["PER-001-C03", "PER-001-C04", "PER-002-C01", "BIB-002-C01", "BIB-010-C02"]);
+    for (const source of matrix.filter((claim) => !blocked.has(claim.id))) {
+      expect(traceability).toContain(`\`${source.id}\``);
+      expect(traceability).toContain(source.text);
+      expect(traceability).toContain(`\`${source.consultation}\``);
+    }
+    for (const blockedId of blocked) {
+      expect(traceability).not.toContain(`\`${blockedId}\``);
+    }
+  });
+
+  it("preserves 29 baseline records and changes only authorized claim/reference/version content", () => {
+    const authorized = new Set(["HIST-001", "HIST-006", "HIST-008", "CUR-001", "CUR-002", "CUR-006", "PER-001", "BIB-003", "BIB-004", "BIB-005", "BIB-010", "BIB-011"]);
+    const baseline = JSON.parse(JSON.stringify(culturalMigrationBaseline)) as typeof culturalCatalog;
+    const baselineById = new Map(baseline.map((entry) => [entry.id, entry]));
+    for (const entry of culturalCatalog) {
+      const before = baselineById.get(entry.id)!;
+      const beforeFingerprint = getCulturalContentFingerprint(before);
+      const currentFingerprint = getCulturalContentFingerprint(entry);
+      if (!authorized.has(entry.id)) {
+        expect(entry, entry.id).toEqual(before);
+        expect(currentFingerprint, entry.id).toBe(beforeFingerprint);
+      } else {
+        expect(currentFingerprint, entry.id).not.toBe(beforeFingerprint);
+        const strip = (item: CulturalCatalogEntry) => {
+          const copy = { ...item } as Partial<CulturalCatalogEntry>;
+          delete copy.version;
+          delete copy.references;
+          delete copy.claims;
+          return copy;
+        };
+        expect(strip(entry), entry.id).toEqual(strip(before));
+      }
+    }
   });
 });
