@@ -86,6 +86,17 @@ describe("isCulturalPublishable", () => {
     expect(isCulturalPublishable(entry, [entry])).toBe(true);
   });
 
+
+  it("accepts a structurally valid optional editorial body without treating it as semantic validation", () => {
+    const entry = makePublishableHistory({
+      editorialBody: {
+        paragraphs: ["Parágrafo editorial sintético.", "Segundo parágrafo com <strong>HTML</strong> e **Markdown** tratados como texto."],
+        claimIds: ["claim-1"],
+      },
+    });
+    expect(isCulturalPublishable(entry, [entry])).toBe(true);
+  });
+
   it("keeps all 41 real cultural records unpublished", () => {
     for (const entry of culturalCatalog) {
       expect(isCulturalPublishable(entry, culturalCatalog), entry.id).toBe(false);
@@ -110,6 +121,38 @@ describe("isCulturalPublishable", () => {
     expect(getCulturalPublicationBlockers(entry, [entry]).join("\n")).toContain(
       "public cultural taxonomy",
     );
+  });
+
+  it("rejects structurally invalid editorial bodies and blocks publication", () => {
+    const cases: Array<[string, CulturalHistoryEntry["editorialBody"], string[]]> = [
+      ["missing paragraphs", { paragraphs: [], claimIds: ["claim-1"] }, ["missing paragraphs"]],
+      ["blank paragraph", { paragraphs: ["   "], claimIds: ["claim-1"] }, ["empty text"]],
+      ["missing claim ids", { paragraphs: ["Texto sintético."], claimIds: [] }, ["missing claim ids"]],
+      ["empty claim id", { paragraphs: ["Texto sintético."], claimIds: [""] }, ["empty id", "no valid claims"]],
+      ["duplicate claim id", { paragraphs: ["Texto sintético."], claimIds: ["claim-1", "claim-1"] }, ["duplicate id"]],
+      ["unknown claim id", { paragraphs: ["Texto sintético."], claimIds: ["claim-404"] }, ["unknown claim", "no valid claims"]],
+    ];
+
+    for (const [name, editorialBody, expected] of cases) {
+      const entry = makePublishableHistory({ editorialBody });
+      const problems = getCulturalPublicationBlockers(entry, [entry]).join("\n");
+      for (const fragment of expected) {
+        expect(problems, `${name}: ${fragment}`).toContain(fragment);
+      }
+      expect(isCulturalPublishable(entry, [entry]), name).toBe(false);
+    }
+  });
+
+  it("rejects an editorial body claim that belongs to another record", () => {
+    const target = makePublishableHistory({ id: "TEST-002", slug: "outro-registro" });
+    target.claims = [{ id: "foreign-claim", text: "Afirmação externa.", referenceIds: ["source-1"] }];
+    const entry = makePublishableHistory({
+      editorialBody: { paragraphs: ["Texto sintético."], claimIds: ["foreign-claim"] },
+    });
+    const problems = getCulturalPublicationBlockers(entry, [entry, target]).join("\n");
+    expect(problems).toContain("belongs to another record");
+    expect(problems).toContain("no valid claims");
+    expect(isCulturalPublishable(entry, [entry, target])).toBe(false);
   });
 
   it("rejects incomplete publication references", () => {
@@ -237,6 +280,80 @@ describe("isCulturalPublishable", () => {
     expect(getCulturalContentFingerprint(first)).toBe(getCulturalContentFingerprint(second));
   });
 
+
+  it("changes the fingerprint when editorial body content or claim links change", () => {
+    const withoutBody = makePublishableHistory();
+    const withBody = makePublishableHistory({
+      editorialBody: {
+        paragraphs: ["Primeiro parágrafo.", "Segundo parágrafo."],
+        claimIds: ["claim-1"],
+      },
+    });
+    const baseline = getCulturalContentFingerprint(withBody);
+    expect(getCulturalContentFingerprint(withoutBody)).not.toBe(baseline);
+
+    const removed = { ...withBody };
+    delete removed.editorialBody;
+    expect(getCulturalContentFingerprint(removed)).toBe(
+      getCulturalContentFingerprint(withoutBody),
+    );
+
+    const altered = {
+      ...withBody,
+      editorialBody: {
+        ...withBody.editorialBody!,
+        paragraphs: ["Primeiro parágrafo alterado.", "Segundo parágrafo."],
+      },
+    };
+    expect(getCulturalContentFingerprint(altered)).not.toBe(baseline);
+
+    const reordered = {
+      ...withBody,
+      editorialBody: {
+        ...withBody.editorialBody!,
+        paragraphs: ["Segundo parágrafo.", "Primeiro parágrafo."],
+      },
+    };
+    expect(getCulturalContentFingerprint(reordered)).not.toBe(baseline);
+
+    const twoClaimEntry = {
+      ...withBody,
+      claims: [
+        ...withBody.claims,
+        { id: "claim-2", text: "Outra afirmação sintética.", referenceIds: ["source-1"] },
+      ],
+    };
+    const firstClaimLink = getCulturalContentFingerprint(twoClaimEntry);
+    const secondClaimLink = {
+      ...twoClaimEntry,
+      editorialBody: {
+        ...twoClaimEntry.editorialBody!,
+        claimIds: ["claim-2"],
+      },
+    };
+    expect(getCulturalContentFingerprint(secondClaimLink)).not.toBe(firstClaimLink);
+  });
+
+  it("rejects reused reviews and authorization after the editorial body changes", () => {
+    const approved = makePublishableHistory({
+      editorialBody: {
+        paragraphs: ["Corpo editorial original."],
+        claimIds: ["claim-1"],
+      },
+    });
+    const mutated = {
+      ...approved,
+      editorialBody: {
+        ...approved.editorialBody!,
+        paragraphs: ["Corpo editorial modificado."],
+      },
+    };
+    const problems = getCulturalPublicationBlockers(mutated, [mutated]).join("\n");
+    expect(isCulturalPublishable(mutated, [mutated])).toBe(false);
+    expect(problems).toContain("review covers a different content fingerprint");
+    expect(problems).toContain("authorization covers a different content fingerprint");
+  });
+
   it.each([
     ["entry text", (entry: CulturalHistoryEntry) => ({ ...entry, title: "Texto alterado" })],
     [
@@ -338,6 +455,27 @@ describe("projectPublicCulturalEntries", () => {
     expect(serialized).not.toContain("permissionEvidence");
   });
 
+
+  it("projects only editorial body paragraphs, preserving exact order and treating markup as text", () => {
+    const paragraphs = [
+      "Primeiro parágrafo com <strong>HTML</strong> literal.",
+      "Segundo parágrafo com **Markdown** literal.",
+    ];
+    const entry = makePublishableHistory({
+      editorialBody: { paragraphs, claimIds: ["claim-1"] },
+    });
+    const [publicEntry] = projectPublicCulturalEntries([entry]);
+    expect(publicEntry.editorialBody).toEqual({ paragraphs });
+    expect(publicEntry.editorialBody?.paragraphs).not.toBe(paragraphs);
+
+    const serialized = JSON.stringify(publicEntry);
+    expect(serialized).toContain("<strong>HTML</strong>");
+    expect(serialized).toContain("**Markdown**");
+    expect(serialized).not.toContain("claimIds");
+    expect(serialized).not.toContain("claims");
+    expect(serialized).not.toContain("contentFingerprint");
+    expect(serialized).not.toContain("internalPending");
+  });
 
   it("drops non-allowlisted nested fields even when injected at runtime", () => {
     const entry = makePublishableHistory() as CulturalHistoryEntry & {

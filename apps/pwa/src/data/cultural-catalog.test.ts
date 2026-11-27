@@ -33,6 +33,13 @@ describe("culturalCatalog migration", () => {
     }
   });
 
+
+  it("does not migrate any real editorial body in the contract-only stage", () => {
+    for (const entry of culturalCatalog) {
+      expect(entry.editorialBody, entry.id).toBeUndefined();
+    }
+  });
+
   it("preserves source URLs without inventing missing source metadata", () => {
     for (const entry of culturalCatalog) {
       expect(entry.references.length, entry.id).toBeGreaterThan(0);

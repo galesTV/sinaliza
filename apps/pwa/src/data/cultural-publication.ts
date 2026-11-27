@@ -141,6 +141,9 @@ interface PublicCulturalEntryBase {
   slug: string;
   title: string;
   summary: string;
+  editorialBody?: {
+    paragraphs: string[];
+  };
   references: PublicCulturalReference[];
   relatedEntries: PublicCulturalRelation[];
 }
@@ -375,6 +378,13 @@ function toPublicEntry(
     slug: entry.slug,
     title: entry.title,
     summary: entry.summary,
+    ...(entry.editorialBody
+      ? {
+          editorialBody: {
+            paragraphs: [...entry.editorialBody.paragraphs],
+          },
+        }
+      : {}),
     references: toPublicReferences(entry.references),
     relatedEntries: entry.relatedEntries
       .filter(
