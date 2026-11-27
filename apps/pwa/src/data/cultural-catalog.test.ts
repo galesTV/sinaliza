@@ -82,11 +82,29 @@ describe("culturalCatalog migration", () => {
   it("preserves source URLs without inventing missing source metadata", () => {
     for (const entry of culturalCatalog) {
       expect(entry.references.length, entry.id).toBeGreaterThan(0);
+      const documentedV21ReferenceIds = new Set([
+        "CUR-002:source-4",
+        "CUR-006:source-4",
+        "PER-002:source-2",
+        "BIB-003:source-2",
+        "BIB-004:source-3",
+        "BIB-011:source-2",
+        "PER-001:source-4",
+        "PER-001:source-5",
+        "BIB-010:source-2",
+      ]);
       for (const reference of entry.references) {
-        expect(reference.url, `${entry.id}:${reference.id}`).toMatch(/^https:\/\//);
-        expect(reference.institution, `${entry.id}:${reference.id}`).toBeUndefined();
-        expect(reference.purpose, `${entry.id}:${reference.id}`).toBeUndefined();
-        expect(reference.consultedAt, `${entry.id}:${reference.id}`).toBeUndefined();
+        const key = `${entry.id}:${reference.id}`;
+        expect(reference.url, key).toMatch(/^https:\/\//);
+        if (documentedV21ReferenceIds.has(key)) {
+          expect(reference.institution, key).toBeTruthy();
+          expect(reference.purpose, key).toBeTruthy();
+          expect(reference.consultedAt, key).toBe("2026-11-27");
+        } else {
+          expect(reference.institution, key).toBeUndefined();
+          expect(reference.purpose, key).toBeUndefined();
+          expect(reference.consultedAt, key).toBeUndefined();
+        }
       }
     }
   });
@@ -140,16 +158,14 @@ describe("culturalCatalog migration", () => {
     const matrix = JSON.parse(
       readFileSync(join(process.cwd(), "docs/curadoria-cultural/v2/pacote-original/matriz-afirmacoes.json"), "utf8"),
     ) as Array<{ id: string; entryId: string; text: string }>;
-    const blocked = new Set(["PER-001-C03", "PER-001-C04", "PER-002-C01", "BIB-002-C01", "BIB-010-C02"]);
-    const approved = matrix.filter((claim) => !blocked.has(claim.id));
-    expect(approved).toHaveLength(26);
+    expect(matrix).toHaveLength(31);
 
     const migrated = culturalCatalog.flatMap((entry) =>
       entry.claims.filter((claim) => claim.id.includes("-C")).map((claim) => ({ entry, claim })),
     );
-    expect(migrated).toHaveLength(26);
+    expect(migrated).toHaveLength(56);
 
-    for (const source of approved) {
+    for (const source of matrix) {
       const entry = culturalCatalog.find((item) => item.id === source.entryId)!;
       const claim = entry.claims.find((item) => item.id === source.id);
       expect(claim, source.id).toBeDefined();
@@ -160,26 +176,23 @@ describe("culturalCatalog migration", () => {
       }
     }
 
-    for (const blockedId of blocked) {
-      expect(culturalCatalog.some((entry) => entry.claims.some((claim) => claim.id === blockedId)), blockedId).toBe(false);
-    }
   });
 
   it("versions only the authorized candidate-2/candidate-3 records and keeps reference IDs unique", () => {
-    const authorized = new Set(["HIST-001", "HIST-006", "HIST-008", "CUR-001", "CUR-002", "CUR-006", "PER-001", "BIB-003", "BIB-004", "BIB-005", "BIB-010", "BIB-011"]);
+
     for (const entry of culturalCatalog) {
+      const complementaryCandidate3 = new Set(["HIST-008", "CUR-002", "CUR-006", "PER-001", "BIB-003", "BIB-004", "BIB-005", "BIB-010", "BIB-011"]);
+      const complementaryCandidate2 = new Set(["PER-002", "BIB-002"]);
       expect(entry.version, entry.id).toBe(
-        approvedEditorialBodyEntryIds.has(entry.id)
+        approvedEditorialBodyEntryIds.has(entry.id) || complementaryCandidate3.has(entry.id)
           ? "candidate-3"
-          : authorized.has(entry.id)
+          : complementaryCandidate2.has(entry.id)
             ? "candidate-2"
             : "candidate-1",
       );
       const referenceIds = entry.references.map((reference) => reference.id);
       expect(new Set(referenceIds).size, entry.id).toBe(referenceIds.length);
     }
-    expect(getCulturalEntryById("PER-002")!.claims.map((claim) => claim.id)).toEqual(["claim-1"]);
-    expect(getCulturalEntryById("BIB-002")!.claims.map((claim) => claim.id)).toEqual(["claim-1"]);
   });
 
   it("uses unique ids and slugs", () => {
@@ -286,6 +299,8 @@ describe("cultural V2 migration integrity hardening", () => {
     "CUR-002",
     "CUR-006",
     "PER-001",
+    "PER-002",
+    "BIB-002",
     "BIB-003",
     "BIB-004",
     "BIB-005",
@@ -303,6 +318,15 @@ describe("cultural V2 migration integrity hardening", () => {
 
   const readMatrix = () =>
     JSON.parse(readFileSync(matrixPath, "utf8")) as MatrixClaim[];
+  const complementaryClaims = () =>
+    JSON.parse(readFileSync(join(process.cwd(), "docs/curadoria-cultural/v2.1/pacote-original/claims-complementares.json"), "utf8")) as MatrixClaim[];
+  const recoveredClaims = () =>
+    JSON.parse(readFileSync(join(process.cwd(), "docs/curadoria-cultural/v2.1/pacote-original/claims-recuperadas.json"), "utf8")) as MatrixClaim[];
+  const adendoClaims = [
+    { id: "PER-001-C05", entryId: "PER-001" },
+    { id: "PER-001-C06", entryId: "PER-001" },
+    { id: "PER-001-C07", entryId: "PER-001" },
+  ];
   const approvedClaims = (matrix: MatrixClaim[]) =>
     matrix.filter((claim) => !blockedClaimIds.has(claim.id));
   const authorizedRuntimeUrl = (source: MatrixClaim) =>
@@ -767,7 +791,7 @@ describe("cultural V2 migration integrity hardening", () => {
       const entry = culturalCatalog.find((item) => item.id === entryId)!;
       const before = baselineById.get(entryId)!;
       expect(entry.version, entryId).toBe(
-        approvedEditorialBodyEntryIds.has(entryId) ? "candidate-3" : "candidate-2",
+        entryId === "PER-002" || entryId === "BIB-002" ? "candidate-2" : "candidate-3",
       );
 
       for (const previousClaim of before.claims) {
@@ -788,7 +812,12 @@ describe("cultural V2 migration integrity hardening", () => {
       const entryAddedClaims = entry.claims.filter(
         (claim) => !before.claims.some((item) => isDeepStrictEqual(item, claim)),
       );
-      const expectedClaimIds = approved
+      const expectedClaimIds = [
+        ...approved,
+        ...complementaryClaims(),
+        ...recoveredClaims(),
+        ...adendoClaims,
+      ]
         .filter((claim) => claim.entryId === entryId)
         .map((claim) => claim.id)
         .sort();
@@ -816,38 +845,94 @@ describe("cultural V2 migration integrity hardening", () => {
       );
     }
 
-    expect(addedClaimCount).toBe(26);
-    expect(addedReferences).toEqual([
-      {
-        entryId: "CUR-002",
-        id: "source-2",
-        url: "https://ojsrevista.furb.br/ojs/index.php/linguagens/article/download/7287/4653/32619",
-      },
-      {
-        entryId: "CUR-002",
-        id: "source-3",
-        url: "https://doi.org/10.51207/2179-4057.20220014",
-      },
-      {
-        entryId: "CUR-006",
-        id: "source-3",
-        url: "https://librando.paginas.ufsc.br/poemas/",
-      },
-      {
-        entryId: "PER-001",
-        id: "source-2",
-        url: "https://indl.iphan.gov.br/pessoas-de-referencia/nelson-pimenta-de-castro/",
-      },
-      {
-        entryId: "PER-001",
-        id: "source-3",
-        url: "https://nuestra.ufsc.br/vocab/index.php?tema=42&/nelson-pimenta-de-castro",
-      },
-      {
-        entryId: "BIB-004",
-        id: "source-2",
-        url: "https://librando.paginas.ufsc.br/livros-2/",
-      },
+    expect(addedClaimCount).toBe(56);
+    expect(
+      addedReferences.sort((a, b) => `${a.entryId}:${a.id}`.localeCompare(`${b.entryId}:${b.id}`)),
+    ).toEqual([
+      { entryId: "BIB-004", id: "source-2", url: "https://librando.paginas.ufsc.br/livros-2/" },
+      { entryId: "BIB-004", id: "source-3", url: "https://repositorio.ufsc.br/xmlui/bitstream/handle/123456789/259641/Literatura_em_Libras_Rachel_Sutton_Spence.pdf?sequence=1&isAllowed=y" },
+      { entryId: "BIB-010", id: "source-2", url: "https://www.scielo.br/j/rbee/a/S5Gyt4gMNzzQJJmLYqMcqCC/abstract/?lang=pt" },
+      { entryId: "BIB-011", id: "source-2", url: "https://debasi.ines.gov.br/tv-ines" },
+      { entryId: "CUR-002", id: "source-2", url: "https://ojsrevista.furb.br/ojs/index.php/linguagens/article/download/7287/4653/32619" },
+      { entryId: "CUR-002", id: "source-3", url: "https://doi.org/10.51207/2179-4057.20220014" },
+      { entryId: "CUR-002", id: "source-4", url: "https://letraslibras.paginas.ufsc.br/files/2022/12/LSB7106-Libras-Iniciante.pdf" },
+      { entryId: "CUR-006", id: "source-3", url: "https://librando.paginas.ufsc.br/poemas/" },
+      { entryId: "CUR-006", id: "source-4", url: "https://www.revistaglauks.ufv.br/Glauks/article/view/377" },
+      { entryId: "PER-001", id: "source-2", url: "https://indl.iphan.gov.br/pessoas-de-referencia/nelson-pimenta-de-castro/" },
+      { entryId: "PER-001", id: "source-3", url: "https://nuestra.ufsc.br/vocab/index.php?tema=42&/nelson-pimenta-de-castro" },
+      { entryId: "PER-001", id: "source-4", url: "https://repositorio.ufsc.br/handle/123456789/204538" },
+      { entryId: "PER-001", id: "source-5", url: "https://repositorio.ufsc.br/handle/123456789/100721" },
+      { entryId: "PER-002", id: "source-2", url: "https://www.gov.br/fundaj/pt-br/composicao/dimeca/biblioteca/acervos/inventarios-documentais-e-indices/libras_25_4_2012.pdf" },
+      { entryId: "BIB-003", id: "source-2", url: "https://www.researchgate.net/publication/385893948_A_Fonetica_e_a_Fonologia_das_Linguas_de_Sinais" },
+    ].sort((a, b) => `${a.entryId}:${a.id}`.localeCompare(`${b.entryId}:${b.id}`)));
+  });
+});
+
+describe("cultural V2.1 complementary evidence migration", () => {
+  const v21Dir = join(process.cwd(), "docs/curadoria-cultural/v2.1/pacote-original");
+  type V21Claim = {
+    id: string;
+    entryId: string;
+    text: string;
+    consultation: string;
+  };
+
+  it("migrates exactly the 30 authorized complementary, recovered and PER-001 adendo claims", () => {
+    const complementary = JSON.parse(readFileSync(join(v21Dir, "claims-complementares.json"), "utf8")) as V21Claim[];
+    const recovered = JSON.parse(readFileSync(join(v21Dir, "claims-recuperadas.json"), "utf8")) as V21Claim[];
+    const adendo = [
+      ["PER-001-C05", "Nelson Pimenta de Castro é identificado como uma liderança surda pelo Inventário Nacional da Diversidade Linguística."],
+      ["PER-001-C06", "Nelson Pimenta de Castro possui trajetória artística no teatro, incluindo atuação no espetáculo Nelson 6 ao Vivo."],
+      ["PER-001-C07", "Nelson Pimenta de Castro concluiu mestrado e doutorado em Estudos da Tradução pela Universidade Federal de Santa Catarina."],
+    ] as const;
+    expect(complementary).toHaveLength(22);
+    expect(recovered).toHaveLength(5);
+
+    for (const source of [...complementary, ...recovered]) {
+      const entry = getCulturalEntryById(source.entryId)!;
+      const claim = entry.claims.find((item) => item.id === source.id);
+      expect(claim?.text, source.id).toBe(source.text);
+      expect(claim?.referenceIds, source.id).toHaveLength(1);
+      expect(
+        claim!.referenceIds.every((id) => entry.references.some((reference) => reference.id === id)),
+        source.id,
+      ).toBe(true);
+    }
+    for (const [id, text] of adendo) {
+      expect(getCulturalEntryById("PER-001")!.claims.find((claim) => claim.id === id)?.text).toBe(text);
+    }
+
+    const migratedIds = culturalCatalog.flatMap((entry) =>
+      entry.claims.filter((claim) => claim.id.includes("-C")).map((claim) => claim.id),
+    );
+    expect(migratedIds).toHaveLength(56);
+    expect(new Set(migratedIds).size).toBe(56);
+  });
+
+  it("changes only the eleven authorized records and does not migrate editorial bodies", () => {
+    const expectedVersions = {
+      "HIST-008": "candidate-3",
+      "CUR-002": "candidate-3",
+      "CUR-006": "candidate-3",
+      "PER-001": "candidate-3",
+      "PER-002": "candidate-2",
+      "BIB-002": "candidate-2",
+      "BIB-003": "candidate-3",
+      "BIB-004": "candidate-3",
+      "BIB-005": "candidate-3",
+      "BIB-010": "candidate-3",
+      "BIB-011": "candidate-3",
+    } as const;
+    for (const [entryId, version] of Object.entries(expectedVersions)) {
+      expect(getCulturalEntryById(entryId)?.version, entryId).toBe(version);
+    }
+    expect(culturalCatalog.filter((entry) => entry.editorialBody).map((entry) => entry.id).sort()).toEqual([
+      "CUR-001",
+      "HIST-001",
+      "HIST-006",
     ]);
+    expect(culturalCatalog.every((entry) => entry.validationStatus === "draft")).toBe(true);
+    expect(culturalCatalog.every((entry) => entry.reviews.length === 0)).toBe(true);
+    expect(culturalCatalog.every((entry) => entry.publicationAuthorization === undefined)).toBe(true);
   });
 });
