@@ -1,10 +1,11 @@
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { isDeepStrictEqual } from "node:util";
 
 import { describe, expect, it } from "vitest";
 
 import { culturalCatalog, getCulturalEntryById } from "./cultural-catalog";
-import { culturalMigrationBaseline } from "./cultural-migration-baseline";
+import { culturalMigrationBaseline } from "@/test/cultural-migration-baseline";
 import { getCulturalContentFingerprint } from "./cultural-publication";
 import {
   CULTURAL_CATEGORIES,
@@ -197,52 +198,385 @@ describe("validateCulturalEntry", () => {
 
 
 describe("cultural V2 migration integrity hardening", () => {
-  it("binds every migrated claim to the exact authorized source URL", () => {
-    const matrix = JSON.parse(readFileSync(join(process.cwd(), "docs/curadoria-cultural/v2/pacote-original/matriz-afirmacoes.json"), "utf8")) as Array<{ id: string; entryId: string; text: string; url: string }>;
-    const blocked = new Set(["PER-001-C03", "PER-001-C04", "PER-002-C01", "BIB-002-C01", "BIB-010-C02"]);
-    for (const source of matrix.filter((claim) => !blocked.has(claim.id))) {
+  type MatrixClaim = {
+    id: string;
+    entryId: string;
+    text: string;
+    url: string;
+    locator: string;
+    consultation: string;
+  };
+
+  type TraceabilityRow = {
+    claimId: string;
+    recordId: string;
+    text: string;
+    runtimeReference: string;
+    originalUrl: string;
+    runtimeUrl: string;
+    transformation: string;
+    locator: string;
+    consultation: string;
+  };
+
+  const blockedClaimIds = new Set([
+    "PER-001-C03",
+    "PER-001-C04",
+    "PER-002-C01",
+    "BIB-002-C01",
+    "BIB-010-C02",
+  ]);
+  const authorizedEntryIds = new Set([
+    "HIST-001",
+    "HIST-006",
+    "HIST-008",
+    "CUR-001",
+    "CUR-002",
+    "CUR-006",
+    "PER-001",
+    "BIB-003",
+    "BIB-004",
+    "BIB-005",
+    "BIB-010",
+    "BIB-011",
+  ]);
+  const matrixPath = join(
+    process.cwd(),
+    "docs/curadoria-cultural/v2/pacote-original/matriz-afirmacoes.json",
+  );
+  const traceabilityPath = join(
+    process.cwd(),
+    "docs/curadoria-cultural/v2/rastreabilidade-d23d2.md",
+  );
+
+  const readMatrix = () =>
+    JSON.parse(readFileSync(matrixPath, "utf8")) as MatrixClaim[];
+  const approvedClaims = (matrix: MatrixClaim[]) =>
+    matrix.filter((claim) => !blockedClaimIds.has(claim.id));
+  const authorizedRuntimeUrl = (source: MatrixClaim) =>
+    source.entryId === "BIB-003" && source.url.endsWith("?show=full")
+      ? source.url.slice(0, -"?show=full".length)
+      : source.url;
+
+  function validateClaimReferenceBinding(
+    entry: CulturalCatalogEntry,
+    source: MatrixClaim,
+  ): string[] {
+    const problems: string[] = [];
+    if (source.entryId !== entry.id) {
+      problems.push(
+        `matrix owner ${source.entryId} does not match runtime record ${entry.id}`,
+      );
+    }
+
+    const claim = entry.claims.find((item) => item.id === source.id);
+    if (!claim) {
+      problems.push(`missing claim ${source.id}`);
+      return problems;
+    }
+    if (!claim.id.startsWith(`${entry.id}-`)) {
+      problems.push(`claim ${claim.id} is not owned by record ${entry.id}`);
+    }
+    if (claim.text !== source.text) {
+      problems.push(`claim ${source.id} text differs from the V2 matrix`);
+    }
+    if (claim.referenceIds.length !== 1) {
+      problems.push(`claim ${source.id} does not have exactly one migrated reference`);
+    }
+
+    const reference = entry.references.find(
+      (item) => item.id === claim.referenceIds[0],
+    );
+    if (!reference) {
+      problems.push(`claim ${source.id} references a missing reference`);
+      return problems;
+    }
+
+    const expectedUrl = authorizedRuntimeUrl(source);
+    if (reference.url !== expectedUrl) {
+      problems.push(
+        `claim ${source.id} reference URL ${reference.url} differs from authorized URL ${expectedUrl}`,
+      );
+    }
+    return problems;
+  }
+
+  const unquote = (value: string) => value.replace(/^`|`$/g, "");
+  function parseTraceabilityRows(markdown: string): TraceabilityRow[] {
+    return markdown
+      .split("\n")
+      .filter((line) => line.startsWith("| `"))
+      .map((line) => {
+        const cells = line
+          .split("|")
+          .slice(1, -1)
+          .map((cell) => cell.trim());
+        if (cells.length !== 9) {
+          throw new Error(`Malformed traceability row: ${line}`);
+        }
+        return {
+          claimId: unquote(cells[0]),
+          recordId: unquote(cells[1]),
+          text: cells[2],
+          runtimeReference: unquote(cells[3]),
+          originalUrl: cells[4],
+          runtimeUrl: cells[5],
+          transformation: cells[6],
+          locator: cells[7],
+          consultation: unquote(cells[8]),
+        };
+      });
+  }
+
+  function expectedTransformation(
+    source: MatrixClaim,
+    referenceId: string,
+    before: CulturalCatalogEntry,
+    entry: CulturalCatalogEntry,
+    approved: MatrixClaim[],
+  ) {
+    if (source.entryId === "BIB-003" && source.url.endsWith("?show=full")) {
+      return "remoção determinística do sufixo ?show=full para a URL canônica institucional já presente";
+    }
+    if (before.references.some((reference) => reference.id === referenceId)) {
+      return "nenhuma";
+    }
+    const firstUse = approved.find(
+      (item) =>
+        item.entryId === source.entryId &&
+        entry.claims.find((claim) => claim.id === item.id)?.referenceIds[0] ===
+          referenceId,
+    );
+    return firstUse?.id === source.id
+      ? "adição de referência HTTPS ausente"
+      : "nenhuma";
+  }
+
+  function validateTraceabilityRow(
+    row: TraceabilityRow,
+    source: MatrixClaim,
+    entry: CulturalCatalogEntry,
+    before: CulturalCatalogEntry,
+    approved: MatrixClaim[],
+  ): string[] {
+    const problems: string[] = [];
+    const claim = entry.claims.find((item) => item.id === source.id);
+    const reference = claim
+      ? entry.references.find((item) => item.id === claim.referenceIds[0])
+      : undefined;
+    if (!claim) problems.push(`missing runtime claim ${source.id}`);
+    if (!reference) problems.push(`missing runtime reference for ${source.id}`);
+
+    const expected: TraceabilityRow = {
+      claimId: source.id,
+      recordId: source.entryId,
+      text: source.text,
+      runtimeReference: claim?.referenceIds[0] ?? "",
+      originalUrl: source.url,
+      runtimeUrl: reference?.url ?? "",
+      transformation: expectedTransformation(
+        source,
+        claim?.referenceIds[0] ?? "",
+        before,
+        entry,
+        approved,
+      ),
+      locator: source.locator,
+      consultation: source.consultation,
+    };
+
+    for (const [key, expectedValue] of Object.entries(expected)) {
+      const field = key as keyof TraceabilityRow;
+      if (row[field] !== expectedValue) {
+        problems.push(
+          `${source.id} traceability ${field} is ${row[field]} instead of ${expectedValue}`,
+        );
+      }
+    }
+    return problems;
+  }
+
+
+  it("keeps the migration baseline out of runtime source files", () => {
+    const sourceRoot = join(process.cwd(), "src");
+    const files: string[] = [];
+    const visit = (directory: string) => {
+      for (const item of readdirSync(directory, { withFileTypes: true })) {
+        const path = join(directory, item.name);
+        if (item.isDirectory()) {
+          if (path !== join(sourceRoot, "test")) visit(path);
+        } else if (
+          /\.(ts|tsx)$/.test(item.name) &&
+          !item.name.endsWith(".test.ts") &&
+          !item.name.endsWith(".test.tsx")
+        ) {
+          files.push(path);
+        }
+      }
+    };
+    visit(sourceRoot);
+
+    expect(files.length).toBeGreaterThan(0);
+    for (const file of files) {
+      const source = readFileSync(file, "utf8");
+      expect(source, file).not.toContain("culturalMigrationBaseline");
+      expect(source, file).not.toContain("cultural-migration-baseline");
+    }
+  });
+
+  it("binds every migrated claim to the exact authorized source URL through a shared validator", () => {
+    const matrix = readMatrix();
+    for (const source of approvedClaims(matrix)) {
       const entry = culturalCatalog.find((item) => item.id === source.entryId)!;
-      const claim = entry.claims.find((item) => item.id === source.id)!;
-      const expectedUrl = source.entryId === "BIB-003" && source.url.endsWith("?show=full") ? source.url.slice(0, -"?show=full".length) : source.url;
-      expect(claim.referenceIds).toHaveLength(1);
-      const reference = entry.references.find((item) => item.id === claim.referenceIds[0]);
-      expect(reference, source.id).toBeDefined();
-      expect(reference!.url, source.id).toBe(expectedUrl);
+      expect(validateClaimReferenceBinding(entry, source), source.id).toEqual([]);
     }
   });
 
-  it("detects an incorrect reference association in a negative fixture", () => {
-    const entry = structuredClone(getCulturalEntryById("HIST-001")!);
-    entry.references.push({ id: "source-wrong", url: "https://example.org/wrong" });
-    const claim = entry.claims.find((item) => item.id === "HIST-001-C01")!;
-    claim.referenceIds = ["source-wrong"];
-    const reference = entry.references.find((item) => item.id === claim.referenceIds[0])!;
-    expect(reference.url).not.toBe("https://seer.ines.gov.br/index.php/revista-espaco/article/download/703/708/2042");
+  it("rejects incorrect reference associations through the shared validator", () => {
+    const matrix = readMatrix();
+    const source = matrix.find((item) => item.id === "HIST-001-C01")!;
+
+    const wrongUrlEntry = structuredClone(getCulturalEntryById("HIST-001")!);
+    wrongUrlEntry.references.find((item) => item.id === "source-1")!.url =
+      "https://example.org/wrong";
+    expect(
+      validateClaimReferenceBinding(wrongUrlEntry, source).join("\n"),
+    ).toContain("differs from authorized URL");
+
+    const missingReferenceEntry = structuredClone(getCulturalEntryById("HIST-001")!);
+    missingReferenceEntry.claims.find((item) => item.id === source.id)!.referenceIds = [
+      "source-missing",
+    ];
+    expect(
+      validateClaimReferenceBinding(missingReferenceEntry, source).join("\n"),
+    ).toContain("missing reference");
+
+    const unauthorizedNormalizationEntry = structuredClone(
+      getCulturalEntryById("HIST-001")!,
+    );
+    unauthorizedNormalizationEntry.references.find(
+      (item) => item.id === "source-1",
+    )!.url = source.url.slice(0, source.url.lastIndexOf("/"));
+    expect(
+      validateClaimReferenceBinding(unauthorizedNormalizationEntry, source).join("\n"),
+    ).toContain("differs from authorized URL");
+
+    const wrongOwnerEntry = structuredClone(getCulturalEntryById("CUR-001")!);
+    const originalEntry = getCulturalEntryById("HIST-001")!;
+    wrongOwnerEntry.claims.push(
+      structuredClone(originalEntry.claims.find((item) => item.id === source.id)!),
+    );
+    wrongOwnerEntry.references.push(
+      structuredClone(originalEntry.references.find((item) => item.id === "source-1")!),
+    );
+    expect(
+      validateClaimReferenceBinding(
+        wrongOwnerEntry,
+        { ...source, entryId: wrongOwnerEntry.id },
+      ).join("\n"),
+    ).toContain("is not owned by record CUR-001");
   });
 
-  it("keeps the traceability document aligned with the matrix and runtime catalog", () => {
-    const traceability = readFileSync(join(process.cwd(), "docs/curadoria-cultural/v2/rastreabilidade-d23d2.md"), "utf8");
-    const matrix = JSON.parse(readFileSync(join(process.cwd(), "docs/curadoria-cultural/v2/pacote-original/matriz-afirmacoes.json"), "utf8")) as Array<{ id: string; entryId: string; text: string; consultation: string }>;
-    const blocked = new Set(["PER-001-C03", "PER-001-C04", "PER-002-C01", "BIB-002-C01", "BIB-010-C02"]);
-    for (const source of matrix.filter((claim) => !blocked.has(claim.id))) {
-      expect(traceability).toContain(`\`${source.id}\``);
-      expect(traceability).toContain(source.text);
-      expect(traceability).toContain(`\`${source.consultation}\``);
+  it("keeps every traceability row aligned with its individual claim, reference and evidence state", () => {
+    const matrix = readMatrix();
+    const approved = approvedClaims(matrix);
+    const rows = parseTraceabilityRows(readFileSync(traceabilityPath, "utf8"));
+    const baseline = JSON.parse(JSON.stringify(culturalMigrationBaseline)) as typeof culturalCatalog;
+    const baselineById = new Map(baseline.map((entry) => [entry.id, entry]));
+
+    expect(rows).toHaveLength(26);
+    expect(rows.map((row) => row.claimId).sort()).toEqual(
+      approved.map((claim) => claim.id).sort(),
+    );
+
+    for (const source of approved) {
+      const row = rows.find((item) => item.claimId === source.id)!;
+      const entry = culturalCatalog.find((item) => item.id === source.entryId)!;
+      expect(
+        validateTraceabilityRow(
+          row,
+          source,
+          entry,
+          baselineById.get(source.entryId)!,
+          approved,
+        ),
+        source.id,
+      ).toEqual([]);
     }
-    for (const blockedId of blocked) {
-      expect(traceability).not.toContain(`\`${blockedId}\``);
+
+    for (const blockedId of blockedClaimIds) {
+      expect(rows.some((row) => row.claimId === blockedId), blockedId).toBe(false);
     }
+  });
+
+  it("detects swapped traceability references and consultation states", () => {
+    const matrix = readMatrix();
+    const matrixById = new Map(matrix.map((claim) => [claim.id, claim]));
+    const rows = parseTraceabilityRows(readFileSync(traceabilityPath, "utf8"));
+    const baseline = JSON.parse(JSON.stringify(culturalMigrationBaseline)) as typeof culturalCatalog;
+    const baselineById = new Map(baseline.map((entry) => [entry.id, entry]));
+    const validateRow = (row: TraceabilityRow) => {
+      const source = matrixById.get(row.claimId)!;
+      return validateTraceabilityRow(
+        row,
+        source,
+        culturalCatalog.find((item) => item.id === source.entryId)!,
+        baselineById.get(source.entryId)!,
+        approvedClaims(matrix),
+      ).join("\n");
+    };
+
+    const referenceRows = structuredClone(rows);
+    const firstReferenceIndex = referenceRows.findIndex(
+      (row) => row.claimId === "HIST-001-C01",
+    );
+    const secondReferenceIndex = referenceRows.findIndex(
+      (row) => row.claimId === "CUR-002-C02",
+    );
+    [
+      referenceRows[firstReferenceIndex].runtimeReference,
+      referenceRows[secondReferenceIndex].runtimeReference,
+    ] = [
+      referenceRows[secondReferenceIndex].runtimeReference,
+      referenceRows[firstReferenceIndex].runtimeReference,
+    ];
+    expect(validateRow(referenceRows[firstReferenceIndex])).toContain(
+      "traceability runtimeReference",
+    );
+    expect(validateRow(referenceRows[secondReferenceIndex])).toContain(
+      "traceability runtimeReference",
+    );
+
+    const consultationRows = structuredClone(rows);
+    const firstConsultationIndex = consultationRows.findIndex(
+      (row) => row.claimId === "HIST-001-C01",
+    );
+    const secondConsultationIndex = consultationRows.findIndex(
+      (row) => row.claimId === "BIB-003-C01",
+    );
+    [
+      consultationRows[firstConsultationIndex].consultation,
+      consultationRows[secondConsultationIndex].consultation,
+    ] = [
+      consultationRows[secondConsultationIndex].consultation,
+      consultationRows[firstConsultationIndex].consultation,
+    ];
+    expect(validateRow(consultationRows[firstConsultationIndex])).toContain(
+      "traceability consultation",
+    );
+    expect(validateRow(consultationRows[secondConsultationIndex])).toContain(
+      "traceability consultation",
+    );
   });
 
   it("preserves 29 baseline records and changes only authorized claim/reference/version content", () => {
-    const authorized = new Set(["HIST-001", "HIST-006", "HIST-008", "CUR-001", "CUR-002", "CUR-006", "PER-001", "BIB-003", "BIB-004", "BIB-005", "BIB-010", "BIB-011"]);
     const baseline = JSON.parse(JSON.stringify(culturalMigrationBaseline)) as typeof culturalCatalog;
     const baselineById = new Map(baseline.map((entry) => [entry.id, entry]));
     for (const entry of culturalCatalog) {
       const before = baselineById.get(entry.id)!;
       const beforeFingerprint = getCulturalContentFingerprint(before);
       const currentFingerprint = getCulturalContentFingerprint(entry);
-      if (!authorized.has(entry.id)) {
+      if (!authorizedEntryIds.has(entry.id)) {
         expect(entry, entry.id).toEqual(before);
         expect(currentFingerprint, entry.id).toBe(beforeFingerprint);
       } else {
@@ -257,5 +591,99 @@ describe("cultural V2 migration integrity hardening", () => {
         expect(strip(entry), entry.id).toEqual(strip(before));
       }
     }
+  });
+
+  it("preserves prior claims and references integrally while adding only approved migration objects", () => {
+    const matrix = readMatrix();
+    const approved = approvedClaims(matrix);
+    const baseline = JSON.parse(JSON.stringify(culturalMigrationBaseline)) as typeof culturalCatalog;
+    const baselineById = new Map(baseline.map((entry) => [entry.id, entry]));
+    const addedReferences: Array<{ entryId: string; id: string; url: string }> = [];
+    let addedClaimCount = 0;
+
+    for (const entryId of authorizedEntryIds) {
+      const entry = culturalCatalog.find((item) => item.id === entryId)!;
+      const before = baselineById.get(entryId)!;
+      expect(entry.version, entryId).toBe("candidate-2");
+
+      for (const previousClaim of before.claims) {
+        expect(
+          entry.claims.some((claim) => isDeepStrictEqual(claim, previousClaim)),
+          `${entryId}:${previousClaim.id}`,
+        ).toBe(true);
+      }
+      for (const previousReference of before.references) {
+        expect(
+          entry.references.some((reference) =>
+            isDeepStrictEqual(reference, previousReference),
+          ),
+          `${entryId}:${previousReference.id}`,
+        ).toBe(true);
+      }
+
+      const entryAddedClaims = entry.claims.filter(
+        (claim) => !before.claims.some((item) => isDeepStrictEqual(item, claim)),
+      );
+      const expectedClaimIds = approved
+        .filter((claim) => claim.entryId === entryId)
+        .map((claim) => claim.id)
+        .sort();
+      expect(
+        entryAddedClaims.map((claim) => claim.id).sort(),
+        entryId,
+      ).toEqual(expectedClaimIds);
+      addedClaimCount += entryAddedClaims.length;
+
+      const entryAddedReferences = entry.references.filter(
+        (reference) =>
+          !before.references.some((item) => isDeepStrictEqual(item, reference)),
+      );
+      addedReferences.push(
+        ...entryAddedReferences.map((reference) => ({
+          entryId,
+          id: reference.id,
+          url: reference.url,
+        })),
+      );
+
+      expect(entry.claims).toHaveLength(before.claims.length + expectedClaimIds.length);
+      expect(entry.references).toHaveLength(
+        before.references.length + entryAddedReferences.length,
+      );
+    }
+
+    expect(addedClaimCount).toBe(26);
+    expect(addedReferences).toEqual([
+      {
+        entryId: "CUR-002",
+        id: "source-2",
+        url: "https://ojsrevista.furb.br/ojs/index.php/linguagens/article/download/7287/4653/32619",
+      },
+      {
+        entryId: "CUR-002",
+        id: "source-3",
+        url: "https://doi.org/10.51207/2179-4057.20220014",
+      },
+      {
+        entryId: "CUR-006",
+        id: "source-3",
+        url: "https://librando.paginas.ufsc.br/poemas/",
+      },
+      {
+        entryId: "PER-001",
+        id: "source-2",
+        url: "https://indl.iphan.gov.br/pessoas-de-referencia/nelson-pimenta-de-castro/",
+      },
+      {
+        entryId: "PER-001",
+        id: "source-3",
+        url: "https://nuestra.ufsc.br/vocab/index.php?tema=42&/nelson-pimenta-de-castro",
+      },
+      {
+        entryId: "BIB-004",
+        id: "source-2",
+        url: "https://librando.paginas.ufsc.br/livros-2/",
+      },
+    ]);
   });
 });
