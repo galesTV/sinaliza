@@ -71,6 +71,55 @@ export interface CulturalEditorialBody {
   claimIds: string[];
 }
 
+/** Short factual text displayed in artwork and traceable to a local claim. */
+export interface CulturalVisualFactText {
+  value: string;
+  claimId: string;
+}
+
+/** Chronology item displayed in artwork. The array order is editorially meaningful. */
+export interface CulturalVisualTimelineEvent {
+  year: number;
+  label: string;
+  claimId: string;
+}
+
+export type CulturalHistoryArtwork =
+  | {
+      motif: "timeline";
+      events?: readonly CulturalVisualTimelineEvent[];
+    }
+  | {
+      motif: "legal-document";
+      documentNumber?: CulturalVisualFactText;
+      documentDate?: CulturalVisualFactText;
+    };
+
+export type CulturalCuriosityArtwork = {
+  motif: "diversity-orbits" | "parallel-structures" | "visual-rhythm";
+};
+
+export type CulturalPersonalityArtwork = {
+  motif: "monogram";
+  /** Editorial exception; normally initials are derived from the person name. */
+  initials?: string;
+};
+
+export type CulturalLibraryArtwork =
+  | {
+      motif: "academic";
+      volumeNumber?: CulturalVisualFactText;
+    }
+  | {
+      motif: "literary";
+    };
+
+export type CulturalArtwork =
+  | CulturalHistoryArtwork
+  | CulturalCuriosityArtwork
+  | CulturalPersonalityArtwork
+  | CulturalLibraryArtwork;
+
 export interface CulturalReview {
   reviewer: string;
   type: "research" | "technical" | "expert";
@@ -161,6 +210,8 @@ interface CulturalEntryBase {
   summary: string;
   /** Optional long-form educational text, distinct from the short summary. */
   editorialBody?: CulturalEditorialBody;
+  /** Optional editorial artwork metadata; absent means the current visual fallback. */
+  artwork?: CulturalArtwork;
   /** Editorial version. Any substantive content change requires a new value. */
   version: string;
   references: CulturalReference[];
@@ -178,6 +229,7 @@ export type HistoryMetadataKey = "year" | "dateLabel" | "context";
 
 export interface CulturalHistoryEntry extends CulturalEntryBase {
   category: "history";
+  artwork?: CulturalHistoryArtwork;
   history: {
     year?: number;
     dateLabel?: string;
@@ -188,6 +240,7 @@ export interface CulturalHistoryEntry extends CulturalEntryBase {
 
 export interface CulturalCuriosityEntry extends CulturalEntryBase {
   category: "curiosity";
+  artwork?: CulturalCuriosityArtwork;
   curiosity: {
     question: string;
     shortAnswer: string;
@@ -197,6 +250,7 @@ export interface CulturalCuriosityEntry extends CulturalEntryBase {
 
 export interface CulturalPersonalityEntry extends CulturalEntryBase {
   category: "personality";
+  artwork?: CulturalPersonalityArtwork;
   personality: {
     personName: string;
     biographicalSummary: string;
@@ -233,6 +287,7 @@ export type LibraryMetadataKey =
 
 export interface CulturalLibraryEntry extends CulturalEntryBase {
   category: "library";
+  artwork?: CulturalLibraryArtwork;
   library: {
     creators?: string[];
     publicationYear?: number;
@@ -348,6 +403,217 @@ export function isValidHttpsUrl(value: string): boolean {
 
 function validateSlug(slug: string): boolean {
   return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug);
+}
+
+export const CULTURAL_ARTWORK_EVENT_YEAR_MIN = 0;
+export const CULTURAL_ARTWORK_EVENT_YEAR_MAX = 2100;
+const CULTURAL_ARTWORK_TEXT_MAX_LENGTH = 80;
+
+const ARTWORK_ALLOWED_CATEGORIES: Record<string, readonly CulturalCategory[]> = {
+  timeline: ["history"],
+  "legal-document": ["history"],
+  "diversity-orbits": ["curiosity"],
+  "parallel-structures": ["curiosity"],
+  "visual-rhythm": ["curiosity"],
+  monogram: ["personality"],
+  academic: ["library"],
+  literary: ["library"],
+};
+
+function isRuntimeObject(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function validateUnknownArtworkKeys(
+  record: Record<string, unknown>,
+  allowedKeys: readonly string[],
+  at: string,
+): string[] {
+  return Object.keys(record)
+    .filter((key) => !allowedKeys.includes(key))
+    .map((key) => `${at}: unknown field "${key}"`);
+}
+
+function validateArtworkClaimId(
+  claimId: unknown,
+  at: string,
+  localClaimIds: ReadonlySet<string>,
+  foreignClaimIds: ReadonlySet<string>,
+): string[] {
+  if (typeof claimId !== "string") return [`${at}: claim id must be a string`];
+  if (!claimId.trim()) return [`${at}: empty claim id`];
+  if (localClaimIds.has(claimId)) return [];
+  if (foreignClaimIds.has(claimId)) {
+    return [`${at}: claim "${claimId}" belongs to another record`];
+  }
+  return [`${at}: unknown claim "${claimId}"`];
+}
+
+function validateVisualFactText(
+  value: unknown,
+  at: string,
+  localClaimIds: ReadonlySet<string>,
+  foreignClaimIds: ReadonlySet<string>,
+): string[] {
+  if (!isRuntimeObject(value)) return [`${at}: invalid visual fact structure`];
+  const problems = validateUnknownArtworkKeys(value, ["value", "claimId"], at);
+  if (!("value" in value) || !("claimId" in value)) {
+    problems.push(`${at}: incomplete visual fact`);
+  }
+  if (typeof value.value !== "string") {
+    problems.push(`${at}: value must be a string`);
+  } else if (!value.value.trim()) {
+    problems.push(`${at}: empty value`);
+  } else if (value.value.trim().length > CULTURAL_ARTWORK_TEXT_MAX_LENGTH) {
+    problems.push(`${at}: value is too long`);
+  }
+  problems.push(...validateArtworkClaimId(value.claimId, at, localClaimIds, foreignClaimIds));
+  return problems;
+}
+
+/** Structural validation of artwork metadata. It does not establish factual truth; human editorial review still validates the underlying claims. */
+function validateCulturalArtwork(
+  entry: CulturalCatalogEntry,
+  localClaimIds: ReadonlySet<string>,
+  allEntries: readonly CulturalCatalogEntry[],
+): string[] {
+  const artwork: unknown = entry.artwork;
+  if (artwork === undefined) return [];
+  if (!isRuntimeObject(artwork)) return ["artwork: invalid structure"];
+
+  const problems: string[] = [];
+  const motif = artwork.motif;
+  if (typeof motif !== "string" || !Object.hasOwn(ARTWORK_ALLOWED_CATEGORIES, motif)) {
+    problems.push("artwork: unknown motif");
+    return problems;
+  }
+
+  if (!ARTWORK_ALLOWED_CATEGORIES[motif].includes(entry.category)) {
+    problems.push(`artwork: motif "${motif}" is incompatible with category "${entry.category}"`);
+  }
+
+  const foreignClaimIds = new Set(
+    allEntries
+      .filter((item) => item.id !== entry.id)
+      .flatMap((item) => item.claims.map((claim) => claim.id)),
+  );
+
+  if (motif === "timeline") {
+    problems.push(...validateUnknownArtworkKeys(artwork, ["motif", "events"], "artwork"));
+    if (artwork.events !== undefined) {
+      if (!Array.isArray(artwork.events)) {
+        problems.push("artwork events: must be an array");
+      } else if (artwork.events.length === 0) {
+        problems.push("artwork events: must not be empty");
+      } else {
+        const seenEvents = new Set<string>();
+        for (let index = 0; index < artwork.events.length; index += 1) {
+          const at = `artwork event ${index}`;
+          if (!(index in artwork.events)) {
+            problems.push(`${at}: invalid structure`);
+            continue;
+          }
+          const event = artwork.events[index];
+          if (!isRuntimeObject(event)) {
+            problems.push(`${at}: invalid structure`);
+            continue;
+          }
+          problems.push(...validateUnknownArtworkKeys(event, ["year", "label", "claimId"], at));
+          if (!("year" in event) || !("label" in event) || !("claimId" in event)) {
+            problems.push(`${at}: incomplete event`);
+          }
+          if (
+            typeof event.year !== "number" ||
+            !Number.isFinite(event.year) ||
+            !Number.isInteger(event.year) ||
+            event.year < CULTURAL_ARTWORK_EVENT_YEAR_MIN ||
+            event.year > CULTURAL_ARTWORK_EVENT_YEAR_MAX
+          ) {
+            problems.push(`${at}: year must be an integer between ${CULTURAL_ARTWORK_EVENT_YEAR_MIN} and ${CULTURAL_ARTWORK_EVENT_YEAR_MAX}`);
+          }
+          if (typeof event.label !== "string") {
+            problems.push(`${at}: label must be a string`);
+          } else if (!event.label.trim()) {
+            problems.push(`${at}: empty label`);
+          } else if (event.label.trim().length > CULTURAL_ARTWORK_TEXT_MAX_LENGTH) {
+            problems.push(`${at}: label is too long`);
+          }
+          problems.push(...validateArtworkClaimId(event.claimId, at, localClaimIds, foreignClaimIds));
+          if (
+            typeof event.year === "number" &&
+            typeof event.label === "string" &&
+            typeof event.claimId === "string"
+          ) {
+            const duplicateKey = JSON.stringify([event.year, event.label, event.claimId]);
+            if (seenEvents.has(duplicateKey)) problems.push(`${at}: duplicate event`);
+            seenEvents.add(duplicateKey);
+          }
+        }
+      }
+    }
+    return problems;
+  }
+
+  if (motif === "legal-document") {
+    problems.push(
+      ...validateUnknownArtworkKeys(
+        artwork,
+        ["motif", "documentNumber", "documentDate"],
+        "artwork",
+      ),
+    );
+    if (artwork.documentNumber !== undefined) {
+      problems.push(
+        ...validateVisualFactText(
+          artwork.documentNumber,
+          "artwork documentNumber",
+          localClaimIds,
+          foreignClaimIds,
+        ),
+      );
+    }
+    if (artwork.documentDate !== undefined) {
+      problems.push(
+        ...validateVisualFactText(
+          artwork.documentDate,
+          "artwork documentDate",
+          localClaimIds,
+          foreignClaimIds,
+        ),
+      );
+    }
+    return problems;
+  }
+
+  if (motif === "monogram") {
+    problems.push(...validateUnknownArtworkKeys(artwork, ["motif", "initials"], "artwork"));
+    if (artwork.initials !== undefined) {
+      if (typeof artwork.initials !== "string") {
+        problems.push("artwork initials: must be a string");
+      } else if (!/^\p{L}{1,4}$/u.test(artwork.initials)) {
+        problems.push("artwork initials: must contain one to four letters");
+      }
+    }
+    return problems;
+  }
+
+  if (motif === "academic") {
+    problems.push(...validateUnknownArtworkKeys(artwork, ["motif", "volumeNumber"], "artwork"));
+    if (artwork.volumeNumber !== undefined) {
+      problems.push(
+        ...validateVisualFactText(
+          artwork.volumeNumber,
+          "artwork volumeNumber",
+          localClaimIds,
+          foreignClaimIds,
+        ),
+      );
+    }
+    return problems;
+  }
+
+  problems.push(...validateUnknownArtworkKeys(artwork, ["motif"], "artwork"));
+  return problems;
 }
 
 /** Structural integrity required even for drafts. Editorial completeness is checked separately before publication. */
@@ -529,6 +795,8 @@ export function validateCulturalEntry(
       }
     }
   }
+
+  problems.push(...validateCulturalArtwork(entry, claimIds, allEntries));
 
   if (entry.category === "history") {
     if (
