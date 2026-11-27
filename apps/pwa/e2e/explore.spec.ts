@@ -145,6 +145,8 @@ test.describe("explorar — publication guards", () => {
       expect(html).not.toContain("Fernando César Capovilla");
       expect(html).not.toContain("Fernanda de Araújo Machado");
       expect(html).not.toContain("Dicionário da Língua de Sinais do Brasil");
+      expect(html).not.toContain("Huet apresentou a proposta em 1855");
+      expect(html).not.toContain("Não existe língua de sinais universal");
     }
   });
 });

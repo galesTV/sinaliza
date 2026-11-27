@@ -17,7 +17,7 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "history",
     "title": "1857 — Fundação do instituto que se tornou o INES",
     "summary": "A iniciativa de Ernest Huet antecedeu a oficialização do instituto em 1857. A instituição é um marco da educação de surdos, não a origem da Libras.",
-    "version": "candidate-1",
+    "version": "candidate-2",
     "references": [
       {
         "id": "source-1",
@@ -28,6 +28,27 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
       {
         "id": "claim-1",
         "text": "A iniciativa de Ernest Huet antecedeu a oficialização do instituto em 1857. A instituição é um marco da educação de surdos, não a origem da Libras.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "HIST-001-C01",
+        "text": "Huet apresentou a proposta em 1855.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "HIST-001-C02",
+        "text": "As aulas começaram em 1º de janeiro de 1856.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "HIST-001-C03",
+        "text": "A Lei 939 é de 26 de setembro de 1857.",
         "referenceIds": [
           "source-1"
         ]
@@ -244,7 +265,7 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "history",
     "title": "2002 — Lei de Libras",
     "summary": "A Lei 10.436 reconheceu a Libras como meio legal de comunicação e expressão, com estrutura gramatical própria.",
-    "version": "candidate-1",
+    "version": "candidate-2",
     "references": [
       {
         "id": "source-1",
@@ -255,6 +276,34 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
       {
         "id": "claim-1",
         "text": "A Lei 10.436 reconheceu a Libras como meio legal de comunicação e expressão, com estrutura gramatical própria.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "HIST-006-C01",
+        "text": "Lei datada de 24 de abril de 2002.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "HIST-006-C02",
+        "text": "Reconhecimento como meio legal de comunicação e expressão.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "HIST-006-C03",
+        "text": "Estrutura gramatical própria.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "HIST-006-C04",
+        "text": "Apoio ao uso e difusão.",
         "referenceIds": [
           "source-1"
         ]
@@ -318,7 +367,7 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "history",
     "title": "2021 — Educação bilíngue de surdos",
     "summary": "A Lei 14.191 inseriu a modalidade de educação bilíngue de surdos na LDB, com Libras como primeira língua e português escrito como segunda, para estudantes optantes.",
-    "version": "candidate-1",
+    "version": "candidate-2",
     "references": [
       {
         "id": "source-1",
@@ -329,6 +378,27 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
       {
         "id": "claim-1",
         "text": "A Lei 14.191 inseriu a modalidade de educação bilíngue de surdos na LDB, com Libras como primeira língua e português escrito como segunda, para estudantes optantes.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "HIST-008-C01",
+        "text": "Inclusão da modalidade na LDB.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "HIST-008-C02",
+        "text": "Libras primeira língua e português escrito segunda, para optantes abrangidos.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "HIST-008-C03",
+        "text": "Materiais didáticos e professores bilíngues.",
         "referenceIds": [
           "source-1"
         ]
@@ -355,7 +425,7 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "curiosity",
     "title": "Existe uma língua de sinais universal?",
     "summary": "Não. Existem diferentes línguas de sinais, como Libras, ASL e BSL.",
-    "version": "candidate-1",
+    "version": "candidate-2",
     "references": [
       {
         "id": "source-1",
@@ -366,6 +436,20 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
       {
         "id": "claim-1",
         "text": "Não. Existem diferentes línguas de sinais, como Libras, ASL e BSL.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "CUR-001-C01",
+        "text": "Não existe língua de sinais universal.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "CUR-001-C02",
+        "text": "Há diferenças entre países e regiões.",
         "referenceIds": [
           "source-1"
         ]
@@ -392,11 +476,19 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "curiosity",
     "title": "Libras é português feito com as mãos?",
     "summary": "Não. Libras possui estrutura gramatical própria.",
-    "version": "candidate-1",
+    "version": "candidate-2",
     "references": [
       {
         "id": "source-1",
         "url": "https://www.planalto.gov.br/ccivil_03/leis/2002/l10436.htm"
+      },
+      {
+        "id": "source-2",
+        "url": "https://ojsrevista.furb.br/ojs/index.php/linguagens/article/download/7287/4653/32619"
+      },
+      {
+        "id": "source-3",
+        "url": "https://doi.org/10.51207/2179-4057.20220014"
       }
     ],
     "claims": [
@@ -405,6 +497,27 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
         "text": "Não. Libras possui estrutura gramatical própria.",
         "referenceIds": [
           "source-1"
+        ]
+      },
+      {
+        "id": "CUR-002-C01",
+        "text": "Libras possui estrutura gramatical própria.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "CUR-002-C02",
+        "text": "Elementos não manuais têm funções linguísticas.",
+        "referenceIds": [
+          "source-2"
+        ]
+      },
+      {
+        "id": "CUR-002-C03",
+        "text": "Forma, localização, movimento e expressão facial são discutidos no estudo de Capovilla e Cecconi.",
+        "referenceIds": [
+          "source-3"
         ]
       }
     ],
@@ -577,7 +690,7 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "curiosity",
     "title": "Existe poesia em Libras?",
     "summary": "Sim. Literatura sinalizada pode explorar movimento, espaço, ritmo e configurações de mão.",
-    "version": "candidate-1",
+    "version": "candidate-2",
     "references": [
       {
         "id": "source-1",
@@ -586,6 +699,10 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
       {
         "id": "source-2",
         "url": "https://librando.paginas.ufsc.br/artigos/"
+      },
+      {
+        "id": "source-3",
+        "url": "https://librando.paginas.ufsc.br/poemas/"
       }
     ],
     "claims": [
@@ -595,6 +712,20 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
         "referenceIds": [
           "source-1",
           "source-2"
+        ]
+      },
+      {
+        "id": "CUR-006-C01",
+        "text": "Ritmo, repetição e simetria são recursos poéticos.",
+        "referenceIds": [
+          "source-3"
+        ]
+      },
+      {
+        "id": "CUR-006-C02",
+        "text": "O acervo lista poemas sinalizados.",
+        "referenceIds": [
+          "source-3"
         ]
       }
     ],
@@ -781,11 +912,19 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "personality",
     "title": "Nelson Pimenta",
     "summary": "Referência em produções e estudos de Libras e literatura sinalizada.",
-    "version": "candidate-1",
+    "version": "candidate-2",
     "references": [
       {
         "id": "source-1",
         "url": "https://www.revistas.editora.ufcg.edu.br/index.php/RLR/article/view/1742"
+      },
+      {
+        "id": "source-2",
+        "url": "https://indl.iphan.gov.br/pessoas-de-referencia/nelson-pimenta-de-castro/"
+      },
+      {
+        "id": "source-3",
+        "url": "https://nuestra.ufsc.br/vocab/index.php?tema=42&/nelson-pimenta-de-castro"
       }
     ],
     "claims": [
@@ -794,6 +933,20 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
         "text": "Referência em produções e estudos de Libras e literatura sinalizada.",
         "referenceIds": [
           "source-1"
+        ]
+      },
+      {
+        "id": "PER-001-C01",
+        "text": "Atuação em educação, pesquisa e cinema.",
+        "referenceIds": [
+          "source-2"
+        ]
+      },
+      {
+        "id": "PER-001-C02",
+        "text": "Trajetória artística e formação acadêmica.",
+        "referenceIds": [
+          "source-3"
         ]
       }
     ],
@@ -1291,7 +1444,7 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "library",
     "title": "Gramática da Libras — Volume 1",
     "summary": "Linguística; PDF institucional.",
-    "version": "candidate-1",
+    "version": "candidate-2",
     "references": [
       {
         "id": "source-1",
@@ -1302,6 +1455,20 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
       {
         "id": "claim-1",
         "text": "Linguística; PDF institucional.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "BIB-003-C01",
+        "text": "Publicação INES de 2023, 511 páginas.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "BIB-003-C02",
+        "text": "Organizadores: Ronice Müller de Quadros, Jair Barbosa da Silva, Miriam Royer e Vinícius Rodrigues da Silva.",
         "referenceIds": [
           "source-1"
         ]
@@ -1356,11 +1523,15 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "library",
     "title": "Literatura em Libras",
     "summary": "Literatura sinalizada; versões em português e Libras a conferir.",
-    "version": "candidate-1",
+    "version": "candidate-2",
     "references": [
       {
         "id": "source-1",
         "url": "https://repositorio.ufsc.br/xmlui/handle/123456789/259641"
+      },
+      {
+        "id": "source-2",
+        "url": "https://librando.paginas.ufsc.br/livros-2/"
       }
     ],
     "claims": [
@@ -1369,6 +1540,20 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
         "text": "Literatura sinalizada; versões em português e Libras a conferir.",
         "referenceIds": [
           "source-1"
+        ]
+      },
+      {
+        "id": "BIB-004-C01",
+        "text": "Autoria, tradução e edição de 2021.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "BIB-004-C02",
+        "text": "O LIBRANDO indica acesso textual e vídeos em Libras.",
+        "referenceIds": [
+          "source-2"
         ]
       }
     ],
@@ -1436,7 +1621,7 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "library",
     "title": "Cinderela Surda",
     "summary": "Literatura infantil; releitura cultural.",
-    "version": "candidate-1",
+    "version": "candidate-2",
     "references": [
       {
         "id": "source-1",
@@ -1447,6 +1632,13 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
       {
         "id": "claim-1",
         "text": "Literatura infantil; releitura cultural.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "BIB-005-C01",
+        "text": "Autoria e terceira edição de 2011, 36 páginas.",
         "referenceIds": [
           "source-1"
         ]
@@ -1786,7 +1978,7 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "library",
     "title": "Iconographia dos Signaes dos Surdos-Mudos",
     "summary": "Patrimônio histórico; título original de época, não terminologia atual.",
-    "version": "candidate-1",
+    "version": "candidate-2",
     "references": [
       {
         "id": "source-1",
@@ -1797,6 +1989,13 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
       {
         "id": "claim-1",
         "text": "Patrimônio histórico; título original de época, não terminologia atual.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "BIB-010-C01",
+        "text": "Obra de Flausino publicada em 1875.",
         "referenceIds": [
           "source-1"
         ]
@@ -1846,7 +2045,7 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "library",
     "title": "Contação de Histórias",
     "summary": "Série audiovisual de literatura infantil e juvenil.",
-    "version": "candidate-1",
+    "version": "candidate-2",
     "references": [
       {
         "id": "source-1",
@@ -1857,6 +2056,13 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
       {
         "id": "claim-1",
         "text": "Série audiovisual de literatura infantil e juvenil.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "BIB-011-C01",
+        "text": "Série de animações literárias traduzidas para Libras.",
         "referenceIds": [
           "source-1"
         ]
