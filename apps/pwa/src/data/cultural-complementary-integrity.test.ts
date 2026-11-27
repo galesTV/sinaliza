@@ -8,6 +8,13 @@ import { describe, expect, it } from "vitest";
 import { culturalCatalog } from "./cultural-catalog";
 import { getCulturalContentFingerprint } from "./cultural-publication";
 import type { CulturalCatalogEntry } from "./cultural-catalog-model";
+import { culturalR53B2PostMigrationBaseline } from "@/test/cultural-r53c-baseline";
+import {
+  materializeR53B2BaselineEntry,
+  parseR53CTraceText,
+  r53cMigratedEntryIds,
+  validateR53CTransition,
+} from "@/test/cultural-r53c-transition";
 
 const v2Dir = join(process.cwd(), "docs/curadoria-cultural/v2/pacote-original");
 const v21Dir = join(process.cwd(), "docs/curadoria-cultural/v2.1/pacote-original");
@@ -371,9 +378,16 @@ function reconstructR53B2Baseline(catalog: CulturalCatalogEntry[], traceRows: Tr
   return { affected, beforeCatalog };
 }
 
-function validateHistoricalTransition(catalog: CulturalCatalogEntry[], traceRows: TraceRow[]) {
+function r53b2PostMigrationCatalog() {
+  return r53cMigratedEntryIds.map((entryId) => {
+    const baseline = culturalR53B2PostMigrationBaseline[entryId];
+    return materializeR53B2BaselineEntry(structuredClone(baseline.content), baseline.version, structuredClone(baseline.workflow));
+  });
+}
+
+function validateHistoricalTransition(postMigrationCatalog: CulturalCatalogEntry[], traceRows: TraceRow[]) {
   const problems: string[] = [];
-  const { affected, beforeCatalog } = reconstructR53B2Baseline(catalog, traceRows);
+  const { affected, beforeCatalog } = reconstructR53B2Baseline(postMigrationCatalog, traceRows);
   if (affected.length !== 11) problems.push(`expected 11 affected records, got ${affected.length}`);
   if (Object.values(addedReferenceIds).flat().length !== 9) problems.push("expected 9 new references");
   const pattern = /^`(candidate-\d+)`\/`([0-9a-f]{64})` → `(candidate-\d+)`\/`([0-9a-f]{64})`$/;
@@ -385,7 +399,7 @@ function validateHistoricalTransition(catalog: CulturalCatalogEntry[], traceRows
     }
     const [, beforeVersion, beforeHash, afterVersion, afterHash] = match;
     const beforeEntry = beforeCatalog.find((entry) => entry.id === row.entryId)!;
-    const afterEntry = catalog.find((entry) => entry.id === row.entryId)!;
+    const afterEntry = postMigrationCatalog.find((entry) => entry.id === row.entryId)!;
     if (beforeEntry.version !== beforeVersion) problems.push(`before version mismatch ${row.entryId}`);
     if (afterEntry.version !== afterVersion) problems.push(`after version mismatch ${row.entryId}`);
     if (getCulturalContentFingerprint(beforeEntry) !== beforeHash) problems.push(`before fingerprint mismatch ${row.entryId}`);
@@ -594,21 +608,21 @@ describe("complete set of 56 documentary claims and legacy preservation", () => 
 
 describe("R.5.3-B.2 historical baseline and fingerprint separation", () => {
   it("documents the exact historical migration boundary: 11 changed records, 9 new references and 3 preserved bodies", () => {
-    const { affected } = reconstructR53B2Baseline(culturalCatalog, rows);
+    const { affected } = reconstructR53B2Baseline(r53b2PostMigrationCatalog(), rows);
     expect(affected).toHaveLength(11);
     expect(culturalCatalog).toHaveLength(41);
     expect(41 - affected.length).toBe(30);
     expect(Object.values(addedReferenceIds).flat()).toHaveLength(9);
-    expect(culturalCatalog.filter((entry) => entry.editorialBody).map((entry) => entry.id).sort()).toEqual(["CUR-001", "HIST-001", "HIST-006"]);
+    expect(Object.values(culturalR53B2PostMigrationBaseline).every((baseline) => !("editorialBody" in baseline.content))).toBe(true);
     for (const id of ["HIST-001", "HIST-006", "CUR-001"]) expect(affected).not.toContain(id);
   });
 
-  it("validates recorded before/after fingerprints as temporary current-state assertions", () => {
+  it("validates recorded before/after fingerprints in the frozen post-migration baseline", () => {
     // Permanent invariants are the package bytes, exact documentary chain and exact
-    // reference/URL validators. Historical guarantees are the R.5.3-B.2 migration
-    // boundary. This positive test is the temporary current-state assertion; future
-    // authorized migrations must replace it with their own versioned baselines.
-    expect(validateHistoricalTransition(culturalCatalog, rows)).toEqual([]);
+    // reference/URL validators. The R.5.3-B.2 migration boundary is validated from
+    // the frozen independent fixture captured before R.5.3-C, not from the mutable
+    // current catalog.
+    expect(validateHistoricalTransition(r53b2PostMigrationCatalog(), rows)).toEqual([]);
   });
 
   it("uses the same historical validator to reject tampered baselines and catalog entries", () => {
@@ -616,11 +630,73 @@ describe("R.5.3-B.2 historical baseline and fingerprint separation", () => {
     for (const row of tamperedRows.filter((item) => item.entryId === "PER-001")) {
       row.versionFingerprint = row.versionFingerprint.replace(/[0-9a-f](?=` →)/, (character) => (character === "0" ? "1" : "0"));
     }
-    expect(validateHistoricalTransition(culturalCatalog, tamperedRows).join("\n")).toContain("before fingerprint mismatch PER-001");
+    expect(validateHistoricalTransition(r53b2PostMigrationCatalog(), tamperedRows).join("\n")).toContain("before fingerprint mismatch PER-001");
 
-    const tamperedCatalog = structuredClone(culturalCatalog);
+    const tamperedCatalog = structuredClone(r53b2PostMigrationCatalog());
     const per = tamperedCatalog.find((entry) => entry.id === "PER-001")!;
     per.claims = per.claims.filter((claim) => claim.id !== "PER-001-C05");
     expect(validateHistoricalTransition(tamperedCatalog, rows).join("\n")).toContain("after fingerprint mismatch PER-001");
+  });
+});
+
+
+describe("R.5.3-C editorial body transition", () => {
+  const transitionTracePath = join(process.cwd(), "docs/curadoria-cultural/v2.1/rastreabilidade-r53c.md");
+  const transitionTraceText = readFileSync(transitionTracePath, "utf8");
+  const transitionParsed = parseR53CTraceText(transitionTraceText);
+
+  it("parses the R.5.3-C structural table and validates the real transition end-to-end", () => {
+    expect(transitionParsed.problems).toEqual([]);
+    expect(transitionParsed.rows).toHaveLength(11);
+    expect(validateR53CTransition(culturalCatalog, transitionParsed.rows)).toEqual([]);
+  });
+
+  it("rejects malformed and missing rows in the R.5.3-C parser", () => {
+    const firstRow = transitionTraceText.split("\n").find((line) => line.startsWith("| `HIST-008`"))!;
+    expect(parseR53CTraceText(transitionTraceText.replace(`${firstRow}\n`, "")).problems).toContain("missing R.5.3-C traceability row HIST-008");
+    expect(parseR53CTraceText(transitionTraceText.replace(firstRow, `${firstRow} | extra |`)).problems.join("\n")).toContain("wrong column count");
+    expect(parseR53CTraceText(transitionTraceText.replace("`candidate-3`/", "candidate-3`/")).problems.join("\n")).toContain("malformed R.5.3-C fingerprint line");
+  });
+
+  it("uses the same transition validator to reject adulterated bodies, claims, versions, fields and fingerprints", () => {
+    const validate = (catalog: CulturalCatalogEntry[], rows = transitionParsed.rows) => validateR53CTransition(catalog, rows).join("\n");
+
+    const alteredBody = structuredClone(culturalCatalog);
+    alteredBody.find((entry) => entry.id === "HIST-008")!.editorialBody!.paragraphs[0] += " adulterado";
+    expect(validate(alteredBody)).toContain("editorial body differs from independent source HIST-008");
+
+    const wrongClaim = structuredClone(culturalCatalog);
+    wrongClaim.find((entry) => entry.id === "PER-001")!.editorialBody!.claimIds[0] = "PER-001-C07";
+    expect(validate(wrongClaim)).toContain("wrong claim collection PER-001");
+
+    const missingClaim = structuredClone(culturalCatalog);
+    missingClaim.find((entry) => entry.id === "PER-001")!.editorialBody!.claimIds.pop();
+    expect(validate(missingClaim)).toContain("wrong claim collection PER-001");
+
+    const additionalClaim = structuredClone(culturalCatalog);
+    additionalClaim.find((entry) => entry.id === "PER-001")!.editorialBody!.claimIds.push("claim-1");
+    expect(validate(additionalClaim)).toContain("wrong claim collection PER-001");
+
+    const notIncremented = structuredClone(culturalCatalog);
+    notIncremented.find((entry) => entry.id === "CUR-002")!.version = "candidate-3";
+    expect(validate(notIncremented)).toContain("after version mismatch CUR-002");
+
+    const unauthorizedField = structuredClone(culturalCatalog);
+    unauthorizedField.find((entry) => entry.id === "CUR-002")!.summary = "campo não autorizado alterado";
+    expect(validate(unauthorizedField)).toContain("unauthorized structural change CUR-002");
+
+    const alteredPending = structuredClone(culturalCatalog);
+    alteredPending.find((entry) => entry.id === "CUR-002")!.internalPending.push("pendência adulterada");
+    expect(validate(alteredPending)).toContain("unauthorized structural change CUR-002");
+
+    const incompatibleRows = structuredClone(transitionParsed.rows);
+    for (const row of incompatibleRows.filter((item) => item.entryId === "BIB-011")) {
+      row.afterFingerprint = row.afterFingerprint.replace(/^[0-9a-f]/, (character) => (character === "0" ? "1" : "0"));
+    }
+    expect(validate(culturalCatalog, incompatibleRows)).toContain("after fingerprint mismatch BIB-011");
+
+    const outsideScope = structuredClone(culturalCatalog);
+    outsideScope.find((entry) => entry.id === "HIST-002")!.title = "alteração fora do escopo";
+    expect(validate(outsideScope)).toContain("out-of-scope fingerprint change HIST-002");
   });
 });

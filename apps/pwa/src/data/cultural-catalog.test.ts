@@ -44,21 +44,14 @@ describe("culturalCatalog migration", () => {
   });
 
 
-  it("migrates exactly the three approved editorial bodies byte-exactly", () => {
+  it("preserves the three approved E.4 editorial bodies byte-exactly", () => {
     const acervo = JSON.parse(
       readFileSync(join(process.cwd(), "docs/curadoria-cultural/v2/pacote-original/acervo-editorial.json"), "utf8"),
     ) as { records: Array<{ id: string; editorialBody: string }> };
     const sourceById = new Map(acervo.records.map((record) => [record.id, record.editorialBody]));
-    const withBody = culturalCatalog.filter((entry) => entry.editorialBody !== undefined);
-
-    expect(withBody.map((entry) => entry.id).sort()).toEqual(
-      [...approvedEditorialBodyEntryIds].sort(),
-    );
-    for (const entry of culturalCatalog) {
-      if (!approvedEditorialBodyEntryIds.has(entry.id)) {
-        expect(entry.editorialBody, entry.id).toBeUndefined();
-        continue;
-      }
+    // E.4 permanece validada aqui; o conjunto total de 14 corpos é validado pela transição R.5.3-C.
+    for (const entryId of approvedEditorialBodyEntryIds) {
+      const entry = culturalCatalog.find((item) => item.id === entryId)!;
       const expectedClaimIds = [
         ...approvedEditorialBodyClaimIds[
           entry.id as keyof typeof approvedEditorialBodyClaimIds
@@ -178,17 +171,19 @@ describe("culturalCatalog migration", () => {
 
   });
 
-  it("versions only the authorized candidate-2/candidate-3 records and keeps reference IDs unique", () => {
+  it("keeps versions aligned to the authorized editorial migration stages and reference IDs unique", () => {
 
     for (const entry of culturalCatalog) {
       const complementaryCandidate3 = new Set(["HIST-008", "CUR-002", "CUR-006", "PER-001", "BIB-003", "BIB-004", "BIB-005", "BIB-010", "BIB-011"]);
       const complementaryCandidate2 = new Set(["PER-002", "BIB-002"]);
       expect(entry.version, entry.id).toBe(
-        approvedEditorialBodyEntryIds.has(entry.id) || complementaryCandidate3.has(entry.id)
-          ? "candidate-3"
+        complementaryCandidate3.has(entry.id)
+          ? "candidate-4"
           : complementaryCandidate2.has(entry.id)
-            ? "candidate-2"
-            : "candidate-1",
+            ? "candidate-3"
+            : approvedEditorialBodyEntryIds.has(entry.id)
+              ? "candidate-3"
+              : "candidate-1",
       );
       const referenceIds = entry.references.map((reference) => reference.id);
       expect(new Set(referenceIds).size, entry.id).toBe(referenceIds.length);
@@ -738,11 +733,8 @@ describe("cultural V2 migration integrity hardening", () => {
       },
     } as const;
 
-    for (const entry of culturalCatalog) {
-      if (!approvedEditorialBodyEntryIds.has(entry.id)) {
-        expect(entry.editorialBody, entry.id).toBeUndefined();
-        continue;
-      }
+    for (const entryId of approvedEditorialBodyEntryIds) {
+      const entry = culturalCatalog.find((item) => item.id === entryId)!;
       const beforeEntry = structuredClone(entry);
       delete beforeEntry.editorialBody;
       const fingerprints = expected[entry.id as keyof typeof expected];
@@ -769,9 +761,8 @@ describe("cultural V2 migration integrity hardening", () => {
           delete copy.version;
           delete copy.references;
           delete copy.claims;
-          if (approvedEditorialBodyEntryIds.has(item.id)) {
-            delete copy.editorialBody;
-          }
+          delete copy.editorialBody;
+          delete copy.artwork;
           return copy;
         };
         expect(strip(entry), entry.id).toEqual(strip(before));
@@ -791,7 +782,11 @@ describe("cultural V2 migration integrity hardening", () => {
       const entry = culturalCatalog.find((item) => item.id === entryId)!;
       const before = baselineById.get(entryId)!;
       expect(entry.version, entryId).toBe(
-        entryId === "PER-002" || entryId === "BIB-002" ? "candidate-2" : "candidate-3",
+        entryId === "HIST-001" || entryId === "HIST-006" || entryId === "CUR-001"
+          ? "candidate-3"
+          : entryId === "PER-002" || entryId === "BIB-002"
+            ? "candidate-3"
+            : "candidate-4",
       );
 
       for (const previousClaim of before.claims) {
@@ -909,28 +904,24 @@ describe("cultural V2.1 complementary evidence migration", () => {
     expect(new Set(migratedIds).size).toBe(56);
   });
 
-  it("changes only the eleven authorized records and does not migrate editorial bodies", () => {
+  it("preserves the post-R.5.3-B.2 records while the R.5.3-C transition owns the body assertions", () => {
     const expectedVersions = {
-      "HIST-008": "candidate-3",
-      "CUR-002": "candidate-3",
-      "CUR-006": "candidate-3",
-      "PER-001": "candidate-3",
-      "PER-002": "candidate-2",
-      "BIB-002": "candidate-2",
-      "BIB-003": "candidate-3",
-      "BIB-004": "candidate-3",
-      "BIB-005": "candidate-3",
-      "BIB-010": "candidate-3",
-      "BIB-011": "candidate-3",
+      "HIST-008": "candidate-4",
+      "CUR-002": "candidate-4",
+      "CUR-006": "candidate-4",
+      "PER-001": "candidate-4",
+      "PER-002": "candidate-3",
+      "BIB-002": "candidate-3",
+      "BIB-003": "candidate-4",
+      "BIB-004": "candidate-4",
+      "BIB-005": "candidate-4",
+      "BIB-010": "candidate-4",
+      "BIB-011": "candidate-4",
     } as const;
     for (const [entryId, version] of Object.entries(expectedVersions)) {
       expect(getCulturalEntryById(entryId)?.version, entryId).toBe(version);
     }
-    expect(culturalCatalog.filter((entry) => entry.editorialBody).map((entry) => entry.id).sort()).toEqual([
-      "CUR-001",
-      "HIST-001",
-      "HIST-006",
-    ]);
+    expect(culturalCatalog.filter((entry) => entry.editorialBody).map((entry) => entry.id)).toHaveLength(14);
     expect(culturalCatalog.every((entry) => entry.validationStatus === "draft")).toBe(true);
     expect(culturalCatalog.every((entry) => entry.reviews.length === 0)).toBe(true);
     expect(culturalCatalog.every((entry) => entry.publicationAuthorization === undefined)).toBe(true);
