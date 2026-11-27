@@ -8,6 +8,7 @@ import { getCulturalCategoryHref } from "@/data/cultural-taxonomy";
 
 import { IconArrowRight } from "../icons";
 import { ConstellationGraphic } from "./constellation-graphic";
+import { CulturalEntryArtwork } from "./editorial/cultural-entry-artwork";
 
 export function CuriosityCards({
   entries,
@@ -25,10 +26,17 @@ export function CuriosityCards({
         return (
           <li key={entry.id} className={wide ? "md:col-span-2" : undefined}>
             <article className="relative flex h-full flex-col gap-6 overflow-hidden rounded-[1.75rem] border border-border/60 bg-gradient-to-br from-accent/10 via-surface/65 to-transparent p-6 sm:p-7">
-              <ConstellationGraphic
-                variant="curiosity"
-                className="pointer-events-none absolute -right-4 -top-5 h-28 w-48 text-accent opacity-35"
-              />
+              {!entry.artwork && (
+                <ConstellationGraphic
+                  variant="curiosity"
+                  className="pointer-events-none absolute -right-4 -top-5 h-28 w-48 text-accent opacity-35"
+                />
+              )}
+              {entry.artwork && (
+                <div className="relative max-w-md">
+                  <CulturalEntryArtwork entry={entry} variant="card" />
+                </div>
+              )}
               <div className="relative flex max-w-2xl flex-col gap-3">
                 <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-accent">
                   Observatório

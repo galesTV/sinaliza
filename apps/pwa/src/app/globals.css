@@ -370,7 +370,7 @@ a {
   transform-origin: right center;
 }
 
-.orbital-spine span {
+.orbital-spine > .orbital-initials {
   color: rgb(244 247 251 / 0.86);
   font-family: var(--font-display);
   font-size: 1.75rem;
@@ -403,7 +403,7 @@ a {
   pointer-events: none;
 }
 
-.orbital-cover strong {
+.orbital-cover > .orbital-title {
   position: relative;
   display: -webkit-box;
   overflow: hidden;
@@ -416,7 +416,7 @@ a {
   -webkit-line-clamp: 4;
 }
 
-.orbital-cover small,
+.orbital-cover > .orbital-creator,
 .orbital-format {
   position: relative;
   color: rgb(218 228 238 / 0.78);
@@ -466,7 +466,7 @@ a {
     padding: 0.8rem;
   }
 
-  .orbital-cover strong {
+  .orbital-cover > .orbital-title {
     font-size: 0.95rem;
   }
 }

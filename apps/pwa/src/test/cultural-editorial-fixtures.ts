@@ -7,9 +7,9 @@ export const editorialTimelineFixture: CulturalEditorialArtworkProps = {
   title: "Marco editorial fictício de uma instituição imaginária",
   yearLabel: "1999",
   events: [
-    "1997 — Proposta fictícia",
-    "1998 — Primeiras atividades imaginárias",
-    "1999 — Registro editorial fictício",
+    { year: 1997, label: "Proposta fictícia" },
+    { year: 1998, label: "Primeiras atividades imaginárias" },
+    { year: 1999, label: "Registro editorial fictício" },
   ],
 };
 

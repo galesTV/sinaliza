@@ -4,10 +4,6 @@ import type {
   CulturalEditorialArtworkProps,
   EditorialArtworkVariant,
 } from "./cultural-editorial-artwork";
-
-export const SINALIZA_EDITORIAL_REPRESENTATION_LABEL =
-  "Representação editorial do Sinaliza";
-
 function libraryMetadataLabel(entry: Extract<PublicCulturalEntry, { category: "library" }>) {
   const parts = [
     entry.library.creators?.filter(Boolean).join(", "),
@@ -37,7 +33,6 @@ export function adaptCulturalArtwork(
     category: entry.category,
     variant,
     title: entry.title,
-    representationLabel: SINALIZA_EDITORIAL_REPRESENTATION_LABEL,
   } as const;
 
   if (entry.category === "history" && artwork.motif === "timeline") {
@@ -46,7 +41,7 @@ export function adaptCulturalArtwork(
       motif: "timeline",
       ...(historyYearLabel(entry) ? { yearLabel: historyYearLabel(entry) } : {}),
       ...(artwork.events
-        ? { events: artwork.events.map((event) => `${event.year} — ${event.label}`) }
+        ? { events: artwork.events.map((event) => ({ year: event.year, label: event.label })) }
         : {}),
     };
   }

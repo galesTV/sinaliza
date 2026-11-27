@@ -5,6 +5,7 @@ import { getCulturalCategoryHref } from "@/data/cultural-taxonomy";
 import { compareHistoryEntries, formatHistoryDate } from "@/lib/cultural-explore";
 
 import { IconArrowRight } from "../icons";
+import { CulturalEntryArtwork } from "./editorial/cultural-entry-artwork";
 
 export function HistoryTimeline({
   entries,
@@ -30,6 +31,11 @@ export function HistoryTimeline({
             {formatHistoryDate(entry)}
           </time>
           <article className="flex max-w-3xl flex-col gap-4 border-b border-border/70 pb-8 sm:pl-10">
+            {entry.artwork && (
+              <div className="max-w-md">
+                <CulturalEntryArtwork entry={entry} variant="thumbnail" />
+              </div>
+            )}
             <div className="flex flex-col gap-2">
               <h2 className="font-display text-2xl font-semibold leading-tight tracking-tight text-foreground sm:text-3xl">
                 {entry.title}

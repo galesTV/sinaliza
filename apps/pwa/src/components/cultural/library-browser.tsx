@@ -12,6 +12,7 @@ import {
 } from "@/lib/cultural-explore";
 
 import { IconArrowRight } from "../icons";
+import { CulturalEntryArtwork } from "./editorial/cultural-entry-artwork";
 import { libraryAccessLabel, libraryFormatLabel } from "./labels";
 import { OrbitalShelf } from "./orbital-shelf";
 
@@ -180,21 +181,31 @@ export function LibraryBrowser({
               <article className="group flex h-full flex-col overflow-hidden rounded-[1.6rem] border border-border/65 bg-surface/80 transition-transform duration-200 hover:-translate-y-0.5">
                 <div
                   aria-hidden="true"
-                  className={`relative flex h-44 items-end overflow-hidden bg-gradient-to-br p-5 ${coverTone(entry.library.format)}`}
+                  className={`relative flex overflow-hidden bg-gradient-to-br p-5 ${
+                    entry.artwork ? "justify-center" : "h-44 items-end"
+                  } ${coverTone(entry.library.format)}`}
                 >
-                  <span className="absolute inset-x-0 bottom-0 h-px bg-foreground/10" />
-                  <span className="absolute right-5 top-5 text-accent opacity-75">
-                    <FormatMark format={entry.library.format} />
-                  </span>
-                  <span className="absolute right-8 top-16 h-px w-20 rotate-[-18deg] bg-accent/35" />
-                  <span className="flex flex-col gap-1">
-                    <span className="font-display text-5xl font-semibold leading-none tracking-tight text-foreground/90">
-                      {getTitleInitials(entry.title)}
-                    </span>
-                    <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">
-                      Capa tipográfica
-                    </span>
-                  </span>
+                  {entry.artwork ? (
+                    <div className="w-full max-w-36">
+                      <CulturalEntryArtwork entry={entry} variant="book-cover" />
+                    </div>
+                  ) : (
+                    <>
+                      <span className="absolute inset-x-0 bottom-0 h-px bg-foreground/10" />
+                      <span className="absolute right-5 top-5 text-accent opacity-75">
+                        <FormatMark format={entry.library.format} />
+                      </span>
+                      <span className="absolute right-8 top-16 h-px w-20 rotate-[-18deg] bg-accent/35" />
+                      <span className="flex flex-col gap-1">
+                        <span className="font-display text-5xl font-semibold leading-none tracking-tight text-foreground/90">
+                          {getTitleInitials(entry.title)}
+                        </span>
+                        <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">
+                          Capa tipográfica
+                        </span>
+                      </span>
+                    </>
+                  )}
                 </div>
                 <div className="flex flex-1 flex-col gap-4 p-5">
                   <div className="flex flex-col gap-2">

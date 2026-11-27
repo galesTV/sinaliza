@@ -1,4 +1,5 @@
 import { ConceptArtwork, type ConceptArtworkMotif } from "./concept-artwork";
+import { SINALIZA_EDITORIAL_REPRESENTATION_LABEL } from "./editorial-representation";
 import {
   getEditorialPaletteStyle,
   type EditorialCategory,
@@ -37,7 +38,6 @@ interface EditorialArtworkBaseProps {
   title: string;
   eyebrow?: string;
   descriptor?: string;
-  representationLabel?: string;
   className?: string;
 }
 
@@ -110,7 +110,6 @@ export function CulturalEditorialArtwork(
     variant = "card",
     title,
     eyebrow,
-    representationLabel,
     className,
   } = props;
   const paletteStyle = getEditorialPaletteStyle(category);
@@ -155,9 +154,6 @@ export function CulturalEditorialArtwork(
   }
 
   const subtitle = getSubtitle(props, variant);
-  const footerLabel =
-    representationLabel ??
-    (category === "library" ? "Representação editorial" : "Coleção Sinaliza");
   const isLibraryCover = category === "library" && variant === "book-cover";
   const innerClassName = [
     styles.inner,
@@ -196,8 +192,7 @@ export function CulturalEditorialArtwork(
           <p className={styles.libraryMetadata}>{metadataLabel}</p>
         ) : null}
         <p className={styles.footer}>
-          <span>{footerLabel}</span>
-          {category === "library" ? <span>Sinaliza</span> : null}
+          <span>{SINALIZA_EDITORIAL_REPRESENTATION_LABEL}</span>
         </p>
       </div>
     </div>

@@ -8,6 +8,9 @@ import { getCulturalCategoryHref } from "@/data/cultural-taxonomy";
 import { getTitleInitials } from "@/lib/cultural-explore";
 
 import { IconArrowLeft, IconArrowRight } from "../icons";
+import { CulturalEntryArtwork } from "./editorial/cultural-entry-artwork";
+import { SINALIZA_EDITORIAL_REPRESENTATION_LABEL } from "./editorial/editorial-representation";
+import editorialStyles from "./editorial/editorial-artwork.module.css";
 import { libraryAccessLabel, libraryFormatLabel } from "./labels";
 
 function formatClass(format: string | undefined): string {
@@ -155,14 +158,26 @@ export function OrbitalShelf({
                   opacity: Math.max(0.22, 1 - abs * 0.22),
                 }}
               >
-                <span className="orbital-spine">
-                  <span>{getTitleInitials(entry.title)}</span>
-                </span>
-                <span className="orbital-cover">
-                  <span className="orbital-format">{libraryFormatLabel(entry.library.format)}</span>
-                  <strong>{entry.title}</strong>
-                  {entry.library.creators?.[0] && <small>{entry.library.creators[0]}</small>}
-                </span>
+                <div className="orbital-spine">
+                  {entry.artwork ? (
+                    <CulturalEntryArtwork entry={entry} variant="book-spine" fill />
+                  ) : (
+                    <span className="orbital-initials">{getTitleInitials(entry.title)}</span>
+                  )}
+                </div>
+                <div className="orbital-cover">
+                  {entry.artwork ? (
+                    <div className="flex h-full w-full items-center">
+                      <CulturalEntryArtwork entry={entry} variant="book-cover" className={editorialStyles.compactSurface} />
+                    </div>
+                  ) : (
+                    <>
+                      <span className="orbital-format">{libraryFormatLabel(entry.library.format)}</span>
+                      <strong className="orbital-title">{entry.title}</strong>
+                      {entry.library.creators?.[0] && <small className="orbital-creator">{entry.library.creators[0]}</small>}
+                    </>
+                  )}
+                </div>
               </div>
             );
           })}
@@ -214,6 +229,11 @@ export function OrbitalShelf({
             <p className="text-sm font-medium text-muted">{selected.library.creators.join(", ")}</p>
           ) : null}
           <p className="max-w-3xl text-sm leading-relaxed text-muted sm:text-base">{selected.summary}</p>
+          {selected.artwork && (
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-success">
+              {SINALIZA_EDITORIAL_REPRESENTATION_LABEL}
+            </p>
+          )}
           <dl className="grid gap-2 text-sm sm:grid-cols-2">
             <div className="flex gap-2">
               <dt className="font-semibold text-foreground">Acesso</dt>

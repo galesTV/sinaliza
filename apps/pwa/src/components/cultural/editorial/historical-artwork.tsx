@@ -1,9 +1,14 @@
 import styles from "./editorial-artwork.module.css";
 
+export interface TimelineArtworkEvent {
+  year: number;
+  label: string;
+}
+
 export interface TimelineArtworkProps {
   motif: "timeline";
   yearLabel?: string;
-  events?: readonly string[];
+  events?: readonly TimelineArtworkEvent[];
 }
 
 export interface LegalDocumentArtworkProps {
@@ -20,7 +25,7 @@ export type HistoricalArtworkProps =
 
 export function HistoricalArtwork(props: HistoricalArtworkProps) {
   if (props.motif === "timeline") {
-    const events = props.events?.filter((event) => event.trim()) ?? [];
+    const events = props.events ?? [];
 
     return (
       <div className={styles.timelineVisual}>
@@ -30,8 +35,9 @@ export function HistoricalArtwork(props: HistoricalArtworkProps) {
         {events.length > 0 ? (
           <ol className={styles.timelineEvents}>
             {events.map((event) => (
-              <li className={styles.timelineEvent} key={event}>
-                {event}
+              <li className={styles.timelineEvent} key={`${event.year}-${event.label}`}>
+                <span className={styles.timelineEventYear}>{event.year}</span>
+                <span className={styles.timelineEventLabel}>{event.label}</span>
               </li>
             ))}
           </ol>
