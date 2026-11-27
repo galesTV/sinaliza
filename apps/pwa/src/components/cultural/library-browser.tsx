@@ -13,7 +13,6 @@ import {
 
 import { IconArrowRight } from "../icons";
 import { CulturalEntryArtwork } from "./editorial/cultural-entry-artwork";
-import editorialStyles from "./editorial/editorial-artwork.module.css";
 import { libraryAccessLabel, libraryFormatLabel } from "./labels";
 import { OrbitalShelf } from "./orbital-shelf";
 
@@ -188,8 +187,8 @@ export function LibraryBrowser({
                 >
                   {entry.artwork ? (
                     <div className="flex flex-col items-center gap-2">
-                      <div className="w-full max-w-32">
-                        <CulturalEntryArtwork entry={entry} variant="book-cover" className={editorialStyles.quietFooter} />
+                      <div className="w-full max-w-36">
+                        <CulturalEntryArtwork entry={entry} variant="book-cover" hideFooter />
                       </div>
                       <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-success">
                         Representação editorial do Sinaliza

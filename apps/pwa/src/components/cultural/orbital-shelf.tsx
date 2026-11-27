@@ -153,7 +153,7 @@ export function OrbitalShelf({
                 key={entry.id}
                 className={`orbital-item ${formatClass(entry.library.format)} ${selectedItem ? "is-selected" : ""}`}
                 style={{
-                  transform: `translate(-50%, -50%) translateX(${offset * 118}px) translateZ(${-abs * 92}px) rotateY(${offset * -24}deg) scale(${selectedItem ? 1 : 0.9 - abs * 0.035})`,
+                  transform: `translate(-50%, -50%) translateX(${offset * 132}px) translateZ(${-abs * 92}px) rotateY(${offset * -24}deg) scale(${selectedItem ? 1 : 0.9 - abs * 0.035})`,
                   zIndex: 20 - abs,
                   opacity: Math.max(0.22, 1 - abs * 0.22),
                 }}
@@ -165,11 +165,9 @@ export function OrbitalShelf({
                     <span className="orbital-initials">{getTitleInitials(entry.title)}</span>
                   )}
                 </div>
-                <div className="orbital-cover">
+                <div className={`orbital-cover ${entry.artwork ? "orbital-cover-artwork" : ""}`}>
                   {entry.artwork ? (
-                    <div className="flex h-full w-full items-center">
-                      <CulturalEntryArtwork entry={entry} variant="book-cover" className={editorialStyles.compactSurface} />
-                    </div>
+                    <CulturalEntryArtwork entry={entry} variant="book-cover" fill className={editorialStyles.compactSurface} />
                   ) : (
                     <>
                       <span className="orbital-format">{libraryFormatLabel(entry.library.format)}</span>

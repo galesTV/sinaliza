@@ -215,6 +215,20 @@ describe("cultural editorial body and artwork integration", () => {
     expect(html).toContain('data-variant="book-cover"');
     expect(html).toContain('data-variant="book-spine"');
   });
+
+  it("uses portrait personality panels and integrated orbital artwork surfaces", () => {
+    const personalityHtml = renderToStaticMarkup(<PersonalityGallery entries={fixturePersonalityEntries} />);
+    expect(personalityHtml).toContain("aspect-[3/4]");
+    expect(personalityHtml).toContain("Representação editorial do Sinaliza");
+
+    const orbitalHtml = renderToStaticMarkup(<OrbitalShelfIntegrationProbe entries={fixtureLibraryEntries} />);
+    expect(orbitalHtml).toContain("orbital-cover-artwork");
+    expect(orbitalHtml).toContain('data-variant="book-cover"');
+
+    const libraryHtml = renderToStaticMarkup(<LibraryBrowser entries={[fixtureLibraryEntries[0]]} />);
+    expect(libraryHtml).toContain("h-64");
+    expect(libraryHtml.match(/Representação editorial do Sinaliza/g)).toHaveLength(1);
+  });
 });
 
 function OrbitalShelfIntegrationProbe({ entries }: { entries: typeof fixtureLibraryEntries }) {

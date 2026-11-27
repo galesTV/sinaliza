@@ -511,6 +511,11 @@
   display: none;
 }
 
-.quietFooter .footer {
-  display: none;
+
+.portraitSurface .monogramVisual {
+  justify-content: center;
+}
+
+.portraitSurface .monogramInitials {
+  font-size: clamp(3rem, 32cqw, 5.4rem);
 }

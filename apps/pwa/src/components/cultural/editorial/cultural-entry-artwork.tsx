@@ -28,11 +28,13 @@ export function CulturalEntryArtwork({
   variant,
   fill = false,
   className,
+  hideFooter = false,
 }: {
   entry: PublicCulturalEntry;
   variant: EditorialArtworkVariant;
   fill?: boolean;
   className?: string;
+  hideFooter?: boolean;
 }) {
   const props = adaptCulturalArtwork(entry, variant);
   if (!props) return null;
@@ -42,6 +44,7 @@ export function CulturalEntryArtwork({
     <>
       <CulturalEditorialArtwork
         {...props}
+        hideFooter={hideFooter}
         className={[fill ? styles.fillSurface : undefined, className]
           .filter(Boolean)
           .join(" ")}

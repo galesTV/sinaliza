@@ -20,19 +20,19 @@ export function PersonalityGallery({
         const initials = getPersonInitials(entry.personality.personName);
         return (
           <li key={entry.id} className={entries.length % 2 === 1 && index === entries.length - 1 ? "lg:col-span-2" : undefined}>
-            <article className="group relative grid h-full gap-6 overflow-hidden rounded-[1.75rem] border border-border/60 bg-gradient-to-br from-primary/18 via-surface/65 to-transparent p-5 sm:grid-cols-[11rem_1fr] sm:p-6">
-              <div className={`relative flex min-h-44 flex-col items-center justify-center overflow-hidden rounded-[1.35rem] ${entry.artwork ? "p-0" : "border border-primary/25 bg-background/45 p-2"}`}>
+            <article className="group relative grid h-full gap-6 overflow-hidden rounded-[1.75rem] border border-border/60 bg-gradient-to-br from-primary/18 via-surface/65 to-transparent p-5 sm:grid-cols-[12rem_1fr] sm:p-6">
+              <div className="relative flex w-full max-w-56 flex-col self-center sm:max-w-none">
                 {entry.artwork ? (
                   <>
-                    <div className="flex min-h-0 w-full flex-1 items-center">
-                      <CulturalEntryArtwork entry={entry} variant="card" className={editorialStyles.compactSurface} />
+                    <div className="aspect-[3/4] w-full overflow-hidden rounded-[1.35rem]">
+                      <CulturalEntryArtwork entry={entry} variant="card" fill hideFooter className={`${editorialStyles.compactSurface} ${editorialStyles.portraitSurface}`} />
                     </div>
-                    <p className="relative z-10 mt-3 text-center text-[10px] font-semibold uppercase tracking-[0.12em] text-primary-soft">
+                    <p className="mt-2 text-center text-[10px] font-semibold uppercase leading-relaxed tracking-[0.12em] text-primary-soft">
                       {SINALIZA_EDITORIAL_REPRESENTATION_LABEL}
                     </p>
                   </>
                 ) : (
-                  <div aria-hidden="true" className="relative flex min-h-36 w-full items-center justify-center">
+                  <div aria-hidden="true" className="relative flex aspect-[3/4] w-full items-center justify-center overflow-hidden rounded-[1.35rem] border border-primary/25 bg-background/45">
                     <span className="absolute h-28 w-28 rounded-full border border-primary/25" />
                     <span className="absolute h-40 w-40 rounded-full border border-accent/15" />
                     <span className="font-display text-6xl font-semibold tracking-tight text-primary-soft/85">

@@ -39,6 +39,7 @@ interface EditorialArtworkBaseProps {
   eyebrow?: string;
   descriptor?: string;
   className?: string;
+  hideFooter?: boolean;
 }
 
 export type CulturalEditorialArtworkProps = EditorialArtworkBaseProps &
@@ -111,6 +112,7 @@ export function CulturalEditorialArtwork(
     title,
     eyebrow,
     className,
+    hideFooter = false,
   } = props;
   const paletteStyle = getEditorialPaletteStyle(category);
   const variantClass = {
@@ -191,9 +193,11 @@ export function CulturalEditorialArtwork(
         {metadataLabel ? (
           <p className={styles.libraryMetadata}>{metadataLabel}</p>
         ) : null}
-        <p className={styles.footer}>
-          <span>{SINALIZA_EDITORIAL_REPRESENTATION_LABEL}</span>
-        </p>
+        {!hideFooter && (
+          <p className={styles.footer}>
+            <span>{SINALIZA_EDITORIAL_REPRESENTATION_LABEL}</span>
+          </p>
+        )}
       </div>
     </div>
   );
