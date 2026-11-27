@@ -23,7 +23,8 @@ export function OrbitalShelf({
   entries: PublicCulturalLibraryEntry[];
 }) {
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const dragState = useRef<{ startX: number; consumed: boolean } | null>(null);
+  const dragState = useRef<{ startX: number; consumed: boolean; moved: boolean } | null>(null);
+  const suppressClickAfterDrag = useRef(false);
   const count = entries.length;
   const safeIndex = count === 0 ? 0 : Math.min(selectedIndex, count - 1);
   const selected = entries[safeIndex];
@@ -65,21 +66,50 @@ export function OrbitalShelf({
 
   function handlePointerDown(event: React.PointerEvent<HTMLDivElement>) {
     if (event.pointerType === "mouse" && event.button !== 0) return;
-    dragState.current = { startX: event.clientX, consumed: false };
-    event.currentTarget.setPointerCapture?.(event.pointerId);
+    suppressClickAfterDrag.current = false;
+    dragState.current = { startX: event.clientX, consumed: false, moved: false };
   }
 
   function handlePointerMove(event: React.PointerEvent<HTMLDivElement>) {
-    if (!dragState.current || dragState.current.consumed) return;
+    if (!dragState.current) return;
     const distance = event.clientX - dragState.current.startX;
-    if (Math.abs(distance) < 52) return;
+    if (Math.abs(distance) >= 8) dragState.current.moved = true;
+    if (dragState.current.consumed || Math.abs(distance) < 52) return;
+    event.currentTarget.setPointerCapture?.(event.pointerId);
     move(distance < 0 ? 1 : -1);
     dragState.current.consumed = true;
   }
 
   function endDrag(event: React.PointerEvent<HTMLDivElement>) {
+    if (dragState.current?.moved) suppressClickAfterDrag.current = true;
     dragState.current = null;
-    event.currentTarget.releasePointerCapture?.(event.pointerId);
+    if (event.currentTarget.hasPointerCapture?.(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+  }
+
+  function handleStageClick(event: React.MouseEvent<HTMLDivElement>) {
+    if (suppressClickAfterDrag.current) {
+      suppressClickAfterDrag.current = false;
+      return;
+    }
+
+    const nodes = Array.from(event.currentTarget.querySelectorAll(".orbital-item"));
+    const candidate = visibleItems
+      .map((item, position) => {
+        const rect = nodes[position]?.getBoundingClientRect();
+        return { ...item, rect };
+      })
+      .filter(({ rect }) =>
+        rect
+        && event.clientX >= rect.left
+        && event.clientX <= rect.right
+        && event.clientY >= rect.top
+        && event.clientY <= rect.bottom,
+      )
+      .sort((a, b) => Math.abs(a.offset) - Math.abs(b.offset))[0];
+
+    if (candidate && candidate.offset !== 0) setSelectedIndex(candidate.index);
   }
 
   if (!selected) return null;
@@ -107,6 +137,7 @@ export function OrbitalShelf({
         onPointerMove={handlePointerMove}
         onPointerUp={endDrag}
         onPointerCancel={endDrag}
+        onClick={handleStageClick}
         className="orbital-stage focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
       >
         <div aria-hidden="true" className="orbital-depth" />

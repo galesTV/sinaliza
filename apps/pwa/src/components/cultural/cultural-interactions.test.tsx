@@ -36,9 +36,31 @@ afterEach(() => {
   }
 });
 
-function click(element: Element) {
+function click(element: Element, coordinates?: { x: number; y: number }) {
   act(() => {
-    element.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    element.dispatchEvent(new MouseEvent("click", {
+      bubbles: true,
+      clientX: coordinates?.x ?? 0,
+      clientY: coordinates?.y ?? 0,
+    }));
+  });
+}
+
+function mockOrbitalItemRects(container: HTMLElement) {
+  container.querySelectorAll(".orbital-item").forEach((element, index) => {
+    Object.defineProperty(element, "getBoundingClientRect", {
+      value: () => ({
+        left: index * 100,
+        right: index * 100 + 140,
+        top: 0,
+        bottom: 200,
+        width: 140,
+        height: 200,
+        x: index * 100,
+        y: 0,
+        toJSON: () => ({}),
+      }),
+    });
   });
 }
 
@@ -159,6 +181,42 @@ describe("cultural interactive components", () => {
       stage?.dispatchEvent(new MouseEvent("pointerup", { clientX: 130, bubbles: true }));
     });
     expect(container.textContent).toContain("Obra 2 de 2");
+  });
+
+  it("selects a lateral item directly without opening its public detail", () => {
+    const container = render(<OrbitalShelf entries={fixtureLibraryEntries} />);
+    const lateralItem = container.querySelectorAll(".orbital-item")[1];
+    expect(lateralItem).toBeDefined();
+    mockOrbitalItemRects(container);
+
+    click(lateralItem, { x: 220, y: 100 });
+
+    expect(container.textContent).toContain("Obra 2 de 2");
+    expect(container.textContent).toContain("Abrir ficha pública");
+  });
+
+  it("does not treat the click after horizontal drag as a lateral selection", () => {
+    const many = fixtureLibraryEntries.flatMap((entry, group) =>
+      Array.from({ length: 2 }, (_, index) => ({
+        ...entry,
+        id: `${entry.id}-${group}-${index}`,
+        slug: `${entry.slug}-${group}-${index}`,
+        title: `${entry.title} ${group}-${index}`,
+      })),
+    );
+    const container = render(<OrbitalShelf entries={many} />);
+    const stage = container.querySelector('[aria-label*="Estante orbital"]');
+    mockOrbitalItemRects(container);
+
+    act(() => {
+      stage?.dispatchEvent(new MouseEvent("pointerdown", { clientX: 240, bubbles: true }));
+      stage?.dispatchEvent(new MouseEvent("pointermove", { clientX: 150, bubbles: true }));
+      stage?.dispatchEvent(new MouseEvent("pointerup", { clientX: 150, bubbles: true }));
+    });
+    expect(container.textContent).toContain("Obra 2 de 4");
+
+    click(container.querySelectorAll(".orbital-item")[2], { x: 320, y: 100 });
+    expect(container.textContent).toContain("Obra 2 de 4");
   });
 
   it("keeps a single-item shelf bounded and renders only nearby items in larger collections", () => {
