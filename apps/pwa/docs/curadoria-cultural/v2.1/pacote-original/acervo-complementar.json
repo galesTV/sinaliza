@@ -1,0 +1,252 @@
+[
+  {
+    "id": "HIST-001",
+    "title": "1857 — Fundação do instituto que se tornou o INES",
+    "originalBody": "Em 1855, Ernest Huet apresentou uma proposta de educação de surdos. As aulas começaram em 1º de janeiro de 1856. A Lei nº 939, de 26 de setembro de 1857, integra a cronologia institucional do atual INES. Trata-se de um marco educacional, não de uma data de nascimento da Libras.",
+    "proposedBody": "Em 1855, Ernest Huet apresentou uma proposta de educação de surdos. As aulas começaram em 1º de janeiro de 1856. A Lei nº 939, de 26 de setembro de 1857, integra a cronologia institucional do atual INES. Trata-se de um marco educacional, não de uma data de nascimento da Libras.",
+    "originalBodySha256": "afe7fd2a10f229aa1b9ce224665c539cf1db46ed755eeaa60534b6fb9b7fc47d",
+    "proposedBodySha256": "afe7fd2a10f229aa1b9ce224665c539cf1db46ed755eeaa60534b6fb9b7fc47d",
+    "claimIds": [
+      "HIST-001-C01",
+      "HIST-001-C02",
+      "HIST-001-C03",
+      "claim-1"
+    ],
+    "migrationStatus": "E.4 local reported; do not remigrate",
+    "rightsPolicy": "external-link-only",
+    "reviews": [],
+    "publicationAuthorized": false
+  },
+  {
+    "id": "HIST-006",
+    "title": "2002 — Lei de Libras",
+    "originalBody": "Em 24 de abril de 2002, a Lei nº 10.436 reconheceu a Libras como meio legal de comunicação e expressão. A lei reconhece sua estrutura gramatical própria e prevê apoio ao uso e à difusão. Reconhecimento jurídico não equivale à criação da língua.",
+    "proposedBody": "Em 24 de abril de 2002, a Lei nº 10.436 reconheceu a Libras como meio legal de comunicação e expressão. A lei reconhece sua estrutura gramatical própria e prevê apoio ao uso e à difusão. Reconhecimento jurídico não equivale à criação da língua.",
+    "originalBodySha256": "d1f1919ae59401d5b2c79913b28be4eb78b39a37d3f91e700151a54f0598f2f0",
+    "proposedBodySha256": "d1f1919ae59401d5b2c79913b28be4eb78b39a37d3f91e700151a54f0598f2f0",
+    "claimIds": [
+      "HIST-006-C01",
+      "HIST-006-C02",
+      "HIST-006-C03",
+      "HIST-006-C04"
+    ],
+    "migrationStatus": "E.4 local reported; do not remigrate",
+    "rightsPolicy": "external-link-only",
+    "reviews": [],
+    "publicationAuthorized": false
+  },
+  {
+    "id": "HIST-008",
+    "title": "2021 — Educação bilíngue de surdos",
+    "originalBody": "A Lei nº 14.191, de 3 de agosto de 2021, incluiu a educação bilíngue de surdos na LDB. A modalidade prevê Libras como primeira língua e português escrito como segunda para os educandos abrangidos que optem por ela. A lei também prevê materiais didáticos e professores bilíngues.",
+    "proposedBody": "A Lei nº 14.191, de 3 de agosto de 2021, incluiu a educação bilíngue de surdos na LDB. A modalidade prevê Libras como primeira língua e português escrito como segunda para os educandos abrangidos que optem por ela. A lei também prevê materiais didáticos e professores bilíngues.",
+    "originalBodySha256": "d08ac1b4dc73c2abc5d5d88e2002050b37c8e8629ac50461565e62217ac9b70b",
+    "proposedBodySha256": "d08ac1b4dc73c2abc5d5d88e2002050b37c8e8629ac50461565e62217ac9b70b",
+    "claimIds": [
+      "HIST-008-C01",
+      "HIST-008-C02",
+      "HIST-008-C03",
+      "HIST-008-C04"
+    ],
+    "migrationStatus": "candidate; audit required",
+    "rightsPolicy": "external-link-only",
+    "reviews": [],
+    "publicationAuthorized": false
+  },
+  {
+    "id": "CUR-001",
+    "title": "Existe uma língua de sinais universal?",
+    "originalBody": "Não existe uma língua de sinais universal. Comunidades de diferentes países e regiões utilizam línguas de sinais distintas. Aprender uma delas não garante compreender todas as outras.",
+    "proposedBody": "Não existe uma língua de sinais universal. Comunidades de diferentes países e regiões utilizam línguas de sinais distintas. Aprender uma delas não garante compreender todas as outras.",
+    "originalBodySha256": "8871f10ce475cf29789d5d89762e08d5784445b849ae67afe31cd396d25f3108",
+    "proposedBodySha256": "8871f10ce475cf29789d5d89762e08d5784445b849ae67afe31cd396d25f3108",
+    "claimIds": [
+      "CUR-001-C01",
+      "CUR-001-C02"
+    ],
+    "migrationStatus": "E.4 local reported; do not remigrate",
+    "rightsPolicy": "external-link-only",
+    "reviews": [],
+    "publicationAuthorized": false
+  },
+  {
+    "id": "CUR-002",
+    "title": "Libras é português feito com as mãos?",
+    "originalBody": "Libras não é português representado pelas mãos. Possui estrutura gramatical própria. Configurações de mão, localização, movimento e elementos não manuais participam da sinalização. Aprender o alfabeto manual não equivale a dominar a língua.",
+    "proposedBody": "Libras não é português representado pelas mãos. Possui estrutura gramatical própria. Configurações de mão, localização, movimento e elementos não manuais participam da sinalização. Aprender o alfabeto manual não equivale a dominar a língua.",
+    "originalBodySha256": "5b487bd69b4de0e1eca982589fa25a7b4dc4d9add7955e2b28fa60a6d1b16763",
+    "proposedBodySha256": "5b487bd69b4de0e1eca982589fa25a7b4dc4d9add7955e2b28fa60a6d1b16763",
+    "claimIds": [
+      "CUR-002-C01",
+      "CUR-002-C02",
+      "CUR-002-C03",
+      "CUR-002-C04",
+      "CUR-002-C05",
+      "CUR-002-C06"
+    ],
+    "migrationStatus": "candidate; audit required",
+    "rightsPolicy": "external-link-only",
+    "reviews": [],
+    "publicationAuthorized": false
+  },
+  {
+    "id": "CUR-006",
+    "title": "Existe poesia em Libras?",
+    "originalBody": "A poesia em Libras explora recursos visuais e linguísticos, como ritmo, repetição e simetria. A produção poética sinalizada permite expressar experiências e criar narrativas artísticas. O acervo LIBRANDO reúne exemplos de poemas.",
+    "proposedBody": "A poesia em Libras explora recursos visuais e linguísticos, como ritmo, repetição e simetria. A produção poética sinalizada permite expressar experiências e criar narrativas artísticas. O acervo LIBRANDO reúne exemplos de poemas.",
+    "originalBodySha256": "a25ebefcf1456799b586b9fc9774d8c2ae37fb7697dcd25661241faa3cb4f156",
+    "proposedBodySha256": "a25ebefcf1456799b586b9fc9774d8c2ae37fb7697dcd25661241faa3cb4f156",
+    "claimIds": [
+      "CUR-006-C01",
+      "CUR-006-C02",
+      "CUR-006-C03",
+      "CUR-006-C04"
+    ],
+    "migrationStatus": "candidate; audit required",
+    "rightsPolicy": "external-link-only",
+    "reviews": [],
+    "publicationAuthorized": false
+  },
+  {
+    "id": "PER-001",
+    "title": "Nelson Pimenta",
+    "originalBody": "Nelson Pimenta de Castro é uma liderança surda com atuação na arte, educação e pesquisa. Sua trajetória inclui teatro, cinema e estudos da tradução. Entre seus trabalhos acadêmicos estão uma dissertação sobre tradução de fábulas e uma tese sobre prosódia em ASL e Libras.",
+    "proposedBody": "Nelson Pimenta de Castro é uma liderança surda com atuação na arte, educação e pesquisa. Sua trajetória inclui teatro, cinema e estudos da tradução. Entre seus trabalhos acadêmicos estão uma dissertação sobre tradução de fábulas e uma tese sobre prosódia em ASL e Libras.",
+    "originalBodySha256": "664a5ac1c2716139ab6fc62f58b09c9be0f148990ab051c44cfabb544961a9ce",
+    "proposedBodySha256": "664a5ac1c2716139ab6fc62f58b09c9be0f148990ab051c44cfabb544961a9ce",
+    "claimIds": [
+      "PER-001-C01",
+      "PER-001-C02",
+      "PER-001-C03",
+      "PER-001-C04"
+    ],
+    "migrationStatus": "candidate; audit required",
+    "rightsPolicy": "external-link-only",
+    "reviews": [],
+    "publicationAuthorized": false
+  },
+  {
+    "id": "PER-002",
+    "title": "Lucinda Ferreira Brito",
+    "originalBody": "Lucinda Ferreira Brito é uma referência nos estudos linguísticos das línguas de sinais no Brasil. Sua obra Por uma gramática de línguas de sinais, originalmente publicada em 1995, integra a bibliografia sobre a descrição linguística da Libras.",
+    "proposedBody": "Lucinda Ferreira Brito é uma referência nos estudos linguísticos das línguas de sinais no Brasil. Sua obra Por uma gramática de línguas de sinais, originalmente publicada em 1995, integra a bibliografia sobre a descrição linguística da Libras.",
+    "originalBodySha256": "cb4e17eb84080902eae274641502e86d96be0e0c5f095d03d852393d21a73a60",
+    "proposedBodySha256": "cb4e17eb84080902eae274641502e86d96be0e0c5f095d03d852393d21a73a60",
+    "claimIds": [
+      "PER-002-C01",
+      "PER-002-C02",
+      "PER-002-C03",
+      "PER-002-C04"
+    ],
+    "migrationStatus": "candidate; audit required",
+    "rightsPolicy": "external-link-only",
+    "reviews": [],
+    "publicationAuthorized": false
+  },
+  {
+    "id": "BIB-002",
+    "title": "As imagens do outro sobre a cultura surda",
+    "originalBody": "Obra de Karin Lilian Strobel voltada às representações da cultura surda. A quarta edição foi lançada pela Editora UFSC em 2016. É uma leitura candidata para conhecer perspectivas culturais e identitárias.",
+    "proposedBody": "Obra de Karin Lilian Strobel voltada às representações da cultura surda. A quarta edição foi lançada pela Editora UFSC em 2016. É uma leitura candidata para conhecer perspectivas culturais e identitárias.",
+    "originalBodySha256": "f8ddb0bce9699cddc8d6a1c37a02292229899be20a11286d31955ea639a73507",
+    "proposedBodySha256": "f8ddb0bce9699cddc8d6a1c37a02292229899be20a11286d31955ea639a73507",
+    "claimIds": [
+      "BIB-002-C01",
+      "BIB-002-C02"
+    ],
+    "migrationStatus": "candidate; audit required",
+    "rightsPolicy": "external-link-only",
+    "reviews": [],
+    "publicationAuthorized": false
+  },
+  {
+    "id": "BIB-003",
+    "title": "Gramática da Libras — Volume 1",
+    "originalBody": "Gramática da Libras — Volume 1 reúne estudos linguísticos em uma publicação do INES de 2023. O registro institucional identifica quatro organizadores e uma equipe ampla de autores. O PDF está disponível no repositório da UFSC.",
+    "proposedBody": "Gramática da Libras — Volume 1 reúne estudos linguísticos em uma publicação do INES de 2023. O registro institucional identifica quatro organizadores e uma equipe ampla de autores. O PDF está disponível no repositório da UFSC.",
+    "originalBodySha256": "cb279973dba1dec0d5f86913d9aef9014347cf4079cddba5193a7201861d8f26",
+    "proposedBodySha256": "cb279973dba1dec0d5f86913d9aef9014347cf4079cddba5193a7201861d8f26",
+    "claimIds": [
+      "BIB-003-C01",
+      "BIB-003-C02",
+      "BIB-003-C03",
+      "BIB-003-C04",
+      "BIB-003-C05"
+    ],
+    "migrationStatus": "candidate; audit required",
+    "rightsPolicy": "external-link-only",
+    "reviews": [],
+    "publicationAuthorized": false
+  },
+  {
+    "id": "BIB-004",
+    "title": "Literatura em Libras",
+    "originalBody": "Literatura em Libras, de Rachel Sutton-Spence, com tradução de Gustavo Gusmão, apresenta estudos sobre literatura sinalizada. A primeira edição é de 2021, pela Arara Azul. O LIBRANDO indica modalidades textuais e audiovisuais.",
+    "proposedBody": "Literatura em Libras, de Rachel Sutton-Spence, com tradução de Gustavo Gusmão, apresenta estudos sobre literatura sinalizada. A primeira edição é de 2021, pela Arara Azul. O LIBRANDO indica modalidades textuais e audiovisuais.",
+    "originalBodySha256": "f58bf2f1fc03f09464da4ebe06b8bb6da6b2ebbe640c88d8813b875baba895fb",
+    "proposedBodySha256": "f58bf2f1fc03f09464da4ebe06b8bb6da6b2ebbe640c88d8813b875baba895fb",
+    "claimIds": [
+      "BIB-004-C01",
+      "BIB-004-C02",
+      "BIB-004-C03",
+      "BIB-004-C04",
+      "BIB-004-C05"
+    ],
+    "migrationStatus": "candidate; audit required",
+    "rightsPolicy": "external-link-only",
+    "reviews": [],
+    "publicationAuthorized": false
+  },
+  {
+    "id": "BIB-005",
+    "title": "Cinderela Surda",
+    "originalBody": "Cinderela Surda é uma releitura literária infantil que integra o acervo de obras com escrita de sinais do LIBRANDO. A edição localizada é a terceira, de 2011, publicada pela ULBRA.",
+    "proposedBody": "Cinderela Surda é uma releitura literária infantil que integra o acervo de obras com escrita de sinais do LIBRANDO. A edição localizada é a terceira, de 2011, publicada pela ULBRA.",
+    "originalBodySha256": "89c2bb9753c258a7a51b1040491918f519e4a7a7837ab1a69b5da64126013cad",
+    "proposedBodySha256": "89c2bb9753c258a7a51b1040491918f519e4a7a7837ab1a69b5da64126013cad",
+    "claimIds": [
+      "BIB-005-C01",
+      "BIB-005-C02",
+      "BIB-005-C03",
+      "BIB-005-C04"
+    ],
+    "migrationStatus": "candidate; audit required",
+    "rightsPolicy": "external-link-only",
+    "reviews": [],
+    "publicationAuthorized": false
+  },
+  {
+    "id": "BIB-010",
+    "title": "Iconographia dos Signaes dos Surdos-Mudos",
+    "originalBody": "A Iconographia dos Signaes dos Surdos-Mudos, de 1875, é um documento histórico associado a Flausino José da Gama. Estudos comparativos apontam sua matriz na obra francesa de Pierre Pélissier. O título original é preservado como registro de época, não como terminologia contemporânea.",
+    "proposedBody": "A Iconographia dos Signaes dos Surdos-Mudos, de 1875, é um documento histórico associado a Flausino José da Gama. Estudos comparativos apontam sua matriz na obra francesa de Pierre Pélissier. O título original é preservado como registro de época, não como terminologia contemporânea.",
+    "originalBodySha256": "d88294389baca400df145fcde4d5e45985919df53a5a9ac46b8d559217f3f47a",
+    "proposedBodySha256": "d88294389baca400df145fcde4d5e45985919df53a5a9ac46b8d559217f3f47a",
+    "claimIds": [
+      "BIB-010-C01",
+      "BIB-010-C02"
+    ],
+    "migrationStatus": "candidate; audit required",
+    "rightsPolicy": "external-link-only",
+    "reviews": [],
+    "publicationAuthorized": false
+  },
+  {
+    "id": "BIB-011",
+    "title": "Contação de Histórias",
+    "originalBody": "Contação de Histórias é uma série da TV INES que apresenta animações de obras de autores e ilustradores nacionais traduzidas para Libras, destinadas ao público infantil e juvenil.",
+    "proposedBody": "Contação de Histórias é uma série da TV INES que apresenta animações de obras de autores e ilustradores nacionais traduzidas para Libras. A iniciativa busca tornar a literatura infantil e juvenil acessível à comunidade surda de todas as idades.",
+    "originalBodySha256": "4e8c72603626f579310f5e47791cc400b82743938703e2dfc571343b855d97cc",
+    "proposedBodySha256": "5dd9f7abca37cf371906267123adf8aeadc5cfb60f52f75440a36b68277f3b61",
+    "claimIds": [
+      "BIB-011-C01",
+      "BIB-011-C02",
+      "BIB-011-C03",
+      "BIB-011-C04"
+    ],
+    "migrationStatus": "candidate; audit required",
+    "rightsPolicy": "external-link-only",
+    "reviews": [],
+    "publicationAuthorized": false
+  }
+]

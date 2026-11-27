@@ -1,0 +1,98 @@
+[
+  {
+    "entryId": "PER-001",
+    "id": "PER-001-C03",
+    "text": "Tese sobre prosódia em ASL e Libras, 2019.",
+    "url": "https://repositorio.ufsc.br/handle/123456789/204538",
+    "locator": "Registro da tese",
+    "consultation": "content-checked",
+    "consultedAt": "2026-11-27",
+    "originalEvidence": {
+      "entryId": "PER-001",
+      "id": "PER-001-C03",
+      "text": "Tese sobre prosódia em ASL e Libras, 2019.",
+      "url": "https://repositorio.ufsc.br/handle/123456789/204538",
+      "locator": "Registro da tese",
+      "consultation": "located"
+    },
+    "origin": "R.4",
+    "migrationStatus": "proposed"
+  },
+  {
+    "entryId": "PER-001",
+    "id": "PER-001-C04",
+    "text": "Dissertação sobre tradução de fábulas, 2012.",
+    "url": "https://repositorio.ufsc.br/handle/123456789/100721",
+    "locator": "Título, autoria, resumo e data do registro institucional",
+    "consultation": "content-checked",
+    "consultedAt": "2026-11-27",
+    "originalEvidence": {
+      "entryId": "PER-001",
+      "id": "PER-001-C04",
+      "text": "Dissertação sobre tradução de fábulas, 2012.",
+      "url": "http://tede.ufsc.br/teses/PGET0138-D.pdf",
+      "locator": "Registro localizado",
+      "consultation": "located"
+    },
+    "origin": "R.4",
+    "migrationStatus": "proposed",
+    "note": "Referência alternativa; equivalência binária não verificada."
+  },
+  {
+    "entryId": "PER-002",
+    "id": "PER-002-C01",
+    "text": "Obra gramatical atribuída a Lucinda Ferreira Brito.",
+    "url": "https://seer.ufu.br/index.php/EducacaoFilosofia/article/view/29990",
+    "locator": "Resenha acadêmica",
+    "consultation": "content-checked",
+    "consultedAt": "2026-11-27",
+    "originalEvidence": {
+      "entryId": "PER-002",
+      "id": "PER-002-C01",
+      "text": "Obra gramatical atribuída a Lucinda Ferreira Brito.",
+      "url": "https://seer.ufu.br/index.php/EducacaoFilosofia/article/view/29990",
+      "locator": "Resenha acadêmica",
+      "consultation": "located"
+    },
+    "origin": "R.4",
+    "migrationStatus": "proposed"
+  },
+  {
+    "entryId": "BIB-002",
+    "id": "BIB-002-C01",
+    "text": "Quarta edição, Editora UFSC, 2016.",
+    "url": "https://editora.ufsc.br/2016/10/10/lancamento-as-imagens-do-outro-sobre-a-cultura-surda/",
+    "locator": "Notícia de lançamento",
+    "consultation": "metadata-checked",
+    "consultedAt": "2026-11-27",
+    "originalEvidence": {
+      "entryId": "BIB-002",
+      "id": "BIB-002-C01",
+      "text": "Quarta edição, Editora UFSC, 2016.",
+      "url": "https://editora.ufsc.br/2016/10/10/lancamento-as-imagens-do-outro-sobre-a-cultura-surda/",
+      "locator": "Notícia de lançamento",
+      "consultation": "located"
+    },
+    "origin": "R.4",
+    "migrationStatus": "proposed"
+  },
+  {
+    "entryId": "BIB-010",
+    "id": "BIB-010-C02",
+    "text": "Matriz francesa de Pierre Pélissier.",
+    "url": "https://www.scielo.br/j/rbee/a/S5Gyt4gMNzzQJJmLYqMcqCC/abstract/?lang=pt",
+    "locator": "Resumo do estudo de Sofiato e Reily",
+    "consultation": "content-checked",
+    "consultedAt": "2026-11-27",
+    "originalEvidence": {
+      "entryId": "BIB-010",
+      "id": "BIB-010-C02",
+      "text": "Matriz francesa de Pierre Pélissier.",
+      "url": "https://www.scielo.br/j/rbee/a/S5Gyt4gMNzzQJJmLYqMcqCC/abstract/?lang=pt",
+      "locator": "Resumo do estudo de Sofiato e Reily",
+      "consultation": "located"
+    },
+    "origin": "R.4",
+    "migrationStatus": "proposed"
+  }
+]

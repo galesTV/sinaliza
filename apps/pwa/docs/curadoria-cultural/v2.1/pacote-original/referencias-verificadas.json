@@ -1,0 +1,429 @@
+[
+  {
+    "url": "https://seer.ines.gov.br/index.php/revista-espaco/article/download/703/708/2042",
+    "evidence": [
+      {
+        "id": "HIST-001-C01",
+        "locator": "Visitando o Acervo do INES, cronologia",
+        "consultation": "content-checked"
+      },
+      {
+        "id": "HIST-001-C02",
+        "locator": "Cronologia institucional",
+        "consultation": "content-checked"
+      },
+      {
+        "id": "HIST-001-C03",
+        "locator": "Cronologia institucional",
+        "consultation": "content-checked"
+      }
+    ]
+  },
+  {
+    "url": "https://www.planalto.gov.br/ccivil_03/leis/2002/l10436.htm",
+    "evidence": [
+      {
+        "id": "HIST-006-C01",
+        "locator": "Identificação do ato",
+        "consultation": "content-checked"
+      },
+      {
+        "id": "HIST-006-C02",
+        "locator": "Art. 1º",
+        "consultation": "content-checked"
+      },
+      {
+        "id": "HIST-006-C03",
+        "locator": "Art. 1º, parágrafo único",
+        "consultation": "content-checked"
+      },
+      {
+        "id": "HIST-006-C04",
+        "locator": "Art. 2º",
+        "consultation": "content-checked"
+      },
+      {
+        "id": "CUR-002-C01",
+        "locator": "Art. 1º, parágrafo único",
+        "consultation": "content-checked"
+      }
+    ]
+  },
+  {
+    "url": "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2021/lei/l14191.htm",
+    "evidence": [
+      {
+        "id": "HIST-008-C01",
+        "locator": "Art. 2º, capítulo V-A",
+        "consultation": "content-checked"
+      },
+      {
+        "id": "HIST-008-C02",
+        "locator": "Art. 60-A",
+        "consultation": "content-checked"
+      },
+      {
+        "id": "HIST-008-C03",
+        "locator": "Art. 60-B",
+        "consultation": "content-checked"
+      },
+      {
+        "id": "HIST-008-C04",
+        "locator": "Cabeçalho da lei",
+        "consultation": "content-checked",
+        "consultedAt": "2026-11-27"
+      }
+    ]
+  },
+  {
+    "url": "https://wfdeaf.org/contact/faqs/",
+    "evidence": [
+      {
+        "id": "CUR-001-C01",
+        "locator": "FAQ sobre universalidade",
+        "consultation": "content-checked"
+      },
+      {
+        "id": "CUR-001-C02",
+        "locator": "FAQ sobre universalidade",
+        "consultation": "content-checked"
+      }
+    ]
+  },
+  {
+    "url": "https://ojsrevista.furb.br/ojs/index.php/linguagens/article/download/7287/4653/32619",
+    "evidence": [
+      {
+        "id": "CUR-002-C02",
+        "locator": "Estudo sobre expressões não manuais",
+        "consultation": "content-checked"
+      },
+      {
+        "id": "CUR-002-C04",
+        "locator": "Seções 1–3",
+        "consultation": "content-checked",
+        "consultedAt": "2026-11-27"
+      },
+      {
+        "id": "CUR-002-C05",
+        "locator": "Seção 2",
+        "consultation": "content-checked",
+        "consultedAt": "2026-11-27"
+      }
+    ]
+  },
+  {
+    "url": "https://doi.org/10.51207/2179-4057.20220014",
+    "evidence": [
+      {
+        "id": "CUR-002-C03",
+        "locator": "Resumo do artigo",
+        "consultation": "content-checked"
+      }
+    ]
+  },
+  {
+    "url": "https://librando.paginas.ufsc.br/poemas/",
+    "evidence": [
+      {
+        "id": "CUR-006-C01",
+        "locator": "Introdução do acervo",
+        "consultation": "content-checked"
+      },
+      {
+        "id": "CUR-006-C02",
+        "locator": "Lista de obras",
+        "consultation": "content-checked"
+      }
+    ]
+  },
+  {
+    "url": "https://indl.iphan.gov.br/pessoas-de-referencia/nelson-pimenta-de-castro/",
+    "evidence": [
+      {
+        "id": "PER-001-C01",
+        "locator": "Perfil institucional",
+        "consultation": "content-checked"
+      }
+    ]
+  },
+  {
+    "url": "https://nuestra.ufsc.br/vocab/index.php?tema=42&/nelson-pimenta-de-castro",
+    "evidence": [
+      {
+        "id": "PER-001-C02",
+        "locator": "Perfil NUESTRA",
+        "consultation": "content-checked"
+      }
+    ]
+  },
+  {
+    "url": "https://repositorio.ufsc.br/handle/123456789/204538",
+    "evidence": [
+      {
+        "id": "PER-001-C03",
+        "locator": "Registro da tese",
+        "consultation": "content-checked",
+        "consultedAt": "2026-11-27"
+      }
+    ]
+  },
+  {
+    "url": "https://repositorio.ufsc.br/handle/123456789/100721",
+    "evidence": [
+      {
+        "id": "PER-001-C04",
+        "locator": "Título, autoria, resumo e data do registro institucional",
+        "consultation": "content-checked",
+        "consultedAt": "2026-11-27"
+      }
+    ]
+  },
+  {
+    "url": "https://seer.ufu.br/index.php/EducacaoFilosofia/article/view/29990",
+    "evidence": [
+      {
+        "id": "PER-002-C01",
+        "locator": "Resenha acadêmica",
+        "consultation": "content-checked",
+        "consultedAt": "2026-11-27"
+      },
+      {
+        "id": "PER-002-C02",
+        "locator": "Resumo da resenha",
+        "consultation": "content-checked",
+        "consultedAt": "2026-11-27"
+      },
+      {
+        "id": "PER-002-C03",
+        "locator": "Resumo da resenha",
+        "consultation": "content-checked",
+        "consultedAt": "2026-11-27"
+      }
+    ]
+  },
+  {
+    "url": "https://editora.ufsc.br/2016/10/10/lancamento-as-imagens-do-outro-sobre-a-cultura-surda/",
+    "evidence": [
+      {
+        "id": "BIB-002-C01",
+        "locator": "Notícia de lançamento",
+        "consultation": "metadata-checked",
+        "consultedAt": "2026-11-27"
+      },
+      {
+        "id": "BIB-002-C02",
+        "locator": "Descrição editorial",
+        "consultation": "content-checked",
+        "consultedAt": "2026-11-27"
+      }
+    ]
+  },
+  {
+    "url": "https://repositorio.ufsc.br/handle/123456789/262318?show=full",
+    "evidence": [
+      {
+        "id": "BIB-003-C01",
+        "locator": "Metadados completos",
+        "consultation": "metadata-checked"
+      },
+      {
+        "id": "BIB-003-C02",
+        "locator": "Créditos do repositório",
+        "consultation": "metadata-checked"
+      },
+      {
+        "id": "BIB-003-C04",
+        "locator": "dc.contributor.author e dc.identifier.citation",
+        "consultation": "metadata-checked",
+        "consultedAt": "2026-11-27"
+      },
+      {
+        "id": "BIB-003-C05",
+        "locator": "Files in this item",
+        "consultation": "metadata-checked",
+        "consultedAt": "2026-11-27"
+      }
+    ]
+  },
+  {
+    "url": "https://repositorio.ufsc.br/xmlui/handle/123456789/259641",
+    "evidence": [
+      {
+        "id": "BIB-004-C01",
+        "locator": "Metadados do repositório",
+        "consultation": "metadata-checked"
+      }
+    ]
+  },
+  {
+    "url": "https://librando.paginas.ufsc.br/livros-2/",
+    "evidence": [
+      {
+        "id": "BIB-004-C02",
+        "locator": "Lista de livros",
+        "consultation": "content-checked"
+      }
+    ]
+  },
+  {
+    "url": "https://librando.paginas.ufsc.br/signwrite/",
+    "evidence": [
+      {
+        "id": "BIB-005-C01",
+        "locator": "Entrada Cinderela Surda",
+        "consultation": "metadata-checked"
+      },
+      {
+        "id": "BIB-005-C02",
+        "locator": "Entrada Cinderela Surda",
+        "consultation": "content-checked",
+        "consultedAt": "2026-11-27"
+      },
+      {
+        "id": "BIB-005-C03",
+        "locator": "Seção SignWriting",
+        "consultation": "content-checked",
+        "consultedAt": "2026-11-27"
+      },
+      {
+        "id": "BIB-005-C04",
+        "locator": "Referência bibliográfica da entrada",
+        "consultation": "metadata-checked",
+        "consultedAt": "2026-11-27"
+      }
+    ]
+  },
+  {
+    "url": "https://seer.ines.gov.br/index.php/serie-historica/issue/view/167",
+    "evidence": [
+      {
+        "id": "BIB-010-C01",
+        "locator": "Apresentação do fac-símile",
+        "consultation": "content-checked"
+      }
+    ]
+  },
+  {
+    "url": "https://www.scielo.br/j/rbee/a/S5Gyt4gMNzzQJJmLYqMcqCC/abstract/?lang=pt",
+    "evidence": [
+      {
+        "id": "BIB-010-C02",
+        "locator": "Resumo do estudo de Sofiato e Reily",
+        "consultation": "content-checked",
+        "consultedAt": "2026-11-27"
+      }
+    ]
+  },
+  {
+    "url": "https://debasi.ines.gov.br/tv-ines/conta%C3%A7%C3%A3o-de-hist%C3%B3rias",
+    "evidence": [
+      {
+        "id": "BIB-011-C01",
+        "locator": "Descrição institucional da série",
+        "consultation": "content-checked"
+      },
+      {
+        "id": "BIB-011-C03",
+        "locator": "Descrição institucional",
+        "consultation": "content-checked",
+        "consultedAt": "2026-11-27"
+      },
+      {
+        "id": "BIB-011-C04",
+        "locator": "Descrição institucional",
+        "consultation": "content-checked",
+        "consultedAt": "2026-11-27"
+      }
+    ]
+  },
+  {
+    "url": "https://letraslibras.paginas.ufsc.br/files/2022/12/LSB7106-Libras-Iniciante.pdf",
+    "evidence": [
+      {
+        "id": "CUR-002-C06",
+        "locator": "Ementa, objetivos, conteúdo programático e cronograma de 30/03/2023",
+        "consultation": "content-checked",
+        "consultedAt": "2026-11-27"
+      }
+    ]
+  },
+  {
+    "url": "https://petletras.paginas.ufsc.br/2023/09/08/literatura-surda-os-conceitos-de-karnopp-mourao-e-sutton-spence/",
+    "evidence": [
+      {
+        "id": "CUR-006-C03",
+        "locator": "Discussão sobre Karnopp",
+        "consultation": "content-checked",
+        "consultedAt": "2026-11-27"
+      }
+    ]
+  },
+  {
+    "url": "https://www.revistaglauks.ufv.br/Glauks/article/view/377",
+    "evidence": [
+      {
+        "id": "CUR-006-C04",
+        "locator": "Resumo",
+        "consultation": "content-checked",
+        "consultedAt": "2026-11-27"
+      }
+    ]
+  },
+  {
+    "url": "https://www.gov.br/fundaj/pt-br/composicao/dimeca/biblioteca/acervos/inventarios-documentais-e-indices/libras_25_4_2012.pdf",
+    "evidence": [
+      {
+        "id": "PER-002-C04",
+        "locator": "Referência nº 24",
+        "consultation": "metadata-checked",
+        "consultedAt": "2026-11-27"
+      }
+    ]
+  },
+  {
+    "url": "https://www.researchgate.net/publication/385893948_A_Fonetica_e_a_Fonologia_das_Linguas_de_Sinais",
+    "evidence": [
+      {
+        "id": "BIB-003-C03",
+        "locator": "Apresentação editorial e sumário, capítulos 1–4",
+        "consultation": "content-checked",
+        "consultedAt": "2026-11-27"
+      }
+    ]
+  },
+  {
+    "url": "https://repositorio.ufsc.br/xmlui/bitstream/handle/123456789/259641/Literatura_em_Libras_Rachel_Sutton_Spence.pdf?sequence=1&isAllowed=y",
+    "evidence": [
+      {
+        "id": "BIB-004-C03",
+        "locator": "Ficha catalográfica e ficha técnica",
+        "consultation": "metadata-checked",
+        "consultedAt": "2026-11-27"
+      },
+      {
+        "id": "BIB-004-C04",
+        "locator": "Ficha catalográfica",
+        "consultation": "metadata-checked",
+        "consultedAt": "2026-11-27"
+      },
+      {
+        "id": "BIB-004-C05",
+        "locator": "Apresentação, p. 5",
+        "consultation": "content-checked",
+        "consultedAt": "2026-11-27"
+      }
+    ]
+  },
+  {
+    "url": "https://debasi.ines.gov.br/tv-ines",
+    "evidence": [
+      {
+        "id": "BIB-011-C02",
+        "locator": "Categoria Infantil",
+        "consultation": "content-checked",
+        "consultedAt": "2026-11-27"
+      }
+    ]
+  }
+]
