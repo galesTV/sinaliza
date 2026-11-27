@@ -113,7 +113,7 @@ export default function Home() {
                     Conheça uma demonstração interativa do funcionamento das
                     atividades, com exercícios e feedback.
                   </span>
-                  <span className="text-xs leading-relaxed text-muted/80">
+                  <span className="text-xs leading-relaxed text-muted">
                     Experiência experimental — ainda não é uma lição validada de
                     Libras.
                   </span>

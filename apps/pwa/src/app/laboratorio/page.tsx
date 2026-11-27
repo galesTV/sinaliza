@@ -98,7 +98,7 @@ function DemoCard({ entry, index }: { entry: DemoEntry; index?: number }) {
         <span className="text-sm leading-relaxed text-muted">
           {entry.description}
         </span>
-        <span className="text-xs font-medium uppercase tracking-[0.08em] text-muted/80">
+        <span className="text-xs font-medium uppercase tracking-[0.08em] text-muted">
           {entry.status}
         </span>
       </span>
