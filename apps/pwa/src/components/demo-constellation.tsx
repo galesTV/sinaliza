@@ -262,7 +262,7 @@ export function DemoConstellation({
         </span>
         <span>{activeEdges} conexões reveladas</span>
       </div>
-      <span className="sr-only" aria-live="polite">
+      <span className="sr-only">
         {state.completed
           ? "Constelação demonstrativa formada. Nenhum progresso oficial foi registrado."
           : `${state.correctExercises} exercícios demonstrativos corretos.`}

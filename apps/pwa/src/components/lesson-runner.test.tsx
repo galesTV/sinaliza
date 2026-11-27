@@ -244,6 +244,53 @@ describe("visual exercises", () => {
     expect(html).toContain("não são conteúdo do Sinaliza");
   });
 
+  it("separates option selection from confirmation with concise accessible names", () => {
+    const html = renderToStaticMarkup(
+      <LessonRunner
+        content={contentWith({
+          prompt: "Qual forma?",
+          options: [
+            {
+              label: "Imagem 1",
+              feedback: "não",
+              media: {
+                media: {
+                  type: "image",
+                  src: "/media/fixtures/shape-triangle.svg",
+                  alt: "Forma geométrica com três lados e três vértices.",
+                },
+                attribution: permitted,
+              },
+            },
+            {
+              label: "Imagem 2",
+              feedback: "ok",
+              media: {
+                media: {
+                  type: "image",
+                  src: "/media/fixtures/shape-square.svg",
+                  alt: "Forma geométrica com quatro lados iguais e quatro ângulos retos.",
+                },
+                attribution: permitted,
+              },
+            },
+          ],
+          correctIndex: 1,
+          explanation: "e",
+        })}
+      />,
+    );
+
+    expect(html).toContain("Confirmar resposta");
+    expect(html).toContain("não registra uma tentativa");
+    expect(html).toContain('aria-label="Imagem 1"');
+    expect(html).toContain('aria-label="Imagem 2"');
+    expect(html).toContain('role="status"');
+    expect(html).toContain('aria-live="polite"');
+    expect(html).toContain('aria-atomic="true"');
+    expect(html).toContain('aria-describedby="lesson-runner-step-status"');
+  });
+
   it("blocks the exercise when the stimulus is gated and no variant exists", () => {
     const html = renderToStaticMarkup(
       <LessonRunner
