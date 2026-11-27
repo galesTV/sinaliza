@@ -19,6 +19,11 @@ describe("Conexões/Constelação theme token foundation", () => {
     expect(css).toContain("--media-surface:");
   });
 
+  it("keeps the dark primary button fill on the accessible violet gradient", () => {
+    expect(css).toContain("--button-primary-start: #6957e8;");
+    expect(css).toContain("--button-primary-end: #6b58f0;");
+  });
+
   it("raises constellation visibility only inside the light theme", () => {
     const light = css.slice(css.indexOf('html[data-theme="light"]'), css.indexOf("@theme inline"));
     expect(light).toContain("--constellation-line-opacity: 0.48;");

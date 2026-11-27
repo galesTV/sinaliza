@@ -45,7 +45,7 @@
   --ambient-primary: rgba(105, 87, 232, 0.16);
   --ambient-accent: rgba(53, 201, 232, 0.08);
   --button-primary-start: #6957e8;
-  --button-primary-end: #8272f2;
+  --button-primary-end: #6b58f0;
   --button-primary-border: rgba(255, 255, 255, 0.15);
   --button-primary-shadow: rgba(105, 87, 232, 0.25);
   --button-primary-shadow-hover: rgba(105, 87, 232, 0.35);
@@ -332,7 +332,7 @@ a {
   background: var(--selection-background);
 }
 
-html[data-theme="light"] .btn-primary {
+.btn-primary {
   color: var(--on-primary);
 }
 
