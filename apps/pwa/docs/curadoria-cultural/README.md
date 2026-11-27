@@ -10,6 +10,10 @@ SHA-256 do `catalogo-candidato.json` original: `8852ec6801f24266bcfdc2e139e0f9c1
 
 ## Organização
 
+### Curadoria cultural V2
+
+Em `v2/`: preservação documental do pacote `sinaliza-curadoria-V2.zip`, com os artefatos originais, manifesto SHA-256, auditoria D.2.3-A e orientações de integração incremental. O material continua interno, intermediário e sem autorização de publicação; não é catálogo runtime.
+
 ### Registros culturais candidatos — 35
 
 Em `registros-candidatos/`:
