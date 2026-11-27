@@ -1,10 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { isExploreNavigationAvailable } from "@/data/explore-availability";
+
 import { HeaderAuth } from "./auth-nav";
 import { BottomNav, DesktopNav } from "./main-nav";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
+  const showExplore = isExploreNavigationAvailable();
+
   return (
     <div className="flex min-h-dvh flex-col">
       <a href="#main-content" className="skip-link">
@@ -28,7 +32,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </Link>
 
           <div className="flex items-center gap-4">
-            <DesktopNav />
+            <DesktopNav showExplore={showExplore} />
             <HeaderAuth />
             <span className="hidden rounded-full border border-border px-3 py-1.5 text-[11px] font-medium tracking-wide text-muted sm:inline-block">
               Versão inicial
@@ -45,7 +49,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         {children}
       </main>
 
-      <BottomNav />
+      <BottomNav showExplore={showExplore} />
     </div>
   );
 }

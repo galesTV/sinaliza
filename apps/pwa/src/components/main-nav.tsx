@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 import { BottomNavAuth } from "./auth-nav";
-import { IconFlask, IconHome, IconRoute } from "./icons";
+import { IconCompass, IconFlask, IconHome, IconRoute } from "./icons";
 
 interface NavItem {
   href: string;
@@ -15,35 +15,49 @@ interface NavItem {
   isActive: (pathname: string) => boolean;
 }
 
-const NAV_ITEMS: NavItem[] = [
-  {
-    href: "/",
-    label: "Início",
-    icon: IconHome,
-    isActive: (pathname) => pathname === "/",
-  },
-  {
-    href: "/trilhas",
-    label: "Trilhas",
-    icon: IconRoute,
-    isActive: (pathname) => pathname === "/trilhas" || pathname.startsWith("/trilhas/"),
-  },
-  {
-    href: "/laboratorio",
-    label: "Laboratório",
-    icon: IconFlask,
-    isActive: (pathname) =>
-      pathname === "/laboratorio" || pathname.startsWith("/laboratorio/"),
-  },
-];
+function getNavItems(showExplore: boolean): NavItem[] {
+  return [
+    {
+      href: "/",
+      label: "Início",
+      icon: IconHome,
+      isActive: (pathname) => pathname === "/",
+    },
+    {
+      href: "/trilhas",
+      label: "Trilhas",
+      icon: IconRoute,
+      isActive: (pathname) => pathname === "/trilhas" || pathname.startsWith("/trilhas/"),
+    },
+    ...(showExplore
+      ? [
+          {
+            href: "/explorar",
+            label: "Explorar",
+            icon: IconCompass,
+            isActive: (pathname: string) =>
+              pathname === "/explorar" || pathname.startsWith("/explorar/"),
+          },
+        ]
+      : []),
+    {
+      href: "/laboratorio",
+      label: "Laboratório",
+      icon: IconFlask,
+      isActive: (pathname) =>
+        pathname === "/laboratorio" || pathname.startsWith("/laboratorio/"),
+    },
+  ];
+}
 
-export function DesktopNav() {
+export function DesktopNav({ showExplore = false }: { showExplore?: boolean }) {
   const pathname = usePathname();
+  const navItems = getNavItems(showExplore);
 
   return (
     <nav aria-label="Navegação principal" className="hidden md:block">
       <ul className="flex items-center gap-2">
-        {NAV_ITEMS.map((item) => {
+        {navItems.map((item) => {
           const active = item.isActive(pathname);
           const Icon = item.icon;
           return (
@@ -78,8 +92,9 @@ export function DesktopNav() {
   );
 }
 
-export function BottomNav() {
+export function BottomNav({ showExplore = false }: { showExplore?: boolean }) {
   const pathname = usePathname();
+  const navItems = getNavItems(showExplore);
 
   return (
     <nav
@@ -88,7 +103,7 @@ export function BottomNav() {
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <ul className="mx-auto flex max-w-md items-stretch">
-        {NAV_ITEMS.map((item) => {
+        {navItems.map((item) => {
           const active = item.isActive(pathname);
           const Icon = item.icon;
           return (

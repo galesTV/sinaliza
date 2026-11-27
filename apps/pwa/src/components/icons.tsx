@@ -186,3 +186,31 @@ export function IconGraduationCap(props: IconProps) {
     </Svg>
   );
 }
+
+export function IconCompass(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="m15.5 8.5-2 5-5 2 2-5z" />
+    </Svg>
+  );
+}
+
+export function IconBookOpen(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M2 4.5h6a4 4 0 0 1 4 4v12a3 3 0 0 0-3-3H2z" />
+      <path d="M22 4.5h-6a4 4 0 0 0-4 4v12a3 3 0 0 1 3-3h7z" />
+    </Svg>
+  );
+}
+
+export function IconQuestion(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M9.2 9a2.8 2.8 0 0 1 5.5.7c0 1.8-2.7 2.3-2.7 3.8" />
+      <path d="M12 17h.01" />
+    </Svg>
+  );
+}
