@@ -16,35 +16,35 @@ export function HistoryTimeline({
   return (
     <ol
       aria-label="Linha do tempo cultural"
-      className="relative flex flex-col gap-5 before:absolute before:bottom-4 before:left-[0.55rem] before:top-4 before:w-px before:bg-gradient-to-b before:from-accent/60 before:via-primary/45 before:to-highlight/50 sm:before:left-[0.65rem]"
+      className="relative flex flex-col before:absolute before:bottom-8 before:left-[0.55rem] before:top-2 before:w-px before:bg-gradient-to-b before:from-highlight/70 before:via-accent/35 before:to-transparent sm:before:left-[7.4rem]"
     >
       {ordered.map((entry) => (
-        <li key={entry.id} className="relative pl-9 sm:pl-11">
+        <li key={entry.id} className="relative grid gap-4 py-7 pl-8 sm:grid-cols-[6rem_1fr] sm:gap-8 sm:pl-0">
           <span
             aria-hidden="true"
-            className="absolute left-0 top-2 grid h-5 w-5 place-items-center rounded-full border border-accent/50 bg-background sm:h-6 sm:w-6"
+            className="absolute left-0 top-9 grid h-5 w-5 place-items-center rounded-full border border-highlight/60 bg-background sm:left-[6.9rem]"
           >
-            <span className="h-1.5 w-1.5 rounded-full bg-accent shadow-[0_0_10px_rgba(53,201,232,0.75)]" />
+            <span className="h-1.5 w-1.5 rounded-full bg-highlight shadow-[0_0_14px_rgba(240,168,72,0.75)]" />
           </span>
-          <article className="flex flex-col gap-4 rounded-2xl border border-border bg-surface p-5 sm:p-6">
+          <time className="font-display text-3xl font-semibold tracking-tight text-highlight sm:pt-1 sm:text-right sm:text-4xl">
+            {formatHistoryDate(entry)}
+          </time>
+          <article className="flex max-w-3xl flex-col gap-4 border-b border-border/70 pb-8 sm:pl-10">
             <div className="flex flex-col gap-2">
-              <p className="w-fit rounded-full border border-highlight/35 bg-highlight/10 px-3 py-1 font-display text-sm font-semibold uppercase tracking-[0.12em] text-highlight">
-                {formatHistoryDate(entry)}
-              </p>
-              <h2 className="font-display text-xl font-semibold tracking-tight text-foreground">
+              <h2 className="font-display text-2xl font-semibold leading-tight tracking-tight text-foreground sm:text-3xl">
                 {entry.title}
               </h2>
-              <p className="text-sm leading-relaxed text-muted">{entry.summary}</p>
+              <p className="text-base leading-relaxed text-muted">{entry.summary}</p>
             </div>
             {entry.history.context && (
-              <p className="border-l-2 border-primary/45 pl-3 text-sm leading-relaxed text-muted">
+              <p className="max-w-2xl border-l-2 border-highlight/45 pl-4 text-sm leading-relaxed text-muted sm:text-base">
                 {entry.history.context}
               </p>
             )}
             <div className="flex flex-wrap items-center gap-4">
               <Link
                 href={`${getCulturalCategoryHref("history")}/${entry.slug}`}
-                className="inline-flex items-center gap-2 self-start text-sm font-medium text-accent transition-colors hover:text-foreground"
+                className="inline-flex min-h-11 items-center gap-2 self-start rounded-full border border-highlight/30 px-4 text-sm font-semibold text-highlight transition-colors hover:border-highlight/60 hover:text-foreground"
               >
                 Ler registro
                 <IconArrowRight className="h-4 w-4" />

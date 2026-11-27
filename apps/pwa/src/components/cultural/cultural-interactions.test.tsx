@@ -73,16 +73,16 @@ describe("cultural interactive components", () => {
     const answerId = button?.getAttribute("aria-controls");
     expect(answerId).toBeTruthy();
     const answer = container.querySelector(`#${answerId}`);
-    expect(answer?.hasAttribute("hidden")).toBe(true);
+    expect(answer?.getAttribute("aria-hidden")).toBe("true");
 
     click(button!);
     expect(button?.getAttribute("aria-expanded")).toBe("true");
-    expect(answer?.hasAttribute("hidden")).toBe(false);
+    expect(answer?.getAttribute("aria-hidden")).toBe("false");
     expect(answer?.textContent).toContain("verificar a revelação voluntária");
 
     click(button!);
     expect(button?.getAttribute("aria-expanded")).toBe("false");
-    expect(answer?.hasAttribute("hidden")).toBe(true);
+    expect(answer?.getAttribute("aria-hidden")).toBe("true");
   });
 
   it("filters the library locally by accent-insensitive search text", () => {

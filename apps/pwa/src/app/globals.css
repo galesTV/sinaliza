@@ -246,6 +246,21 @@ a {
   animation: demo-node-pulse 640ms ease-out 1 both;
 }
 
+@keyframes cultural-constellation-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(0, -5px, 0);
+  }
+}
+
+.cultural-constellation-drift {
+  animation: cultural-constellation-drift 14s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

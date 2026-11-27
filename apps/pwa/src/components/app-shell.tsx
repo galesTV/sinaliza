@@ -34,7 +34,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-4">
             <DesktopNav showExplore={showExplore} />
             <HeaderAuth />
-            <span className="hidden rounded-full border border-border px-3 py-1.5 text-[11px] font-medium tracking-wide text-muted sm:inline-block">
+            <span className="hidden rounded-full border border-border px-3 py-1.5 text-[11px] font-medium tracking-wide text-muted lg:inline-block">
               Versão inicial
             </span>
           </div>
