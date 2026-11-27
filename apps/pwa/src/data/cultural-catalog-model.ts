@@ -467,47 +467,66 @@ export function validateCulturalEntry(
     if (!pending.trim()) problems.push(`internal pending ${index}: empty text`);
   });
 
-  if (entry.editorialBody) {
-    const body = entry.editorialBody;
-    if (body.paragraphs.length === 0) {
-      problems.push("editorial body: missing paragraphs");
-    }
-    body.paragraphs.forEach((paragraph, index) => {
-      if (!paragraph.trim()) {
-        problems.push(`editorial body paragraph ${index}: empty text`);
-      }
-    });
-
-    if (body.claimIds.length === 0) {
-      problems.push("editorial body: missing claim ids");
-    }
-    const seenBodyClaimIds = new Set<string>();
-    const foreignClaimIds = new Set(
-      allEntries
-        .filter((item) => item.id !== entry.id)
-        .flatMap((item) => item.claims.map((claim) => claim.id)),
-    );
-    let validBodyClaimCount = 0;
-    body.claimIds.forEach((claimId, index) => {
-      const at = `editorial body claim ${index}`;
-      if (!claimId.trim()) {
-        problems.push(`${at}: empty id`);
-        return;
-      }
-      if (seenBodyClaimIds.has(claimId)) {
-        problems.push(`${at}: duplicate id "${claimId}"`);
-      }
-      seenBodyClaimIds.add(claimId);
-      if (claimIds.has(claimId)) {
-        validBodyClaimCount += 1;
-      } else if (foreignClaimIds.has(claimId)) {
-        problems.push(`${at}: claim "${claimId}" belongs to another record`);
+  if (entry.editorialBody !== undefined) {
+    const body: unknown = entry.editorialBody;
+    if (body === null || typeof body !== "object" || Array.isArray(body)) {
+      problems.push("editorial body: invalid structure");
+    } else {
+      const bodyRecord = body as Record<string, unknown>;
+      const paragraphs = bodyRecord.paragraphs;
+      if (!("paragraphs" in bodyRecord) || (Array.isArray(paragraphs) && paragraphs.length === 0)) {
+        problems.push("editorial body: missing paragraphs");
+      } else if (!Array.isArray(paragraphs)) {
+        problems.push("editorial body: paragraphs must be an array");
       } else {
-        problems.push(`${at}: unknown claim "${claimId}"`);
+        paragraphs.forEach((paragraph, index) => {
+          if (typeof paragraph !== "string") {
+            problems.push(`editorial body paragraph ${index}: non-string text`);
+          } else if (!paragraph.trim()) {
+            problems.push(`editorial body paragraph ${index}: empty text`);
+          }
+        });
       }
-    });
-    if (body.claimIds.length > 0 && validBodyClaimCount === 0) {
-      problems.push("editorial body: no valid claims");
+
+      const bodyClaimIds = bodyRecord.claimIds;
+      if (!("claimIds" in bodyRecord) || (Array.isArray(bodyClaimIds) && bodyClaimIds.length === 0)) {
+        problems.push("editorial body: missing claim ids");
+      } else if (!Array.isArray(bodyClaimIds)) {
+        problems.push("editorial body: claim ids must be an array");
+      } else {
+        const seenBodyClaimIds = new Set<string>();
+        const foreignClaimIds = new Set(
+          allEntries
+            .filter((item) => item.id !== entry.id)
+            .flatMap((item) => item.claims.map((claim) => claim.id)),
+        );
+        let validBodyClaimCount = 0;
+        bodyClaimIds.forEach((claimId, index) => {
+          const at = `editorial body claim ${index}`;
+          if (typeof claimId !== "string") {
+            problems.push(`${at}: non-string id`);
+            return;
+          }
+          if (!claimId.trim()) {
+            problems.push(`${at}: empty id`);
+            return;
+          }
+          if (seenBodyClaimIds.has(claimId)) {
+            problems.push(`${at}: duplicate id "${claimId}"`);
+          }
+          seenBodyClaimIds.add(claimId);
+          if (claimIds.has(claimId)) {
+            validBodyClaimCount += 1;
+          } else if (foreignClaimIds.has(claimId)) {
+            problems.push(`${at}: claim "${claimId}" belongs to another record`);
+          } else {
+            problems.push(`${at}: unknown claim "${claimId}"`);
+          }
+        });
+        if (bodyClaimIds.length > 0 && validBodyClaimCount === 0) {
+          problems.push("editorial body: no valid claims");
+        }
+      }
     }
   }
 

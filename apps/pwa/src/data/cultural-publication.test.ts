@@ -143,6 +143,54 @@ describe("isCulturalPublishable", () => {
     }
   });
 
+  it("blocks malformed editorial body runtime structures without throwing", () => {
+    const cases: Array<[string, unknown, string[]]> = [
+      ["null", null, ["invalid structure"]],
+      ["false", false, ["invalid structure"]],
+      ["string", "texto", ["invalid structure"]],
+      ["array", [], ["invalid structure"]],
+      ["empty object", {}, ["missing paragraphs", "missing claim ids"]],
+      ["missing paragraphs", { claimIds: ["claim-1"] }, ["missing paragraphs"]],
+      ["null paragraphs", { paragraphs: null, claimIds: ["claim-1"] }, ["paragraphs must be an array"]],
+      ["string paragraphs", { paragraphs: "texto", claimIds: ["claim-1"] }, ["paragraphs must be an array"]],
+      ["non-string paragraph", { paragraphs: ["Texto sintético.", 42], claimIds: ["claim-1"] }, ["non-string text"]],
+      ["missing claim ids", { paragraphs: ["Texto sintético."] }, ["missing claim ids"]],
+      ["null claim ids", { paragraphs: ["Texto sintético."], claimIds: null }, ["claim ids must be an array"]],
+      ["string claim ids", { paragraphs: ["Texto sintético."], claimIds: "claim-1" }, ["claim ids must be an array"]],
+      ["non-string claim id", { paragraphs: ["Texto sintético."], claimIds: ["claim-1", 42] }, ["non-string id"]],
+    ];
+
+    for (const [name, editorialBody, expected] of cases) {
+      const entry = makePublishableHistory({
+        editorialBody: editorialBody as CulturalHistoryEntry["editorialBody"],
+      });
+      let problems: string[] = [];
+      expect(() => {
+        problems = getCulturalPublicationBlockers(entry, [entry]);
+      }, name).not.toThrow();
+      expect(() => getCulturalContentFingerprint(entry), name).not.toThrow();
+      const joined = problems.join("\n");
+      for (const fragment of expected) {
+        expect(joined, `${name}: ${fragment}`).toContain(fragment);
+      }
+      expect(isCulturalPublishable(entry, [entry]), name).toBe(false);
+      expect(projectPublicCulturalEntries([entry]), name).toEqual([]);
+    }
+  });
+
+  it("resolves a legacy claim id within the owning record before checking other records", () => {
+    const other = makePublishableHistory({ id: "TEST-002", slug: "outro-registro" });
+    const entry = makePublishableHistory({
+      editorialBody: {
+        paragraphs: ["Texto editorial sintético."],
+        claimIds: ["claim-1"],
+      },
+    });
+    expect(other.claims.some((claim) => claim.id === "claim-1")).toBe(true);
+    expect(entry.claims.some((claim) => claim.id === "claim-1")).toBe(true);
+    expect(isCulturalPublishable(entry, [entry, other])).toBe(true);
+  });
+
   it("rejects an editorial body claim that belongs to another record", () => {
     const target = makePublishableHistory({ id: "TEST-002", slug: "outro-registro" });
     target.claims = [{ id: "foreign-claim", text: "Afirmação externa.", referenceIds: ["source-1"] }];
@@ -475,6 +523,23 @@ describe("projectPublicCulturalEntries", () => {
     expect(serialized).not.toContain("claims");
     expect(serialized).not.toContain("contentFingerprint");
     expect(serialized).not.toContain("internalPending");
+  });
+
+  it("drops extra fields injected inside editorialBody during public projection", () => {
+    const entry = makePublishableHistory({
+      editorialBody: {
+        paragraphs: ["Parágrafo público sintético."],
+        claimIds: ["claim-1"],
+        internalNote: "não projetar",
+        reviewerDebug: { fingerprint: "não projetar" },
+      } as CulturalHistoryEntry["editorialBody"],
+    });
+    const [publicEntry] = projectPublicCulturalEntries([entry]);
+    expect(publicEntry.editorialBody).toEqual({
+      paragraphs: ["Parágrafo público sintético."],
+    });
+    expect(JSON.stringify(publicEntry.editorialBody)).not.toContain("internalNote");
+    expect(JSON.stringify(publicEntry.editorialBody)).not.toContain("reviewerDebug");
   });
 
   it("drops non-allowlisted nested fields even when injected at runtime", () => {
