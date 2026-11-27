@@ -30,3 +30,9 @@ export function getPublicCulturalEntryBySlug(
     (entry) => entry.category === category && entry.slug === slug,
   );
 }
+
+export function getPublicCulturalEntryById(
+  id: string,
+): PublicCulturalEntry | undefined {
+  return getPublicCulturalEntries().find((entry) => entry.id === id);
+}
