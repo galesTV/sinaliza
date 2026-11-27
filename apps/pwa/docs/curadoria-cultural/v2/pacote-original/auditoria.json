@@ -1,0 +1,16 @@
+{
+  "records": 41,
+  "categories": {
+    "HIST": 8,
+    "CUR": 8,
+    "PER": 9,
+    "BIB": 16
+  },
+  "priority": 14,
+  "claims": 31,
+  "bibliography": 24,
+  "relations": 15,
+  "authorized": 0,
+  "baselinePreserved": true,
+  "externalReverificationThisRound": false
+}

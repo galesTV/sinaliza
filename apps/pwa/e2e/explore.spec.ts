@@ -77,6 +77,21 @@ test.describe("explorar — publication guards", () => {
     await expect(page.getByRole("heading", { name: "Página não encontrada" })).toBeVisible();
   });
 
+
+  test("returns 404 for the six migrated V2 draft candidates", async ({ page }) => {
+    for (const path of [
+      "/explorar/personalidades/fernando-cesar-capovilla",
+      "/explorar/personalidades/fernanda-de-araujo-machado",
+      "/explorar/biblioteca/dicionario-da-lingua-de-sinais-do-brasil",
+      "/explorar/biblioteca/enciclopedia-da-lingua-de-sinais-brasileira",
+      "/explorar/biblioteca/cartilha-de-libras-em-medicina-e-saude",
+      "/explorar/biblioteca/filosofias-educacionais-em-relacao-ao-surdo",
+    ]) {
+      const response = await page.goto(path);
+      expect(response?.status(), path).toBe(404);
+    }
+  });
+
   test("returns 404 for an incompatible category and for unknown categories", async ({ page }) => {
     const wrongCategory = await page.goto(
       "/explorar/curiosidades/1857-fundacao-do-instituto-que-se-tornou-o-ines",
@@ -127,6 +142,9 @@ test.describe("explorar — publication guards", () => {
       expect(html).not.toContain("Ernest Huet");
       expect(html).not.toContain("Iconographia de Flausino");
       expect(html).not.toContain("Conferir cronologia");
+      expect(html).not.toContain("Fernando César Capovilla");
+      expect(html).not.toContain("Fernanda de Araújo Machado");
+      expect(html).not.toContain("Dicionário da Língua de Sinais do Brasil");
     }
   });
 });

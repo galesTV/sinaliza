@@ -1,0 +1,122 @@
+[
+  {
+    "origin": "PER-008",
+    "target": "BIB-008",
+    "meaning": "coautoria",
+    "proposedKind": "work",
+    "evidenceLead": "https://www.edusp.com.br/livros/novo-deit-libras/",
+    "status": "unverified-candidate"
+  },
+  {
+    "origin": "PER-008",
+    "target": "BIB-013",
+    "meaning": "coautoria",
+    "proposedKind": "work",
+    "evidenceLead": "https://www.edusp.com.br/loja/produto/9788531416453",
+    "status": "unverified-candidate"
+  },
+  {
+    "origin": "PER-008",
+    "target": "BIB-014",
+    "meaning": "coautoria",
+    "proposedKind": "work",
+    "evidenceLead": "CAP-REF-012 a 019",
+    "status": "unverified-candidate"
+  },
+  {
+    "origin": "PER-008",
+    "target": "BIB-015",
+    "meaning": "coautoria",
+    "proposedKind": "work",
+    "evidenceLead": "CAP-REF-023",
+    "status": "unverified-candidate"
+  },
+  {
+    "origin": "PER-008",
+    "target": "BIB-016",
+    "meaning": "autoria",
+    "proposedKind": "work",
+    "evidenceLead": "https://www.academia.edu/181982680/",
+    "status": "unverified-candidate"
+  },
+  {
+    "origin": "PER-009",
+    "target": "BIB-003",
+    "meaning": "autoria coletiva",
+    "proposedKind": "work",
+    "evidenceLead": "https://repositorio.ufsc.br/handle/123456789/262318",
+    "status": "unverified-candidate"
+  },
+  {
+    "origin": "PER-009",
+    "target": "CUR-006",
+    "meaning": "aprofundamento artístico",
+    "proposedKind": "theme",
+    "evidenceLead": "https://librando.paginas.ufsc.br/poemas/",
+    "status": "unverified-candidate"
+  },
+  {
+    "origin": "PER-002",
+    "target": "BIB-001",
+    "meaning": "autoria",
+    "proposedKind": "work",
+    "evidenceLead": "https://seer.ufu.br/index.php/EducacaoFilosofia/article/view/29990",
+    "status": "unverified-candidate"
+  },
+  {
+    "origin": "PER-004",
+    "target": "BIB-002",
+    "meaning": "autoria",
+    "proposedKind": "work",
+    "evidenceLead": "https://noticias.ufsc.br/2016/12/reflexoes-sobre-a-cultura-a-surda/",
+    "status": "unverified-candidate"
+  },
+  {
+    "origin": "PER-007",
+    "target": "BIB-010",
+    "meaning": "autoria histórica",
+    "proposedKind": "work",
+    "evidenceLead": "https://seer.ines.gov.br/index.php/serie-historica/issue/view/167",
+    "status": "unverified-candidate"
+  },
+  {
+    "origin": "HIST-006",
+    "target": "HIST-007",
+    "meaning": "regulamentação posterior",
+    "proposedKind": "historical-context",
+    "evidenceLead": "https://www.planalto.gov.br/ccivil_03/_ato2004-2006/2005/decreto/d5626.htm",
+    "status": "unverified-candidate"
+  },
+  {
+    "origin": "HIST-001",
+    "target": "HIST-002",
+    "meaning": "contexto institucional",
+    "proposedKind": "historical-context",
+    "evidenceLead": "https://seer.ines.gov.br/index.php/revista-espaco/article/download/703/708/2042",
+    "status": "unverified-candidate"
+  },
+  {
+    "origin": "CUR-002",
+    "target": "BIB-003",
+    "meaning": "fundamentação",
+    "proposedKind": "source",
+    "evidenceLead": "https://repositorio.ufsc.br/handle/123456789/262318",
+    "status": "unverified-candidate"
+  },
+  {
+    "origin": "CUR-006",
+    "target": "BIB-004",
+    "meaning": "aprofundamento",
+    "proposedKind": "theme",
+    "evidenceLead": "https://repositorio.ufsc.br/xmlui/handle/123456789/259641",
+    "status": "unverified-candidate"
+  },
+  {
+    "origin": "HIST-003",
+    "target": "BIB-016",
+    "meaning": "aprofundamento histórico",
+    "proposedKind": "historical-context",
+    "evidenceLead": "https://www.academia.edu/181982680/",
+    "status": "unverified-candidate"
+  }
+]

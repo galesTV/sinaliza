@@ -1,0 +1,3 @@
+# Preserve byte-exact archival artifacts across platforms.
+pacote-original/** -text
+pacote-original/contrato-editorial-referencia.md -whitespace

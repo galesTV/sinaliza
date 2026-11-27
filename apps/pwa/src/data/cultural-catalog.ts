@@ -1963,6 +1963,235 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
       ],
       "unstructuredMetadata": "TV INES · Heveraldo Ferreira (apresentação a conferir)"
     }
+  },
+  {
+    "id": "PER-008",
+    "slug": "fernando-cesar-capovilla",
+    "category": "personality",
+    "title": "Fernando César Capovilla",
+    "summary": "Pesquisador com trabalhos em psicologia, linguagem, cognição e educação; coautor de obras lexicográficas sobre Libras.",
+    "version": "candidate-1",
+    "references": [
+      {
+        "id": "source-1",
+        "url": "https://www.edusp.com.br/loja/produto/9788531416453"
+      },
+      {
+        "id": "source-2",
+        "url": "https://doi.org/10.51207/2179-4057.20220014"
+      },
+      {
+        "id": "source-3",
+        "url": "https://www.researchgate.net/publication/348550868"
+      }
+    ],
+    "claims": [],
+    "validationStatus": "draft",
+    "reviews": [],
+    "rights": {
+      "mode": "external-link-only",
+      "assets": []
+    },
+    "relatedEntries": [],
+    "internalPending": [
+      "Confirmar biografia institucional e contribuições individuais.",
+      "Mapear afirmações individualmente; revisão de pesquisa, técnica, especializada e autorização final pendentes."
+    ],
+    "personality": {
+      "personName": "Fernando César Capovilla",
+      "biographicalSummary": "Pesquisador com trabalhos em psicologia, linguagem, cognição e educação; coautor de obras lexicográficas sobre Libras."
+    }
+  },
+  {
+    "id": "PER-009",
+    "slug": "fernanda-de-araujo-machado",
+    "category": "personality",
+    "title": "Fernanda de Araújo Machado",
+    "summary": "Pesquisadora e artista com produção em poesia sinalizada e estudos da Libras; autora coletiva da Gramática da Libras.",
+    "version": "candidate-1",
+    "references": [
+      {
+        "id": "source-1",
+        "url": "https://librando.paginas.ufsc.br/poemas/"
+      },
+      {
+        "id": "source-2",
+        "url": "https://repositorio.ufsc.br/handle/123456789/262318"
+      },
+      {
+        "id": "source-3",
+        "url": "https://repositorio.ufsc.br/handle/123456789/194013"
+      }
+    ],
+    "claims": [],
+    "validationStatus": "draft",
+    "reviews": [],
+    "rights": {
+      "mode": "external-link-only",
+      "assets": []
+    },
+    "relatedEntries": [],
+    "internalPending": [
+      "Confirmar biografia institucional, tese integral e direitos dos poemas.",
+      "Mapear afirmações individualmente; revisão de pesquisa, técnica, especializada e autorização final pendentes.",
+      "Validar integralmente a correspondência entre o PDF HTTP documentado e o registro institucional HTTPS antes de uso factual adicional."
+    ],
+    "personality": {
+      "personName": "Fernanda de Araújo Machado",
+      "biographicalSummary": "Pesquisadora e artista com produção em poesia sinalizada e estudos da Libras; autora coletiva da Gramática da Libras."
+    }
+  },
+  {
+    "id": "BIB-013",
+    "slug": "dicionario-da-lingua-de-sinais-do-brasil",
+    "category": "library",
+    "title": "Dicionário da Língua de Sinais do Brasil: A Libras em Suas Mãos",
+    "summary": "Coleção de três volumes de Fernando César Capovilla, Walkiria Duarte Raphael, Janice Gonçalves Temoteo e Antonielle Cantarelli Martins.",
+    "version": "candidate-1",
+    "references": [
+      {
+        "id": "source-1",
+        "url": "https://www.edusp.com.br/loja/produto/9788531416453"
+      }
+    ],
+    "claims": [],
+    "validationStatus": "draft",
+    "reviews": [],
+    "rights": {
+      "mode": "external-link-only",
+      "assets": []
+    },
+    "relatedEntries": [],
+    "internalPending": [
+      "Distinguir publicação de 2017 e oferta de 2026; edição/reimpressão não confirmada.",
+      "Mapear afirmações individualmente; revisão de pesquisa, técnica, especializada e autorização final pendentes."
+    ],
+    "library": {
+      "unknownMetadata": [
+        "creators",
+        "publicationYear",
+        "publisher",
+        "format",
+        "access",
+        "languages"
+      ],
+      "unstructuredMetadata": "Metadados V2 não verificados: {\"collectionVolumes\":3,\"edition2017Isbns\":[\"9788531415401\",\"9788531415418\",\"9788531415425\"],\"publisherListing2026\":{\"isbn\":\"9788531416453\",\"pages\":2944,\"editionRelationship\":\"unknown\"}}"
+    }
+  },
+  {
+    "id": "BIB-014",
+    "slug": "enciclopedia-da-lingua-de-sinais-brasileira",
+    "category": "library",
+    "title": "Enciclopédia da Língua de Sinais Brasileira: O Mundo do Surdo em Libras",
+    "summary": "Coleção temática de oito volumes de Fernando César Capovilla e Walkiria Duarte Raphael.",
+    "version": "candidate-1",
+    "references": [
+      {
+        "id": "source-1",
+        "url": "https://www.researchgate.net/publication/356788292"
+      }
+    ],
+    "claims": [],
+    "validationStatus": "draft",
+    "reviews": [],
+    "rights": {
+      "mode": "external-link-only",
+      "assets": []
+    },
+    "relatedEntries": [],
+    "internalPending": [
+      "Verificar individualmente os oito volumes em fontes editoriais.",
+      "Mapear afirmações individualmente; revisão de pesquisa, técnica, especializada e autorização final pendentes."
+    ],
+    "library": {
+      "unknownMetadata": [
+        "creators",
+        "publicationYear",
+        "publisher",
+        "format",
+        "access",
+        "languages"
+      ],
+      "unstructuredMetadata": "Metadados V2 não verificados: {\"collectionVolumes\":8,\"years\":[2004,2005,2018,2019]}"
+    }
+  },
+  {
+    "id": "BIB-015",
+    "slug": "cartilha-de-libras-em-medicina-e-saude",
+    "category": "library",
+    "title": "Cartilha de Libras em Medicina e Saúde",
+    "summary": "Material temático de Fernando César Capovilla e Walkiria Duarte Raphael, publicado em 2022.",
+    "version": "candidate-1",
+    "references": [
+      {
+        "id": "source-1",
+        "url": "https://www.researchgate.net/publication/359471101"
+      }
+    ],
+    "claims": [],
+    "validationStatus": "draft",
+    "reviews": [],
+    "rights": {
+      "mode": "external-link-only",
+      "assets": []
+    },
+    "relatedEntries": [],
+    "internalPending": [
+      "Localizar fonte oficial MEC e verificar acesso.",
+      "Mapear afirmações individualmente; revisão de pesquisa, técnica, especializada e autorização final pendentes."
+    ],
+    "library": {
+      "unknownMetadata": [
+        "creators",
+        "publicationYear",
+        "publisher",
+        "format",
+        "access",
+        "languages"
+      ],
+      "unstructuredMetadata": "Metadados V2 não verificados: {\"year\":2022,\"pages\":59,\"isbn\":\"9786587855073\"}"
+    }
+  },
+  {
+    "id": "BIB-016",
+    "slug": "filosofias-educacionais-em-relacao-ao-surdo",
+    "category": "library",
+    "title": "Filosofias educacionais em relação ao surdo: do oralismo à comunicação total ao bilinguismo",
+    "summary": "Artigo de Fernando César Capovilla, de 2000, para aprofundamento histórico, em diálogo com pesquisas contemporâneas e perspectivas surdas.",
+    "version": "candidate-1",
+    "references": [
+      {
+        "id": "source-1",
+        "url": "https://abpee.net/pdf/artigos/art-6-6.pdf"
+      },
+      {
+        "id": "source-2",
+        "url": "https://www.academia.edu/181982680/"
+      }
+    ],
+    "claims": [],
+    "validationStatus": "draft",
+    "reviews": [],
+    "rights": {
+      "mode": "external-link-only",
+      "assets": []
+    },
+    "relatedEntries": [],
+    "internalPending": [
+      "Ler texto integral e contextualizar perspectivas históricas.",
+      "Mapear afirmações individualmente; revisão de pesquisa, técnica, especializada e autorização final pendentes."
+    ],
+    "library": {
+      "unknownMetadata": [
+        "creators",
+        "publicationYear",
+        "publisher",
+        "format",
+        "access",
+        "languages"
+      ],
+      "unstructuredMetadata": "Metadados V2 não verificados: {\"year\":2000,\"journal\":\"Revista Brasileira de Educação Especial\",\"volume\":6,\"pages\":\"99–116\"}"
+    }
   }
 ];
 

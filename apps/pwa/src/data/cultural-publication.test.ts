@@ -86,7 +86,7 @@ describe("isCulturalPublishable", () => {
     expect(isCulturalPublishable(entry, [entry])).toBe(true);
   });
 
-  it("keeps all 35 real cultural records unpublished", () => {
+  it("keeps all 41 real cultural records unpublished", () => {
     for (const entry of culturalCatalog) {
       expect(isCulturalPublishable(entry, culturalCatalog), entry.id).toBe(false);
     }
