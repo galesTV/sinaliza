@@ -32,7 +32,7 @@ export function HistoryTimeline({
           </time>
           <article className="flex max-w-3xl flex-col gap-4 border-b border-border/70 pb-8 sm:pl-10">
             {entry.artwork && (
-              <div className="max-w-md">
+              <div className="max-w-sm">
                 <CulturalEntryArtwork entry={entry} variant="thumbnail" />
               </div>
             )}

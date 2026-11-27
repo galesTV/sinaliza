@@ -114,7 +114,7 @@ export function ExploreHome({ entries }: { entries: PublicCulturalEntry[] }) {
             return (
               <li
                 key={presentation.category}
-                className={`${visual.span} ${presentation.category === "curiosity" ? "lg:translate-y-8" : ""} ${presentation.category === "library" ? "lg:-translate-y-4" : ""}`}
+                className={`${visual.span} ${presentation.category === "curiosity" ? "lg:translate-y-4" : ""}`}
               >
                 <Link
                   href={getCulturalCategoryHref(presentation.category)}
@@ -135,7 +135,7 @@ export function ExploreHome({ entries }: { entries: PublicCulturalEntry[] }) {
                           : "Em preparação"}
                       </span>
                     </span>
-                    <div className="flex max-w-md flex-col gap-2">
+                    <div className="flex max-w-lg flex-col gap-2">
                       <span className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">
                         {presentation.pluralLabel}
                       </span>
@@ -146,7 +146,7 @@ export function ExploreHome({ entries }: { entries: PublicCulturalEntry[] }) {
                         {presentation.description}
                       </span>
                       {previewEntry && (
-                        <div className="pointer-events-none mt-2 max-w-64">
+                        <div className="pointer-events-none mt-3 w-full max-w-72">
                           <CulturalEntryArtwork entry={previewEntry} variant="thumbnail" />
                         </div>
                       )}

@@ -13,6 +13,7 @@ import {
 
 import { IconArrowRight } from "../icons";
 import { CulturalEntryArtwork } from "./editorial/cultural-entry-artwork";
+import editorialStyles from "./editorial/editorial-artwork.module.css";
 import { libraryAccessLabel, libraryFormatLabel } from "./labels";
 import { OrbitalShelf } from "./orbital-shelf";
 
@@ -181,13 +182,18 @@ export function LibraryBrowser({
               <article className="group flex h-full flex-col overflow-hidden rounded-[1.6rem] border border-border/65 bg-surface/80 transition-transform duration-200 hover:-translate-y-0.5">
                 <div
                   aria-hidden="true"
-                  className={`relative flex overflow-hidden bg-gradient-to-br p-5 ${
-                    entry.artwork ? "justify-center" : "h-44 items-end"
+                  className={`relative flex h-64 overflow-hidden bg-gradient-to-br p-5 ${
+                    entry.artwork ? "items-center justify-center" : "items-end"
                   } ${coverTone(entry.library.format)}`}
                 >
                   {entry.artwork ? (
-                    <div className="w-full max-w-36">
-                      <CulturalEntryArtwork entry={entry} variant="book-cover" />
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="w-full max-w-32">
+                        <CulturalEntryArtwork entry={entry} variant="book-cover" className={editorialStyles.quietFooter} />
+                      </div>
+                      <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-success">
+                        Representação editorial do Sinaliza
+                      </span>
                     </div>
                   ) : (
                     <>

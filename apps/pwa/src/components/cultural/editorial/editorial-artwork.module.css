@@ -510,3 +510,7 @@
 .compactSurface .textContent {
   display: none;
 }
+
+.quietFooter .footer {
+  display: none;
+}
