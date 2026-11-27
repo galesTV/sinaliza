@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { describe, expect, it } from "vitest";
 
 import { culturalCatalog, getCulturalEntryById } from "./cultural-catalog";
@@ -81,6 +84,47 @@ describe("culturalCatalog migration", () => {
       if (entry.category !== "library") continue;
       expect(entry.library.unknownMetadata, entry.id).toEqual(expectedGaps);
     }
+  });
+
+
+  it("migrates exactly the 26 approved V2 claims with traceable texts and references", () => {
+    const matrix = JSON.parse(
+      readFileSync(join(process.cwd(), "docs/curadoria-cultural/v2/pacote-original/matriz-afirmacoes.json"), "utf8"),
+    ) as Array<{ id: string; entryId: string; text: string }>;
+    const blocked = new Set(["PER-001-C03", "PER-001-C04", "PER-002-C01", "BIB-002-C01", "BIB-010-C02"]);
+    const approved = matrix.filter((claim) => !blocked.has(claim.id));
+    expect(approved).toHaveLength(26);
+
+    const migrated = culturalCatalog.flatMap((entry) =>
+      entry.claims.filter((claim) => claim.id.includes("-C")).map((claim) => ({ entry, claim })),
+    );
+    expect(migrated).toHaveLength(26);
+
+    for (const source of approved) {
+      const entry = culturalCatalog.find((item) => item.id === source.entryId)!;
+      const claim = entry.claims.find((item) => item.id === source.id);
+      expect(claim, source.id).toBeDefined();
+      expect(claim!.text, source.id).toBe(source.text);
+      expect(claim!.referenceIds.length, source.id).toBeGreaterThan(0);
+      for (const referenceId of claim!.referenceIds) {
+        expect(entry.references.some((reference) => reference.id === referenceId), `${source.id}:${referenceId}`).toBe(true);
+      }
+    }
+
+    for (const blockedId of blocked) {
+      expect(culturalCatalog.some((entry) => entry.claims.some((claim) => claim.id === blockedId)), blockedId).toBe(false);
+    }
+  });
+
+  it("versions only the 12 authorized records as candidate-2 and keeps reference IDs unique", () => {
+    const authorized = new Set(["HIST-001", "HIST-006", "HIST-008", "CUR-001", "CUR-002", "CUR-006", "PER-001", "BIB-003", "BIB-004", "BIB-005", "BIB-010", "BIB-011"]);
+    for (const entry of culturalCatalog) {
+      expect(entry.version, entry.id).toBe(authorized.has(entry.id) ? "candidate-2" : "candidate-1");
+      const referenceIds = entry.references.map((reference) => reference.id);
+      expect(new Set(referenceIds).size, entry.id).toBe(referenceIds.length);
+    }
+    expect(getCulturalEntryById("PER-002")!.claims.map((claim) => claim.id)).toEqual(["claim-1"]);
+    expect(getCulturalEntryById("BIB-002")!.claims.map((claim) => claim.id)).toEqual(["claim-1"]);
   });
 
   it("uses unique ids and slugs", () => {
