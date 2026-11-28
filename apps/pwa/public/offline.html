@@ -1,20 +1,67 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#10172b">
 <title>Offline | Sinaliza</title>
+<script>
+(function () {
+  var root = document.documentElement;
+  var preference = "dark";
+  try {
+    var stored = window.localStorage.getItem("sinaliza.theme-preference.v1");
+    if (stored === "light" || stored === "dark" || stored === "system") preference = stored;
+  } catch (error) {}
+  function systemTheme() {
+    try {
+      return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    } catch (error) {
+      return "dark";
+    }
+  }
+  function apply() {
+    var resolved = preference === "system" ? systemTheme() : preference;
+    root.setAttribute("data-theme", resolved);
+    root.style.colorScheme = resolved;
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute("content", resolved === "light" ? "#F6FAF9" : "#10172b");
+  }
+  apply();
+  try {
+    var media = window.matchMedia("(prefers-color-scheme: dark)");
+    var listener = function () { if (preference === "system") apply(); };
+    if (media.addEventListener) media.addEventListener("change", listener);
+    else if (media.addListener) media.addListener(listener);
+  } catch (error) {}
+})();
+</script>
 <style>
   :root {
     --bg: #10172b;
-    --surface: #171b3c;
+    --surface: rgba(255,255,255,0.04);
+    --surface-end: rgba(255,255,255,0.01);
     --border: rgba(148, 163, 216, 0.18);
     --text: #e8ecf8;
     --muted: #9aa5c9;
     --brand-a: #35c9e8;
     --brand-b: #287deb;
     --brand-c: #6957e8;
+    --ambient-a: rgba(105, 87, 232, 0.16);
+    --ambient-b: rgba(53, 201, 232, 0.10);
+  }
+  html[data-theme="light"] {
+    --bg: #f6faf9;
+    --surface: rgba(255,255,255,0.88);
+    --surface-end: rgba(221,244,240,0.56);
+    --border: rgba(32, 52, 81, 0.18);
+    --text: #203451;
+    --muted: #52657a;
+    --brand-a: #006d77;
+    --brand-b: #007c83;
+    --brand-c: #5745c7;
+    --ambient-a: rgba(0, 124, 131, 0.075);
+    --ambient-b: rgba(244, 214, 109, 0.16);
   }
   * { box-sizing: border-box; margin: 0; }
   body {
@@ -24,8 +71,8 @@
     justify-content: center;
     padding: 2rem;
     background:
-      radial-gradient(60rem 40rem at 80% -10%, rgba(105, 87, 232, 0.16), transparent 60%),
-      radial-gradient(50rem 35rem at 0% 100%, rgba(53, 201, 232, 0.10), transparent 60%),
+      radial-gradient(60rem 40rem at 80% -10%, var(--ambient-a), transparent 60%),
+      radial-gradient(50rem 35rem at 0% 100%, var(--ambient-b), transparent 60%),
       var(--bg);
     color: var(--text);
     font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -36,7 +83,7 @@
     padding: 2.25rem;
     border: 1px solid var(--border);
     border-radius: 1.25rem;
-    background: linear-gradient(160deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+    background: linear-gradient(160deg, var(--surface), var(--surface-end));
     text-align: center;
   }
   .mark {

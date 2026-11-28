@@ -123,7 +123,7 @@ async function LessonContent({ params }: LessonPageProps) {
         <p className="max-w-xl text-sm leading-relaxed text-muted">
           {lesson.objective}
         </p>
-        <p className="text-xs leading-relaxed text-muted/80">
+        <p className="text-xs leading-relaxed text-muted">
           Objetivo preliminar — será revisado na validação pedagógica e
           linguística antes da publicação.
         </p>

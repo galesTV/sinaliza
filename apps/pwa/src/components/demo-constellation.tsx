@@ -199,7 +199,7 @@ export function DemoConstellation({
             <circle cx={120} cy={108} r={13} fill="none" stroke="currentColor" strokeOpacity={0.45} />
             <path
               d="M120 98l2.7 5.7 6.3.8-4.6 4.3 1.2 6.2-5.6-3.1-5.6 3.1 1.2-6.2-4.6-4.3 6.3-.8z"
-              fill="currentColor"
+              fill="var(--color-highlight-fill)"
             />
           </g>
         )}

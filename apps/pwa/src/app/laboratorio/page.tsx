@@ -81,7 +81,7 @@ function DemoCard({ entry, index }: { entry: DemoEntry; index?: number }) {
   return (
     <Link
       href={entry.href}
-      className="group flex h-full items-start gap-4 rounded-2xl border border-border bg-surface px-5 py-4 transition-colors duration-200 hover:bg-white/[0.04]"
+      className="group flex h-full items-start gap-4 rounded-2xl border border-border bg-surface px-5 py-4 transition-colors duration-200 hover:bg-control-quiet-hover"
     >
       {typeof index === "number" && (
         <span
@@ -98,7 +98,7 @@ function DemoCard({ entry, index }: { entry: DemoEntry; index?: number }) {
         <span className="text-sm leading-relaxed text-muted">
           {entry.description}
         </span>
-        <span className="text-xs font-medium uppercase tracking-[0.08em] text-muted/80">
+        <span className="text-xs font-medium uppercase tracking-[0.08em] text-muted">
           {entry.status}
         </span>
       </span>

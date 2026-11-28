@@ -66,7 +66,7 @@ export function DesktopNav({ showExplore = false }: { showExplore?: boolean }) {
                 href={item.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "inline-flex min-h-11 items-center gap-2.5 rounded-[10px] px-4 text-sm transition-colors duration-200",
+                  "inline-flex min-h-11 items-center gap-2.5 rounded-[10px] px-3 text-sm transition-colors duration-200 xl:px-4",
                   active
                     ? "bg-surface-elevated font-semibold text-accent"
                     : "font-medium text-muted hover:bg-surface hover:text-foreground",
@@ -77,12 +77,13 @@ export function DesktopNav({ showExplore = false }: { showExplore?: boolean }) {
                   className={cn(
                     "h-1.5 w-1.5 rounded-full transition-colors duration-200",
                     active
-                      ? "bg-accent shadow-[0_0_8px_rgba(53,201,232,0.7)]"
+                      ? "bg-accent shadow-[0_0_8px_var(--glow-accent-strong)]"
                       : "bg-border",
                   )}
                 />
                 <Icon className="h-4 w-4" />
-                {item.label}
+                <span className="hidden lg:inline">{item.label}</span>
+                <span className="sr-only lg:hidden">{item.label}</span>
               </Link>
             </li>
           );

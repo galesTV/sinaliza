@@ -163,14 +163,25 @@ export function OrbitalShelf({
               >
                 <div className="orbital-spine">
                   {entry.artwork ? (
-                    <CulturalEntryArtwork entry={entry} variant="book-spine" fill />
+                    <CulturalEntryArtwork
+                      entry={entry}
+                      variant="book-spine"
+                      fill
+                      includeFacts={false}
+                    />
                   ) : (
                     <span className="orbital-initials">{getTitleInitials(entry.title)}</span>
                   )}
                 </div>
                 <div className={`orbital-cover ${entry.artwork ? "orbital-cover-artwork" : ""}`}>
                   {entry.artwork ? (
-                    <CulturalEntryArtwork entry={entry} variant="book-cover" fill className={editorialStyles.compactSurface} />
+                    <CulturalEntryArtwork
+                      entry={entry}
+                      variant="book-cover"
+                      fill
+                      includeFacts={false}
+                      className={editorialStyles.compactSurface}
+                    />
                   ) : (
                     <>
                       <span className="orbital-format">{libraryFormatLabel(entry.library.format)}</span>

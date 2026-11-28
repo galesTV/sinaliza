@@ -89,7 +89,7 @@ export function LibraryBrowser({
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Título, autoria ou publicação"
-            className="min-h-11 rounded-full border border-border bg-background px-4 text-sm text-foreground placeholder:text-muted/70"
+            className="min-h-11 rounded-full border border-border bg-background px-4 text-sm text-foreground placeholder:text-muted"
           />
         </div>
         <div className="flex flex-col gap-2">

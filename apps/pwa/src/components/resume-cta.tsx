@@ -66,7 +66,7 @@ export function ResumeCtaView({
         Ver alfabeto manual
         <IconArrowRight className="h-4 w-4" />
       </Link>
-      <p className="max-w-xs basis-full text-xs leading-relaxed text-muted/80">
+      <p className="max-w-xs basis-full text-xs leading-relaxed text-muted">
         Nenhuma lição publicada ainda — a demonstração no topo é interativa,
         mas não registra progresso nem substitui a validação pedagógica.
       </p>

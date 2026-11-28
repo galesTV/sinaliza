@@ -37,7 +37,7 @@ export function ModuleCard({
             index === 0 ? "bg-transparent" : "bg-primary-soft/35",
           )}
         />
-        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-primary-soft/45 bg-surface-elevated font-display text-sm font-semibold tabular-nums text-primary-soft shadow-[0_0_18px_rgba(105,87,232,0.28)]">
+        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-primary-soft/45 bg-surface-elevated font-display text-sm font-semibold tabular-nums text-primary-soft shadow-[0_0_18px_var(--glow-primary-soft)]">
           {index + 1}
         </span>
         {/* Fading trail to the next node; -mb-4 bridges the list gap. */}

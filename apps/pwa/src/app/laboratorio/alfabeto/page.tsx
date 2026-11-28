@@ -77,7 +77,7 @@ export default function AlphabetSpecimensPage() {
           <li key={specimen.id}>
             <Link
               href={getSpecimenUrl(specimen.letter)}
-              className="group flex min-h-11 items-center gap-4 rounded-2xl border border-border bg-surface px-5 py-4 transition-colors duration-200 hover:bg-white/[0.04]"
+              className="group flex min-h-11 items-center gap-4 rounded-2xl border border-border bg-surface px-5 py-4 transition-colors duration-200 hover:bg-control-quiet-hover"
             >
               <span className="flex min-w-0 flex-1 flex-col gap-1.5">
                 <span className="flex flex-wrap items-center gap-2.5">

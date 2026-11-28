@@ -38,7 +38,7 @@ export function PersonalityGallery({
                     <span className="font-display text-6xl font-semibold tracking-tight text-primary-soft/85">
                       {initials}
                     </span>
-                    <span className="absolute bottom-4 right-5 h-2 w-2 rounded-full bg-accent shadow-[0_0_14px_rgba(53,201,232,0.8)]" />
+                    <span className="absolute bottom-4 right-5 h-2 w-2 rounded-full bg-accent shadow-[0_0_14px_var(--glow-accent-strong)]" />
                   </div>
                 )}
               </div>

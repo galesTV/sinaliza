@@ -215,7 +215,7 @@ export function ConstellationFigureView({
           cy={dot.y}
           r={dot.r}
           fill="var(--color-primary-soft)"
-          fillOpacity={0.18}
+          className="constellation-dust"
         />
       ))}
       {group.edges.map((edge) => {
@@ -231,8 +231,9 @@ export function ConstellationFigureView({
             stroke={
               edge.walked ? "var(--color-accent)" : "var(--color-primary-soft)"
             }
-            strokeOpacity={edge.walked ? 0.7 : 0.32}
+            strokeOpacity={edge.walked ? 0.7 : undefined}
             strokeWidth={edge.walked ? 1.4 : 1.2}
+            className={edge.walked ? undefined : "constellation-edge"}
           />
         );
       })}

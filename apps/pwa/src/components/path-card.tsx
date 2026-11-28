@@ -44,7 +44,7 @@ export function PathCard({
           <span className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-highlight">
             <span
               aria-hidden="true"
-              className="h-1.5 w-1.5 rounded-full bg-highlight shadow-[0_0_10px_rgba(240,168,72,0.6)]"
+              className="h-1.5 w-1.5 rounded-full bg-highlight shadow-[0_0_10px_var(--glow-highlight)]"
             />
             Ponto de partida
           </span>

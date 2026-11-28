@@ -49,13 +49,13 @@ export default function Home() {
       </section>
 
       <section aria-labelledby="next-step-title">
-        <div className="rounded-3xl border border-border bg-surface-elevated p-7 shadow-[0_20px_60px_rgba(0,0,0,0.2)] sm:p-9">
+        <div className="rounded-3xl border border-border bg-surface-elevated p-7 shadow-[var(--shadow-card)] sm:p-9">
           <div className="flex flex-col gap-7 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex max-w-lg flex-col gap-3">
               <span className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-highlight">
                 <span
                   aria-hidden="true"
-                  className="h-1.5 w-1.5 rounded-full bg-highlight shadow-[0_0_10px_rgba(240,168,72,0.6)]"
+                  className="h-1.5 w-1.5 rounded-full bg-highlight shadow-[0_0_10px_var(--glow-highlight)]"
                 />
                 Primeiro passo
               </span>
@@ -113,7 +113,7 @@ export default function Home() {
                     Conheça uma demonstração interativa do funcionamento das
                     atividades, com exercícios e feedback.
                   </span>
-                  <span className="text-xs leading-relaxed text-muted/80">
+                  <span className="text-xs leading-relaxed text-muted">
                     Experiência experimental — ainda não é uma lição validada de
                     Libras.
                   </span>

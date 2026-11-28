@@ -62,7 +62,7 @@ export function ModuleLessonChip({
         completed
           ? "border-success/40 bg-success/10 text-foreground hover:border-success/60"
           : pending
-            ? "border-dashed border-border bg-transparent text-muted/70 hover:border-primary/45 hover:text-muted"
+            ? "border-dashed border-border bg-transparent text-muted hover:border-primary/45 hover:text-muted"
             : "border-border bg-surface-elevated/60 text-muted hover:border-primary/45 hover:text-foreground",
       )}
     >

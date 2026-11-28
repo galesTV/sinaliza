@@ -100,13 +100,13 @@ export function LessonMedia({
       {failed ? (
         <div
           role="alert"
-          className="grid aspect-video w-full place-items-center rounded-2xl border border-border bg-black/60 p-6 text-center text-sm leading-relaxed text-muted"
+          className="grid aspect-video w-full place-items-center rounded-2xl border border-border bg-media-surface p-6 text-center text-sm leading-relaxed text-muted"
         >
           Não foi possível carregar a mídia agora. A descrição abaixo cobre o
           conteúdo deste passo.
         </div>
       ) : media.type === "video" ? (
-        <div className="aspect-video w-full overflow-hidden rounded-2xl border border-border bg-black/60">
+        <div className="aspect-video w-full overflow-hidden rounded-2xl border border-border bg-media-surface">
           <video
             controls
             playsInline

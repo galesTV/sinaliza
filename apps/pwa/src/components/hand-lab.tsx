@@ -47,9 +47,9 @@ const STATUS_DOT: Record<string, string> = {
   idle: "bg-muted",
   requesting: "bg-accent",
   active: "bg-success",
-  denied: "bg-destructive",
-  unavailable: "bg-destructive",
-  error: "bg-destructive",
+  denied: "bg-destructive-fill",
+  unavailable: "bg-destructive-fill",
+  error: "bg-destructive-fill",
 };
 
 // Learner-facing copy keyed by the guidance state machine — the module
@@ -279,7 +279,7 @@ export function HandLab() {
     <div className="flex flex-col gap-8">
       <section
         aria-labelledby="lab-camera-title"
-        className="flex flex-col gap-5 rounded-3xl border border-border bg-surface-elevated p-6 shadow-[0_20px_60px_rgba(0,0,0,0.2)] sm:p-8"
+        className="flex flex-col gap-5 rounded-3xl border border-border bg-surface-elevated p-6 shadow-[var(--shadow-card)] sm:p-8"
       >
         <div className="flex flex-col gap-1.5">
           <h2
@@ -304,7 +304,7 @@ export function HandLab() {
           </p>
         )}
 
-        <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-border bg-black/40">
+        <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-border bg-media-surface">
           <video
             ref={videoRef}
             playsInline

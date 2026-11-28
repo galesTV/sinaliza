@@ -30,7 +30,7 @@ function PagerLink({
   return (
     <Link
       href={getLessonUrl(context.path.slug, context.module.slug, lesson.slug)}
-      className="group flex min-h-11 min-w-0 items-center gap-3 rounded-[11px] border border-border bg-white/[0.025] px-4 py-2.5 text-sm transition-colors duration-200 hover:bg-white/[0.07]"
+      className="group flex min-h-11 min-w-0 items-center gap-3 rounded-[11px] border border-border bg-control-quiet px-4 py-2.5 text-sm transition-colors duration-200 hover:bg-control-quiet-hover"
     >
       {isPrevious && (
         <IconArrowLeft className="h-4 w-4 shrink-0 text-muted transition-colors group-hover:text-foreground" />

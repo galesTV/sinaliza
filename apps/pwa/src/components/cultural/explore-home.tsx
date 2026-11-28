@@ -54,7 +54,7 @@ const PORTAL_VISUALS: Record<CulturalCategory, PortalVisual> = {
 function HeroConstellation() {
   return (
     <div aria-hidden="true" className="relative min-h-64 overflow-hidden rounded-[2.5rem] sm:min-h-72">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(53,201,232,0.2),transparent_18rem),radial-gradient(circle_at_22%_80%,rgba(240,168,72,0.13),transparent_15rem)]" />
+      <div className="explore-hero-ambient absolute inset-0" />
       <ConstellationGraphic variant="home" className="cultural-constellation-drift absolute -right-10 top-2 h-56 w-[26rem] max-w-none text-accent opacity-95 sm:h-64" />
       <span className="absolute left-[16%] top-[22%] h-16 w-16 rounded-full border border-primary/30" />
       <span className="absolute bottom-9 right-[16%] h-24 w-24 rounded-full border border-highlight/25" />

@@ -65,7 +65,7 @@ export function ConstellationFigure({ className }: { className?: string }) {
       fill="none"
       role="presentation"
       aria-hidden="true"
-      className={className}
+      className={className ? `decorative-constellation ${className}` : "decorative-constellation"}
     >
       {EDGES.map(([from, to]) => (
         <line
@@ -75,8 +75,8 @@ export function ConstellationFigure({ className }: { className?: string }) {
           x2={NODES[to].x}
           y2={NODES[to].y}
           stroke="var(--color-primary-soft)"
-          strokeOpacity={0.32}
           strokeWidth={1.2}
+          className="constellation-edge"
         />
       ))}
       <circle
