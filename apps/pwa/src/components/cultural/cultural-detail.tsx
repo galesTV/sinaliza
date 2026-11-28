@@ -17,6 +17,7 @@ import { ConstellationGraphic } from "./constellation-graphic";
 import { CulturalEntryArtwork } from "./editorial/cultural-entry-artwork";
 import {
   libraryAccessLabel,
+  libraryCreatorsRoleLabel,
   libraryFormatLabel,
   relationKindLabel,
 } from "./labels";
@@ -61,6 +62,14 @@ function EditorialParagraphs({
       ))}
     </div>
   );
+}
+
+function isPdfReference(url: string): boolean {
+  try {
+    return new URL(url).pathname.toLowerCase().endsWith(".pdf");
+  } catch {
+    return false;
+  }
 }
 
 export function CulturalDetail({
@@ -206,7 +215,7 @@ export function CulturalDetail({
           <dl className="grid gap-x-8 gap-y-5 rounded-[1.5rem] border border-success/25 bg-success/8 p-5 text-sm sm:grid-cols-2 lg:grid-cols-3">
             {entry.library.creators?.length ? (
               <div>
-                <dt className="font-semibold text-foreground">Autoria ou créditos</dt>
+                <dt className="font-semibold text-foreground">{libraryCreatorsRoleLabel(entry)}</dt>
                 <dd className="mt-1 leading-relaxed text-muted">{entry.library.creators.join(", ")}</dd>
               </div>
             ) : null}
@@ -282,8 +291,9 @@ export function CulturalDetail({
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex min-h-11 items-center gap-2 self-start text-sm font-semibold text-accent transition-colors hover:text-foreground"
+                  aria-label={`${isPdfReference(reference.url) ? "Abrir fonte externa em PDF" : "Abrir fonte externa"} — ${reference.institution}: ${reference.purpose}`}
                 >
-                  Abrir fonte externa
+                  {isPdfReference(reference.url) ? "Abrir fonte externa em PDF" : "Abrir fonte externa"}
                   <IconExternalLink className="h-4 w-4" />
                 </a>
               </div>

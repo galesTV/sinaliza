@@ -17,7 +17,7 @@ import {
   CulturalEntryArtwork,
 } from "./editorial/cultural-entry-artwork";
 import { SINALIZA_EDITORIAL_REPRESENTATION_LABEL } from "./editorial/editorial-representation";
-import { libraryAccessLabel, libraryFormatLabel } from "./labels";
+import { libraryAccessLabel, libraryCreatorsRoleLabel, libraryFormatLabel } from "./labels";
 import { OrbitalShelf } from "./orbital-shelf";
 
 function searchableText(entry: PublicCulturalLibraryEntry): string {
@@ -76,7 +76,7 @@ export function LibraryBrowser({
       <form
         role="search"
         aria-label="Buscar e filtrar biblioteca cultural"
-        className="grid gap-4 rounded-[1.5rem] border border-border/70 bg-surface-elevated/70 p-5 backdrop-blur-sm lg:grid-cols-[1fr_220px_220px]"
+        className="grid gap-3 rounded-[1.5rem] border border-border/70 bg-surface-elevated/70 p-4 backdrop-blur-sm sm:gap-4 sm:p-5 lg:grid-cols-[1fr_220px_220px]"
         onSubmit={(event) => event.preventDefault()}
       >
         <div className="flex flex-col gap-2">
@@ -179,7 +179,7 @@ export function LibraryBrowser({
       ) : viewMode === "estante" ? (
         <OrbitalShelf entries={filtered} />
       ) : (
-        <ul className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3" aria-label="Registros da biblioteca cultural">
+        <ul className={`grid gap-6 sm:grid-cols-2 ${filtered.length === 1 ? "sm:grid-cols-1 xl:max-w-xl xl:grid-cols-1" : filtered.length === 2 ? "xl:max-w-5xl xl:grid-cols-2" : "xl:grid-cols-3"}`} aria-label="Registros da biblioteca cultural">
           {filtered.map((entry) => (
             <li key={entry.id}>
               <article className="group flex h-full flex-col overflow-hidden rounded-[1.6rem] border border-border/65 bg-surface/80 transition-transform duration-200 hover:-translate-y-0.5">
@@ -227,6 +227,7 @@ export function LibraryBrowser({
                     </h2>
                     {entry.library.creators?.length ? (
                       <p className="text-sm font-medium text-muted">
+                        <span className="font-semibold text-foreground">{libraryCreatorsRoleLabel(entry)}:</span>{" "}
                         {entry.library.creators.join(", ")}
                       </p>
                     ) : null}
@@ -247,6 +248,7 @@ export function LibraryBrowser({
                   <Link
                     href={`${getCulturalCategoryHref("library")}/${entry.slug}`}
                     className="mt-auto inline-flex min-h-11 items-center gap-2 self-start text-sm font-semibold text-accent transition-colors hover:text-foreground"
+                    aria-label={`Ver ficha de ${entry.title}`}
                   >
                     Ver ficha
                     <IconArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
