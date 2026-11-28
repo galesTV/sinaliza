@@ -13,6 +13,7 @@ import {
   culturalPreV33Baseline,
   culturalV33ArtworkEntryIds,
 } from "./cultural-v33-baseline";
+import { restoreCulturalD334BBeforeState } from "./cultural-d334b-transition";
 
 export const r53cMigratedEntryIds = [
   "HIST-008",
@@ -194,7 +195,7 @@ export function validateR53CTransition(currentCatalog: CulturalCatalogEntry[], r
     const content = preV33Baseline[entryId]?.content;
     if (content && "artwork" in content) problems.push(`frozen pre-V3.3 baseline unexpectedly contains artwork ${entryId}`);
   }
-  const catalog = currentCatalog.map((entry) => {
+  const catalog = restoreCulturalD334BBeforeState(currentCatalog).map((entry) => {
     if (!(culturalV33ArtworkEntryIds as readonly string[]).includes(entry.id)) return entry;
     const copy = structuredClone(entry);
     copy.version = preV33Baseline[entry.id].version;

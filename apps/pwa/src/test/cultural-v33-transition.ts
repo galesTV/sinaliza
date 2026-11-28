@@ -9,6 +9,7 @@ import {
   culturalPreV33Baseline,
   culturalV33ArtworkEntryIds,
 } from "./cultural-v33-baseline";
+import { restoreCulturalD334BBeforeState } from "./cultural-d334b-transition";
 
 export const v33ArtworkEntryIds = culturalV33ArtworkEntryIds;
 
@@ -130,7 +131,8 @@ function collectArtworkClaimIds(artwork: unknown): string[] {
   return claimIds;
 }
 
-export function validateV33Transition(catalog: CulturalCatalogEntry[]) {
+export function validateV33Transition(currentCatalog: CulturalCatalogEntry[]) {
+  const catalog = restoreCulturalD334BBeforeState(currentCatalog);
   const problems: string[] = [];
   const expectedIds = sorted(Object.keys(frozenBaseline));
   const actualIds = catalog.map((entry) => entry.id);

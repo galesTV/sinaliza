@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 
 import { culturalCatalog, getCulturalEntryById } from "./cultural-catalog";
 import { culturalMigrationBaseline } from "@/test/cultural-migration-baseline";
+import { restoreCulturalD334BBeforeState } from "@/test/cultural-d334b-transition";
 import { getCulturalContentFingerprint } from "./cultural-publication";
 import {
   CULTURAL_CATEGORIES,
@@ -23,6 +24,7 @@ const approvedEditorialBodyClaimIds = {
 const approvedEditorialBodyEntryIds = new Set<string>(
   Object.keys(approvedEditorialBodyClaimIds),
 );
+const preD334BCatalog = restoreCulturalD334BBeforeState(culturalCatalog);
 
 describe("culturalCatalog migration", () => {
   it("contains exactly the 41 cultural candidates, without benchmarks", () => {
@@ -39,7 +41,11 @@ describe("culturalCatalog migration", () => {
       expect(entry.validationStatus, entry.id).toBe("draft");
       expect(entry.reviews, entry.id).toEqual([]);
       expect(entry.publicationAuthorization, entry.id).toBeUndefined();
-      expect(entry.internalPending.length, entry.id).toBeGreaterThan(0);
+      if (["BIB-004", "BIB-010", "BIB-011"].includes(entry.id)) {
+        expect(entry.internalPending, entry.id).toEqual([]);
+      } else {
+        expect(entry.internalPending.length, entry.id).toBeGreaterThan(0);
+      }
     }
   });
 
@@ -75,24 +81,29 @@ describe("culturalCatalog migration", () => {
   it("preserves source URLs without inventing missing source metadata", () => {
     for (const entry of culturalCatalog) {
       expect(entry.references.length, entry.id).toBeGreaterThan(0);
-      const documentedV21ReferenceIds = new Set([
-        "CUR-002:source-4",
-        "CUR-006:source-4",
-        "PER-002:source-2",
-        "BIB-003:source-2",
-        "BIB-004:source-3",
-        "BIB-011:source-2",
-        "PER-001:source-4",
-        "PER-001:source-5",
-        "BIB-010:source-2",
+      const documentedReferenceConsultedAt = new Map([
+        ["CUR-002:source-4", "2026-11-27"],
+        ["CUR-006:source-4", "2026-11-27"],
+        ["PER-002:source-2", "2026-11-27"],
+        ["BIB-003:source-2", "2026-11-27"],
+        ["BIB-004:source-1", "2026-11-28"],
+        ["BIB-004:source-2", "2026-11-28"],
+        ["BIB-004:source-3", "2026-11-28"],
+        ["BIB-010:source-1", "2026-11-28"],
+        ["BIB-010:source-2", "2026-11-27"],
+        ["BIB-011:source-1", "2026-11-28"],
+        ["BIB-011:source-2", "2026-11-28"],
+        ["PER-001:source-4", "2026-11-27"],
+        ["PER-001:source-5", "2026-11-27"],
       ]);
       for (const reference of entry.references) {
         const key = `${entry.id}:${reference.id}`;
         expect(reference.url, key).toMatch(/^https:\/\//);
-        if (documentedV21ReferenceIds.has(key)) {
+        const consultedAt = documentedReferenceConsultedAt.get(key);
+        if (consultedAt) {
           expect(reference.institution, key).toBeTruthy();
           expect(reference.purpose, key).toBeTruthy();
-          expect(reference.consultedAt, key).toBe("2026-11-27");
+          expect(reference.consultedAt, key).toBe(consultedAt);
         } else {
           expect(reference.institution, key).toBeUndefined();
           expect(reference.purpose, key).toBeUndefined();
@@ -131,7 +142,7 @@ describe("culturalCatalog migration", () => {
     }
   });
 
-  it("keeps all library metadata gaps explicit", () => {
+  it("keeps library metadata gaps explicit", () => {
     const expectedGaps = [
       "creators",
       "publicationYear",
@@ -142,7 +153,14 @@ describe("culturalCatalog migration", () => {
     ];
     for (const entry of culturalCatalog) {
       if (entry.category !== "library") continue;
-      expect(entry.library.unknownMetadata, entry.id).toEqual(expectedGaps);
+      const expected = entry.id === "BIB-004"
+        ? []
+        : entry.id === "BIB-010"
+          ? ["publisher"]
+          : entry.id === "BIB-011"
+            ? ["publicationYear", "publisher"]
+            : expectedGaps;
+      expect(entry.library.unknownMetadata, entry.id).toEqual(expected);
     }
   });
 
@@ -159,7 +177,7 @@ describe("culturalCatalog migration", () => {
     expect(migrated).toHaveLength(56);
 
     for (const source of matrix) {
-      const entry = culturalCatalog.find((item) => item.id === source.entryId)!;
+      const entry = preD334BCatalog.find((item) => item.id === source.entryId)!;
       const claim = entry.claims.find((item) => item.id === source.id);
       expect(claim, source.id).toBeDefined();
       expect(claim!.text, source.id).toBe(source.text);
@@ -175,11 +193,14 @@ describe("culturalCatalog migration", () => {
 
     for (const entry of culturalCatalog) {
       const v33Candidate5 = new Set(["CUR-002", "CUR-006", "PER-001", "BIB-003", "BIB-005"]);
-      const complementaryCandidate4 = new Set(["HIST-008", "BIB-004", "BIB-010", "BIB-011"]);
+      const d334bCandidate5 = new Set(["BIB-010", "BIB-011"]);
+      const complementaryCandidate4 = new Set(["HIST-008"]);
       const complementaryCandidate3 = new Set(["PER-002", "BIB-002"]);
       expect(entry.version, entry.id).toBe(
-        v33Candidate5.has(entry.id)
-          ? "candidate-5"
+        entry.id === "BIB-004"
+          ? "candidate-6"
+          : v33Candidate5.has(entry.id) || d334bCandidate5.has(entry.id)
+            ? "candidate-5"
           : complementaryCandidate4.has(entry.id) || approvedEditorialBodyEntryIds.has(entry.id)
             ? "candidate-4"
             : complementaryCandidate3.has(entry.id)
@@ -499,7 +520,7 @@ describe("cultural V2 migration integrity hardening", () => {
   it("binds every migrated claim to the exact authorized source URL through a shared validator", () => {
     const matrix = readMatrix();
     for (const source of approvedClaims(matrix)) {
-      const entry = culturalCatalog.find((item) => item.id === source.entryId)!;
+      const entry = preD334BCatalog.find((item) => item.id === source.entryId)!;
       expect(validateClaimReferenceBinding(entry, source), source.id).toEqual([]);
     }
   });
@@ -563,7 +584,7 @@ describe("cultural V2 migration integrity hardening", () => {
 
     for (const source of approved) {
       const row = rows.find((item) => item.claimId === source.id)!;
-      const entry = culturalCatalog.find((item) => item.id === source.entryId)!;
+      const entry = preD334BCatalog.find((item) => item.id === source.entryId)!;
       expect(
         validateTraceabilityRow(
           row,
@@ -751,7 +772,7 @@ describe("cultural V2 migration integrity hardening", () => {
   it("preserves baseline records and changes only authorized claim/reference/version/editorial-body content", () => {
     const baseline = JSON.parse(JSON.stringify(culturalMigrationBaseline)) as typeof culturalCatalog;
     const baselineById = new Map(baseline.map((entry) => [entry.id, entry]));
-    for (const entry of culturalCatalog) {
+    for (const entry of preD334BCatalog) {
       const before = baselineById.get(entry.id)!;
       const beforeFingerprint = getCulturalContentFingerprint(before);
       const currentFingerprint = getCulturalContentFingerprint(entry);
@@ -783,7 +804,7 @@ describe("cultural V2 migration integrity hardening", () => {
     let addedClaimCount = 0;
 
     for (const entryId of authorizedEntryIds) {
-      const entry = culturalCatalog.find((item) => item.id === entryId)!;
+      const entry = preD334BCatalog.find((item) => item.id === entryId)!;
       const before = baselineById.get(entryId)!;
       expect(entry.version, entryId).toBe(
         entryId === "HIST-001" || entryId === "HIST-006" || entryId === "CUR-001"
@@ -890,7 +911,7 @@ describe("cultural V2.1 complementary evidence migration", () => {
     expect(recovered).toHaveLength(5);
 
     for (const source of [...complementary, ...recovered]) {
-      const entry = getCulturalEntryById(source.entryId)!;
+      const entry = preD334BCatalog.find((item) => item.id === source.entryId)!;
       const claim = entry.claims.find((item) => item.id === source.id);
       expect(claim?.text, source.id).toBe(source.text);
       expect(claim?.referenceIds, source.id).toHaveLength(1);
@@ -925,7 +946,7 @@ describe("cultural V2.1 complementary evidence migration", () => {
       "BIB-011": "candidate-4",
     } as const;
     for (const [entryId, version] of Object.entries(expectedVersions)) {
-      expect(getCulturalEntryById(entryId)?.version, entryId).toBe(version);
+      expect(preD334BCatalog.find((entry) => entry.id === entryId)?.version, entryId).toBe(version);
     }
     expect(culturalCatalog.filter((entry) => entry.editorialBody).map((entry) => entry.id)).toHaveLength(14);
     expect(culturalCatalog.every((entry) => entry.validationStatus === "draft")).toBe(true);
