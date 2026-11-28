@@ -237,4 +237,59 @@ describe("cultural interactive components", () => {
     const container = render(<OrbitalShelf entries={many} />);
     expect(container.querySelectorAll(".orbital-item").length).toBeLessThanOrEqual(7);
   });
+
+  it("keeps library grid editorial identification and facts outside aria-hidden ancestors", () => {
+    const container = render(<LibraryBrowser entries={[fixtureLibraryEntries[0]]} />);
+    const label = Array.from(container.querySelectorAll("span")).find(
+      (element) => element.textContent === "Representação editorial do Sinaliza",
+    );
+    const facts = container.querySelector('ul[aria-label="Fatos editoriais representados na arte"]');
+    const artwork = container.querySelector('[data-variant="book-cover"]');
+
+    expect(label).toBeDefined();
+    expect(label?.closest('[aria-hidden="true"]')).toBeNull();
+    expect(facts).not.toBeNull();
+    expect(facts?.textContent).toContain("Volume I");
+    expect(facts?.closest('[aria-hidden="true"]')).toBeNull();
+    expect(artwork?.closest('[aria-hidden="true"]')).not.toBeNull();
+  });
+
+  it("exposes selected orbital artwork facts in the accessible external panel", () => {
+    const container = render(<OrbitalShelf entries={fixtureLibraryEntries} />);
+    const panel = container.querySelector('article[aria-labelledby="orbital-selected-title"]');
+    const facts = panel?.querySelector('ul[aria-label="Fatos editoriais representados na arte"]');
+    const stageItems = container.querySelector(".orbital-items");
+
+    expect(stageItems?.getAttribute("aria-hidden")).toBe("true");
+    expect(facts).not.toBeNull();
+    expect(facts?.textContent).toContain("Volume I");
+    expect(facts?.closest('[aria-hidden="true"]')).toBeNull();
+    expect(panel?.textContent).toContain("Representação editorial do Sinaliza");
+    expect(panel?.textContent).not.toContain("claimId");
+  });
+
+  it("uses the horizontal curiosity composition only when the first wide card has artwork", () => {
+    const withArtwork = render(<CuriosityCards entries={fixtureCuriosityEntries} />);
+    const firstWithArtwork = withArtwork.querySelector("li article");
+    expect(firstWithArtwork?.className).toContain("lg:grid");
+
+    const firstWithoutArtworkEntries = [
+      { ...fixtureCuriosityEntries[0], artwork: undefined },
+      fixtureCuriosityEntries[1],
+    ];
+    const mixed = render(<CuriosityCards entries={firstWithoutArtworkEntries} />);
+    const firstItem = mixed.querySelector("li");
+    const firstCard = firstItem?.querySelector("article");
+    expect(firstItem?.className).toContain("md:col-span-2");
+    expect(firstCard?.className).not.toContain("lg:grid");
+    expect(firstCard?.className).toContain("flex-col");
+
+    const allFallback = render(<CuriosityCards entries={fixtureCuriosityEntries.map((entry) => ({ ...entry, artwork: undefined }))} />);
+    expect(allFallback.querySelector("article")?.className).not.toContain("lg:grid");
+
+    const single = render(<CuriosityCards entries={fixtureCuriosityEntries.slice(0, 1)} />);
+    expect(single.querySelector("li")?.className ?? "").not.toContain("md:col-span-2");
+    expect(single.querySelector("article")?.className).not.toContain("lg:grid");
+    expect(single.querySelector("a")?.getAttribute("href")).toContain("/explorar/curiosidades/");
+  });
 });

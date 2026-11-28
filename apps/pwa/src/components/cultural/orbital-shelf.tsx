@@ -8,7 +8,10 @@ import { getCulturalCategoryHref } from "@/data/cultural-taxonomy";
 import { getTitleInitials } from "@/lib/cultural-explore";
 
 import { IconArrowLeft, IconArrowRight } from "../icons";
-import { CulturalEntryArtwork } from "./editorial/cultural-entry-artwork";
+import {
+  CulturalArtworkFacts,
+  CulturalEntryArtwork,
+} from "./editorial/cultural-entry-artwork";
 import { SINALIZA_EDITORIAL_REPRESENTATION_LABEL } from "./editorial/editorial-representation";
 import editorialStyles from "./editorial/editorial-artwork.module.css";
 import { libraryAccessLabel, libraryFormatLabel } from "./labels";
@@ -228,9 +231,12 @@ export function OrbitalShelf({
           ) : null}
           <p className="max-w-3xl text-sm leading-relaxed text-muted sm:text-base">{selected.summary}</p>
           {selected.artwork && (
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-success">
-              {SINALIZA_EDITORIAL_REPRESENTATION_LABEL}
-            </p>
+            <>
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-success">
+                {SINALIZA_EDITORIAL_REPRESENTATION_LABEL}
+              </p>
+              <CulturalArtworkFacts entry={selected} />
+            </>
           )}
           <dl className="grid gap-2 text-sm sm:grid-cols-2">
             <div className="flex gap-2">

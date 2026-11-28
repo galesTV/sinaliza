@@ -12,7 +12,11 @@ import {
 } from "@/lib/cultural-explore";
 
 import { IconArrowRight } from "../icons";
-import { CulturalEntryArtwork } from "./editorial/cultural-entry-artwork";
+import {
+  CulturalArtworkFacts,
+  CulturalEntryArtwork,
+} from "./editorial/cultural-entry-artwork";
+import { SINALIZA_EDITORIAL_REPRESENTATION_LABEL } from "./editorial/editorial-representation";
 import { libraryAccessLabel, libraryFormatLabel } from "./labels";
 import { OrbitalShelf } from "./orbital-shelf";
 
@@ -180,19 +184,20 @@ export function LibraryBrowser({
             <li key={entry.id}>
               <article className="group flex h-full flex-col overflow-hidden rounded-[1.6rem] border border-border/65 bg-surface/80 transition-transform duration-200 hover:-translate-y-0.5">
                 <div
-                  aria-hidden="true"
+                  aria-hidden={entry.artwork ? undefined : true}
                   className={`relative flex h-64 overflow-hidden bg-gradient-to-br p-5 ${
                     entry.artwork ? "items-center justify-center" : "items-end"
                   } ${coverTone(entry.library.format)}`}
                 >
                   {entry.artwork ? (
                     <div className="flex flex-col items-center gap-2">
-                      <div className="w-full max-w-36">
-                        <CulturalEntryArtwork entry={entry} variant="book-cover" hideFooter />
+                      <div aria-hidden="true" className="w-full max-w-36">
+                        <CulturalEntryArtwork entry={entry} variant="book-cover" hideFooter includeFacts={false} />
                       </div>
                       <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-success">
-                        Representação editorial do Sinaliza
+                        {SINALIZA_EDITORIAL_REPRESENTATION_LABEL}
                       </span>
+                      <CulturalArtworkFacts entry={entry} />
                     </div>
                   ) : (
                     <>

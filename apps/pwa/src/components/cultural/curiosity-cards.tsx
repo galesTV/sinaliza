@@ -23,6 +23,7 @@ export function CuriosityCards({
         const answerId = `curiosidade-resposta-${entry.slug}`;
         const isExpanded = Boolean(expanded[entry.id]);
         const wide = entries.length > 1 && index === 0;
+        const horizontal = wide && Boolean(entry.artwork);
         const content = (
           <div className="relative flex max-w-2xl flex-col gap-6">
             <div className="flex flex-col gap-3">
@@ -84,7 +85,7 @@ export function CuriosityCards({
 
         return (
           <li key={entry.id} className={wide ? "md:col-span-2" : undefined}>
-            <article className={`relative flex h-full flex-col gap-6 overflow-hidden rounded-[1.75rem] border border-border/60 bg-gradient-to-br from-accent/10 via-surface/65 to-transparent p-6 sm:p-7 ${wide ? "lg:grid lg:grid-cols-[minmax(18rem,0.78fr)_minmax(0,1fr)] lg:items-center lg:gap-8" : ""}`}>
+            <article className={`relative flex h-full flex-col gap-6 overflow-hidden rounded-[1.75rem] border border-border/60 bg-gradient-to-br from-accent/10 via-surface/65 to-transparent p-6 sm:p-7 ${horizontal ? "lg:grid lg:grid-cols-[minmax(18rem,0.78fr)_minmax(0,1fr)] lg:items-center lg:gap-8" : ""}`}>
               {!entry.artwork && (
                 <ConstellationGraphic
                   variant="curiosity"
@@ -92,7 +93,7 @@ export function CuriosityCards({
                 />
               )}
               {entry.artwork && (
-                <div className={`relative ${wide ? "w-full" : "max-w-md"}`}>
+                <div className={`relative ${horizontal ? "w-full" : "max-w-md"}`}>
                   <CulturalEntryArtwork entry={entry} variant="card" />
                 </div>
               )}

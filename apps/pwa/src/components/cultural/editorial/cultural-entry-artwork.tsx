@@ -5,7 +5,7 @@ import { CulturalEditorialArtwork } from "./cultural-editorial-artwork";
 import type { EditorialArtworkVariant } from "./cultural-editorial-artwork";
 import styles from "./editorial-artwork.module.css";
 
-function artworkFacts(entry: PublicCulturalEntry): string[] {
+export function getCulturalArtworkFacts(entry: PublicCulturalEntry): string[] {
   const artwork = entry.artwork;
   if (!artwork) return [];
   if (artwork.motif === "timeline") {
@@ -23,22 +23,38 @@ function artworkFacts(entry: PublicCulturalEntry): string[] {
   return [];
 }
 
+export function CulturalArtworkFacts({
+  entry,
+}: {
+  entry: PublicCulturalEntry;
+}) {
+  const facts = getCulturalArtworkFacts(entry);
+  if (facts.length === 0) return null;
+
+  return (
+    <ul className="sr-only" aria-label="Fatos editoriais representados na arte">
+      {facts.map((fact) => <li key={fact}>{fact}</li>)}
+    </ul>
+  );
+}
+
 export function CulturalEntryArtwork({
   entry,
   variant,
   fill = false,
   className,
   hideFooter = false,
+  includeFacts = true,
 }: {
   entry: PublicCulturalEntry;
   variant: EditorialArtworkVariant;
   fill?: boolean;
   className?: string;
   hideFooter?: boolean;
+  includeFacts?: boolean;
 }) {
   const props = adaptCulturalArtwork(entry, variant);
   if (!props) return null;
-  const facts = artworkFacts(entry);
 
   return (
     <>
@@ -49,11 +65,7 @@ export function CulturalEntryArtwork({
           .filter(Boolean)
           .join(" ")}
       />
-      {facts.length > 0 && (
-        <ul className="sr-only" aria-label="Fatos editoriais representados na arte">
-          {facts.map((fact) => <li key={fact}>{fact}</li>)}
-        </ul>
-      )}
+      {includeFacts && <CulturalArtworkFacts entry={entry} />}
     </>
   );
 }
