@@ -434,7 +434,10 @@ html[data-theme="light"] .cultural-constellation-graphic circle[stroke] {
   animation: cultural-constellation-drift 14s ease-in-out infinite;
 }
 
+
+
 @media (prefers-reduced-motion: reduce) {
+
   html {
     scroll-behavior: auto;
   }
@@ -473,6 +476,18 @@ html[data-theme="light"] .cultural-constellation-graphic circle[stroke] {
   touch-action: pan-y;
   user-select: none;
 }
+
+
+.orbital-stage-pair {
+  width: min(100%, 720px);
+  margin-inline: auto;
+}
+
+.orbital-stage-pair .orbital-depth {
+  inset-inline: 18%;
+  opacity: 0.75;
+}
+
 
 .orbital-stage:active {
   cursor: grabbing;
@@ -567,6 +582,14 @@ html[data-theme="light"] .cultural-constellation-graphic circle[stroke] {
   transform: rotateY(7deg) translateZ(20px);
 }
 
+.orbital-stage-pair .orbital-spine {
+  transform: rotateY(-18deg) translateX(-4px) translateZ(7px);
+}
+
+.orbital-stage-pair .orbital-cover {
+  transform: rotateY(4deg) translateZ(18px);
+}
+
 .orbital-cover::before {
   content: "";
   position: absolute;
@@ -647,6 +670,39 @@ html[data-theme="light"] .cultural-constellation-graphic circle[stroke] {
 @media (prefers-reduced-motion: reduce) {
   .orbital-item {
     transition: none;
+  }
+}
+
+
+@media (max-width: 640px) {
+  .orbital-stage-pair .orbital-item {
+    width: 132px;
+    height: 212px;
+  }
+}
+
+@media (max-width: 400px) {
+  .orbital-stage-pair .orbital-item {
+    width: 126px;
+    height: 198px;
+  }
+
+  .orbital-stage-pair .orbital-spine {
+    width: 34px;
+  }
+
+  .orbital-stage-pair .orbital-cover {
+    inset-inline-start: 27px;
+    padding: 0.7rem;
+  }
+
+  .orbital-stage-pair .orbital-cover > .orbital-title {
+    font-size: 0.84rem;
+  }
+
+  .orbital-stage-pair .orbital-format {
+    font-size: 0.58rem;
+    letter-spacing: 0.08em;
   }
 }
 

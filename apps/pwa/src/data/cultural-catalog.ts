@@ -1866,38 +1866,45 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "slug": "literatura-em-libras",
     "category": "library",
     "title": "Literatura em Libras",
-    "summary": "Literatura sinalizada; versões em português e Libras a conferir.",
-    "version": "candidate-4",
+    "summary": "Obra sobre literatura sinalizada, com versões em português e Libras.",
+    "version": "candidate-7",
     "references": [
       {
         "id": "source-1",
-        "url": "https://repositorio.ufsc.br/xmlui/handle/123456789/259641"
+        "url": "https://repositorio.ufsc.br/xmlui/handle/123456789/259641",
+        "institution": "UFSC — Repositório Institucional",
+        "purpose": "Registro institucional da obra; metadados verificados na curadoria V2/V2.1, com reverificação em 2026-11-28 limitada pela validação de segurança da RedeUFSC",
+        "consultedAt": "2026-11-28"
       },
       {
         "id": "source-2",
-        "url": "https://librando.paginas.ufsc.br/livros-2/"
+        "url": "https://librando.paginas.ufsc.br/livros-2/",
+        "institution": "LIBRANDO — UFSC",
+        "purpose": "Curadoria bibliográfica com ligações para PDF, leitura online e playlist de vídeos em Libras",
+        "consultedAt": "2026-11-28"
       },
       {
         "id": "source-3",
         "url": "https://repositorio.ufsc.br/xmlui/bitstream/handle/123456789/259641/Literatura_em_Libras_Rachel_Sutton_Spence.pdf?sequence=1&isAllowed=y",
         "institution": "UFSC — Repositório Institucional",
-        "purpose": "Ficha catalográfica e ficha técnica",
-        "consultedAt": "2026-11-27"
+        "purpose": "Ficha catalográfica, ficha técnica e apresentação da edição digital",
+        "consultedAt": "2026-11-28"
       }
     ],
     "claims": [
       {
         "id": "claim-1",
-        "text": "Literatura sinalizada; versões em português e Libras a conferir.",
+        "text": "Obra sobre literatura sinalizada, com versões em português e Libras.",
         "referenceIds": [
-          "source-1"
+          "source-2",
+          "source-3"
         ]
       },
       {
         "id": "BIB-004-C01",
-        "text": "Autoria, tradução e edição de 2021.",
+        "text": "Autoria de Rachel Sutton-Spence, tradução do conteúdo em Libras por Gustavo Gusmão e primeira edição de 2021.",
         "referenceIds": [
-          "source-1"
+          "source-3"
         ]
       },
       {
@@ -1909,7 +1916,7 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
       },
       {
         "id": "BIB-004-C03",
-        "text": "Literatura em Libras é uma obra de Rachel Sutton-Spence, com tradução de Gustavo Gusmão.",
+        "text": "Literatura em Libras é uma obra de Rachel Sutton-Spence, com tradução do conteúdo em Libras por Gustavo Gusmão.",
         "referenceIds": [
           "source-3"
         ]
@@ -1929,8 +1936,58 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
         ]
       }
     ],
-    "validationStatus": "draft",
-    "reviews": [],
+    "reviewPolicy": {
+      "path": "documentary",
+      "documentaryEligibility": {
+        "contentClass": "bibliographic-descriptive",
+        "rationale": "Ficha estritamente bibliográfica: apresenta autoria, crédito de tradução, edição, editora, idiomas, modalidades de acesso e descrição sumária da obra apoiados em documentação institucional, ficha técnica, apresentação e sumário. Não ensina Libras, não realiza análise literária independente, não avalia pedagogicamente a obra e não valida linguisticamente o conteúdo.",
+        "claimIds": [
+          "claim-1",
+          "BIB-004-C01",
+          "BIB-004-C02",
+          "BIB-004-C03",
+          "BIB-004-C04",
+          "BIB-004-C05"
+        ],
+        "coveredSurfaces": [
+          "identity",
+          "title",
+          "summary",
+          "claims",
+          "references",
+          "libraryMetadata",
+          "relatedEntries",
+          "editorialBody"
+        ]
+      }
+    },
+    "validationStatus": "documentary-validated",
+    "reviews": [
+      {
+        "reviewer": "Gael Leite Guzman",
+        "type": "research",
+        "date": "2026-11-28",
+        "version": "candidate-7",
+        "contentFingerprint": "7691c13bffb1a0bd6aed49556cf8a5521a50581ca72d84fb377d6a4dccaec805",
+        "notes": "Aprovação humana de pesquisa registrada a partir de decisão explícita do responsável editorial; concentração de funções autorizada e ausência de independência documentada; não é validação especializada."
+      },
+      {
+        "reviewer": "Gael Leite Guzman",
+        "type": "technical",
+        "date": "2026-11-28",
+        "version": "candidate-7",
+        "contentFingerprint": "7691c13bffb1a0bd6aed49556cf8a5521a50581ca72d84fb377d6a4dccaec805",
+        "notes": "Aprovação humana de revisão técnica registrada a partir de decisão explícita do responsável editorial; concentração de funções autorizada e ausência de independência documentada; não é validação especializada."
+      }
+    ],
+    "publicationAuthorization": {
+      "authorizer": "Gael Leite Guzman",
+      "date": "2026-11-28",
+      "version": "candidate-7",
+      "contentFingerprint": "7691c13bffb1a0bd6aed49556cf8a5521a50581ca72d84fb377d6a4dccaec805",
+      "scope": "public-web",
+      "notes": "Autorização editorial final registrada a partir de decisão explícita do responsável editorial; não representa aprovação especializada nem licença de reprodução de materiais de terceiros."
+    },
     "rights": {
       "mode": "external-link-only",
       "assets": []
@@ -1972,23 +2029,25 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
         "evidenceReferenceIds": []
       }
     ],
-    "internalPending": [
-      "Conferir metadados e acesso; sem autorização de mídia."
-    ],
+    "internalPending": [],
     "library": {
-      "unknownMetadata": [
-        "creators",
-        "publicationYear",
-        "publisher",
-        "format",
-        "access",
-        "languages"
+      "creators": [
+        "Rachel Sutton-Spence"
       ],
+      "publicationYear": 2021,
+      "publisher": "Editora Arara Azul",
+      "format": "book",
+      "access": "open-digital",
+      "languages": [
+        "Português",
+        "Libras"
+      ],
+      "unknownMetadata": [],
       "unstructuredMetadata": "Rachel Sutton-Spence · 2021 · Arara Azul"
     },
     "editorialBody": {
       "paragraphs": [
-        "Literatura em Libras, de Rachel Sutton-Spence, com tradução de Gustavo Gusmão, apresenta estudos sobre literatura sinalizada. A primeira edição é de 2021, pela Arara Azul. O LIBRANDO indica modalidades textuais e audiovisuais."
+        "Literatura em Libras, de Rachel Sutton-Spence, com tradução do conteúdo para Libras por Gustavo Gusmão, apresenta estudos sobre literatura sinalizada. A primeira edição é de 2021, pela Arara Azul. O LIBRANDO indica modalidades textuais e audiovisuais."
       ],
       "claimIds": [
         "BIB-004-C01",
@@ -2397,11 +2456,14 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "library",
     "title": "Iconographia dos Signaes dos Surdos-Mudos",
     "summary": "Patrimônio histórico; título original de época, não terminologia atual.",
-    "version": "candidate-4",
+    "version": "candidate-5",
     "references": [
       {
         "id": "source-1",
-        "url": "https://seer.ines.gov.br/index.php/serie-historica/issue/view/167"
+        "url": "https://seer.ines.gov.br/index.php/serie-historica/issue/view/167",
+        "institution": "INES — Série Histórica",
+        "purpose": "Apresentação institucional do fac-símile e acesso à edição completa em PDF",
+        "consultedAt": "2026-11-28"
       },
       {
         "id": "source-2",
@@ -2457,17 +2519,19 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
         "evidenceReferenceIds": []
       }
     ],
-    "internalPending": [
-      "Conferir metadados e acesso; sem autorização de mídia."
-    ],
+    "internalPending": [],
     "library": {
+      "creators": [
+        "Flausino José da Gama"
+      ],
+      "publicationYear": 1875,
+      "format": "historical-facsimile",
+      "access": "institutional-digital",
+      "languages": [
+        "Português"
+      ],
       "unknownMetadata": [
-        "creators",
-        "publicationYear",
-        "publisher",
-        "format",
-        "access",
-        "languages"
+        "publisher"
       ],
       "unstructuredMetadata": "Flausino José da Gama · 1875"
     },
@@ -2487,18 +2551,21 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "library",
     "title": "Contação de Histórias",
     "summary": "Série audiovisual de literatura infantil e juvenil.",
-    "version": "candidate-4",
+    "version": "candidate-6",
     "references": [
       {
         "id": "source-1",
-        "url": "https://debasi.ines.gov.br/tv-ines/conta%C3%A7%C3%A3o-de-hist%C3%B3rias"
+        "url": "https://debasi.ines.gov.br/tv-ines/conta%C3%A7%C3%A3o-de-hist%C3%B3rias",
+        "institution": "INES — DEBASI / TV INES",
+        "purpose": "Descrição institucional da série e lista de episódios vinculados ao YouTube",
+        "consultedAt": "2026-11-28"
       },
       {
         "id": "source-2",
         "url": "https://debasi.ines.gov.br/tv-ines",
         "institution": "INES — TV INES / DEBASI",
-        "purpose": "Categoria Infantil",
-        "consultedAt": "2026-11-27"
+        "purpose": "Apresentação institucional da TV INES e categoria Infantil",
+        "consultedAt": "2026-11-28"
       }
     ],
     "claims": [
@@ -2538,8 +2605,57 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
         ]
       }
     ],
-    "validationStatus": "draft",
-    "reviews": [],
+    "reviewPolicy": {
+      "path": "documentary",
+      "documentaryEligibility": {
+        "contentClass": "bibliographic-descriptive",
+        "rationale": "Ficha estritamente documental sobre série audiovisual institucional: descreve natureza, responsabilidade institucional, finalidade declarada e modalidade de acesso conforme fontes oficiais. Não avalia eficácia, não analisa linguisticamente os episódios e não afirma verificação integral ou disponibilidade permanente.",
+        "claimIds": [
+          "claim-1",
+          "BIB-011-C01",
+          "BIB-011-C02",
+          "BIB-011-C03",
+          "BIB-011-C04"
+        ],
+        "coveredSurfaces": [
+          "identity",
+          "title",
+          "summary",
+          "claims",
+          "references",
+          "libraryMetadata",
+          "relatedEntries",
+          "editorialBody"
+        ]
+      }
+    },
+    "validationStatus": "documentary-validated",
+    "reviews": [
+      {
+        "reviewer": "Gael Leite Guzman",
+        "type": "research",
+        "date": "2026-11-28",
+        "version": "candidate-6",
+        "contentFingerprint": "fa76434ad3aae44de26500d20f5c78a447d6963c62373c199efbca776cfa3e79",
+        "notes": "Aprovação humana de pesquisa registrada a partir de decisão explícita do responsável editorial; concentração de funções autorizada e ausência de independência documentada; não é validação especializada."
+      },
+      {
+        "reviewer": "Gael Leite Guzman",
+        "type": "technical",
+        "date": "2026-11-28",
+        "version": "candidate-6",
+        "contentFingerprint": "fa76434ad3aae44de26500d20f5c78a447d6963c62373c199efbca776cfa3e79",
+        "notes": "Aprovação humana de revisão técnica registrada a partir de decisão explícita do responsável editorial; concentração de funções autorizada e ausência de independência documentada; não é validação especializada."
+      }
+    ],
+    "publicationAuthorization": {
+      "authorizer": "Gael Leite Guzman",
+      "date": "2026-11-28",
+      "version": "candidate-6",
+      "contentFingerprint": "fa76434ad3aae44de26500d20f5c78a447d6963c62373c199efbca776cfa3e79",
+      "scope": "public-web",
+      "notes": "Autorização editorial final registrada a partir de decisão explícita do responsável editorial; não representa aprovação especializada nem licença de reprodução de materiais de terceiros."
+    },
     "rights": {
       "mode": "external-link-only",
       "assets": []
@@ -2581,17 +2697,19 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
         "evidenceReferenceIds": []
       }
     ],
-    "internalPending": [
-      "Conferir metadados e acesso; sem autorização de mídia."
-    ],
+    "internalPending": [],
     "library": {
+      "creators": [
+        "TV INES"
+      ],
+      "format": "audiovisual-series",
+      "access": "external-website",
+      "languages": [
+        "Libras"
+      ],
       "unknownMetadata": [
-        "creators",
         "publicationYear",
-        "publisher",
-        "format",
-        "access",
-        "languages"
+        "publisher"
       ],
       "unstructuredMetadata": "TV INES"
     },

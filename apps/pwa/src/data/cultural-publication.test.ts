@@ -97,12 +97,13 @@ describe("isCulturalPublishable", () => {
     expect(isCulturalPublishable(entry, [entry])).toBe(true);
   });
 
-  it("keeps all 41 real cultural records unpublished", () => {
+  it("keeps exactly the two authorized real cultural records published and all others unpublished", () => {
     for (const entry of culturalCatalog) {
-      expect(isCulturalPublishable(entry, culturalCatalog), entry.id).toBe(false);
+      const expected = entry.id === "BIB-004" || entry.id === "BIB-011";
+      expect(isCulturalPublishable(entry, culturalCatalog), entry.id).toBe(expected);
     }
-    expect(projectPublicCulturalEntries(culturalCatalog)).toEqual([]);
-    expect(getPublicCulturalEntries()).toEqual([]);
+    expect(projectPublicCulturalEntries(culturalCatalog).map((entry) => entry.id).sort()).toEqual(["BIB-004", "BIB-011"]);
+    expect(getPublicCulturalEntries().map((entry) => entry.id).sort()).toEqual(["BIB-004", "BIB-011"]);
   });
 
   it("ignores a manual publishable boolean even when injected into the object", () => {

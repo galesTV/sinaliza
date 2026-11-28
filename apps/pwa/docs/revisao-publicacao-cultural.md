@@ -33,18 +33,52 @@ Além da versão, revisões e autorização carregam `contentFingerprint`: um SH
 
 Essa regra torna invalidação efetiva mesmo quando alguém altera o conteúdo e esquece de incrementar a versão: revisões e autorização antigas deixam de corresponder ao fingerprint atual. O fingerprint não substitui revisão humana nem prova veracidade; ele apenas vincula a decisão humana ao material exato revisado.
 
-## 3. Cadeia obrigatória
+## 3. Cadeias obrigatórias e política editorial
 
-A publicação exige, nesta ordem:
+O contrato possui dois caminhos editoriais explícitos:
+
+### Caminho especializado
+
+`draft → research-reviewed → technical-reviewed → expert-validated`
+
+Exige, nesta ordem:
 
 1. `research` — pesquisa e checagem documental;
 2. `technical` — integridade técnica, contrato, direitos e implementação;
 3. `expert` — validação especializada de fatos, terminologia, representatividade e adequação;
 4. autorização final de publicação — decisão documentada do responsável pelo projeto, sem substituir nenhuma revisão.
 
-As três revisões precisam ser válidas, cobrir a versão atual e aparecer na ordem do ciclo de vida. A autorização final também precisa cobrir a mesma versão e ter escopo `public-web`.
+Registros sem `reviewPolicy` seguem este caminho legado. Um registro também pode declarar explicitamente `path: "expert-required"`.
+
+### Caminho documental
+
+`draft → research-reviewed → technical-reviewed → documentary-validated`
+
+Exige, nesta ordem:
+
+1. `research` — pesquisa e checagem documental realizada por pessoa humana;
+2. `technical` — integridade técnica, contrato, direitos e implementação realizada por pessoa humana;
+3. autorização final de publicação — decisão documentada do responsável pelo projeto, sem substituir nenhuma revisão.
+
+Não exige revisão `expert`, mas só é válido para registros de biblioteca explicitamente classificados como `bibliographic-descriptive` por decisão editorial humana. A classificação não é inferida pela categoria nem por heurística textual. A validação automática verifica consistência estrutural; ela não comprova baixo risco semântico nem substitui revisão humana.
+
+A política documental precisa declarar justificativa editorial, cobertura exata de todas as claims e cobertura exata das superfícies editoriais relevantes presentes: identidade pública estrutural (id/slug/categoria), título, resumo, claims, referências/links, metadados bibliográficos, corpo editorial quando presente e a superfície de relações (inclusive vazia). IDs ou superfícies ausentes, duplicados, desconhecidos ou excedentes bloqueiam a publicação.
+
+Na primeira versão, o caminho documental é conservadoramente restrito a registros sem artwork, sem assets de terceiros, com `assets: []` e direitos `external-link-only`. Pendências internas continuam impeditivas.
+
+### Regras comuns
+
+As revisões precisam ser válidas, cobrir a versão atual e aparecer na ordem do ciclo de vida exigido pelo caminho aplicável. A autorização final também precisa cobrir a mesma versão, ter escopo `public-web` e ser posterior às revisões exigidas.
+
+`reviewPolicy` integra o fingerprint. Adicionar, remover ou alterar a política — inclusive caminho, classe, justificativa, claims ou superfícies cobertas — altera o material editorial revisado e invalida revisões/autorizações anteriores por fingerprint incompatível. Política nula, malformada, desconhecida ou inconsistente bloqueia publicação; ausência legítima significa somente o caminho especializado legado, nunca dispensa de validação expert.
 
 O predicado não reconhece publicação por booleano. O campo `publishable` do seed original não foi migrado como mecanismo de autorização.
+
+## 3.1. Independência operacional no MVP
+
+Preferencialmente, pesquisa e revisão técnica devem ser realizadas por pessoas distintas. Para registros documentais de baixo risco, o responsável pelo projeto pode autorizar explicitamente que uma mesma pessoa acumule pesquisa, técnica e autorização final somente quando ela efetivamente executar cada revisão, registrar decisões separadas com versão/fingerprint exatos, documentar a ausência de independência e registrar a autorização final somente depois das revisões. Esse processo não deve ser apresentado como validação especializada independente.
+
+Agentes de IA podem produzir evidências, diagnósticos e verificações automatizadas, mas não podem assumir identidade humana, emitir pareceres nem registrar aprovações em nome de terceiros.
 
 ## 4. Outras condições fail-closed
 

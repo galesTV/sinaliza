@@ -9,6 +9,8 @@ import { culturalCatalog } from "./cultural-catalog";
 import { getCulturalContentFingerprint } from "./cultural-publication";
 import type { CulturalCatalogEntry } from "./cultural-catalog-model";
 import { culturalR53B2PostMigrationBaseline } from "@/test/cultural-r53c-baseline";
+import { restoreCulturalD334BBeforeState } from "@/test/cultural-d334b-transition";
+import { restoreCulturalD335DBeforeState } from "@/test/cultural-d335d-transition";
 import {
   materializeR53B2BaselineEntry,
   parseR53CTraceText,
@@ -20,6 +22,7 @@ const v2Dir = join(process.cwd(), "docs/curadoria-cultural/v2/pacote-original");
 const v21Dir = join(process.cwd(), "docs/curadoria-cultural/v2.1/pacote-original");
 const tracePath = join(process.cwd(), "docs/curadoria-cultural/v2.1/rastreabilidade-r53b2.md");
 const adendoPath = join(process.cwd(), "docs/curadoria-cultural/v2.1/adendo-per-001.md");
+const preD334BCatalog = restoreCulturalD334BBeforeState(culturalCatalog);
 
 type SourceClaim = {
   id: string;
@@ -483,7 +486,7 @@ describe("complementary cultural evidence integrity", () => {
     expect(complementary).toHaveLength(22);
     expect(recovered).toHaveLength(5);
     expect(adendoClaims).toHaveLength(3);
-    expect(validateEvidenceChain(culturalCatalog, rows, sourceClaims)).toEqual([]);
+    expect(validateEvidenceChain(preD334BCatalog, rows, sourceClaims)).toEqual([]);
   });
 
   it("rejects consistent catalog/traceability tampering that diverges from the original source", () => {
@@ -572,7 +575,7 @@ describe("complementary cultural evidence integrity", () => {
       "Direitos de `BIB-003` permanecem independentes",
     ]) expect(text).toContain(fragment);
     expect(text).not.toContain("expert-validated");
-    expect(culturalCatalog.every((entry) => entry.validationStatus === "draft" && entry.reviews.length === 0 && !entry.publicationAuthorization)).toBe(true);
+    expect(restoreCulturalD335DBeforeState(culturalCatalog).every((entry) => entry.validationStatus === "draft" && entry.reviews.length === 0 && !entry.publicationAuthorization)).toBe(true);
   });
 });
 
@@ -584,7 +587,7 @@ describe("complete set of 56 documentary claims and legacy preservation", () => 
       ...adendoClaims.map((claim) => claim.id),
     ].sort();
     expect(expectedIds).toHaveLength(56);
-    const runtime = culturalCatalog.flatMap((entry) =>
+    const runtime = preD334BCatalog.flatMap((entry) =>
       entry.claims.filter((claim) => claim.id.includes("-C")).map((claim) => ({ entryId: entry.id, claimId: claim.id, text: claim.text })),
     );
     expect(runtime.map((claim) => claim.claimId).sort()).toEqual(expectedIds);
@@ -678,8 +681,8 @@ describe("R.5.3-C editorial body transition", () => {
     expect(validate(additionalClaim)).toContain("wrong claim collection PER-001");
 
     const notIncremented = structuredClone(culturalCatalog);
-    notIncremented.find((entry) => entry.id === "BIB-004")!.version = "candidate-3";
-    expect(validate(notIncremented)).toContain("after version mismatch BIB-004");
+    notIncremented.find((entry) => entry.id === "BIB-002")!.version = "candidate-2";
+    expect(validate(notIncremented)).toContain("after version mismatch BIB-002");
 
     const unauthorizedField = structuredClone(culturalCatalog);
     unauthorizedField.find((entry) => entry.id === "CUR-002")!.summary = "campo não autorizado alterado";

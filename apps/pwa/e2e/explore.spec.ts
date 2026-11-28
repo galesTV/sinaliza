@@ -28,7 +28,10 @@ test.describe("explorar — descoberta cultural", () => {
       await expect(page.locator(`a[href="${category.href}"]`).first()).toBeVisible();
     }
 
-    await expect(page.getByText("Novos conteúdos em preparação")).toBeVisible();
+    await expect(page.locator('a[href="/explorar/biblioteca"]').first()).toContainText("2 registros");
+    await expect(page.locator('a[href="/explorar/historia"]').first()).toContainText("Em preparação");
+    await expect(page.locator('a[href="/explorar/curiosidades"]').first()).toContainText("Em preparação");
+    await expect(page.locator('a[href="/explorar/personalidades"]').first()).toContainText("Em preparação");
     await expectNoHorizontalOverflow(page);
   });
 
@@ -43,7 +46,7 @@ test.describe("explorar — descoberta cultural", () => {
     await expect(page).toHaveURL(/\/explorar$/);
   });
 
-  for (const category of CATEGORIES) {
+  for (const category of CATEGORIES.filter((item) => item.href !== "/explorar/biblioteca")) {
     test(`${category.href} renders an honest empty state without candidate content`, async ({ page }) => {
       await page.goto(category.href);
       await expect(page.getByRole("heading", { name: category.heading })).toBeVisible();
@@ -53,6 +56,30 @@ test.describe("explorar — descoberta cultural", () => {
       await expectNoHorizontalOverflow(page);
     });
   }
+
+  test("renders exactly the two authorized library publications", async ({ page }) => {
+    await page.goto("/explorar/biblioteca");
+    await expect(page.getByRole("heading", { name: "Biblioteca Cultural" })).toBeVisible();
+    await expect(page.getByText("2 registros publicados encontrados")).toBeVisible();
+    await expect(page.getByRole("link", { name: "Ver ficha de Literatura em Libras" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Ver ficha de Contação de Histórias" })).toBeVisible();
+    await expect(page.locator("dd").filter({ hasText: "Acesso digital gratuito" }).first()).toBeVisible();
+    await expect(page.locator("article").filter({ hasText: "Série audiovisual" }).first()).toBeVisible();
+    await expect(page.getByText(/Responsabilidade institucional:/)).toBeVisible();
+    await expect(page.getByText("Digital aberto")).toHaveCount(0);
+    await expectNoHorizontalOverflow(page);
+  });
+
+  test("opens the two authorized public library details", async ({ page }) => {
+    for (const path of [
+      "/explorar/biblioteca/literatura-em-libras",
+      "/explorar/biblioteca/contacao-de-historias",
+    ]) {
+      const response = await page.goto(path);
+      expect(response?.status()).toBe(200);
+      await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    }
+  });
 
   test("keeps Explore out of the main navigation while the launch gate is closed", async ({ page }) => {
     await page.goto("/");
@@ -81,7 +108,7 @@ test.describe("explorar — publication guards", () => {
   });
 
 
-  test("returns 404 for the six migrated V2 draft candidates", async ({ page }) => {
+  test("returns 404 for protected draft candidates", async ({ page }) => {
     for (const path of [
       "/explorar/personalidades/fernando-cesar-capovilla",
       "/explorar/personalidades/fernanda-de-araujo-machado",
@@ -89,6 +116,7 @@ test.describe("explorar — publication guards", () => {
       "/explorar/biblioteca/enciclopedia-da-lingua-de-sinais-brasileira",
       "/explorar/biblioteca/cartilha-de-libras-em-medicina-e-saude",
       "/explorar/biblioteca/filosofias-educacionais-em-relacao-ao-surdo",
+      "/explorar/biblioteca/iconographia-dos-signaes-dos-surdos-mudos",
     ]) {
       const response = await page.goto(path);
       expect(response?.status(), path).toBe(404);
@@ -133,16 +161,46 @@ test.describe("explorar — publication guards", () => {
     await expectNoHorizontalOverflow(page);
   });
 
+  test("keeps the two-item orbital shelf visible without overlap or lateral clipping", async ({ page }) => {
+    await page.goto("/explorar/biblioteca");
+    await page.getByRole("button", { name: "Estante" }).click();
+    const boxes = await page.locator(".orbital-item").evaluateAll((items) =>
+      items.map((item) => {
+        const rect = item.getBoundingClientRect();
+        return { left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom };
+      }),
+    );
+    const stage = await page.locator(".orbital-stage").evaluate((element) => {
+      const rect = element.getBoundingClientRect();
+      return { left: rect.left, right: rect.right };
+    });
+    expect(boxes).toHaveLength(2);
+    for (const box of boxes) {
+      expect(box.left).toBeGreaterThanOrEqual(stage.left - 1);
+      expect(box.right).toBeLessThanOrEqual(stage.right + 1);
+    }
+    const [first, second] = boxes.sort((a, b) => a.left - b.left);
+    expect(second.left).toBeGreaterThanOrEqual(first.right);
+  });
+
   test("does not expose raw editorial data in HTML or the embedded RSC payload", async ({ page }) => {
     for (const path of ["/explorar", "/explorar/historia", "/explorar/curiosidades", "/explorar/biblioteca"]) {
       const response = await page.request.get(path);
       expect(response.status()).toBe(200);
       const html = await response.text();
+      if (path === "/explorar/biblioteca") {
+        expect(html).toContain("editorialBody");
+      }
       expect(html).not.toContain("internalPending");
       expect(html).not.toContain("unverified-candidate");
       expect(html).not.toContain("validationStatus");
       expect(html).not.toContain("publicationAuthorization");
-      expect(html).not.toContain("editorialBody");
+      expect(html).not.toContain("reviewPolicy");
+      expect(html).not.toContain("documentaryEligibility");
+      expect(html).not.toContain("contentFingerprint");
+      expect(html).not.toContain("7691c13bffb1a0bd6aed49556cf8a5521a50581ca72d84fb377d6a4dccaec805");
+      expect(html).not.toContain("fa76434ad3aae44de26500d20f5c78a447d6963c62373c199efbca776cfa3e79");
+      expect(html).not.toContain("Gael Leite Guzman");
       expect(html).not.toContain("claimIds");
       expect(html).not.toContain("Ernest Huet");
       expect(html).not.toContain("Iconographia de Flausino");

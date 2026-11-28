@@ -14,7 +14,7 @@ import {
 } from "./editorial/cultural-entry-artwork";
 import { SINALIZA_EDITORIAL_REPRESENTATION_LABEL } from "./editorial/editorial-representation";
 import editorialStyles from "./editorial/editorial-artwork.module.css";
-import { libraryAccessLabel, libraryFormatLabel } from "./labels";
+import { libraryAccessLabel, libraryCreatorsRoleLabel, libraryFormatLabel } from "./labels";
 
 function formatClass(format: string | undefined): string {
   const normalized = format ?? "";
@@ -32,6 +32,7 @@ export function OrbitalShelf({
   const dragState = useRef<{ startX: number; consumed: boolean; moved: boolean } | null>(null);
   const suppressClickAfterDrag = useRef(false);
   const count = entries.length;
+  const pairLayout = count === 2;
   const safeIndex = count === 0 ? 0 : Math.min(selectedIndex, count - 1);
   const selected = entries[safeIndex];
 
@@ -144,21 +145,25 @@ export function OrbitalShelf({
         onPointerUp={endDrag}
         onPointerCancel={endDrag}
         onClick={handleStageClick}
-        className="orbital-stage focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+        className={`orbital-stage ${pairLayout ? "orbital-stage-pair" : ""} focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent`}
       >
         <div aria-hidden="true" className="orbital-depth" />
         <div aria-hidden="true" className="orbital-items">
           {visibleItems.map(({ entry, index, offset }) => {
-            const abs = Math.abs(offset);
+            const pairOffset = index - (count - 1) / 2;
+            const layoutOffset = pairLayout ? pairOffset : offset;
+            const abs = Math.abs(layoutOffset);
             const selectedItem = index === safeIndex;
             return (
               <div
                 key={entry.id}
                 className={`orbital-item ${formatClass(entry.library.format)} ${selectedItem ? "is-selected" : ""}`}
                 style={{
-                  transform: `translate(-50%, -50%) translateX(${offset * 132}px) translateZ(${-abs * 92}px) rotateY(${offset * -24}deg) scale(${selectedItem ? 1 : 0.9 - abs * 0.035})`,
-                  zIndex: 20 - abs,
-                  opacity: Math.max(0.22, 1 - abs * 0.22),
+                  transform: pairLayout
+                    ? `translate(-50%, -50%) translateX(${layoutOffset < 0 ? "-60%" : "60%"}) translateZ(${selectedItem ? 0 : -32}px) rotateY(${layoutOffset * -12}deg) scale(${selectedItem ? 1 : 0.96})`
+                    : `translate(-50%, -50%) translateX(${offset * 132}px) translateZ(${-abs * 92}px) rotateY(${offset * -24}deg) scale(${selectedItem ? 1 : 0.9 - abs * 0.035})`,
+                  zIndex: pairLayout ? (selectedItem ? 21 : 20) : 20 - abs,
+                  opacity: pairLayout ? 1 : Math.max(0.22, 1 - abs * 0.22),
                 }}
               >
                 <div className="orbital-spine">
@@ -238,7 +243,7 @@ export function OrbitalShelf({
             {selected.title}
           </h3>
           {selected.library.creators?.length ? (
-            <p className="text-sm font-medium text-muted">{selected.library.creators.join(", ")}</p>
+            <p className="text-sm font-medium text-muted"><span className="font-semibold text-foreground">{libraryCreatorsRoleLabel(selected)}:</span> {selected.library.creators.join(", ")}</p>
           ) : null}
           <p className="max-w-3xl text-sm leading-relaxed text-muted sm:text-base">{selected.summary}</p>
           {selected.artwork && (
@@ -264,6 +269,7 @@ export function OrbitalShelf({
           <Link
             href={`${getCulturalCategoryHref("library")}/${selected.slug}`}
             className="inline-flex min-h-11 items-center gap-2 self-start rounded-full border border-accent/35 px-4 text-sm font-semibold text-accent transition-colors hover:border-accent/60 hover:text-foreground"
+            aria-label={`Abrir ficha pública de ${selected.title}`}
           >
             Abrir ficha pública
             <IconArrowRight className="h-4 w-4" />
