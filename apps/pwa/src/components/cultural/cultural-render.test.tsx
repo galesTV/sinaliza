@@ -214,6 +214,13 @@ describe("cultural editorial body and artwork integration", () => {
     expect(html).toContain("orbital-initials");
     expect(html).toContain('data-variant="book-cover"');
     expect(html).toContain('data-variant="book-spine"');
+
+    const orbitalItems = html.slice(
+      html.indexOf('class="orbital-items"'),
+      html.indexOf('aria-label="Obra anterior"'),
+    );
+    expect(orbitalItems).not.toContain("Fatos editoriais representados na arte");
+    expect(html).toContain("Fatos editoriais representados na arte");
   });
 
   it("uses portrait personality panels and integrated orbital artwork surfaces", () => {
