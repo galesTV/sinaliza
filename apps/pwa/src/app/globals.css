@@ -460,7 +460,7 @@ html[data-theme="light"] .cultural-constellation-graphic circle[stroke] {
 
 .orbital-stage {
   position: relative;
-  height: 340px;
+  height: 380px;
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--success) 24%, transparent);
   border-radius: 1.75rem;
@@ -514,8 +514,8 @@ html[data-theme="light"] .cultural-constellation-graphic circle[stroke] {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 172px;
-  height: 252px;
+  width: 190px;
+  height: 278px;
   transform-style: preserve-3d;
   transition:
     transform 420ms cubic-bezier(0.2, 0.8, 0.2, 1),
@@ -543,7 +543,7 @@ html[data-theme="light"] .cultural-constellation-graphic circle[stroke] {
   transform-origin: right center;
 }
 
-.orbital-spine span {
+.orbital-spine > .orbital-initials {
   color: var(--orbital-spine-text);
   font-family: var(--font-display);
   font-size: 1.75rem;
@@ -576,7 +576,7 @@ html[data-theme="light"] .cultural-constellation-graphic circle[stroke] {
   pointer-events: none;
 }
 
-.orbital-cover strong {
+.orbital-cover > .orbital-title {
   position: relative;
   display: -webkit-box;
   overflow: hidden;
@@ -589,7 +589,7 @@ html[data-theme="light"] .cultural-constellation-graphic circle[stroke] {
   -webkit-line-clamp: 4;
 }
 
-.orbital-cover small,
+.orbital-cover > .orbital-creator,
 .orbital-format {
   position: relative;
   color: var(--orbital-cover-muted);
@@ -626,20 +626,20 @@ html[data-theme="light"] .cultural-constellation-graphic circle[stroke] {
 
 @media (max-width: 640px) {
   .orbital-stage {
-    height: 292px;
+    height: 318px;
     border-radius: 1.35rem;
   }
 
   .orbital-item {
-    width: 138px;
-    height: 218px;
+    width: 148px;
+    height: 232px;
   }
 
   .orbital-cover {
     padding: 0.8rem;
   }
 
-  .orbital-cover strong {
+  .orbital-cover > .orbital-title {
     font-size: 0.95rem;
   }
 }
@@ -648,4 +648,13 @@ html[data-theme="light"] .cultural-constellation-graphic circle[stroke] {
   .orbital-item {
     transition: none;
   }
+}
+
+.orbital-cover-artwork {
+  padding: 0;
+  background: none;
+}
+
+.orbital-cover-artwork::before {
+  display: none;
 }

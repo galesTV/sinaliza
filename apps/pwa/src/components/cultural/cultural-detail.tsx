@@ -14,6 +14,7 @@ import {
 import { formatHistoryDate } from "@/lib/cultural-explore";
 
 import { ConstellationGraphic } from "./constellation-graphic";
+import { CulturalEntryArtwork } from "./editorial/cultural-entry-artwork";
 import {
   libraryAccessLabel,
   libraryFormatLabel,
@@ -44,6 +45,24 @@ function DetailSection({
   );
 }
 
+function EditorialParagraphs({
+  paragraphs,
+  className = "max-w-3xl",
+}: {
+  paragraphs: readonly string[];
+  className?: string;
+}) {
+  return (
+    <div className={`flex flex-col gap-4 ${className}`}>
+      {paragraphs.map((paragraph, index) => (
+        <p key={index} className="text-base leading-relaxed text-muted sm:text-lg">
+          {paragraph}
+        </p>
+      ))}
+    </div>
+  );
+}
+
 export function CulturalDetail({
   entry,
   relations,
@@ -59,6 +78,7 @@ export function CulturalDetail({
     personality: "Trajetória",
     library: "Informações bibliográficas",
   }[entry.category];
+  const editorialParagraphs = entry.editorialBody?.paragraphs;
   const detailTone = {
     history: "text-highlight",
     curiosity: "text-accent",
@@ -95,10 +115,18 @@ export function CulturalDetail({
             </p>
           </div>
         </div>
-        <div aria-hidden="true" className="relative hidden h-44 lg:block">
-          <ConstellationGraphic variant={entry.category} className={`absolute inset-0 h-full w-full opacity-55 ${detailTone}`} />
-        </div>
+        {!entry.artwork && (
+          <div aria-hidden="true" className="relative hidden h-44 lg:block">
+            <ConstellationGraphic variant={entry.category} className={`absolute inset-0 h-full w-full opacity-55 ${detailTone}`} />
+          </div>
+        )}
       </header>
+
+      {entry.artwork && (
+        <section aria-label="Arte editorial" className="max-w-5xl">
+          <CulturalEntryArtwork entry={entry} variant="detail" />
+        </section>
+      )}
 
       <DetailSection id="cultural-content-title" title={contentTitle}>
         {entry.category === "history" && (
@@ -106,24 +134,32 @@ export function CulturalDetail({
             <p className="w-fit rounded-full border border-highlight/35 bg-highlight/10 px-4 py-2 font-display text-2xl font-semibold text-highlight">
               {formatHistoryDate(entry)}
             </p>
-            {entry.history.context && (
+            {editorialParagraphs ? (
+              <EditorialParagraphs paragraphs={editorialParagraphs} className="max-w-2xl" />
+            ) : entry.history.context ? (
               <p className="max-w-2xl border-l-2 border-highlight/45 pl-4 text-base leading-relaxed text-muted sm:text-lg">
                 {entry.history.context}
               </p>
-            )}
+            ) : null}
           </div>
         )}
 
         {entry.category === "curiosity" && (
           <div className="flex max-w-3xl flex-col gap-6">
-            <blockquote className="border-l-2 border-accent/55 pl-5 font-display text-2xl font-semibold leading-snug text-foreground sm:text-3xl">
-              {entry.curiosity.question}
-            </blockquote>
-            <div className="flex flex-col gap-2">
-              <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-accent">Resposta</h3>
-              <p className="text-base leading-relaxed text-muted sm:text-lg">{entry.curiosity.shortAnswer}</p>
-            </div>
-            {entry.curiosity.deepening && (
+            {entry.curiosity.question !== entry.title && (
+              <blockquote className="border-l-2 border-accent/55 pl-5 font-display text-2xl font-semibold leading-snug text-foreground sm:text-3xl">
+                {entry.curiosity.question}
+              </blockquote>
+            )}
+            {editorialParagraphs ? (
+              <EditorialParagraphs paragraphs={editorialParagraphs} />
+            ) : (
+              <div className="flex flex-col gap-2">
+                <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-accent">Resposta</h3>
+                <p className="text-base leading-relaxed text-muted sm:text-lg">{entry.curiosity.shortAnswer}</p>
+              </div>
+            )}
+            {!editorialParagraphs && entry.curiosity.deepening && (
               <div className="rounded-[1.4rem] border-l-2 border-highlight/45 bg-highlight/8 p-5">
                 <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-highlight">Para continuar</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted sm:text-base">{entry.curiosity.deepening}</p>
@@ -138,9 +174,13 @@ export function CulturalDetail({
               <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-primary-soft">
                 Sobre {entry.personality.personName}
               </h3>
-              <p className="text-base leading-relaxed text-muted sm:text-lg">
-                {entry.personality.biographicalSummary}
-              </p>
+              {editorialParagraphs ? (
+                <EditorialParagraphs paragraphs={editorialParagraphs} />
+              ) : (
+                <p className="text-base leading-relaxed text-muted sm:text-lg">
+                  {entry.personality.biographicalSummary}
+                </p>
+              )}
             </div>
             {entry.personality.contributions?.length ? (
               <aside className="rounded-[1.4rem] border border-primary/25 bg-primary/10 p-5">
@@ -159,6 +199,10 @@ export function CulturalDetail({
         )}
 
         {entry.category === "library" && (
+          <div className="flex flex-col gap-6">
+            {editorialParagraphs ? (
+              <EditorialParagraphs paragraphs={editorialParagraphs} />
+            ) : null}
           <dl className="grid gap-x-8 gap-y-5 rounded-[1.5rem] border border-success/25 bg-success/8 p-5 text-sm sm:grid-cols-2 lg:grid-cols-3">
             {entry.library.creators?.length ? (
               <div>
@@ -193,6 +237,7 @@ export function CulturalDetail({
               </div>
             ) : null}
           </dl>
+          </div>
         )}
       </DetailSection>
 

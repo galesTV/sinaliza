@@ -136,11 +136,51 @@ export interface PublicCulturalRelation {
   kind: PublicCulturalRelationKind;
 }
 
+export interface PublicCulturalTimelineEvent {
+  year: number;
+  label: string;
+}
+
+export type PublicCulturalArtwork =
+  | {
+      motif: "timeline";
+      events?: PublicCulturalTimelineEvent[];
+    }
+  | {
+      motif: "legal-document";
+      documentNumber?: string;
+      documentDate?: string;
+    }
+  | {
+      motif: "diversity-orbits";
+    }
+  | {
+      motif: "parallel-structures";
+    }
+  | {
+      motif: "visual-rhythm";
+    }
+  | {
+      motif: "monogram";
+      initials?: string;
+    }
+  | {
+      motif: "academic";
+      volumeNumber?: string;
+    }
+  | {
+      motif: "literary";
+    };
+
 interface PublicCulturalEntryBase {
   id: string;
   slug: string;
   title: string;
   summary: string;
+  editorialBody?: {
+    paragraphs: string[];
+  };
+  artwork?: PublicCulturalArtwork;
   references: PublicCulturalReference[];
   relatedEntries: PublicCulturalRelation[];
 }
@@ -366,6 +406,51 @@ function toPublicReferences(
   }));
 }
 
+function toPublicArtwork(
+  artwork: CulturalCatalogEntry["artwork"],
+): PublicCulturalArtwork | undefined {
+  if (!artwork) return undefined;
+  if (artwork.motif === "timeline") {
+    return {
+      motif: "timeline",
+      ...(artwork.events
+        ? {
+            events: artwork.events.map((event) => ({
+              year: event.year,
+              label: event.label,
+            })),
+          }
+        : {}),
+    };
+  }
+  if (artwork.motif === "legal-document") {
+    return {
+      motif: "legal-document",
+      ...(artwork.documentNumber
+        ? { documentNumber: artwork.documentNumber.value }
+        : {}),
+      ...(artwork.documentDate
+        ? { documentDate: artwork.documentDate.value }
+        : {}),
+    };
+  }
+  if (artwork.motif === "monogram") {
+    return {
+      motif: "monogram",
+      ...(artwork.initials ? { initials: artwork.initials } : {}),
+    };
+  }
+  if (artwork.motif === "academic") {
+    return {
+      motif: "academic",
+      ...(artwork.volumeNumber
+        ? { volumeNumber: artwork.volumeNumber.value }
+        : {}),
+    };
+  }
+  return { motif: artwork.motif };
+}
+
 function toPublicEntry(
   entry: CulturalCatalogEntry,
   publishableIds: ReadonlySet<string>,
@@ -375,6 +460,14 @@ function toPublicEntry(
     slug: entry.slug,
     title: entry.title,
     summary: entry.summary,
+    ...(entry.editorialBody
+      ? {
+          editorialBody: {
+            paragraphs: [...entry.editorialBody.paragraphs],
+          },
+        }
+      : {}),
+    ...(entry.artwork ? { artwork: toPublicArtwork(entry.artwork) } : {}),
     references: toPublicReferences(entry.references),
     relatedEntries: entry.relatedEntries
       .filter(

@@ -17,7 +17,27 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "history",
     "title": "1857 — Fundação do instituto que se tornou o INES",
     "summary": "A iniciativa de Ernest Huet antecedeu a oficialização do instituto em 1857. A instituição é um marco da educação de surdos, não a origem da Libras.",
-    "version": "candidate-1",
+    "version": "candidate-4",
+    "artwork": {
+      "motif": "timeline",
+      "events": [
+        {
+          "year": 1855,
+          "label": "Proposta",
+          "claimId": "HIST-001-C01"
+        },
+        {
+          "year": 1856,
+          "label": "Início das aulas",
+          "claimId": "HIST-001-C02"
+        },
+        {
+          "year": 1857,
+          "label": "Lei nº 939",
+          "claimId": "HIST-001-C03"
+        }
+      ]
+    },
     "references": [
       {
         "id": "source-1",
@@ -28,6 +48,27 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
       {
         "id": "claim-1",
         "text": "A iniciativa de Ernest Huet antecedeu a oficialização do instituto em 1857. A instituição é um marco da educação de surdos, não a origem da Libras.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "HIST-001-C01",
+        "text": "Huet apresentou a proposta em 1855.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "HIST-001-C02",
+        "text": "As aulas começaram em 1º de janeiro de 1856.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "HIST-001-C03",
+        "text": "A Lei 939 é de 26 de setembro de 1857.",
         "referenceIds": [
           "source-1"
         ]
@@ -62,6 +103,17 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "history": {
       "year": 1857,
       "unknownMetadata": []
+    },
+    "editorialBody": {
+      "paragraphs": [
+        "Em 1855, Ernest Huet apresentou uma proposta de educação de surdos. As aulas começaram em 1º de janeiro de 1856. A Lei nº 939, de 26 de setembro de 1857, integra a cronologia institucional do atual INES. Trata-se de um marco educacional, não de uma data de nascimento da Libras."
+      ],
+      "claimIds": [
+        "HIST-001-C01",
+        "HIST-001-C02",
+        "HIST-001-C03",
+        "claim-1"
+      ]
     }
   },
   {
@@ -244,7 +296,18 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "history",
     "title": "2002 — Lei de Libras",
     "summary": "A Lei 10.436 reconheceu a Libras como meio legal de comunicação e expressão, com estrutura gramatical própria.",
-    "version": "candidate-1",
+    "version": "candidate-4",
+    "artwork": {
+      "motif": "legal-document",
+      "documentNumber": {
+        "value": "10.436",
+        "claimId": "claim-1"
+      },
+      "documentDate": {
+        "value": "2002",
+        "claimId": "HIST-006-C01"
+      }
+    },
     "references": [
       {
         "id": "source-1",
@@ -255,6 +318,34 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
       {
         "id": "claim-1",
         "text": "A Lei 10.436 reconheceu a Libras como meio legal de comunicação e expressão, com estrutura gramatical própria.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "HIST-006-C01",
+        "text": "Lei datada de 24 de abril de 2002.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "HIST-006-C02",
+        "text": "Reconhecimento como meio legal de comunicação e expressão.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "HIST-006-C03",
+        "text": "Estrutura gramatical própria.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "HIST-006-C04",
+        "text": "Apoio ao uso e difusão.",
         "referenceIds": [
           "source-1"
         ]
@@ -273,6 +364,17 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "history": {
       "year": 2002,
       "unknownMetadata": []
+    },
+    "editorialBody": {
+      "paragraphs": [
+        "Em 24 de abril de 2002, a Lei nº 10.436 reconheceu a Libras como meio legal de comunicação e expressão. A lei reconhece sua estrutura gramatical própria e prevê apoio ao uso e à difusão. Reconhecimento jurídico não equivale à criação da língua."
+      ],
+      "claimIds": [
+        "HIST-006-C01",
+        "HIST-006-C02",
+        "HIST-006-C03",
+        "HIST-006-C04"
+      ]
     }
   },
   {
@@ -318,7 +420,7 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "history",
     "title": "2021 — Educação bilíngue de surdos",
     "summary": "A Lei 14.191 inseriu a modalidade de educação bilíngue de surdos na LDB, com Libras como primeira língua e português escrito como segunda, para estudantes optantes.",
-    "version": "candidate-1",
+    "version": "candidate-4",
     "references": [
       {
         "id": "source-1",
@@ -329,6 +431,34 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
       {
         "id": "claim-1",
         "text": "A Lei 14.191 inseriu a modalidade de educação bilíngue de surdos na LDB, com Libras como primeira língua e português escrito como segunda, para estudantes optantes.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "HIST-008-C01",
+        "text": "Inclusão da modalidade na LDB.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "HIST-008-C02",
+        "text": "Libras primeira língua e português escrito segunda, para optantes abrangidos.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "HIST-008-C03",
+        "text": "Materiais didáticos e professores bilíngues.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "HIST-008-C04",
+        "text": "A Lei nº 14.191 é de 3 de agosto de 2021.",
         "referenceIds": [
           "source-1"
         ]
@@ -347,6 +477,17 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "history": {
       "year": 2021,
       "unknownMetadata": []
+    },
+    "editorialBody": {
+      "paragraphs": [
+        "A Lei nº 14.191, de 3 de agosto de 2021, incluiu a educação bilíngue de surdos na LDB. A modalidade prevê Libras como primeira língua e português escrito como segunda para os educandos abrangidos que optem por ela. A lei também prevê materiais didáticos e professores bilíngues."
+      ],
+      "claimIds": [
+        "HIST-008-C01",
+        "HIST-008-C02",
+        "HIST-008-C03",
+        "HIST-008-C04"
+      ]
     }
   },
   {
@@ -355,7 +496,10 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "curiosity",
     "title": "Existe uma língua de sinais universal?",
     "summary": "Não. Existem diferentes línguas de sinais, como Libras, ASL e BSL.",
-    "version": "candidate-1",
+    "version": "candidate-4",
+    "artwork": {
+      "motif": "diversity-orbits"
+    },
     "references": [
       {
         "id": "source-1",
@@ -366,6 +510,20 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
       {
         "id": "claim-1",
         "text": "Não. Existem diferentes línguas de sinais, como Libras, ASL e BSL.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "CUR-001-C01",
+        "text": "Não existe língua de sinais universal.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "CUR-001-C02",
+        "text": "Há diferenças entre países e regiões.",
         "referenceIds": [
           "source-1"
         ]
@@ -384,6 +542,15 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "curiosity": {
       "question": "Existe uma língua de sinais universal?",
       "shortAnswer": "Não. Existem diferentes línguas de sinais, como Libras, ASL e BSL."
+    },
+    "editorialBody": {
+      "paragraphs": [
+        "Não existe uma língua de sinais universal. Comunidades de diferentes países e regiões utilizam línguas de sinais distintas. Aprender uma delas não garante compreender todas as outras."
+      ],
+      "claimIds": [
+        "CUR-001-C01",
+        "CUR-001-C02"
+      ]
     }
   },
   {
@@ -392,11 +559,29 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "curiosity",
     "title": "Libras é português feito com as mãos?",
     "summary": "Não. Libras possui estrutura gramatical própria.",
-    "version": "candidate-1",
+    "version": "candidate-5",
+    "artwork": {
+      "motif": "parallel-structures"
+    },
     "references": [
       {
         "id": "source-1",
         "url": "https://www.planalto.gov.br/ccivil_03/leis/2002/l10436.htm"
+      },
+      {
+        "id": "source-2",
+        "url": "https://ojsrevista.furb.br/ojs/index.php/linguagens/article/download/7287/4653/32619"
+      },
+      {
+        "id": "source-3",
+        "url": "https://doi.org/10.51207/2179-4057.20220014"
+      },
+      {
+        "id": "source-4",
+        "url": "https://letraslibras.paginas.ufsc.br/files/2022/12/LSB7106-Libras-Iniciante.pdf",
+        "institution": "UFSC — Letras Libras",
+        "purpose": "Ementa, objetivos, conteúdo programático e cronograma de 30/03/2023",
+        "consultedAt": "2026-11-27"
       }
     ],
     "claims": [
@@ -405,6 +590,48 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
         "text": "Não. Libras possui estrutura gramatical própria.",
         "referenceIds": [
           "source-1"
+        ]
+      },
+      {
+        "id": "CUR-002-C01",
+        "text": "Libras possui estrutura gramatical própria.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "CUR-002-C02",
+        "text": "Elementos não manuais têm funções linguísticas.",
+        "referenceIds": [
+          "source-2"
+        ]
+      },
+      {
+        "id": "CUR-002-C03",
+        "text": "Forma, localização, movimento e expressão facial são discutidos no estudo de Capovilla e Cecconi.",
+        "referenceIds": [
+          "source-3"
+        ]
+      },
+      {
+        "id": "CUR-002-C04",
+        "text": "A Libras apresenta organização linguística em níveis como fonologia, léxico e sintaxe.",
+        "referenceIds": [
+          "source-2"
+        ]
+      },
+      {
+        "id": "CUR-002-C05",
+        "text": "Configuração de mão, localização, movimento, orientação da mão e elementos não manuais são componentes estudados na fonologia das línguas de sinais.",
+        "referenceIds": [
+          "source-2"
+        ]
+      },
+      {
+        "id": "CUR-002-C06",
+        "text": "A datilologia corresponde à soletração manual e constitui uma das competências trabalhadas no ensino de Libras, ao lado de competências comunicativas e gramaticais.",
+        "referenceIds": [
+          "source-4"
         ]
       }
     ],
@@ -442,6 +669,19 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "curiosity": {
       "question": "Libras é português feito com as mãos?",
       "shortAnswer": "Não. Libras possui estrutura gramatical própria."
+    },
+    "editorialBody": {
+      "paragraphs": [
+        "Libras não é português representado pelas mãos. Possui estrutura gramatical própria. Configurações de mão, localização, movimento e elementos não manuais participam da sinalização. Aprender o alfabeto manual não equivale a dominar a língua."
+      ],
+      "claimIds": [
+        "CUR-002-C01",
+        "CUR-002-C02",
+        "CUR-002-C03",
+        "CUR-002-C04",
+        "CUR-002-C05",
+        "CUR-002-C06"
+      ]
     }
   },
   {
@@ -577,7 +817,10 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "curiosity",
     "title": "Existe poesia em Libras?",
     "summary": "Sim. Literatura sinalizada pode explorar movimento, espaço, ritmo e configurações de mão.",
-    "version": "candidate-1",
+    "version": "candidate-5",
+    "artwork": {
+      "motif": "visual-rhythm"
+    },
     "references": [
       {
         "id": "source-1",
@@ -586,6 +829,17 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
       {
         "id": "source-2",
         "url": "https://librando.paginas.ufsc.br/artigos/"
+      },
+      {
+        "id": "source-3",
+        "url": "https://librando.paginas.ufsc.br/poemas/"
+      },
+      {
+        "id": "source-4",
+        "url": "https://www.revistaglauks.ufv.br/Glauks/article/view/377",
+        "institution": "UFV — Revista Glauks",
+        "purpose": "Resumo",
+        "consultedAt": "2026-11-27"
       }
     ],
     "claims": [
@@ -595,6 +849,34 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
         "referenceIds": [
           "source-1",
           "source-2"
+        ]
+      },
+      {
+        "id": "CUR-006-C01",
+        "text": "Ritmo, repetição e simetria são recursos poéticos.",
+        "referenceIds": [
+          "source-3"
+        ]
+      },
+      {
+        "id": "CUR-006-C02",
+        "text": "O acervo lista poemas sinalizados.",
+        "referenceIds": [
+          "source-3"
+        ]
+      },
+      {
+        "id": "CUR-006-C03",
+        "text": "A literatura surda sinalizada pode representar experiências visuais, culturais e identitárias das pessoas surdas.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "CUR-006-C04",
+        "text": "Recursos poéticos e icônicos da Libras podem ser utilizados na construção de narrativas interpretativas.",
+        "referenceIds": [
+          "source-4"
         ]
       }
     ],
@@ -647,6 +929,17 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "curiosity": {
       "question": "Existe poesia em Libras?",
       "shortAnswer": "Sim. Literatura sinalizada pode explorar movimento, espaço, ritmo e configurações de mão."
+    },
+    "editorialBody": {
+      "paragraphs": [
+        "A poesia em Libras explora recursos visuais e linguísticos, como ritmo, repetição e simetria. A produção poética sinalizada permite expressar experiências e criar narrativas artísticas. O acervo LIBRANDO reúne exemplos de poemas."
+      ],
+      "claimIds": [
+        "CUR-006-C01",
+        "CUR-006-C02",
+        "CUR-006-C03",
+        "CUR-006-C04"
+      ]
     }
   },
   {
@@ -781,11 +1074,36 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "personality",
     "title": "Nelson Pimenta",
     "summary": "Referência em produções e estudos de Libras e literatura sinalizada.",
-    "version": "candidate-1",
+    "version": "candidate-5",
+    "artwork": {
+      "motif": "monogram"
+    },
     "references": [
       {
         "id": "source-1",
         "url": "https://www.revistas.editora.ufcg.edu.br/index.php/RLR/article/view/1742"
+      },
+      {
+        "id": "source-2",
+        "url": "https://indl.iphan.gov.br/pessoas-de-referencia/nelson-pimenta-de-castro/"
+      },
+      {
+        "id": "source-3",
+        "url": "https://nuestra.ufsc.br/vocab/index.php?tema=42&/nelson-pimenta-de-castro"
+      },
+      {
+        "id": "source-4",
+        "url": "https://repositorio.ufsc.br/handle/123456789/204538",
+        "institution": "UFSC — Repositório Institucional",
+        "purpose": "Registro da tese",
+        "consultedAt": "2026-11-27"
+      },
+      {
+        "id": "source-5",
+        "url": "https://repositorio.ufsc.br/handle/123456789/100721",
+        "institution": "UFSC — Repositório Institucional",
+        "purpose": "Título, autoria, resumo e data do registro institucional",
+        "consultedAt": "2026-11-27"
       }
     ],
     "claims": [
@@ -794,6 +1112,55 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
         "text": "Referência em produções e estudos de Libras e literatura sinalizada.",
         "referenceIds": [
           "source-1"
+        ]
+      },
+      {
+        "id": "PER-001-C01",
+        "text": "Atuação em educação, pesquisa e cinema.",
+        "referenceIds": [
+          "source-2"
+        ]
+      },
+      {
+        "id": "PER-001-C02",
+        "text": "Trajetória artística e formação acadêmica.",
+        "referenceIds": [
+          "source-3"
+        ]
+      },
+      {
+        "id": "PER-001-C03",
+        "text": "Tese sobre prosódia em ASL e Libras, 2019.",
+        "referenceIds": [
+          "source-4"
+        ]
+      },
+      {
+        "id": "PER-001-C04",
+        "text": "Dissertação sobre tradução de fábulas, 2012.",
+        "referenceIds": [
+          "source-5"
+        ]
+      },
+      {
+        "id": "PER-001-C05",
+        "text": "Nelson Pimenta de Castro é identificado como uma liderança surda pelo Inventário Nacional da Diversidade Linguística.",
+        "referenceIds": [
+          "source-2"
+        ]
+      },
+      {
+        "id": "PER-001-C06",
+        "text": "Nelson Pimenta de Castro possui trajetória artística no teatro, incluindo atuação no espetáculo Nelson 6 ao Vivo.",
+        "referenceIds": [
+          "source-3"
+        ]
+      },
+      {
+        "id": "PER-001-C07",
+        "text": "Nelson Pimenta de Castro concluiu mestrado e doutorado em Estudos da Tradução pela Universidade Federal de Santa Catarina.",
+        "referenceIds": [
+          "source-3"
         ]
       }
     ],
@@ -810,6 +1177,20 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "personality": {
       "personName": "Nelson Pimenta",
       "biographicalSummary": "Referência em produções e estudos de Libras e literatura sinalizada."
+    },
+    "editorialBody": {
+      "paragraphs": [
+        "Nelson Pimenta de Castro é uma liderança surda com atuação na arte, educação e pesquisa. Sua trajetória inclui teatro, cinema e estudos da tradução. Entre seus trabalhos acadêmicos estão uma dissertação sobre tradução de fábulas e uma tese sobre prosódia em ASL e Libras."
+      ],
+      "claimIds": [
+        "PER-001-C01",
+        "PER-001-C02",
+        "PER-001-C03",
+        "PER-001-C04",
+        "PER-001-C05",
+        "PER-001-C06",
+        "PER-001-C07"
+      ]
     }
   },
   {
@@ -818,17 +1199,52 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "personality",
     "title": "Lucinda Ferreira Brito",
     "summary": "Pesquisadora pioneira dos estudos linguísticos das línguas de sinais no Brasil; autora de Por uma gramática de línguas de sinais.",
-    "version": "candidate-1",
+    "version": "candidate-3",
     "references": [
       {
         "id": "source-1",
         "url": "https://seer.ufu.br/index.php/EducacaoFilosofia/article/view/29990"
+      },
+      {
+        "id": "source-2",
+        "url": "https://www.gov.br/fundaj/pt-br/composicao/dimeca/biblioteca/acervos/inventarios-documentais-e-indices/libras_25_4_2012.pdf",
+        "institution": "Fundação Joaquim Nabuco",
+        "purpose": "Referência nº 24",
+        "consultedAt": "2026-11-27"
       }
     ],
     "claims": [
       {
         "id": "claim-1",
         "text": "Pesquisadora pioneira dos estudos linguísticos das línguas de sinais no Brasil; autora de Por uma gramática de línguas de sinais.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "PER-002-C02",
+        "text": "A obra foi originalmente publicada em 1995 e reimpressa em 2010.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "PER-002-C03",
+        "text": "A obra constitui uma contribuição pioneira à descrição linguística da Libras.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "PER-002-C04",
+        "text": "O inventário bibliográfico da Fundação Joaquim Nabuco registra a obra Por uma gramática de línguas de sinais, de Lucinda Ferreira Brito, publicada em 1995.",
+        "referenceIds": [
+          "source-2"
+        ]
+      },
+      {
+        "id": "PER-002-C01",
+        "text": "Obra gramatical atribuída a Lucinda Ferreira Brito.",
         "referenceIds": [
           "source-1"
         ]
@@ -868,6 +1284,17 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "personality": {
       "personName": "Lucinda Ferreira Brito",
       "biographicalSummary": "Pesquisadora pioneira dos estudos linguísticos das línguas de sinais no Brasil; autora de Por uma gramática de línguas de sinais."
+    },
+    "editorialBody": {
+      "paragraphs": [
+        "Lucinda Ferreira Brito é uma referência nos estudos linguísticos das línguas de sinais no Brasil. Sua obra Por uma gramática de línguas de sinais, originalmente publicada em 1995, integra a bibliografia sobre a descrição linguística da Libras."
+      ],
+      "claimIds": [
+        "PER-002-C01",
+        "PER-002-C02",
+        "PER-002-C03",
+        "PER-002-C04"
+      ]
     }
   },
   {
@@ -1231,7 +1658,7 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "library",
     "title": "As imagens do outro sobre a cultura surda",
     "summary": "Cultura e representações; referência editorial.",
-    "version": "candidate-1",
+    "version": "candidate-3",
     "references": [
       {
         "id": "source-1",
@@ -1242,6 +1669,20 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
       {
         "id": "claim-1",
         "text": "Cultura e representações; referência editorial.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "BIB-002-C02",
+        "text": "A obra de Karin Strobel aborda representações e perspectivas sobre a cultura surda.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "BIB-002-C01",
+        "text": "Quarta edição, Editora UFSC, 2016.",
         "referenceIds": [
           "source-1"
         ]
@@ -1283,6 +1724,15 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
         "languages"
       ],
       "unstructuredMetadata": "Karin Strobel · 4ª ed. 2016 · Editora UFSC"
+    },
+    "editorialBody": {
+      "paragraphs": [
+        "Obra de Karin Lilian Strobel voltada às representações da cultura surda. A quarta edição foi lançada pela Editora UFSC em 2016. É uma leitura candidata para conhecer perspectivas culturais e identitárias."
+      ],
+      "claimIds": [
+        "BIB-002-C01",
+        "BIB-002-C02"
+      ]
     }
   },
   {
@@ -1291,17 +1741,66 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "library",
     "title": "Gramática da Libras — Volume 1",
     "summary": "Linguística; PDF institucional.",
-    "version": "candidate-1",
+    "version": "candidate-5",
+    "artwork": {
+      "motif": "academic",
+      "volumeNumber": {
+        "value": "I",
+        "claimId": "BIB-003-C04"
+      }
+    },
     "references": [
       {
         "id": "source-1",
         "url": "https://repositorio.ufsc.br/handle/123456789/262318"
+      },
+      {
+        "id": "source-2",
+        "url": "https://www.researchgate.net/publication/385893948_A_Fonetica_e_a_Fonologia_das_Linguas_de_Sinais",
+        "institution": "INES — cópia parcial hospedada no ResearchGate",
+        "purpose": "Apresentação editorial e sumário, capítulos 1–4",
+        "consultedAt": "2026-11-27"
       }
     ],
     "claims": [
       {
         "id": "claim-1",
         "text": "Linguística; PDF institucional.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "BIB-003-C01",
+        "text": "Publicação INES de 2023, 511 páginas.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "BIB-003-C02",
+        "text": "Organizadores: Ronice Müller de Quadros, Jair Barbosa da Silva, Miriam Royer e Vinícius Rodrigues da Silva.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "BIB-003-C03",
+        "text": "A Gramática da Libras — Volume 1 reúne estudos sobre a descrição linguística da Libras, incluindo fundamentos gramaticais, documentação linguística, fonética e fonologia.",
+        "referenceIds": [
+          "source-2"
+        ]
+      },
+      {
+        "id": "BIB-003-C04",
+        "text": "O registro institucional do Volume 1 apresenta 37 entradas de autoria, incluindo os quatro organizadores.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "BIB-003-C05",
+        "text": "O Repositório Institucional da UFSC disponibiliza um arquivo PDF da Gramática da Libras — Volume 1.",
         "referenceIds": [
           "source-1"
         ]
@@ -1348,6 +1847,18 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
         "languages"
       ],
       "unstructuredMetadata": "Quadros, Jair Barbosa da Silva, Miriam Royer e Vinícius Rodrigues da Silva (org., a conferir) · INES · 2023"
+    },
+    "editorialBody": {
+      "paragraphs": [
+        "Gramática da Libras — Volume 1 reúne estudos linguísticos em uma publicação do INES de 2023. O registro institucional identifica quatro organizadores e uma equipe ampla de autores. O PDF está disponível no repositório da UFSC."
+      ],
+      "claimIds": [
+        "BIB-003-C01",
+        "BIB-003-C02",
+        "BIB-003-C03",
+        "BIB-003-C04",
+        "BIB-003-C05"
+      ]
     }
   },
   {
@@ -1356,11 +1867,22 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "library",
     "title": "Literatura em Libras",
     "summary": "Literatura sinalizada; versões em português e Libras a conferir.",
-    "version": "candidate-1",
+    "version": "candidate-4",
     "references": [
       {
         "id": "source-1",
         "url": "https://repositorio.ufsc.br/xmlui/handle/123456789/259641"
+      },
+      {
+        "id": "source-2",
+        "url": "https://librando.paginas.ufsc.br/livros-2/"
+      },
+      {
+        "id": "source-3",
+        "url": "https://repositorio.ufsc.br/xmlui/bitstream/handle/123456789/259641/Literatura_em_Libras_Rachel_Sutton_Spence.pdf?sequence=1&isAllowed=y",
+        "institution": "UFSC — Repositório Institucional",
+        "purpose": "Ficha catalográfica e ficha técnica",
+        "consultedAt": "2026-11-27"
       }
     ],
     "claims": [
@@ -1369,6 +1891,41 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
         "text": "Literatura sinalizada; versões em português e Libras a conferir.",
         "referenceIds": [
           "source-1"
+        ]
+      },
+      {
+        "id": "BIB-004-C01",
+        "text": "Autoria, tradução e edição de 2021.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "BIB-004-C02",
+        "text": "O LIBRANDO indica acesso textual e vídeos em Libras.",
+        "referenceIds": [
+          "source-2"
+        ]
+      },
+      {
+        "id": "BIB-004-C03",
+        "text": "Literatura em Libras é uma obra de Rachel Sutton-Spence, com tradução de Gustavo Gusmão.",
+        "referenceIds": [
+          "source-3"
+        ]
+      },
+      {
+        "id": "BIB-004-C04",
+        "text": "A primeira edição foi publicada pela Editora Arara Azul em 2021.",
+        "referenceIds": [
+          "source-3"
+        ]
+      },
+      {
+        "id": "BIB-004-C05",
+        "text": "A obra aborda conceitos, narrativas, recursos estéticos e aspectos sociais da literatura em Libras.",
+        "referenceIds": [
+          "source-3"
         ]
       }
     ],
@@ -1428,6 +1985,18 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
         "languages"
       ],
       "unstructuredMetadata": "Rachel Sutton-Spence · 2021 · Arara Azul"
+    },
+    "editorialBody": {
+      "paragraphs": [
+        "Literatura em Libras, de Rachel Sutton-Spence, com tradução de Gustavo Gusmão, apresenta estudos sobre literatura sinalizada. A primeira edição é de 2021, pela Arara Azul. O LIBRANDO indica modalidades textuais e audiovisuais."
+      ],
+      "claimIds": [
+        "BIB-004-C01",
+        "BIB-004-C02",
+        "BIB-004-C03",
+        "BIB-004-C04",
+        "BIB-004-C05"
+      ]
     }
   },
   {
@@ -1436,7 +2005,10 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "library",
     "title": "Cinderela Surda",
     "summary": "Literatura infantil; releitura cultural.",
-    "version": "candidate-1",
+    "version": "candidate-5",
+    "artwork": {
+      "motif": "literary"
+    },
     "references": [
       {
         "id": "source-1",
@@ -1447,6 +2019,34 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
       {
         "id": "claim-1",
         "text": "Literatura infantil; releitura cultural.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "BIB-005-C01",
+        "text": "Autoria e terceira edição de 2011, 36 páginas.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "BIB-005-C02",
+        "text": "Cinderela Surda é uma releitura de um conto clássico da literatura infantil que valoriza a cultura surda.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "BIB-005-C03",
+        "text": "A obra integra a seção de escrita de sinais do acervo LIBRANDO.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "BIB-005-C04",
+        "text": "A terceira edição foi publicada pela Editora da ULBRA em 2011.",
         "referenceIds": [
           "source-1"
         ]
@@ -1508,6 +2108,17 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
         "languages"
       ],
       "unstructuredMetadata": "Carolina Hessel, Fabiano Rosa e Lodenir Karnopp · edição localizada 2011"
+    },
+    "editorialBody": {
+      "paragraphs": [
+        "Cinderela Surda é uma releitura literária infantil que integra o acervo de obras com escrita de sinais do LIBRANDO. A edição localizada é a terceira, de 2011, publicada pela ULBRA."
+      ],
+      "claimIds": [
+        "BIB-005-C01",
+        "BIB-005-C02",
+        "BIB-005-C03",
+        "BIB-005-C04"
+      ]
     }
   },
   {
@@ -1786,11 +2397,18 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "library",
     "title": "Iconographia dos Signaes dos Surdos-Mudos",
     "summary": "Patrimônio histórico; título original de época, não terminologia atual.",
-    "version": "candidate-1",
+    "version": "candidate-4",
     "references": [
       {
         "id": "source-1",
         "url": "https://seer.ines.gov.br/index.php/serie-historica/issue/view/167"
+      },
+      {
+        "id": "source-2",
+        "url": "https://www.scielo.br/j/rbee/a/S5Gyt4gMNzzQJJmLYqMcqCC/abstract/?lang=pt",
+        "institution": "SciELO",
+        "purpose": "Resumo do estudo de Sofiato e Reily",
+        "consultedAt": "2026-11-27"
       }
     ],
     "claims": [
@@ -1799,6 +2417,20 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
         "text": "Patrimônio histórico; título original de época, não terminologia atual.",
         "referenceIds": [
           "source-1"
+        ]
+      },
+      {
+        "id": "BIB-010-C01",
+        "text": "Obra de Flausino publicada em 1875.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "BIB-010-C02",
+        "text": "Matriz francesa de Pierre Pélissier.",
+        "referenceIds": [
+          "source-2"
         ]
       }
     ],
@@ -1838,6 +2470,15 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
         "languages"
       ],
       "unstructuredMetadata": "Flausino José da Gama · 1875"
+    },
+    "editorialBody": {
+      "paragraphs": [
+        "A Iconographia dos Signaes dos Surdos-Mudos, de 1875, é um documento histórico associado a Flausino José da Gama. Estudos comparativos apontam sua matriz na obra francesa de Pierre Pélissier. O título original é preservado como registro de época, não como terminologia contemporânea."
+      ],
+      "claimIds": [
+        "BIB-010-C01",
+        "BIB-010-C02"
+      ]
     }
   },
   {
@@ -1846,17 +2487,52 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "library",
     "title": "Contação de Histórias",
     "summary": "Série audiovisual de literatura infantil e juvenil.",
-    "version": "candidate-1",
+    "version": "candidate-4",
     "references": [
       {
         "id": "source-1",
         "url": "https://debasi.ines.gov.br/tv-ines/conta%C3%A7%C3%A3o-de-hist%C3%B3rias"
+      },
+      {
+        "id": "source-2",
+        "url": "https://debasi.ines.gov.br/tv-ines",
+        "institution": "INES — TV INES / DEBASI",
+        "purpose": "Categoria Infantil",
+        "consultedAt": "2026-11-27"
       }
     ],
     "claims": [
       {
         "id": "claim-1",
         "text": "Série audiovisual de literatura infantil e juvenil.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "BIB-011-C01",
+        "text": "Série de animações literárias traduzidas para Libras.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "BIB-011-C02",
+        "text": "Contação de Histórias integra a programação da TV INES.",
+        "referenceIds": [
+          "source-2"
+        ]
+      },
+      {
+        "id": "BIB-011-C03",
+        "text": "As animações contemplam obras de autores e ilustradores nacionais traduzidas para Libras.",
+        "referenceIds": [
+          "source-1"
+        ]
+      },
+      {
+        "id": "BIB-011-C04",
+        "text": "A série busca tornar a literatura infantil e juvenil acessível à comunidade surda de todas as idades.",
         "referenceIds": [
           "source-1"
         ]
@@ -1918,6 +2594,17 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
         "languages"
       ],
       "unstructuredMetadata": "TV INES"
+    },
+    "editorialBody": {
+      "paragraphs": [
+        "Contação de Histórias é uma série da TV INES que apresenta animações de obras de autores e ilustradores nacionais traduzidas para Libras. A iniciativa busca tornar a literatura infantil e juvenil acessível à comunidade surda de todas as idades."
+      ],
+      "claimIds": [
+        "BIB-011-C01",
+        "BIB-011-C02",
+        "BIB-011-C03",
+        "BIB-011-C04"
+      ]
     }
   },
   {

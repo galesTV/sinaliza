@@ -1,0 +1,3 @@
+# R.5.3 — auditoria somente leitura
+
+Reabra V2 original e valide manifesto V2.1. Confirme origin/dev e estado E.4. Compare 53 claims, 22 novas e 5 recuperadas com runtime, detecte colisões, valide URLs, instituições, finalidade, datas, localizadores e cobertura frase a frase. Preserve texto original dos 31 claims; registre mudanças de evidência separadamente. Classifique cada corpo como apto, condicionado ou bloqueado; não trate claimIds propostos como aprovação. Documente ressalvas e sínteses, referência alternativa PER-001-C04, revisão BIB-011 e CUR-002-C06. Preserve 41 drafts, direitos, reviews, autorização, flags e RC-1.0. Não implemente, não faça push, PR, merge ou deploy. Aguarde autorização explícita para migração.
