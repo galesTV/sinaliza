@@ -567,9 +567,14 @@ describe("proportional cultural governance: fingerprint and registry invariants"
     expect(getCulturalContentFingerprint(coverageChange)).not.toBe(documentaryFingerprint);
   });
 
-  it("does not add review policies to any real cultural record", () => {
+  it("adds review policies only to the two explicitly classified real records", () => {
     expect(culturalCatalog).toHaveLength(41);
-    expect(culturalCatalog.every((entry) => entry.reviewPolicy === undefined)).toBe(true);
+    expect(
+      culturalCatalog
+        .filter((entry) => entry.reviewPolicy !== undefined)
+        .map((entry) => entry.id)
+        .sort(),
+    ).toEqual(["BIB-004", "BIB-011"]);
     expect(projectPublicCulturalEntries(culturalCatalog)).toEqual([]);
   });
 });

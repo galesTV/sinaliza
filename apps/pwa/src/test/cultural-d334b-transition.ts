@@ -174,6 +174,10 @@ function applyD334BAuthorizedPreparation(entryId: D334BEntryId): CulturalLibrary
   return entry;
 }
 
+export function materializeD334BAfterEntry(entryId: D334BEntryId): CulturalLibraryEntry {
+  return applyD334BAuthorizedPreparation(entryId);
+}
+
 export function validateD334BTransition(catalog: CulturalCatalogEntry[]) {
   const problems: string[] = [];
   if (catalog.length !== 41) problems.push(`expected 41 records, got ${catalog.length}`);

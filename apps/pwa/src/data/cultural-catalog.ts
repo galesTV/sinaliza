@@ -1867,7 +1867,7 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "library",
     "title": "Literatura em Libras",
     "summary": "Obra sobre literatura sinalizada, com versões em português e Libras.",
-    "version": "candidate-6",
+    "version": "candidate-7",
     "references": [
       {
         "id": "source-1",
@@ -1936,6 +1936,31 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
         ]
       }
     ],
+    "reviewPolicy": {
+      "path": "documentary",
+      "documentaryEligibility": {
+        "contentClass": "bibliographic-descriptive",
+        "rationale": "Ficha estritamente bibliográfica: apresenta autoria, crédito de tradução, edição, editora, idiomas, modalidades de acesso e descrição sumária da obra apoiados em documentação institucional, ficha técnica, apresentação e sumário. Não ensina Libras, não realiza análise literária independente, não avalia pedagogicamente a obra e não valida linguisticamente o conteúdo.",
+        "claimIds": [
+          "claim-1",
+          "BIB-004-C01",
+          "BIB-004-C02",
+          "BIB-004-C03",
+          "BIB-004-C04",
+          "BIB-004-C05"
+        ],
+        "coveredSurfaces": [
+          "identity",
+          "title",
+          "summary",
+          "claims",
+          "references",
+          "libraryMetadata",
+          "relatedEntries",
+          "editorialBody"
+        ]
+      }
+    },
     "validationStatus": "draft",
     "reviews": [],
     "rights": {
@@ -2501,7 +2526,7 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
     "category": "library",
     "title": "Contação de Histórias",
     "summary": "Série audiovisual de literatura infantil e juvenil.",
-    "version": "candidate-5",
+    "version": "candidate-6",
     "references": [
       {
         "id": "source-1",
@@ -2555,6 +2580,30 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
         ]
       }
     ],
+    "reviewPolicy": {
+      "path": "documentary",
+      "documentaryEligibility": {
+        "contentClass": "bibliographic-descriptive",
+        "rationale": "Ficha estritamente documental sobre série audiovisual institucional: descreve natureza, responsabilidade institucional, finalidade declarada e modalidade de acesso conforme fontes oficiais. Não avalia eficácia, não analisa linguisticamente os episódios e não afirma verificação integral ou disponibilidade permanente.",
+        "claimIds": [
+          "claim-1",
+          "BIB-011-C01",
+          "BIB-011-C02",
+          "BIB-011-C03",
+          "BIB-011-C04"
+        ],
+        "coveredSurfaces": [
+          "identity",
+          "title",
+          "summary",
+          "claims",
+          "references",
+          "libraryMetadata",
+          "relatedEntries",
+          "editorialBody"
+        ]
+      }
+    },
     "validationStatus": "draft",
     "reviews": [],
     "rights": {

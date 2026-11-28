@@ -198,14 +198,16 @@ describe("culturalCatalog migration", () => {
       const complementaryCandidate3 = new Set(["PER-002", "BIB-002"]);
       expect(entry.version, entry.id).toBe(
         entry.id === "BIB-004"
-          ? "candidate-6"
-          : v33Candidate5.has(entry.id) || d334bCandidate5.has(entry.id)
-            ? "candidate-5"
-          : complementaryCandidate4.has(entry.id) || approvedEditorialBodyEntryIds.has(entry.id)
-            ? "candidate-4"
-            : complementaryCandidate3.has(entry.id)
-              ? "candidate-3"
-              : "candidate-1",
+          ? "candidate-7"
+          : entry.id === "BIB-011"
+            ? "candidate-6"
+            : v33Candidate5.has(entry.id) || d334bCandidate5.has(entry.id)
+              ? "candidate-5"
+              : complementaryCandidate4.has(entry.id) || approvedEditorialBodyEntryIds.has(entry.id)
+                ? "candidate-4"
+                : complementaryCandidate3.has(entry.id)
+                  ? "candidate-3"
+                  : "candidate-1",
       );
       const referenceIds = entry.references.map((reference) => reference.id);
       expect(new Set(referenceIds).size, entry.id).toBe(referenceIds.length);
