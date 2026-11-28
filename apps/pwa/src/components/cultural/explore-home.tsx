@@ -10,6 +10,7 @@ import {
 import { IconArrowRight } from "../icons";
 import { ConstellationGraphic } from "./constellation-graphic";
 import { CulturalEmptyState } from "./cultural-empty-state";
+import { CulturalEntryArtwork } from "./editorial/cultural-entry-artwork";
 
 interface PortalVisual {
   title: string;
@@ -107,10 +108,13 @@ export function ExploreHome({ entries }: { entries: PublicCulturalEntry[] }) {
           {CULTURAL_CATEGORY_PRESENTATIONS.map((presentation) => {
             const visual = PORTAL_VISUALS[presentation.category];
             const count = counts.get(presentation.category) ?? 0;
+            const previewEntry = entries.find(
+              (entry) => entry.category === presentation.category && entry.artwork,
+            );
             return (
               <li
                 key={presentation.category}
-                className={`${visual.span} ${presentation.category === "curiosity" ? "lg:translate-y-8" : ""} ${presentation.category === "library" ? "lg:-translate-y-4" : ""}`}
+                className={`${visual.span} ${presentation.category === "curiosity" ? "lg:translate-y-4" : ""}`}
               >
                 <Link
                   href={getCulturalCategoryHref(presentation.category)}
@@ -120,7 +124,7 @@ export function ExploreHome({ entries }: { entries: PublicCulturalEntry[] }) {
                     variant={presentation.category}
                     className={`absolute right-3 top-3 h-32 w-56 opacity-55 transition-transform duration-300 group-hover:scale-[1.03] ${visual.tone}`}
                   />
-                  <span className="relative flex flex-col gap-4">
+                  <div className="relative flex flex-col gap-4">
                     <span className="flex items-center justify-between gap-4">
                       <span className={`text-[11px] font-semibold uppercase tracking-[0.2em] ${visual.tone}`}>
                         {visual.kicker}
@@ -131,7 +135,7 @@ export function ExploreHome({ entries }: { entries: PublicCulturalEntry[] }) {
                           : "Em preparação"}
                       </span>
                     </span>
-                    <span className="flex max-w-md flex-col gap-2">
+                    <div className="flex max-w-lg flex-col gap-2">
                       <span className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">
                         {presentation.pluralLabel}
                       </span>
@@ -141,12 +145,17 @@ export function ExploreHome({ entries }: { entries: PublicCulturalEntry[] }) {
                       <span className="text-sm leading-relaxed text-muted">
                         {presentation.description}
                       </span>
-                    </span>
+                      {previewEntry && (
+                        <div className="pointer-events-none mt-3 w-full max-w-72">
+                          <CulturalEntryArtwork entry={previewEntry} variant="thumbnail" />
+                        </div>
+                      )}
+                    </div>
                     <span className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-foreground">
                       Explorar caminho
                       <IconArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
                     </span>
-                  </span>
+                  </div>
                 </Link>
               </li>
             );

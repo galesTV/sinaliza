@@ -52,6 +52,17 @@
   padding: 5% 12%;
 }
 
+.fillSurface {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  min-width: 0;
+  min-height: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: none;
+}
+
 .stripHistory::before,
 .stripLibrary::before {
   content: "";
@@ -355,9 +366,18 @@
   box-shadow: 0 0 8px color-mix(in srgb, var(--editorial-accent) 65%, transparent);
 }
 
+.timelineEventYear {
+  color: var(--editorial-accent);
+  font-weight: 700;
+}
+
+.timelineEventLabel {
+  margin-left: 0.38em;
+}
+
 .legalDocument {
   display: flex;
-  width: min(92%, 230px);
+  width: 100%;
   flex-direction: column;
   gap: 0.34em;
   margin-top: clamp(6px, 2cqw, 12px);
@@ -376,7 +396,7 @@
 
 .legalNumber {
   font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(1.35rem, 20cqw, 2.8rem);
+  font-size: clamp(0.9rem, 7cqw, 2.8rem);
   line-height: 1;
 }
 
@@ -428,17 +448,6 @@
   line-height: 0.9;
 }
 
-.academicVolumeLabel {
-  position: relative;
-  z-index: 1;
-  margin-top: 0.45em;
-  color: var(--editorial-accent);
-  font-size: clamp(0.5rem, 2.4cqw, 0.82rem);
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-}
-
 .variantCard .academicVolumeNumber,
 .variantThumbnail .academicVolumeNumber,
 .variantDetail .academicVolumeNumber {
@@ -488,18 +497,6 @@
   writing-mode: vertical-rl;
 }
 
-.srOnly {
-  position: absolute;
-  overflow: hidden;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  border: 0;
-  margin: -1px;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-}
-
 @media (prefers-reduced-motion: reduce) {
   .artwork,
   .artwork * {
@@ -507,4 +504,46 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
   }
+}
+
+.compactSurface .footer,
+.compactSurface .textContent {
+  display: none;
+}
+
+
+.portraitSurface .inner {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.portraitSurface .visual {
+  grid-column: 1;
+  grid-row: 2;
+  align-self: stretch;
+}
+
+.portraitSurface .monogramVisual {
+  justify-content: center;
+}
+
+.portraitSurface .monogramVisual .motifSvg {
+  transform: translateX(-21%) scale(1.35);
+  transform-origin: center;
+}
+
+.portraitSurface .monogramVisual .motifSvg circle:first-child {
+  stroke-opacity: 0.34;
+}
+
+.portraitSurface .monogramVisual .motifSvg circle:nth-child(2) {
+  stroke-opacity: 0.56;
+}
+
+.portraitSurface .monogramVisual .motifSvg path {
+  stroke-opacity: 0.3;
+}
+
+.portraitSurface .monogramInitials {
+  font-size: clamp(3rem, 32cqw, 5.4rem);
 }

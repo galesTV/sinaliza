@@ -1,10 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { PublicCulturalEntry } from "../../../data/cultural-publication";
-import {
-  adaptCulturalArtwork,
-  SINALIZA_EDITORIAL_REPRESENTATION_LABEL,
-} from "./cultural-artwork-adapter";
+import { adaptCulturalArtwork } from "./cultural-artwork-adapter";
 
 function basePublicEntry(category: PublicCulturalEntry["category"]): PublicCulturalEntry {
   const common = {
@@ -48,7 +45,7 @@ describe("adaptCulturalArtwork", () => {
     expect(adaptCulturalArtwork(basePublicEntry("history"))).toBeUndefined();
   });
 
-  it("adapts timeline events to template-compatible text without exposing claim ids", () => {
+  it("adapts timeline events as structured years and labels without exposing claim ids", () => {
     const entry = {
       ...basePublicEntry("history"),
       artwork: {
@@ -64,8 +61,10 @@ describe("adaptCulturalArtwork", () => {
       variant: "detail",
       motif: "timeline",
       yearLabel: "1857",
-      events: ["1855 — Proposta", "1856 — Início das aulas"],
-      representationLabel: SINALIZA_EDITORIAL_REPRESENTATION_LABEL,
+      events: [
+        { year: 1855, label: "Proposta" },
+        { year: 1856, label: "Início das aulas" },
+      ],
     });
     expect(JSON.stringify(adaptCulturalArtwork(entry))).not.toContain("claimId");
   });
