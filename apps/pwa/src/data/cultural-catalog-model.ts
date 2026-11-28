@@ -19,8 +19,10 @@ export type CulturalValidationStatus =
   | "draft"
   | "research-reviewed"
   | "technical-reviewed"
+  | "documentary-validated"
   | "expert-validated";
 
+/** Legacy expert review progression. The documentary path is an alternative terminal branch, not a stage before expert validation. */
 export const CULTURAL_VALIDATION_STATUS_ORDER: readonly CulturalValidationStatus[] = [
   "draft",
   "research-reviewed",
@@ -35,6 +37,7 @@ export const REQUIRED_CULTURAL_REVIEWS: Record<
   draft: [],
   "research-reviewed": ["research"],
   "technical-reviewed": ["research", "technical"],
+  "documentary-validated": ["research", "technical"],
   "expert-validated": ["research", "technical", "expert"],
 };
 
@@ -147,6 +150,38 @@ export interface CulturalPublicationAuthorization {
   notes?: string;
 }
 
+export const CULTURAL_DOCUMENTARY_SURFACES = [
+  "identity",
+  "title",
+  "summary",
+  "editorialBody",
+  "claims",
+  "references",
+  "libraryMetadata",
+  "relatedEntries",
+] as const;
+
+export type CulturalDocumentarySurface =
+  (typeof CULTURAL_DOCUMENTARY_SURFACES)[number];
+
+/**
+ * Explicit editorial review policy. Absence means the legacy expert-required
+ * path; a documentary path is valid only with exact claim and surface coverage.
+ */
+export type CulturalReviewPolicy =
+  | {
+      path: "expert-required";
+    }
+  | {
+      path: "documentary";
+      documentaryEligibility: {
+        contentClass: "bibliographic-descriptive";
+        rationale: string;
+        claimIds: string[];
+        coveredSurfaces: CulturalDocumentarySurface[];
+      };
+    };
+
 /**
  * Relations migrated from D.2 start as `unverified-candidate`: the original
  * seed established adjacency but not semantics or evidence.
@@ -216,6 +251,8 @@ interface CulturalEntryBase {
   version: string;
   references: CulturalReference[];
   claims: CulturalClaim[];
+  /** Editorial review path. Absent in legacy records means expert-required. */
+  reviewPolicy?: CulturalReviewPolicy;
   validationStatus: CulturalValidationStatus;
   reviews: CulturalReview[];
   publicationAuthorization?: CulturalPublicationAuthorization;
@@ -424,7 +461,7 @@ function isRuntimeObject(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
-function validateUnknownArtworkKeys(
+function validateUnknownKeys(
   record: Record<string, unknown>,
   allowedKeys: readonly string[],
   at: string,
@@ -456,7 +493,7 @@ function validateVisualFactText(
   foreignClaimIds: ReadonlySet<string>,
 ): string[] {
   if (!isRuntimeObject(value)) return [`${at}: invalid visual fact structure`];
-  const problems = validateUnknownArtworkKeys(value, ["value", "claimId"], at);
+  const problems = validateUnknownKeys(value, ["value", "claimId"], at);
   if (!("value" in value) || !("claimId" in value)) {
     problems.push(`${at}: incomplete visual fact`);
   }
@@ -499,7 +536,7 @@ function validateCulturalArtwork(
   );
 
   if (motif === "timeline") {
-    problems.push(...validateUnknownArtworkKeys(artwork, ["motif", "events"], "artwork"));
+    problems.push(...validateUnknownKeys(artwork, ["motif", "events"], "artwork"));
     if (artwork.events !== undefined) {
       if (!Array.isArray(artwork.events)) {
         problems.push("artwork events: must be an array");
@@ -518,7 +555,7 @@ function validateCulturalArtwork(
             problems.push(`${at}: invalid structure`);
             continue;
           }
-          problems.push(...validateUnknownArtworkKeys(event, ["year", "label", "claimId"], at));
+          problems.push(...validateUnknownKeys(event, ["year", "label", "claimId"], at));
           if (!("year" in event) || !("label" in event) || !("claimId" in event)) {
             problems.push(`${at}: incomplete event`);
           }
@@ -556,7 +593,7 @@ function validateCulturalArtwork(
 
   if (motif === "legal-document") {
     problems.push(
-      ...validateUnknownArtworkKeys(
+      ...validateUnknownKeys(
         artwork,
         ["motif", "documentNumber", "documentDate"],
         "artwork",
@@ -586,7 +623,7 @@ function validateCulturalArtwork(
   }
 
   if (motif === "monogram") {
-    problems.push(...validateUnknownArtworkKeys(artwork, ["motif", "initials"], "artwork"));
+    problems.push(...validateUnknownKeys(artwork, ["motif", "initials"], "artwork"));
     if (artwork.initials !== undefined) {
       if (typeof artwork.initials !== "string") {
         problems.push("artwork initials: must be a string");
@@ -598,7 +635,7 @@ function validateCulturalArtwork(
   }
 
   if (motif === "academic") {
-    problems.push(...validateUnknownArtworkKeys(artwork, ["motif", "volumeNumber"], "artwork"));
+    problems.push(...validateUnknownKeys(artwork, ["motif", "volumeNumber"], "artwork"));
     if (artwork.volumeNumber !== undefined) {
       problems.push(
         ...validateVisualFactText(
@@ -612,8 +649,168 @@ function validateCulturalArtwork(
     return problems;
   }
 
-  problems.push(...validateUnknownArtworkKeys(artwork, ["motif"], "artwork"));
+  problems.push(...validateUnknownKeys(artwork, ["motif"], "artwork"));
   return problems;
+}
+
+/** Editorial surfaces present in a library record that must be covered by a documentary eligibility decision. */
+export function getCulturalDocumentarySurfaces(
+  entry: CulturalCatalogEntry,
+): CulturalDocumentarySurface[] {
+  const surfaces: CulturalDocumentarySurface[] = [
+    "identity",
+    "title",
+    "summary",
+    "claims",
+    "references",
+    "libraryMetadata",
+    "relatedEntries",
+  ];
+  if (entry.editorialBody !== undefined) surfaces.push("editorialBody");
+  return surfaces;
+}
+
+/**
+ * Structural consistency of the explicit review policy. This does not prove
+ * that content is semantically low-risk; that remains a human editorial decision.
+ */
+export function getCulturalReviewPolicyProblems(
+  entry: CulturalCatalogEntry,
+): string[] {
+  const policy: unknown = (entry as { reviewPolicy?: unknown }).reviewPolicy;
+  if (policy === undefined) return [];
+  if (!isRuntimeObject(policy)) return ["review policy: invalid structure"];
+
+  const problems = validateUnknownKeys(
+    policy,
+    ["path", "documentaryEligibility"],
+    "review policy",
+  );
+  if (!("path" in policy)) {
+    problems.push("review policy: missing path");
+    return problems;
+  }
+  if (typeof policy.path !== "string") {
+    problems.push("review policy: path must be a string");
+    return problems;
+  }
+  if (policy.path === "expert-required") {
+    if ("documentaryEligibility" in policy) {
+      problems.push("review policy: expert-required cannot declare documentary eligibility");
+    }
+    return problems;
+  }
+  if (policy.path !== "documentary") {
+    problems.push(`review policy: unknown path "${policy.path}"`);
+    return problems;
+  }
+
+  if (entry.category !== "library") {
+    problems.push("documentary review policy is eligible only for library records");
+  }
+  if (entry.rights.mode !== "external-link-only") {
+    problems.push("documentary review policy requires external-link-only rights");
+  }
+  if (entry.rights.assets.length > 0) {
+    problems.push("documentary review policy requires no third-party assets");
+  }
+  if (entry.artwork !== undefined) {
+    problems.push("documentary review policy requires no artwork");
+  }
+  if (entry.internalPending.length > 0) {
+    problems.push("documentary review policy requires no internal pending items");
+  }
+
+  if (!("documentaryEligibility" in policy)) {
+    problems.push("review policy: missing documentary eligibility");
+    return problems;
+  }
+  const eligibility: unknown = policy.documentaryEligibility;
+  if (!isRuntimeObject(eligibility)) {
+    problems.push("documentary eligibility: invalid structure");
+    return problems;
+  }
+  problems.push(
+    ...validateUnknownKeys(
+      eligibility,
+      ["contentClass", "rationale", "claimIds", "coveredSurfaces"],
+      "documentary eligibility",
+    ),
+  );
+
+  if (eligibility.contentClass !== "bibliographic-descriptive") {
+    problems.push("documentary eligibility: unsupported content class");
+  }
+  if (typeof eligibility.rationale !== "string" || !eligibility.rationale.trim()) {
+    problems.push("documentary eligibility: missing rationale");
+  }
+
+  const localClaimIds = entry.claims.map((claim) => claim.id);
+  const coveredClaimIds: string[] = [];
+  if (!Array.isArray(eligibility.claimIds)) {
+    problems.push("documentary eligibility: claim ids must be an array");
+  } else {
+    const seenClaimIds = new Set<string>();
+    for (const claimId of eligibility.claimIds) {
+      if (typeof claimId !== "string" || !claimId.trim()) {
+        problems.push("documentary eligibility: claim ids must be non-empty strings");
+        continue;
+      }
+      if (seenClaimIds.has(claimId)) {
+        problems.push(`documentary eligibility: duplicate claim "${claimId}"`);
+      }
+      seenClaimIds.add(claimId);
+      coveredClaimIds.push(claimId);
+    }
+    for (const claimId of coveredClaimIds) {
+      if (!localClaimIds.includes(claimId)) {
+        problems.push(`documentary eligibility: unknown claim "${claimId}"`);
+      }
+    }
+    for (const claimId of localClaimIds) {
+      if (!seenClaimIds.has(claimId)) {
+        problems.push(`documentary eligibility: missing claim "${claimId}"`);
+      }
+    }
+  }
+
+  const coveredSurfaces: string[] = [];
+  if (!Array.isArray(eligibility.coveredSurfaces)) {
+    problems.push("documentary eligibility: covered surfaces must be an array");
+  } else {
+    const seenSurfaces = new Set<string>();
+    for (const surface of eligibility.coveredSurfaces) {
+      if (typeof surface !== "string" || !surface.trim()) {
+        problems.push("documentary eligibility: covered surfaces must be non-empty strings");
+        continue;
+      }
+      if (!CULTURAL_DOCUMENTARY_SURFACES.includes(surface as CulturalDocumentarySurface)) {
+        problems.push(`documentary eligibility: unknown surface "${surface}"`);
+        continue;
+      }
+      if (seenSurfaces.has(surface)) {
+        problems.push(`documentary eligibility: duplicate surface "${surface}"`);
+      }
+      seenSurfaces.add(surface);
+      coveredSurfaces.push(surface);
+    }
+
+    if (entry.category === "library") {
+      const expectedSurfaces = getCulturalDocumentarySurfaces(entry);
+      for (const surface of coveredSurfaces) {
+        if (!expectedSurfaces.includes(surface as CulturalDocumentarySurface)) {
+          problems.push(`documentary eligibility: incompatible surface "${surface}"`);
+        }
+      }
+      for (const surface of expectedSurfaces) {
+        if (!seenSurfaces.has(surface)) {
+          problems.push(`documentary eligibility: missing surface "${surface}"`);
+        }
+      }
+    }
+  }
+
+  return [...new Set(problems)];
 }
 
 /** Structural integrity required even for drafts. Editorial completeness is checked separately before publication. */
@@ -667,6 +864,7 @@ export function validateCulturalEntry(
     }
   });
 
+  problems.push(...getCulturalReviewPolicyProblems(entry));
   problems.push(...getCulturalReviewChainProblems(entry));
 
   if (entry.publicationAuthorization) {

@@ -7,13 +7,16 @@ import { createHash } from "node:crypto";
 
 import {
   CULTURAL_CATEGORIES,
+  REQUIRED_CULTURAL_REVIEWS,
   getCulturalReviewChainProblems,
+  getCulturalReviewPolicyProblems,
   isValidISODate,
   validateCulturalEntry,
   type CulturalCatalogEntry,
   type CulturalReference,
   type CulturalRelationKind,
   type CulturalRights,
+  type CulturalValidationStatus,
 } from "./cultural-catalog-model";
 
 
@@ -51,13 +54,23 @@ export function getCulturalContentFingerprint(
     .digest("hex");
 }
 
+function getRequiredCulturalValidationStatus(
+  entry: CulturalCatalogEntry,
+): CulturalValidationStatus {
+  const policy = entry.reviewPolicy;
+  return policy?.path === "documentary"
+    ? "documentary-validated"
+    : "expert-validated";
+}
+
 function getFingerprintPublicationProblems(
   entry: CulturalCatalogEntry,
+  requiredReviewTypes: readonly ("research" | "technical" | "expert")[],
 ): string[] {
   const fingerprint = getCulturalContentFingerprint(entry);
   const problems: string[] = [];
 
-  for (const type of ["research", "technical", "expert"] as const) {
+  for (const type of requiredReviewTypes) {
     const currentVersionReviews = entry.reviews.filter(
       (item) => item.type === type && item.version === entry.version,
     );
@@ -110,7 +123,9 @@ export type PublishableCulturalEntry = CulturalCatalogEntry extends infer T
         reviews: Array<
           T["reviews"][number] & { contentFingerprint: string }
         >;
-        validationStatus: "expert-validated";
+        validationStatus: T["category"] extends "library"
+          ? "documentary-validated" | "expert-validated"
+          : "expert-validated";
         publicationAuthorization: NonNullable<
           T["publicationAuthorization"]
         > & { contentFingerprint: string };
@@ -331,13 +346,27 @@ export function getCulturalPublicationBlockers(
     problems.push("category is not part of the public cultural taxonomy");
   }
 
-  if (entry.validationStatus !== "expert-validated") {
-    problems.push("entry has not completed expert validation");
+  problems.push(...getCulturalReviewPolicyProblems(entry));
+
+  const requiredStatus = getRequiredCulturalValidationStatus(entry);
+  const requiredReviewTypes = REQUIRED_CULTURAL_REVIEWS[requiredStatus];
+  if (entry.validationStatus !== requiredStatus) {
+    if (requiredStatus === "expert-validated") {
+      problems.push("entry has not completed expert validation");
+    } else {
+      problems.push("entry has not completed documentary validation");
+    }
+    if (
+      entry.validationStatus === "documentary-validated" ||
+      entry.validationStatus === "expert-validated"
+    ) {
+      problems.push("validation status is incompatible with the required review policy");
+    }
   } else {
     problems.push(
       ...getCulturalReviewChainProblems(entry, getCulturalContentFingerprint(entry)),
     );
-    problems.push(...getFingerprintPublicationProblems(entry));
+    problems.push(...getFingerprintPublicationProblems(entry, requiredReviewTypes));
   }
 
   const authorization = entry.publicationAuthorization;
@@ -354,7 +383,11 @@ export function getCulturalPublicationBlockers(
       problems.push("final publication authorization covers an outdated editorial version");
     }
     const latestReviewDate = entry.reviews
-      .filter((review) => review.version === entry.version)
+      .filter(
+        (review) =>
+          review.version === entry.version &&
+          requiredReviewTypes.includes(review.type),
+      )
       .map((review) => review.date)
       .sort()
       .at(-1);
