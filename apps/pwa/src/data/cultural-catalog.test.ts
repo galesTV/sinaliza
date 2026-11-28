@@ -7,6 +7,7 @@ import { describe, expect, it } from "vitest";
 import { culturalCatalog, getCulturalEntryById } from "./cultural-catalog";
 import { culturalMigrationBaseline } from "@/test/cultural-migration-baseline";
 import { restoreCulturalD334BBeforeState } from "@/test/cultural-d334b-transition";
+import { restoreCulturalD335DBeforeState } from "@/test/cultural-d335d-transition";
 import { getCulturalContentFingerprint } from "./cultural-publication";
 import {
   CULTURAL_CATEGORIES,
@@ -36,8 +37,8 @@ describe("culturalCatalog migration", () => {
     expect(culturalCatalog.filter((entry) => entry.category === "library")).toHaveLength(16);
   });
 
-  it("keeps every real record blocked as an unreviewed draft", () => {
-    for (const entry of culturalCatalog) {
+  it("keeps every real record blocked as an unreviewed draft in the reconstructed pre-publication layer", () => {
+    for (const entry of restoreCulturalD335DBeforeState(culturalCatalog)) {
       expect(entry.validationStatus, entry.id).toBe("draft");
       expect(entry.reviews, entry.id).toEqual([]);
       expect(entry.publicationAuthorization, entry.id).toBeUndefined();
@@ -951,8 +952,9 @@ describe("cultural V2.1 complementary evidence migration", () => {
       expect(preD334BCatalog.find((entry) => entry.id === entryId)?.version, entryId).toBe(version);
     }
     expect(culturalCatalog.filter((entry) => entry.editorialBody).map((entry) => entry.id)).toHaveLength(14);
-    expect(culturalCatalog.every((entry) => entry.validationStatus === "draft")).toBe(true);
-    expect(culturalCatalog.every((entry) => entry.reviews.length === 0)).toBe(true);
-    expect(culturalCatalog.every((entry) => entry.publicationAuthorization === undefined)).toBe(true);
+    const prePublicationCatalog = restoreCulturalD335DBeforeState(culturalCatalog);
+    expect(prePublicationCatalog.every((entry) => entry.validationStatus === "draft")).toBe(true);
+    expect(prePublicationCatalog.every((entry) => entry.reviews.length === 0)).toBe(true);
+    expect(prePublicationCatalog.every((entry) => entry.publicationAuthorization === undefined)).toBe(true);
   });
 });

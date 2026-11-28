@@ -575,6 +575,6 @@ describe("proportional cultural governance: fingerprint and registry invariants"
         .map((entry) => entry.id)
         .sort(),
     ).toEqual(["BIB-004", "BIB-011"]);
-    expect(projectPublicCulturalEntries(culturalCatalog)).toEqual([]);
+    expect(projectPublicCulturalEntries(culturalCatalog).map((entry) => entry.id).sort()).toEqual(["BIB-004", "BIB-011"]);
   });
 });

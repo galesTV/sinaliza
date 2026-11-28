@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { culturalCatalog } from "./cultural-catalog";
+import { restoreCulturalD335DBeforeState } from "@/test/cultural-d335d-transition";
 import {
   validateCulturalEntry,
   type CulturalArtwork,
@@ -376,8 +377,9 @@ describe("cultural artwork metadata", () => {
     expect(culturalCatalog.filter((entry) => entry.artwork !== undefined)).toHaveLength(8);
     expect(culturalCatalog.filter((entry) => entry.artwork === undefined)).toHaveLength(33);
     expect(culturalCatalog.filter((entry) => entry.editorialBody)).toHaveLength(14);
-    expect(culturalCatalog.every((entry) => entry.reviews.length === 0)).toBe(true);
-    expect(culturalCatalog.every((entry) => entry.publicationAuthorization === undefined)).toBe(true);
-    expect(projectPublicCulturalEntries(culturalCatalog)).toEqual([]);
+    const historical = restoreCulturalD335DBeforeState(culturalCatalog);
+    expect(historical.every((entry) => entry.reviews.length === 0)).toBe(true);
+    expect(historical.every((entry) => entry.publicationAuthorization === undefined)).toBe(true);
+    expect(projectPublicCulturalEntries(historical)).toEqual([]);
   });
 });

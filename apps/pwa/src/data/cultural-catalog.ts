@@ -1961,8 +1961,33 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
         ]
       }
     },
-    "validationStatus": "draft",
-    "reviews": [],
+    "validationStatus": "documentary-validated",
+    "reviews": [
+      {
+        "reviewer": "Gael Leite Guzman",
+        "type": "research",
+        "date": "2026-11-28",
+        "version": "candidate-7",
+        "contentFingerprint": "7691c13bffb1a0bd6aed49556cf8a5521a50581ca72d84fb377d6a4dccaec805",
+        "notes": "Aprovação humana de pesquisa registrada a partir de decisão explícita do responsável editorial; concentração de funções autorizada e ausência de independência documentada; não é validação especializada."
+      },
+      {
+        "reviewer": "Gael Leite Guzman",
+        "type": "technical",
+        "date": "2026-11-28",
+        "version": "candidate-7",
+        "contentFingerprint": "7691c13bffb1a0bd6aed49556cf8a5521a50581ca72d84fb377d6a4dccaec805",
+        "notes": "Aprovação humana de revisão técnica registrada a partir de decisão explícita do responsável editorial; concentração de funções autorizada e ausência de independência documentada; não é validação especializada."
+      }
+    ],
+    "publicationAuthorization": {
+      "authorizer": "Gael Leite Guzman",
+      "date": "2026-11-28",
+      "version": "candidate-7",
+      "contentFingerprint": "7691c13bffb1a0bd6aed49556cf8a5521a50581ca72d84fb377d6a4dccaec805",
+      "scope": "public-web",
+      "notes": "Autorização editorial final registrada a partir de decisão explícita do responsável editorial; não representa aprovação especializada nem licença de reprodução de materiais de terceiros."
+    },
     "rights": {
       "mode": "external-link-only",
       "assets": []
@@ -2604,8 +2629,33 @@ export const culturalCatalog: CulturalCatalogEntry[] = [
         ]
       }
     },
-    "validationStatus": "draft",
-    "reviews": [],
+    "validationStatus": "documentary-validated",
+    "reviews": [
+      {
+        "reviewer": "Gael Leite Guzman",
+        "type": "research",
+        "date": "2026-11-28",
+        "version": "candidate-6",
+        "contentFingerprint": "fa76434ad3aae44de26500d20f5c78a447d6963c62373c199efbca776cfa3e79",
+        "notes": "Aprovação humana de pesquisa registrada a partir de decisão explícita do responsável editorial; concentração de funções autorizada e ausência de independência documentada; não é validação especializada."
+      },
+      {
+        "reviewer": "Gael Leite Guzman",
+        "type": "technical",
+        "date": "2026-11-28",
+        "version": "candidate-6",
+        "contentFingerprint": "fa76434ad3aae44de26500d20f5c78a447d6963c62373c199efbca776cfa3e79",
+        "notes": "Aprovação humana de revisão técnica registrada a partir de decisão explícita do responsável editorial; concentração de funções autorizada e ausência de independência documentada; não é validação especializada."
+      }
+    ],
+    "publicationAuthorization": {
+      "authorizer": "Gael Leite Guzman",
+      "date": "2026-11-28",
+      "version": "candidate-6",
+      "contentFingerprint": "fa76434ad3aae44de26500d20f5c78a447d6963c62373c199efbca776cfa3e79",
+      "scope": "public-web",
+      "notes": "Autorização editorial final registrada a partir de decisão explícita do responsável editorial; não representa aprovação especializada nem licença de reprodução de materiais de terceiros."
+    },
     "rights": {
       "mode": "external-link-only",
       "assets": []

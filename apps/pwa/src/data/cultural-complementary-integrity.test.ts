@@ -10,6 +10,7 @@ import { getCulturalContentFingerprint } from "./cultural-publication";
 import type { CulturalCatalogEntry } from "./cultural-catalog-model";
 import { culturalR53B2PostMigrationBaseline } from "@/test/cultural-r53c-baseline";
 import { restoreCulturalD334BBeforeState } from "@/test/cultural-d334b-transition";
+import { restoreCulturalD335DBeforeState } from "@/test/cultural-d335d-transition";
 import {
   materializeR53B2BaselineEntry,
   parseR53CTraceText,
@@ -574,7 +575,7 @@ describe("complementary cultural evidence integrity", () => {
       "Direitos de `BIB-003` permanecem independentes",
     ]) expect(text).toContain(fragment);
     expect(text).not.toContain("expert-validated");
-    expect(culturalCatalog.every((entry) => entry.validationStatus === "draft" && entry.reviews.length === 0 && !entry.publicationAuthorization)).toBe(true);
+    expect(restoreCulturalD335DBeforeState(culturalCatalog).every((entry) => entry.validationStatus === "draft" && entry.reviews.length === 0 && !entry.publicationAuthorization)).toBe(true);
   });
 });
 

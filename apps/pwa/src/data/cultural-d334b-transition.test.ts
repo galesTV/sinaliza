@@ -15,17 +15,18 @@ import {
   validateD334BTransition,
 } from "@/test/cultural-d334b-transition";
 import { restoreCulturalD335CBeforeState } from "@/test/cultural-d335c-transition";
+import { restoreCulturalD335DBeforeState } from "@/test/cultural-d335d-transition";
 import { validateR53CTransition, parseR53CTraceText } from "@/test/cultural-r53c-transition";
 import { validateV33Transition } from "@/test/cultural-v33-transition";
 
 const scopedIds = ["BIB-011", "BIB-010", "BIB-004"] as const;
 
 function historicalD334BCatalog() {
-  return restoreCulturalD335CBeforeState(culturalCatalog);
+  return restoreCulturalD335CBeforeState(restoreCulturalD335DBeforeState(culturalCatalog));
 }
 
 function validateHistorical(catalog: typeof culturalCatalog) {
-  return validateD334BTransition(restoreCulturalD335CBeforeState(catalog));
+  return validateD334BTransition(restoreCulturalD335CBeforeState(restoreCulturalD335DBeforeState(catalog)));
 }
 
 describe("D.3.4-B first cultural library release preparation", () => {
@@ -101,8 +102,8 @@ describe("D.3.4-B first cultural library release preparation", () => {
     expect(validateHistorical(alteredRights).join("\n")).toContain("unauthorized D.3.4-B structural change BIB-004");
 
     const alteredWorkflow = structuredClone(culturalCatalog);
-    alteredWorkflow.find((entry) => entry.id === "BIB-004")!.validationStatus = "expert-validated";
-    expect(validateHistorical(alteredWorkflow).join("\n")).toContain("unauthorized D.3.4-B structural change BIB-004");
+    alteredWorkflow.find((entry) => entry.id === "BIB-010")!.validationStatus = "expert-validated";
+    expect(validateHistorical(alteredWorkflow).join("\n")).toContain("unauthorized D.3.4-B structural change BIB-010");
 
     const alteredArtwork = structuredClone(culturalCatalog);
     alteredArtwork.find((entry) => entry.id === "BIB-010")!.artwork = { motif: "literary" };
