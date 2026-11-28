@@ -780,4 +780,3 @@ export const culturalPreD334BIntegrityExpectations = {
 } as const;
 
 export const culturalD334BEntryIds = ["BIB-011", "BIB-010", "BIB-004"] as const;
-

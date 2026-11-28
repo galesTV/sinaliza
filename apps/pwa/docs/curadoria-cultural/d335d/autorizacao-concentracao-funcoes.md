@@ -29,4 +29,3 @@ Foi autorizada a concentração das funções de pesquisa, revisão técnica e a
 > Observações: Nenhuma observação adicional.
 >
 > Vamos avançar para D.3.5-D.5 — Registro controlado das decisões pelo Devin.
-

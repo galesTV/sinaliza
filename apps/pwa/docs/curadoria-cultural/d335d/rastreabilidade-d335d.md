@@ -32,4 +32,3 @@ Hashes dos corpos preservados: BIB-004 `dce0f4b58b7182edc1c6e0b45e5be7753eb446d5
 > Observações: Nenhuma observação adicional.
 >
 > Vamos avançar para D.3.5-D.5 — Registro controlado das decisões pelo Devin.
-
