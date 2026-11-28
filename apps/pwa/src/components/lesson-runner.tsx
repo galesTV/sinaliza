@@ -71,6 +71,12 @@ const OPTION_TONES = {
 
 const STEP_STATUS_ID = "lesson-runner-step-status";
 
+// SSR and the first hydration render must agree on inert controls; the
+// client snapshot flips only after hydration has committed.
+const subscribeToHydration = () => () => {};
+const getClientInteractionSnapshot = () => true;
+const getServerInteractionSnapshot = () => false;
+
 /**
  * Neutral selection indicator for exercise options. Letter badges (A, B,
  * C, D) were dropped because they read as part of the answer in
@@ -148,13 +154,20 @@ function OptionMediaCredit({
 function BackButton({
   onBack,
   visible,
+  disabled = false,
 }: {
   onBack: () => void;
   visible: boolean;
+  disabled?: boolean;
 }) {
   if (!visible) return null;
   return (
-    <button type="button" onClick={onBack} className="btn-secondary">
+    <button
+      type="button"
+      onClick={onBack}
+      disabled={disabled}
+      className="btn-secondary"
+    >
       <IconArrowLeft className="h-4 w-4" />
       Voltar
     </button>
@@ -175,6 +188,7 @@ function ExerciseBlock({
   isLastBlock,
   finishLabel,
   headingRef,
+  interactionReady,
 }: {
   exercise: LessonExercise;
   selectedOption: number | null;
@@ -190,6 +204,7 @@ function ExerciseBlock({
   isLastBlock: boolean;
   finishLabel: string;
   headingRef: RefObject<HTMLHeadingElement | null>;
+  interactionReady: boolean;
 }) {
   const solved = result === "correct";
 
@@ -218,6 +233,7 @@ function ExerciseBlock({
 
   const useVariant = Boolean(variant) && (mediaUnavailable || prefersDescription);
   const blocked = mediaUnavailable && !variant;
+  const controlsDisabled = !interactionReady || solved || blocked;
 
   const prompt = useVariant ? variant!.prompt : exercise.prompt;
   const options: LessonExerciseOption[] = useVariant
@@ -431,7 +447,7 @@ function ExerciseBlock({
             ? "grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3"
             : "flex flex-col gap-2.5",
         )}
-        disabled={blocked}
+        disabled={!interactionReady || blocked}
       >
         <legend className="sr-only">{prompt}</legend>
         {options.map((option, index) => {
@@ -444,15 +460,17 @@ function ExerciseBlock({
           const optionMediaDescriptionId = option.media
             ? `${optionDescriptionBaseId}-option-${index}-media`
             : undefined;
-          const tone = solved
-            ? isCorrect
-              ? OPTION_TONES.correct
-              : OPTION_TONES.disabled
-            : isIncorrect
-              ? OPTION_TONES.incorrect
-              : isChecked
-                ? OPTION_TONES.selected
-                : OPTION_TONES.idle;
+          const tone = !interactionReady
+            ? OPTION_TONES.disabled
+            : solved
+              ? isCorrect
+                ? OPTION_TONES.correct
+                : OPTION_TONES.disabled
+              : isIncorrect
+                ? OPTION_TONES.incorrect
+                : isChecked
+                  ? OPTION_TONES.selected
+                  : OPTION_TONES.idle;
           return (
             <div key={option.label} className="flex flex-col gap-1.5">
               <label className="group block h-full scroll-mt-20 scroll-mb-20 focus:outline-none md:scroll-mb-0">
@@ -461,7 +479,7 @@ function ExerciseBlock({
                   name={`${exercise.prompt}${useVariant ? " (descrição)" : ""}`}
                   className="peer sr-only"
                   checked={isChecked}
-                  disabled={solved || blocked}
+                  disabled={controlsDisabled}
                   aria-label={option.label}
                   aria-describedby={
                     !useVariant && option.media
@@ -474,7 +492,7 @@ function ExerciseBlock({
                   className={cn(
                     visualOptions ? OPTION_CARD_BASE : OPTION_BUTTON_BASE,
                     "peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-ring group-focus-visible:outline-2 group-focus-visible:outline-offset-[-2px] group-focus-visible:outline-ring",
-                    solved || blocked ? "cursor-default" : "cursor-pointer",
+                    controlsDisabled ? "cursor-default" : "cursor-pointer",
                     tone,
                   )}
                 >
@@ -548,7 +566,7 @@ function ExerciseBlock({
           <button
             type="button"
             onClick={handleConfirm}
-            disabled={confirmationOption === null}
+            disabled={!interactionReady || confirmationOption === null}
             className="btn-primary self-start"
           >
             Confirmar resposta
@@ -572,12 +590,13 @@ function ExerciseBlock({
         <button
           type="button"
           aria-pressed={prefersDescription}
+          disabled={!interactionReady}
           onClick={() => {
             if (result === "incorrect") onClearIncorrect();
             setPendingSelection(null);
             setPrefersDescription((value) => !value);
           }}
-          className="self-start text-sm font-medium text-muted underline underline-offset-4 transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+          className="self-start text-sm font-medium text-muted underline underline-offset-4 transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:text-muted"
         >
           {prefersDescription
             ? "Voltar à versão com imagem"
@@ -657,13 +676,18 @@ function ExerciseBlock({
             <button
               type="button"
               onClick={onAdvance}
+              disabled={!interactionReady}
               className="btn-primary scroll-mb-20 md:scroll-mb-0"
             >
               {isLastBlock ? finishLabel : "Continuar"}
               <IconArrowRight className="h-4 w-4" />
             </button>
           )}
-          <BackButton onBack={onBack} visible={canGoBack} />
+          <BackButton
+            onBack={onBack}
+            visible={canGoBack}
+            disabled={!interactionReady}
+          />
         </div>
       )}
     </div>
@@ -712,6 +736,12 @@ export function LessonRunner({
 
   const headingRef = useRef<HTMLHeadingElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
+  const previousStepIndexRef = useRef<number | null>(null);
+  const interactionReady = useSyncExternalStore(
+    subscribeToHydration,
+    getClientInteractionSnapshot,
+    getServerInteractionSnapshot,
+  );
 
   useEffect(() => {
     onSnapshot?.(snapshot);
@@ -721,6 +751,11 @@ export function LessonRunner({
   // left stranded on a removed/disabled control. Scroll the whole runner
   // into view so mobile learners keep its step/exercise context visible.
   useEffect(() => {
+    const previousStepIndex = previousStepIndexRef.current;
+    if (previousStepIndex === snapshot.stepIndex) return;
+    previousStepIndexRef.current = snapshot.stepIndex;
+    if (previousStepIndex === null && !interactionReady) return;
+
     const heading = headingRef.current;
     if (!heading) return;
     heading.focus({ preventScroll: true });
@@ -728,7 +763,7 @@ export function LessonRunner({
       block: "start",
       behavior: "instant",
     });
-  }, [snapshot.stepIndex]);
+  }, [interactionReady, snapshot.stepIndex]);
 
   const { block, stepIndex, stepCount } = snapshot;
   const copy = runnerCopy(completedKey !== undefined);
@@ -736,6 +771,7 @@ export function LessonRunner({
   return (
     <section
       ref={sectionRef}
+      data-lesson-interactive={interactionReady ? "true" : "false"}
       className="flex scroll-mt-24 flex-col gap-6 rounded-3xl border border-border bg-surface-elevated p-6 shadow-[var(--shadow-card)] sm:p-8"
     >
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-5">
@@ -782,12 +818,17 @@ export function LessonRunner({
             <button
               type="button"
               onClick={runner.advance}
+              disabled={!interactionReady}
               className="btn-primary"
             >
               {stepIndex === stepCount - 1 ? copy.finish : "Continuar"}
               <IconArrowRight className="h-4 w-4" />
             </button>
-            <BackButton onBack={runner.back} visible={snapshot.canGoBack} />
+            <BackButton
+              onBack={runner.back}
+              visible={snapshot.canGoBack}
+              disabled={!interactionReady}
+            />
           </div>
         </div>
       )}
@@ -811,12 +852,17 @@ export function LessonRunner({
             <button
               type="button"
               onClick={runner.advance}
+              disabled={!interactionReady}
               className="btn-primary"
             >
               {stepIndex === stepCount - 1 ? copy.finish : "Continuar"}
               <IconArrowRight className="h-4 w-4" />
             </button>
-            <BackButton onBack={runner.back} visible={snapshot.canGoBack} />
+            <BackButton
+              onBack={runner.back}
+              visible={snapshot.canGoBack}
+              disabled={!interactionReady}
+            />
           </div>
         </div>
       )}
@@ -871,12 +917,17 @@ export function LessonRunner({
             <button
               type="button"
               onClick={runner.advance}
+              disabled={!interactionReady}
               className="btn-primary"
             >
               {stepIndex === stepCount - 1 ? copy.finish : "Continuar"}
               <IconArrowRight className="h-4 w-4" />
             </button>
-            <BackButton onBack={runner.back} visible={snapshot.canGoBack} />
+            <BackButton
+              onBack={runner.back}
+              visible={snapshot.canGoBack}
+              disabled={!interactionReady}
+            />
           </div>
         </div>
       )}
@@ -904,6 +955,7 @@ export function LessonRunner({
             isLastBlock={stepIndex === stepCount - 1}
             finishLabel={copy.finish}
             headingRef={headingRef}
+            interactionReady={interactionReady}
           />
         </div>
       )}
@@ -939,7 +991,7 @@ export function LessonRunner({
               <button
                 type="button"
                 onClick={runner.complete}
-                disabled={!snapshot.canComplete}
+                disabled={!interactionReady || !snapshot.canComplete}
                 className="btn-primary"
               >
                 <IconCheck className="h-4 w-4" />
@@ -949,13 +1001,18 @@ export function LessonRunner({
               <button
                 type="button"
                 onClick={onRestart ?? runner.restart}
+                disabled={!interactionReady}
                 className="btn-secondary"
               >
                 <IconRefresh className="h-4 w-4" />
                 Recomeçar
               </button>
             )}
-            <BackButton onBack={runner.back} visible={snapshot.canGoBack} />
+            <BackButton
+              onBack={runner.back}
+              visible={snapshot.canGoBack}
+              disabled={!interactionReady}
+            />
           </div>
         </div>
       )}

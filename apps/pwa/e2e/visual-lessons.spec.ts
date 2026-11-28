@@ -111,12 +111,13 @@ test.describe("textual lesson demo", () => {
   test("is operable by keyboard with accessible feedback", async ({ page }) => {
     await page.goto("/laboratorio/licao");
 
-    // Tab to "Continuar" and activate with Enter.
+    // Tab to the lesson's "Continuar" control and activate it with Enter.
+    const continueButton = page.getByRole("button", { name: "Continuar" }).first();
     let attempts = 0;
     while (attempts < 20) {
       await page.keyboard.press("Tab");
-      const isButton = await page.evaluate(
-        () => document.activeElement?.tagName === "BUTTON",
+      const isButton = await continueButton.evaluate(
+        (button) => document.activeElement === button,
       );
       if (isButton) break;
       attempts += 1;

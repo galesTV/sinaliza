@@ -319,3 +319,53 @@ describe("visual exercises", () => {
     expect(inputs.length).toBe(2);
   });
 });
+
+describe("hydration interaction readiness", () => {
+  it("renders initial text-step controls disabled in SSR markup", () => {
+    const html = renderToStaticMarkup(
+      <LessonRunner content={singleStepLesson} />,
+    );
+
+    expect(html).toContain('data-lesson-interactive="false"');
+    expect(html).toMatch(/<button[^>]*disabled[^>]*>Finalizar experiência/);
+  });
+
+  it("renders first-exercise controls disabled in SSR markup", () => {
+    const html = renderToStaticMarkup(
+      <LessonRunner
+        content={{
+          intro: "Intro.",
+          blocks: [
+            {
+              kind: "exercise",
+              exercise: {
+                prompt: "Escolha a alternativa correta.",
+                options: [
+                  { label: "Correta", feedback: "ok" },
+                  { label: "Incorreta", feedback: "não" },
+                ],
+                correctIndex: 0,
+                explanation: "e",
+                descriptionVariant: {
+                  prompt: "Pela descrição, escolha a alternativa correta.",
+                  options: [
+                    { label: "Correta", feedback: "ok" },
+                    { label: "Incorreta", feedback: "não" },
+                  ],
+                  correctIndex: 0,
+                  explanation: "e",
+                },
+              },
+            },
+          ],
+        }}
+      />,
+    );
+
+    expect(html).toContain('data-lesson-interactive="false"');
+    const inputs = html.match(/<input[^>]*type="radio"[^>]*disabled[^>]*>/g) ?? [];
+    expect(inputs.length).toBe(2);
+    expect(html).toMatch(/<button[^>]*disabled[^>]*>Confirmar resposta/);
+    expect(html).toMatch(/<button[^>]*disabled[^>]*>Responder por descrição/);
+  });
+});
